@@ -1,0 +1,684 @@
+--- START DOCUMENT 1: JOBS THUONGLO A SINH.docx ---
+ĐỀ BÀI 
+PHÁC THẢO TRÊN GIẤY LUỒNG DỮ LIỆU
+
+Trang web lấy ý tưởng 1 phần tính năng : https://khoahocre.com/ 
+
+www.thuonglo.com
+WEB CẦN CÓ:
+1. Thông tin bán gói SP – bán SP theo gói
+Tổng SP bán khoảng 1 – 200 SP
+Trang chi tiết SP
+2. Giỏ hàng
+3. Thanh toán trực tuyến
+QRCode – Nap tiền
+4. Chế độ mở khóa SP
+Mở khóa tính năng tự động khi KH thanh toán
+5. Đại lý phân phối:
+Mỗi đại lý sẽ có mã ID riêng – mã giới thiệu
+Cty quản lý = mã GT
+Quản lý DS đại lý
+6. Đường dẫn link AFF:
+ĐL/PP, đối tác → gửi link, share link ID cho KH
+→ KH click mua hàng → hệ thống tự động ghi nhận cho họ
+Trường hợp mã giới thiệu khi đăng nhập → bật / tắt (hoặc có)
+KH sẽ tạo lập TK (phải có mã giới thiệu)
+7. Phần giới thiệu SP & dịch vụ:
+SP chính: Bán gói data nguồn hàng
+SP phụ:
+Vận chuyển chính ngạch
+Mua hàng trọn gói – gói hàng TT cho NCC → VCCN → Giao hàng
+Dịch vụ TT quốc tế
+Dịch vụ đánh hàng → phiên dịch → đi lại → ăn ở
+8. Trang Admin:
+Quản lý hệ thống KH – ĐL
+HÀNH TRÌNH KHÁCH HÀNG LẺ
+1. Điểm bắt đầu
+Đối tác / Đại lý gửi link web
+Có thể kèm mã giới thiệu
+KH click vào web
+→ THUONGLO.COM
+
+2. Tài khoản – Đăng nhập
+Lập TK / Đăng nhập
+Lập tài khoản
+SĐT
+Password
+Mã giới thiệu
+Đăng nhập
+SĐT
+Password
+
+3. Khám phá & chọn sản phẩm
+Vào Shop
+Vào Trang chủ
+Vào Sản phẩm
+Tìm hiểu SP
+
+4. Thao tác mua hàng
+Thêm bớt SP
+Xóa SP
+Thêm dịch vụ
+→ Cho vào giỏ
+Hai lựa chọn:
+Mua ngay
+Thanh toán
+
+5. Thanh toán
+Quét mã QR Code
+Chờ xác nhận
+→ TT thành công
+
+6. Sau thanh toán (tự động)
+TT thành công → Kích hoạt tự động
+Chuyển đến:
+Trang mua của KH
+Hiển thị SP đã mua
+
+7. Mở khóa sản phẩm
+SP được mở khóa
+Có thể:
+Mua thêm SP / dịch vụ
+Gợi ý dịch vụ liên quan
+SP mở khóa hiển thị đầy đủ thông tin
+(Giống web chưa khóa)
+HÀNH TRÌNH ĐẠI LÝ (Agent / Affiliate Journey)
+1. Đăng ký tài khoản đại lý
+Lập tài khoản đại lý gồm:
+SĐT / Email
+Password
+Thông tin cá nhân
+Mã giới thiệu (nếu có)
+→ Tạo tài khoản thành công
+Có tên đăng nhập riêng
+Password
+Mã giới thiệu riêng (ID đại lý)
+
+2. Đăng nhập hệ thống
+Đại lý đăng nhập
+→ Vào Trang chủ Đại Lý
+
+3. Trang chủ Đại lý – CẦN CÓ
+Dashboard đại lý hiển thị:
+DS khách hàng đã sale thành công
+Doanh số đã bán
+Doanh số tổng
+Theo tuần
+Theo tháng
+Tình trạng thanh toán / hoa hồng
+Link AFF
+Chỉ 1 link duy nhất
+Gắn mã đại lý / mã giới thiệu
+
+4. Chia sẻ & bán hàng
+Đại lý lấy link AFF
+Gửi link cho KH (Zalo, FB, Web, QR…)
+Luồng ghi nhận tự động:
+KH click link
+KH mua bất kỳ SP nào
+→ Hệ thống tự động ghi nhận doanh số
+→ Gắn vào:
+Mã đại lý
+Mã giới thiệu
+→ Không cần can thiệp tay
+
+5. Ghi nhận & đối soát
+Hệ thống:
+Ghi nhận DS cho đại lý
+Ghi nhận DS cho Cty (mã GT gốc)
+Đại lý:
+Xem được lịch sử bán
+Theo dõi hoa hồng
+Trạng thái: chờ / đã thanh toán
+
+KẾ HOẠCH DỰ KIẾN TRIỂN KHAI
+
+LỘ TRÌNH TRIỂN KHAI DỰ ÁN WWW.THUONGLO.COM
+Mục tiêu:
+Xây hệ thống chạy được – bán được – ghi nhận được – mở rộng được
+
+GIAI ĐOẠN 0 – KHỞI ĐỘNG DỰ ÁN (Tuần 1)
+Công việc chính
+Chốt sitemap tổng thể
+Chốt luồng:
+Khách hàng
+Đại lý (Affiliate)
+Admin
+Chốt rule:
+Mở khóa sản phẩm
+Ghi nhận mã giới thiệu
+Hoa hồng đại lý
+Chốt công nghệ triển khai
+Kết quả bàn giao
+Tài liệu scope cuối cùng
+Flow nghiệp vụ chuẩn
+
+GIAI ĐOẠN 1 – UX/UI & WIREFRAME (Tuần 2)
+Công việc chính
+Wireframe các màn hình:
+Trang chủ
+Trang danh sách SP
+Trang chi tiết SP (trước & sau mở khóa)
+Đăng ký / đăng nhập
+Trang tài khoản KH
+Dashboard đại lý
+Trang Admin
+Thiết kế UI:
+Desktop
+Mobile
+Kết quả bàn giao
+File Figma hoàn chỉnh
+Sẵn sàng cho dev frontend
+
+GIAI ĐOẠN 2 – PHÁT TRIỂN CORE WEBSITE & KH (Tuần 3–5)
+Công việc chính
+Lập trình frontend các trang public & KH
+Lập trình backend:
+Đăng ký / đăng nhập
+Quản lý tài khoản KH
+Danh sách sản phẩm
+Giỏ hàng
+Thanh toán QR
+Logic mở khóa SP tự động
+Kết quả bàn giao
+KH mua được SP
+SP tự động mở khóa sau thanh toán
+
+GIAI ĐOẠN 3 – HỆ THỐNG ĐẠI LÝ / AFFILIATE (Tuần 6–7)
+Công việc chính
+Tạo link AFF cho đại lý
+Ghi nhận cookie / session
+Gắn KH vĩnh viễn với đại lý
+Dashboard đại lý:
+Doanh số
+DS KH
+Hoa hồng
+Lịch sử bán
+Kết quả bàn giao
+Đại lý chia sẻ link và bán được
+Doanh số ghi nhận tự động
+
+GIAI ĐOẠN 4 – ADMIN & QUẢN TRỊ HỆ THỐNG (Tuần 8)
+Công việc chính
+Quản lý:
+Sản phẩm
+Khách hàng
+Đại lý
+Đơn hàng
+Xác nhận thanh toán QR
+Cấu hình:
+Bật / tắt mã giới thiệu
+Quy tắc hoa hồng
+Kết quả bàn giao
+Admin kiểm soát toàn bộ hệ thống
+
+GIAI ĐOẠN 5 – TEST, HOÀN THIỆN & GO LIVE (Tuần 9)
+Công việc chính
+Test toàn bộ luồng:
+KH
+Đại lý
+Admin
+Fix bug
+Tối ưu hiệu năng
+Deploy production
+Kết quả bàn giao
+Website vận hành ổn định
+Sẵn sàng triển khai kinh doanh
+
+TỔNG QUAN LỘ TRÌNH
+
+GHI CHÚ QUAN TRỌNG CHO ĐỘI DEV
+Ưu tiên luồng mua → mở khóa → ghi nhận đại lý
+Không làm tính năng thừa ở giai đoạn đầu
+Code mở để mở rộng SP & dịch vụ về sau
+
+--- END DOCUMENT 1: JOBS THUONGLO A SINH.docx ---
+
+--- START DOCUMENT 2: BẢO MẬT - THUONGLO.COM.docx ---
+ CÁC TÁC VỤ QUAN TRỌNG GIÚP BẢO MẬT & BẢO VỆ KHÁCH HÀNG
+Để đảm bảo dữ liệu bạn mua không bị lạm dụng, không bị chia sẻ tràn lan, hệ thống của chúng tôi áp dụng một số cơ chế bảo mật sau. Những cơ chế này không nhằm làm khó người dùng, mà để bảo vệ quyền lợi người mua chân chính.
+
+1. Mỗi tài khoản gắn với người sử dụng cụ thể
+Mỗi tài khoản được thiết kế để dùng cho 1 cá nhân hoặc 1 nhóm hợp lệ
+Hệ thống giới hạn số thiết bị đăng nhập cùng lúc
+👉 Điều này giúp:
+Tránh việc 1 tài khoản bị dùng cho nhiều người không liên quan
+Đảm bảo dữ liệu bạn mua không bị chia sẻ tràn lan
+
+2. Hệ thống tự động phát hiện đăng nhập bất thường
+Nếu tài khoản đăng nhập từ nhiều nơi xa nhau trong thời gian ngắn, hệ thống sẽ:
+Gửi cảnh báo
+Tạm hạn chế một số nội dung nâng cao
+👉 Mục đích:
+Ngăn chặn việc lộ tài khoản
+Bảo vệ bạn khỏi rủi ro bị người khác sử dụng trái phép
+⚠️ Hệ thống không khóa tài khoản ngay lập tức để tránh ảnh hưởng trải nghiệm người dùng hợp lệ.
+
+3. Chỉ mở quyền sử dụng khi thanh toán thành công
+Sau khi thanh toán được xác nhận, hệ thống sẽ:
+Tự động mở quyền truy cập
+Không có việc mở khóa “bằng tay” hay can thiệp thủ công
+👉 Điều này đảm bảo:
+Quyền lợi của bạn được ghi nhận chính xác
+Tránh nhầm lẫn hoặc gian lận
+
+4. Dữ liệu được chia theo nhiều lớp, không cung cấp trọn bộ
+Dữ liệu không được cung cấp dưới dạng 1 file đầy đủ
+Nội dung được chia thành nhiều phần, hiển thị theo từng bước
+👉 Lợi ích cho khách hàng:
+Tránh việc data bị sao chép rồi bán lại
+Đảm bảo người mua thực sự là người được hưởng giá trị cao nhất
+
+5. Không cho tải toàn bộ dữ liệu một lần
+Hệ thống không hỗ trợ:
+Tải toàn bộ dữ liệu
+Xuất file danh sách đầy đủ
+👉 Mục đích:
+Bảo vệ dữ liệu chung
+Giữ giá trị data cho người dùng hợp pháp
+
+6. Dữ liệu hiển thị theo nhu cầu thực tế
+Dữ liệu được trình bày theo:
+Ngành hàng
+Phân khúc
+Điều kiện và thời điểm phù hợp
+👉 Điều này giúp:
+Bạn dễ sử dụng hơn
+Tránh việc người khác lấy data rồi bán lại như “danh sách chung”
+
+7. Nội dung có gắn dấu nhận diện (watermark)
+Một số nội dung quan trọng sẽ được gắn thông tin nhận diện tài khoản
+Dấu này không ảnh hưởng đến việc sử dụng bình thường
+👉 Mục đích:
+Ngăn chặn việc sao chép, phát tán trái phép
+Bảo vệ người mua chân chính
+
+8. Dữ liệu cá nhân hóa theo từng tài khoản
+Bạn có thể:
+Ghi chú riêng
+Đánh dấu mục quan tâm
+Xem lịch sử đã truy cập
+👉 Khi người khác dùng chung tài khoản:
+Họ không có dữ liệu cá nhân của bạn
+Việc dùng chung trở nên không hiệu quả
+
+9. Bảo vệ quyền lợi người mua chân chính
+Tất cả các biện pháp trên nhằm:
+Giữ chất lượng dữ liệu
+Tránh việc data bị bán lại tràn lan
+Đảm bảo người mua hợp pháp luôn được hưởng giá trị cao nhất
+
+--- END DOCUMENT 2: BẢO MẬT - THUONGLO.COM.docx ---
+
+--- START DOCUMENT 3: TÁC VỤ KỸ THUẬT -BẢO MẬT - THUONGLO.COM.docx ---
+BẢO MẬT TÀI KHOẢN THUONGLO.COM
+
+1. AUTH / TÀI KHOẢN / SESSION
+☐ Login backend thật (token / session)
+☐ Session gắn với thiết bị
+☐ Giới hạn số thiết bị đăng nhập
+☐ Login thiết bị mới → logout thiết bị cũ
+☐ Log đầy đủ: IP, User-Agent, thời gian
+Bất thường
+☐ Detect login nhiều IP xa nhau
+☐ Có trạng thái flag
+☐ Flag ≠ khóa cứng (chỉ hạn chế quyền nâng cao)
+
+2. THANH TOÁN & MỞ KHÓA
+☐ Thanh toán có trạng thái: pending / success / fail
+☐ Chỉ success mới mở quyền
+☐ Mở khóa tự động (không can thiệp tay)
+☐ Quyền gắn với user_id + thời gian
+
+3. PHÂN QUYỀN (BACKEND)
+☐ Mọi API data đều check quyền ở backend
+☐ Không check quyền chỉ ở frontend
+☐ Không hardcode quyền
+☐ Không đủ quyền → API trả FAIL
+
+4. DATA – CHỐNG BÁN LẠI (BẮT BUỘC)
+CẤM TUYỆT ĐỐI
+☐ Không export all
+☐ Không download full data
+☐ Không API list_all / get_full
+☐ Không trả full object trong 1 request
+
+5. CẤU TRÚC DATA THEO LỚP
+☐ Data chia lớp rõ ràng (public → nâng cao → động)
+☐ API chỉ trả field đúng quyền
+☐ Field nhạy cảm không tồn tại nếu không đủ quyền
+☐ Không load sẵn rồi ẩn bằng frontend
+
+6. DATA THEO DÒNG (KHÔNG THEO DANH SÁCH)
+☐ Hiển thị theo: Ngành → Phân khúc → Điều kiện → Thời điểm
+☐ Pagination bắt buộc
+☐ Không “danh sách full / trọn bộ”
+
+7. WATERMARK
+☐ Nội dung data quan trọng có watermark
+☐ File tải từng phần có watermark
+☐ Watermark gồm: User ID / Email(SĐT) / Thời gian
+☐ Watermark động mỗi lần load
+
+8. DATA GẮN VỚI HÀNH VI USER
+☐ Ghi chú theo user
+☐ Yêu thích theo user
+☐ Lịch sử xem theo user
+☐ User khác login không thấy dữ liệu này
+
+9. AFFILIATE / ĐẠI LÝ (LOGIC CỐT LÕI)
+☐ 1 đại lý = 1 link affiliate
+☐ Ghi nhận bằng cookie + session
+☐ Gắn KH vĩnh viễn với đại lý
+☐ Ưu tiên click link > nhập mã tay
+
+10. ADMIN & LOG
+☐ Admin quản lý: User / Đơn hàng / Sản phẩm / Đại lý
+☐ Admin xử lý thanh toán QR
+☐ Mọi thao tác admin đều log
+☐ Log không cho sửa/xóa bằng UI
+
+11. TEST BẮT BUỘC TRƯỚC GO-LIVE
+☐ Chưa login → gọi API data FAIL
+☐ Không đủ quyền → data nâng cao FAIL
+☐ Login nhiều máy → logout máy cũ
+☐ Copy link API → không lấy được full data
+☐ Chia sẻ tài khoản → data cá nhân vô dụng
+
+--- END DOCUMENT 3: TÁC VỤ KỸ THUẬT -BẢO MẬT - THUONGLO.COM.docx ---
+
+--- START DOCUMENT 4: TRIỂN KHAI PJ THUONGLO_MISTYTEAM_fx_v16126.pdf ---
+ 
+1 KẾ HOẠCH  TRIỂN  KHAI  DỰ ÁN 
+Dự án: Dự án xây dựng website THUONGLO.COM 
+Khách hàng: Bùi Văn Ngọc  
+Thực hiện: Misty Team (Đại diện: Bảo Nhật – Zalo: 0914960029 ) 
+Cơ cấu nhân sự: 5 thành viên:  
+- 1 BA  
+- 1 UI/UX Designer  
+- 1 Frontend Developer  
+- 1 Backend Developer  
+- 1 Tester  
+Công nghệ sử dụng & Tổng chi phí ước tính:  
+a. Phương án 1: Next.js  
+- Công nghệ sử dụng:  
++ Frontend: Next.js, TypeScript, Tailwind CSS  
++ Backend: Node.js  
++ Cơ sở dữ liệu: PostgreSQL  
++ Xác thực: JWT  
++ Thanh toán: Cổng thanh toán – Sepay  
++ Affiliate: Tracking Cookie & Session  
++ Quản trị: Admin Dashboard (Web -based)  
++ Triển khai: VPS  
+- Tổng chi phí ước tính: 11.000.000 VNĐ  
+b. Phương án 2: PHP  
+- Công nghệ sử dụng:  
++ Backend: PHP 7.x (thuần/Laravel 8)  
++ Frontend: HTML, CSS, Bootstrap, jQuery  
++ Cơ sở dữ liệu: MySQL  
++ Xác thực: Session PHP   
+2 + Thanh toán: Cổng thanh toán – Sepay  
++ Affiliate: Tracking Cookie & Session PHP  
++ Quản trị: Admin Panel PHP  
++ Triển khai: Shared Hosting/VPS  
+- Tổng chi phí ước tính: 9.000.000 VNĐ  
+Thời gian triển khai: 1 tháng (Thời gian mang tính tương đối, phụ thuộc khối lượng 
+thực tế và phản hồi từ phía khách hàng)  
+ 
+1. MỤC TIÊU DỰ ÁN  
+Xây dựng website THUONGLO.COM nhằm cung cấp nền tảng bán sản phẩm và 
+dịch vụ theo gói, tích hợp thanh toán trực tuyến và hệ thống đại lý/affiliate, giúp tự động 
+hóa quy trình kinh doanh và mở rộng kênh phân phối.  
+Website cho phép:  
+- Giới thiệu và bán các sản phẩm, dịch vụ theo gói  
+- Khách hàng đăng ký, đăng nhập và mua hàng trực tuyến  
+- Thanh toán bằng QR Code  
+- Tự động mở khóa sản phẩm sau khi thanh toán thành công  
+- Ghi nhận và quản lý doanh số qua hệ thống đại lý/affiliate  
+- Quản trị tập trung toàn bộ sản phẩm, khách hàng, đại lý và đơn 
+hàng Các yêu cầu chính:  
+- Giao diện thân thiện, dễ sử dụng trên cả máy tính và thiết bị di 
+động  
+- Hệ thống vận hành ổn định, bảo mật cơ bản  
+- Quy trình mua hàng → thanh toán → mở khóa sản phẩm diễn ra 
+tự động  
+- Ghi nhận chính xác mã giới thiệu và doanh số đại lý  
+- Dễ dàng mở rộng thêm sản phẩm, dịch vụ và đại lý trong tương  
+lai 
+ 
+2. CẤU TRÚC WEBSITE (Cấu trúc dưới đây là cấu trúc cơ bản, có thể 
+điều chỉnh theo thực tế)   
+3 a. Người dùng (Khách hàng):  
+- Trang chủ  
+- Giới thiệu sản phẩm & dịch vụ  
+- Danh sách sản phẩm  
+- Trang chi tiết sản phẩm  
+- Giỏ hàng  
+- Thanh toán trực tuyến  
+- Đăng ký/Đăng nhập  
+- Trang tài khoản cá nhân  
+- Danh sách sản phẩm đã mua  
+- Mua thêm sản phẩm/dịch vụ liên quan  
+b. Đại lý (Affiliate):  
+- Đăng ký/Đăng nhập tài khoản đại lý  
+- Trang chủ đại lý (Dashboard)  
+- Link affiliate (link giới thiệu cá nhân)  
+- Danh sách khách hàng đã giới thiệu  
+- Doanh số bán hàng  
+- Hoa hồng đại lý  
+- Lịch sử giao dịch và trạng thái thanh toán  
+c. Admin (Quản trị hệ thống):  
+- Đăng nhập quản trị  
+- Dashboard tổng quan  
+- Quản lý sản phẩm & dịch vụ  
+- Quản lý khách hàng  
+- Quản lý đại lý/affiliate  
+- Quản lý đơn hàng & thanh toán  
+- Cấu hình hệ thống:  
++ Mã giới thiệu   
+4 
+- 
+- 
+- 
+- 
+- 
+- 
+- + Quy tắc hoa hồng  
++ Trạng thái mở khóa sản phẩm  
+- Báo cáo và thống kê hệ thống  
+ 
+3. THỜI GIAN TRIỂN KHAI  
+Thời gian triển khai: 1 tháng  
+Giai đoạn  Nội dung công việc  Thời gian dự kiến  
+Giai đoạn 1: Khởi 
+động & phân tích 
+nghiệp vụ  - Chốt sitemap tổng thể  
+- Phân tích và chốt luồng nghiệp vụ:  
+Khách hàng – Đại lý – Admin  
+- Chốt quy tắc mở khóa sản phẩm, mã giới 
+thiệu, hoa hồng đại lý  
+- Chốt phương án công nghệ triển khai  01 tuần (Tuần 1)  
+Giai đoạn 2:  
+UX/UI &  
+Wireframe  - Thiết kế wireframe các màn hình chính  
+- Thiết kế giao diện UI (Desktop &  
+Mobile)  
+- Duyệt và hoàn thiện file thiết kế Figma  01 tuần (Tuần 2)  
+Giai đoạn 3: Phát 
+triển Core  
+Website & Khách 
+hàng  - Lập trình frontend các trang public & 
+khách hàng  
+- Lập trình backend: đăng ký/đăng nhập, sản 
+phẩm, giỏ hàng, thanh toán QR  
+- Xây dựng logic mở khóa sản phẩm tự động 
+sau thanh toán  01 tuần (Tuần 3)   
+5 Giai đoạn 4: Hệ 
+thống Đại lý / 
+Affiliate & Admin  - Xây dựng hệ thống affiliate (link  
+giới thiệu, tracking)  
+- Dashboard đại lý: doanh số, khách hàng, 
+hoa hồng  
+- Xây dựng trang Admin: quản lý sản phẩm, 
+khách hàng, đại lý, đơn hàng  01 tuần (Tuần 4)  
+Giai đoạn 5: Kiểm 
+thử, hoàn thiện &  
+Go-live - Kiểm thử toàn bộ luồng hệ thống (KH – 
+Đại lý – Admin)  
+- Sửa lỗi, tối ưu hiệu năng  
+- Triển khai lên môi trường production  
+- Bàn giao và hướng dẫn vận hành  01 tuần (Tuần 5)  
+ 
+4. TIẾN ĐỘ THANH TOÁN  
+a. Phương án 1. Next.js  
+Giai đoạn  Nội dung thanh toán  Tỷ lệ  
+Số tiền  
+(VNĐ)  
+Giai đoạn 1  Khởi động dự án, chốt nghiệp vụ & sitemap  20% 2.200.000  
+Giai đoạn 2  Hoàn thành UX/UI & wireframe (Figma)  20% 2.200.000  
+Giai đoạn 3  
+Hoàn thành core website & chức năng khách 
+hàng  25% 2.750.000  
+Giai đoạn 4  Hoàn thành hệ thống đại lý & admin  20% 2.200.000   
+6 Giai đoạn 5  Test, bàn giao & go -live 
+15% 1.650.000  
+Tổng cộng   
+100%  11.000.000  
+TỔNG CỘNG: 11.000.000 VNĐ (Mười  một triệu đồng)  
+b. Phương án 2. PHP  
+Giai đoạn  Nội dung thanh toán  Tỷ lệ  
+Số tiền  
+(VNĐ)  
+Giai đoạn 1  Khởi động dự án, chốt nghiệp vụ & sitemap  20% 1.800.000  
+Giai đoạn 2  Hoàn thành UX/UI & wireframe cơ bản  20% 1.800.000  
+Giai đoạn 3  
+Hoàn thành core website & chức năng khách 
+hàng  25% 2.250.000  
+Giai đoạn 4  Hoàn thành hệ thống đại lý & admin  20% 1.800.000  
+Giai đoạn 5  Test, bàn giao & go -live 
+15% 1.350.000  
+Tổng cộng   
+100%  9.000.000  
+TỔNG CỘNG: 9.000.000 VNĐ (Chín triệu đồng)  
+Thanh toán:  
+- Ngân hàng: MB BANK  
+- STK: 0914960029006  
+- Tên: LE VU BAO NHAT   
+7  
+5. TIMELINE DỰ ÁN  
+Ngày  Giai đoạn  Nội dung công việc  
+Ngày 1  GĐ 1 – Khởi động  Kickoff dự án, thống nhất mục tiêu với khách hàng  
+Ngày 2  GĐ 1  Phân tích nghiệp vụ tổng thể  
+Ngày 3  GĐ 1  Xác định nhóm người dùng (KH – Đại lý – Admin)  
+Ngày 4  GĐ 1  Xây dựng sitemap website  
+Ngày 5  GĐ 1  Chốt luồng nghiệp vụ & tài liệu đặc tả  
+Ngày 6  GĐ 2 – UX/UI  Thiết kế wireframe trang chủ  
+Ngày 7  GĐ 2  Wireframe danh sách & chi tiết sản phẩm  
+Ngày 8  GĐ 2  Wireframe trang KH  
+Ngày 9  GĐ 2  Wireframe dashboard đại lý & admin  
+Ngày 10  GĐ 2  Thiết kế UI Desktop & Mobile, duyệt Figma  
+Ngày 11  GĐ 3 – Core  Setup môi trường, database  
+Ngày 12  GĐ 3  Lập trình đăng ký / đăng nhập  
+Ngày 13  GĐ 3  Lập trình sản phẩm & danh sách  
+Ngày 14  GĐ 3  Lập trình chi tiết SP & giỏ hàng  
+Ngày 15  GĐ 3  Tích hợp thanh toán QR  
+Ngày 16  GĐ 3  Logic mở khóa sản phẩm  
+Ngày 17  GĐ 4 – Affiliate  Xây dựng hệ thống affiliate  
+Ngày 18  GĐ 4  Tracking link & gắn KH với đại lý  
+Ngày 19  GĐ 4  Dashboard đại lý (doanh số, hoa hồng)   
+8 Ngày 20  GĐ 4  Trang Admin – quản lý sản phẩm  
+Ngày 21  GĐ 4  Admin – quản lý KH, đại lý, đơn hàng  
+Ngày 22  GĐ 4  Hoàn thiện Admin & kiểm tra nội bộ  
+Ngày 23  GĐ 5 – Test Test luồng khách hàng  
+Ngày 24  GĐ 5  Test luồng đại lý / affiliate  
+Ngày 25  GĐ 5  Test Admin & phân quyền  
+Ngày 26  GĐ 5  Fix bug  
+Ngày 27  GĐ 5  Tối ưu hiệu năng  
+Ngày 28  GĐ 5  Chuẩn bị môi trường production  
+Ngày 29  GĐ 5  Deploy hệ thống & chạy thử  
+Ngày 30  GĐ 5  Go-live, bàn giao & hướng dẫn sử dụng  
+ 
+6. PH Ụ LỤC A – YÊU CẦU B ẢO M ẬT & CH ỐNG B ÁN L ẠI 
+a. Ph ương án 1. N ext.js 
+STT  Yêu c ầu Giai 
+đoạn Hướng xây d ựng 
+1 Auth /Tài kho ản/Session  - GĐ 1  
+- GĐ 3  
+- GĐ 5 JWT + Refresh Token, g ắn device_id, 
+middleware route  
+2 Phát hi ện đăng nh ập bất 
+thường - GĐ 3  
+- GĐ 5  So IP/User -Agent, rule trong API 
+middleware  
+3 Thanh toán & m ở khóa 
+tự động - GĐ 3  
+- GĐ 5  Webhook → update quy ền tự động 
+4 Phân quy ền backend  - GĐ 1  Middleware API /Server Action check role   
+9 - GĐ 3  
+- GĐ 5  
+5 Data ch ống bán l ại - GĐ 1  
+- GĐ 3  API limit field, limit record, rate -limit  
+6 Cấu trúc data theo l ớp - GĐ 1  
+- GĐ 3  Schema tr ả data theo role  
+7 Data theo dòng (không 
+full list)  - GĐ 2  
+- GĐ 3  Infinite scroll /pagination server -side 
+8 Watermark n ội dung  - GĐ 2  
+- GĐ 3  Render server -side watermark đ ộng 
+9 Data g ắn với hành vi user  - GĐ 3  User-based record (notes, history)  
+10 Affiliate /Đại lý - GĐ 4  Cookie + session + DB mapping  
+11 Admin & Log + Test  - GĐ 4  
+- GĐ 5  Audit log, immutable log table  
+b. Ph ương án 2. PHP  
+STT  Yêu c ầu Giai đo ạn 
+triển khai  Hướng xây d ựng 
+1 Auth /Tài 
+khoản/Session  - GĐ 1  
+- GĐ 3  
+- GĐ 5 PHP session th ật, gắn device_id, gi ới hạn 
+thiết bị, login m ới logout cũ, log IP  
+2 Phát hi ện đăng nh ập 
+bất thường - GĐ 3  
+- GĐ 5  So IP/User -Agent, set flag h ạn chế quyền, 
+không khóa c ứng 
+3 Thanh toán & m ở 
+khóa t ự động - GĐ 3  
+- GĐ 5  Order status pending/success/fail, ch ỉ 
+success m ới mở quyền 
+4 Phân quy ền backend  - GĐ 1  Middleware PHP check quy ền mọi API   
+10 - GĐ 3  
+- GĐ 5  
+5 Data ch ống bán l ại - GĐ 1  
+- GĐ 3  Không export, không list_all, gi ới hạn 
+record m ỗi request  
+6 Cấu trúc data theo 
+lớp - GĐ 1  
+- GĐ 3  Chia field public/nâng cao/nh ạy cảm, 
+query theo quy ền 
+7 Data theo dòng 
+(không full list)  - GĐ 2  
+- GĐ 3  Load theo ngành/phân khúc, pagination b ắt 
+buộc 
+8 Watermark n ội dung  - GĐ 2  
+- GĐ 3  Watermark HTML/CSS đ ộng, g ắn user + 
+thời gian  
+9 Data g ắn với hành vi 
+user - GĐ 3  Note/favorite/history g ắn user_id  
+10 Affiliate /Đại lý - GĐ 4  Cookie + session, 1 link/đ ại lý, g ắn KH 
+vĩnh vi ễn 
+11 Admin & Log + Test  - GĐ 4  
+- GĐ 5  Log m ọi thao tác admin, test checklist b ảo 
+mật 
+ 
+7. BÀN GIAO  
+- Source code website.  
+- Hướng dẫn triển khai và vận hành.  
+- Bảo hành kỹ thuật: 01 năm sau bàn giao.  
+ 
+8. GHI CHÚ & CAM KẾT  
+- Website responsive, bảo mật cơ bản, tối ưu mức phù hợp với ngân sách.  
+- Nội dung lịch sử, hình ảnh do khách hàng cung cấp hoặc duyệt.  
+- Phát sinh ngoài phạm vi sẽ được hai bên thống nhất riêng.  
+Xin cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi!  
+--- END DOCUMENT 4: TRIỂN KHAI PJ THUONGLO_MISTYTEAM_fx_v16126.pdf ---
+
