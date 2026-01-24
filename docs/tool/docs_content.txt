@@ -643,8 +643,8 @@ bất thường - GĐ 3
 không khóa c ứng 
 3 Thanh toán & m ở 
 khóa t ự động - GĐ 3  
-- GĐ 5  Order status pending/success/fail, ch ỉ 
-success m ới mở quyền 
+- GĐ 5  Order status pending/success/fail, chỉ 
+success mới mở quyền 
 4 Phân quy ền backend  - GĐ 1  Middleware PHP check quy ền mọi API   
 10 - GĐ 3  
 - GĐ 5  
