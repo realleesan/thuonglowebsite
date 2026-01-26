@@ -1,0 +1,180 @@
+/* CTA Section Styles */
+.cta-section {
+    background-color: #ECEDEF;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.cta-section::before,
+.cta-section::after {
+    display: none;
+}
+
+.cta-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 20px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.cta-content {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    min-height: 500px;
+}
+
+.cta-image {
+    flex: 0 0 50%;
+    position: relative;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cta-image img {
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0;
+}
+
+.cta-text {
+    flex: 1;
+    padding-left: 40px;
+}
+
+.cta-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1F2937;
+    margin-bottom: 20px;
+}
+
+.cta-title .highlight {
+    color: #356DF1;
+}
+
+.cta-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1F2937;
+    margin-bottom: 20px;
+}
+
+.cta-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #6B7280;
+    margin-bottom: 30px;
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: #356DF1;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.cta-button:hover {
+    background-color: #000000;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(53, 109, 241, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .cta-content {
+        gap: 40px;
+        min-height: 400px;
+    }
+    
+    .cta-image {
+        height: 400px;
+    }
+    
+    .cta-text {
+        padding-left: 20px;
+    }
+    
+    .cta-title,
+    .cta-subtitle {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cta-content {
+        flex-direction: column;
+        gap: 0;
+        text-align: center;
+        min-height: auto;
+    }
+    
+    .cta-image {
+        flex: none;
+        order: 2;
+        height: 300px;
+        width: 100%;
+    }
+    
+    .cta-text {
+        flex: none;
+        order: 1;
+        padding: 40px 20px;
+    }
+    
+    .cta-title,
+    .cta-subtitle {
+        font-size: 32px;
+    }
+    
+    .cta-description {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cta-image {
+        height: 250px;
+    }
+    
+    .cta-text {
+        padding: 30px 20px;
+    }
+    
+    .cta-title,
+    .cta-subtitle {
+        font-size: 28px;
+    }
+    
+    .cta-button {
+        padding: 12px 24px;
+        font-size: 15px;
+    }
+}
