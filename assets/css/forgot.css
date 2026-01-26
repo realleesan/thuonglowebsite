@@ -1,0 +1,10 @@
+/* Styles specific to the forgot password view */
+.verification-extra { margin-top: 8px; }
+.inline-form { display: inline; }
+
+/* minor utility tweaks used by the view */
+.password-wrapper { position: relative; }
+.password-toggle { background: transparent; border: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); cursor: pointer; }
+
+.debug-console { margin-top: 16px; font-size: 13px; color: #666; }
+.debug-item { margin-right: 12px; }

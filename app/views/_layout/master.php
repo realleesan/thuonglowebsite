@@ -11,6 +11,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS Files -->
+    <?php
+    $segments = explode('/', trim($_SERVER['SCRIPT_NAME'], '/'));
+    $base = '/' . ($segments[0] ?? '') . '/';
+    ?>
+    <base href="<?php echo $base; ?>">
     <link rel="stylesheet" href="assets/css/header.css">
     <link rel="stylesheet" href="assets/css/home.css">
     <link rel="stylesheet" href="assets/css/footer.css">

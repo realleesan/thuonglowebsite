@@ -1,0 +1,135 @@
+/* Reset và cấu hình cơ bản */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #eef6fc; /* Nền xanh nhạt */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Container chính mô phỏng cửa sổ trình duyệt */
+.browser-window {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    width: 100%;
+    max-width: 600px; /* Giới hạn chiều rộng trên màn hình lớn */
+}
+
+/* Header màu xanh đậm */
+.browser-header {
+    background-color: #1a73e8; /* Màu xanh đậm */
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+}
+
+/* Ba dấu chấm trắng */
+.browser-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+/* Nội dung chính */
+.content {
+    padding: 40px 20px;
+    text-align: center;
+    position: relative;
+}
+
+/* Tiêu đề lớn "500" */
+h1.error-code {
+    font-size: 80px;
+    font-weight: 700;
+    color: #1a2b4b; /* Màu xanh đen */
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+/* Văn bản "Internal Server Error" */
+p.error-message {
+    font-size: 20px;
+    color: #1a2b4b;
+    font-weight: 500;
+}
+
+/* Button quay lại trang chủ */
+.back-home-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 24px;
+    background-color: #1a73e8;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.back-home-btn:hover {
+    background-color: #1557b0;
+    text-decoration: none;
+    color: white;
+}
+
+.back-home-btn:active {
+    transform: translateY(1px);
+}
+
+/* Hình ảnh góc dưới phải (sử dụng placeholder cho hình ảnh gốc) */
+.sad-file-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 120px;
+    height: auto;
+    content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 0 L70 0 L100 30 L100 100 L10 100 Z" fill="%23f0f2f5" stroke="%23bdc1c6" stroke-width="1"/><path d="M70 0 L70 30 L100 30" fill="none" stroke="%23bdc1c6" stroke-width="1"/><circle cx="50" cy="60" r="5" fill="%231a2b4b"/><circle cx="75" cy="65" r="5" fill="%231a2b4b"/><path d="M55 80 Q65 70 75 85" fill="none" stroke="%231a2b4b" stroke-width="3" stroke-linecap="round"/></svg>');
+}
+
+/* Responsive cho màn hình lớn hơn (Tablet/Desktop) */
+@media (min-width: 768px) {
+    .browser-window {
+        max-width: 700px;
+    }
+
+    .content {
+        padding: 60px 40px 50px;
+    }
+
+    h1.error-code {
+        font-size: 120px;
+    }
+
+    p.error-message {
+        font-size: 28px;
+    }
+
+    .back-home-btn {
+        font-size: 18px;
+        padding: 14px 28px;
+        margin-top: 40px;
+    }
+
+    .sad-file-icon {
+        width: 180px;
+    }
+}
