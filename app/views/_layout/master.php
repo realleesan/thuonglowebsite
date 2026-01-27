@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="assets/css/home.css">
     <link rel="stylesheet" href="assets/css/footer.css">
     <link rel="stylesheet" href="assets/css/cta.css">
+    <link rel="stylesheet" href="assets/css/contact.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="assets/fonts/awesome-5x/all.css">
@@ -63,6 +64,7 @@
     <script src="assets/js/home.js"></script>
     <script src="assets/js/footer.js"></script>
     <script src="assets/js/cta.js"></script>
+    <script src="assets/js/contact.js"></script>
     
     <!-- Additional JS if needed -->
     <?php if (isset($additionalJS)): ?>

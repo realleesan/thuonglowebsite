@@ -94,13 +94,14 @@ body {
         radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
 }
 
-.hero-content {
-    text-align: center;
+.hero-section .hero-content {
+    text-align: center !important;
     position: relative;
     z-index: 2;
+    display: block !important;
 }
 
-.hero-title {
+.hero-section .hero-title {
     font-size: 48px;
     font-weight: 700;
     color: #ffffff;
@@ -108,7 +109,7 @@ body {
     line-height: 1.2;
 }
 
-.hero-subtitle {
+.hero-section .hero-subtitle {
     font-size: 18px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.9);
@@ -123,12 +124,14 @@ body {
     padding: 80px 0;
 }
 
-.section-header {
+.contact-form-section .section-header {
     text-align: center;
     margin-bottom: 60px;
+    display: block !important;
+    flex-direction: column !important;
 }
 
-.section-title {
+.contact-form-section .section-title {
     font-size: 36px;
     font-weight: 700;
     color: #356DF1;
@@ -136,12 +139,13 @@ body {
     line-height: 1.2;
 }
 
-.section-subtitle {
-    font-family: "Poppins", Sans-serif;
+.contact-form-section .section-subtitle {
     font-size: 36px;
     font-weight: 700;
-    line-height: 1.4em;
-    color: #444444;
+    color: #000000;
+    line-height: 1.2;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .contact-content {
@@ -447,11 +451,11 @@ textarea.form-control {
         gap: 40px;
     }
     
-    .hero-title {
+    .hero-section .hero-title {
         font-size: 40px;
     }
     
-    .section-title {
+    .contact-form-section .section-title {
         font-size: 32px;
     }
 }
@@ -461,11 +465,11 @@ textarea.form-control {
         padding: 60px 0;
     }
     
-    .hero-title {
+    .hero-section .hero-title {
         font-size: 32px;
     }
     
-    .hero-subtitle {
+    .hero-section .hero-subtitle {
         font-size: 16px;
     }
     
@@ -473,7 +477,7 @@ textarea.form-control {
         padding: 60px 0;
     }
     
-    .section-title {
+    .contact-form-section .section-title {
         font-size: 28px;
     }
     
@@ -510,7 +514,7 @@ textarea.form-control {
         padding: 40px 0;
     }
     
-    .hero-title {
+    .hero-section .hero-title {
         font-size: 28px;
     }
     
@@ -518,7 +522,7 @@ textarea.form-control {
         padding: 40px 0;
     }
     
-    .section-title {
+    .contact-form-section .section-title {
         font-size: 24px;
     }
     

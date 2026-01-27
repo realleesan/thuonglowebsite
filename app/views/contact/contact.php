@@ -1,39 +1,22 @@
-<?php
-$segments = explode('/', trim($_SERVER['SCRIPT_NAME'], '/'));
-$base = '/' . ($segments[0] ?? '') . '/';
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - Demo MarketPlace</title>
-    <link rel="stylesheet" href="<?php echo $base; ?>assets/css/contact.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-   
-    <!-- Main Content -->
-    <div id="wrapper-container" class="wrapper-container">
-        <div class="content-pusher">
-            <div id="main-content">
-                <div class="elementor elementor-87">
-                    <!-- Breadcrumb Section -->
-                    <section class="breadcrumb-section">
-                        <div class="container">
-                            <div class="breadcrumb">
-                                <a href="/">Home</a>
-                                <span class="delimiter">
-                                    <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </span>
-                                <span>Contact</span>
-                            </div>
+<!-- Main Content -->
+<div id="wrapper-container" class="wrapper-container">
+    <div class="content-pusher">
+        <div id="main-content">
+            <div class="elementor elementor-87">
+                <!-- Breadcrumb Section -->
+                <section class="breadcrumb-section">
+                    <div class="container">
+                        <div class="breadcrumb">
+                            <a href="/">Home</a>
+                            <span class="delimiter">
+                                <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                            <span>Contact</span>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
                     <!-- Hero Section -->
                     <section class="hero-section">
@@ -182,7 +165,4 @@ $base = '/' . ($segments[0] ?? '') . '/';
             </div>
         </div>
     </div>
-
-    <script src="<?php echo $base; ?>assets/js/contact.js"></script>
-</body>
-</html>
+</div>
