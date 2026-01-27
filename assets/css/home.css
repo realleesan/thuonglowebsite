@@ -241,12 +241,14 @@ body {
 /* Popular Courses Section */
 .popular-courses-section {
     padding: 80px 0;
-    background-color: #F5F7F8;
+    background-color: #ffffff;
     overflow: hidden !important;
 }
 
 .popular-courses-section .container {
     overflow: visible;
+    max-width: 1320px; /* Reset về width chuẩn như các section khác */
+    padding: 0 20px; /* Add padding to prevent edge clipping */
 }
 
 /* GLOBAL SCROLLBAR HIDING FOR SLIDER AREA */
@@ -303,23 +305,27 @@ body {
 .courses-slider-wrapper {
     position: relative;
     width: 100%;
-    overflow: hidden !important;
+    overflow: visible !important; /* Change to visible */
+    margin: 0 auto;
+    max-width: 1200px; /* Contain the slider */
 }
 
 .courses-slider {
     position: relative;
-    margin: 0;
-    padding: 0 70px;
-    overflow: hidden !important;
+    margin: 0 auto;
+    padding: 0;
+    overflow: visible !important; /* Change to visible to prevent clipping */
+    width: 100%;
+    max-width: 1200px;
 }
 
 .courses-container {
-    overflow: hidden !important;
-    width: 100%;
+    overflow: hidden !important; /* Hide overflow to show only 4 items */
+    width: 1125px; /* Exact width for 4 items: 4*270 + 3*15 = 1125px */
+    max-width: 100%;
+    margin: 0 auto; /* Center the container */
     position: relative;
-    /* FORCE HIDE ALL SCROLLBARS */
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+    padding: 10px 0;
 }
 
 .courses-container::-webkit-scrollbar {
@@ -332,17 +338,20 @@ body {
 /* Courses Grid */
 .courses-grid {
     display: flex;
-    gap: 30px;
+    gap: 15px;
     transition: transform 0.5s ease;
-    /* Simple approach: just make it wide enough */
-    width: 300%;
-    overflow: hidden !important;
+    width: max-content; /* Let it be as wide as needed */
+    align-items: stretch;
+    /* Add a clip-path to hide items outside viewport */
+    position: relative;
 }
 
 .courses-grid .course-item {
-    flex: 0 0 calc(100% / 12); /* 12 slots for 8 items + buffer */
-    min-width: 280px;
-    width: calc(100% / 12);
+    flex: 0 0 270px; /* Back to fixed width */
+    min-width: 270px;
+    width: 270px;
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
 }
 
 .slider-nav {
@@ -470,6 +479,13 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
+    /* Ensure border-radius is not clipped */
+    transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Hide all navigation arrows */
+.slider-nav {
+    display: none !important;
 }
 
 .course-item:hover {
@@ -683,9 +699,9 @@ body {
     }
     
     .courses-grid .course-item {
-        flex: 0 0 calc((100% - 75px) / 4); /* Still 4 items with smaller gap */
+        flex: 0 0 250px; /* Fixed width for consistency */
         min-width: 250px;
-        width: calc((100% - 75px) / 4);
+        width: 250px;
     }
     
     .slider-nav {
@@ -891,3 +907,546 @@ body {
 }
 
 /* By Nhat
+
+/* Outstanding Categories Section */
+.elementor-section.elementor-element-2932ede {
+    padding: 80px 0;
+    background-color: #ffffff;
+}
+
+.elementor-section.elementor-element-2932ede .container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Section - Same style as Popular Courses */
+.elementor-section.elementor-element-2932ede .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.elementor-section.elementor-element-2932ede .section-title {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1F2937;
+    margin: 0;
+}
+
+.elementor-section.elementor-element-2932ede .section-title .highlight {
+    color: #356DF1;
+}
+
+.elementor-section.elementor-element-2932ede .see-more-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000000;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.elementor-section.elementor-element-2932ede .see-more-btn:hover {
+    color: #356DF1;
+}
+
+/* Categories Grid */
+.thim-widget-course-categories-grid {
+    width: 100%;
+}
+
+.thim-widget-course-categories-grid ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.thim-widget-course-categories-grid li {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.thim-widget-course-categories-grid li:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.thim-widget-course-categories-grid li a {
+    display: block;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+}
+
+.thim-widget-course-categories-grid li img {
+    width: 100%;
+    height: 126px;
+    object-fit: cover;
+    display: block;
+}
+
+.thim-widget-course-categories-grid li .category-title {
+    position: absolute;
+    bottom: 40px;
+    left: 20px;
+    right: 20px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    line-height: 1.3;
+    margin: 0;
+}
+
+.thim-widget-course-categories-grid li .count-course {
+    position: absolute;
+    bottom: 15px;
+    left: 20px;
+    right: 20px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Overlay effect */
+.thim-widget-course-categories-grid li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+    z-index: 1;
+}
+
+.thim-widget-course-categories-grid li .category-title,
+.thim-widget-course-categories-grid li .count-course {
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .elementor-section.elementor-element-2932ede {
+        padding: 60px 0;
+    }
+    
+    .elementor-section.elementor-element-2932ede .section-title {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .elementor-section.elementor-element-2932ede {
+        padding: 50px 0;
+    }
+    
+    .thim-widget-course-categories-grid ul {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .elementor-section.elementor-element-2932ede .section-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+    }
+    
+    .elementor-section.elementor-element-2932ede .section-title {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .elementor-section.elementor-element-2932ede {
+        padding: 40px 0;
+    }
+    
+    .elementor-section.elementor-element-2932ede .section-title {
+        font-size: 24px;
+    }
+    
+    .thim-widget-course-categories-grid li .category-title {
+        font-size: 18px;
+        bottom: 35px;
+    }
+    
+    .thim-widget-course-categories-grid li .count-course {
+        font-size: 13px;
+        bottom: 12px;
+    }
+}
+
+/* New Release Section - Same styling as Popular Courses */
+.new-release-section {
+    padding: 80px 0;
+    background-color: #ffffff;
+    overflow: hidden !important;
+}
+
+.new-release-section .container {
+    overflow: visible;
+    max-width: 1320px;
+    padding: 0 20px;
+}
+
+/* GLOBAL SCROLLBAR HIDING FOR SLIDER AREA */
+.new-release-section * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.new-release-section *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.new-release-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.new-release-section .section-title {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1F2937;
+    margin: 0;
+}
+
+.new-release-section .section-title .highlight {
+    color: #356DF1;
+}
+
+.new-release-section .see-more-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000000;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.new-release-section .see-more-btn:hover {
+    color: #356DF1;
+}
+
+/* New Release Slider */
+.new-release-section .courses-slider-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: visible !important;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.new-release-section .courses-slider {
+    position: relative;
+    margin: 0 auto;
+    padding: 0;
+    overflow: visible !important;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.new-release-section .courses-container {
+    overflow: hidden !important;
+    width: 1125px;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    padding: 10px 0;
+}
+
+.new-release-section .courses-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+}
+
+.new-release-section .courses-grid {
+    display: flex;
+    gap: 15px;
+    transition: transform 0.5s ease;
+    width: max-content;
+    align-items: stretch;
+    position: relative;
+}
+
+.new-release-section .courses-grid .course-item {
+    flex: 0 0 270px;
+    min-width: 270px;
+    width: 270px;
+    display: flex;
+    flex-direction: column;
+}
+
+.new-release-section .slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: white;
+    border: 2px solid #374151;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #374151;
+}
+
+.new-release-section .slider-nav svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.new-release-section .slider-nav:hover {
+    background: #374151;
+    color: white;
+    border-color: #374151;
+    box-shadow: 0 6px 20px rgba(55, 65, 81, 0.3);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.new-release-section .slider-nav:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.new-release-section .slider-nav:disabled,
+.new-release-section .slider-nav[style*="pointer-events: none"] {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.new-release-section .slider-nav:disabled:hover,
+.new-release-section .slider-nav[style*="pointer-events: none"]:hover {
+    background: white;
+    color: #374151;
+    border-color: #374151;
+    transform: translateY(-50%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.new-release-section .slider-nav-prev {
+    left: 10px;
+}
+
+.new-release-section .slider-nav-next {
+    right: 10px;
+}
+
+.new-release-section .slider-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 40px;
+}
+
+.new-release-section .pagination-bullet {
+    width: 30px;
+    height: 8px;
+    border-radius: 4px;
+    background: #E5E7EB;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.new-release-section .pagination-bullet.active {
+    background: #356DF1;
+    transform: scale(1.1);
+}
+
+.new-release-section .pagination-bullet:hover {
+    background: #356DF1;
+    opacity: 0.8;
+}
+
+/* Hide navigation arrows for New Release section too */
+.new-release-section .slider-nav {
+    display: none !important;
+}
+
+/* Responsive Design for New Release */
+@media (max-width: 1024px) {
+    .new-release-section {
+        padding: 60px 0;
+    }
+    
+    .new-release-section .section-title {
+        font-size: 32px;
+    }
+    
+    .new-release-section .courses-grid {
+        gap: 25px;
+    }
+    
+    .new-release-section .courses-grid .course-item {
+        flex: 0 0 250px;
+        min-width: 250px;
+        width: 250px;
+    }
+    
+    .new-release-section .slider-nav {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .new-release-section .slider-nav svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .new-release-section .courses-slider {
+        padding: 0 60px;
+    }
+    
+    .new-release-section .slider-nav-prev {
+        left: 10px;
+    }
+    
+    .new-release-section .slider-nav-next {
+        right: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .new-release-section {
+        padding: 50px 0;
+    }
+    
+    .new-release-section .section-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .new-release-section .section-title {
+        font-size: 28px;
+    }
+    
+    .new-release-section .courses-slider {
+        margin: 0;
+        padding: 0 45px;
+    }
+    
+    .new-release-section .courses-grid {
+        gap: 20px;
+    }
+    
+    .new-release-section .courses-grid .course-item {
+        flex: 0 0 100%;
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .new-release-section .slider-nav {
+        display: flex;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .new-release-section .slider-nav svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .new-release-section .slider-nav-prev {
+        left: 2px;
+    }
+    
+    .new-release-section .slider-nav-next {
+        right: 2px;
+    }
+    
+    .new-release-section .course-image img {
+        height: 200px;
+    }
+    
+    .new-release-section .pagination-bullet {
+        width: 25px;
+        height: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .new-release-section {
+        padding: 40px 0;
+    }
+    
+    .new-release-section .section-title {
+        font-size: 24px;
+    }
+    
+    .new-release-section .course-content {
+        padding: 15px;
+    }
+    
+    .new-release-section .course-title a {
+        font-size: 16px;
+    }
+    
+    .new-release-section .course-excerpt {
+        font-size: 13px;
+    }
+    
+    .new-release-section .courses-slider {
+        padding: 0 40px;
+    }
+    
+    .new-release-section .slider-nav {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .new-release-section .slider-nav svg {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .new-release-section .slider-nav-prev {
+        left: 2px;
+    }
+    
+    .new-release-section .slider-nav-next {
+        right: 2px;
+    }
+    
+    .new-release-section .pagination-bullet {
+        width: 20px;
+        height: 5px;
+        gap: 6px;
+    }
+    
+    .new-release-section .slider-pagination {
+        gap: 6px;
+    }
+}

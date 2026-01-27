@@ -420,4 +420,467 @@
     </div>
 </section>
 
+<!-- Outstanding Categories Section -->
+<section class="elementor-section elementor-top-section elementor-element elementor-element-2932ede elementor-section-stretched elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="2932ede" data-element_type="section" data-settings="{&quot;stretch_section&quot;:&quot;section-stretched&quot;}">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Outstanding <span class="highlight">Categories</span></h2>
+            <a href="https://eduma.thimpress.com/demo-marketplace/courses/" class="see-more-btn">
+                See more
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="thim-widget-course-categories-grid layout-image-cats">
+            <ul class="columns-3">
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/coaching/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Coaching</span>
+                        <p class="count-course"> 14 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/language-learning/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-9-380x126.jpg" alt="Language Learning" width="380" height="126"> 
+                        <span class="category-title">Language Learning</span>
+                        <p class="count-course"> 14 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/online-business/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/language-learning-380x126.jpg" alt="Online Business" width="380" height="126"> 
+                        <span class="category-title">Online Business</span>
+                        <p class="count-course"> 14 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/passive-income/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/passive-income-380x126.jpg" alt="Passive Income" width="380" height="126"> 
+                        <span class="category-title">Passive Income</span>
+                        <p class="count-course"> 12 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/photography/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-6-380x126.jpg" alt="Photography" width="380" height="126"> 
+                        <span class="category-title">Photography</span>
+                        <p class="count-course"> 14 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/teacher-training/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-5-380x126.jpg" alt="Teacher Training" width="380" height="126"> 
+                        <span class="category-title">Teacher Training</span>
+                        <p class="count-course"> 14 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/teaching-online/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/teaching-online-380x126.jpg" alt="Teaching Online" width="380" height="126"> 
+                        <span class="category-title">Teaching Online</span>
+                        <p class="count-course"> 16 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/technology/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-8-380x126.jpg" alt="Technology" width="380" height="126"> 
+                        <span class="category-title">Technology</span>
+                        <p class="count-course"> 7 Courses</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/technology/video-creation/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/video-creation-380x126.jpg" alt="Video Creation" width="380" height="126"> 
+                        <span class="category-title">Video Creation</span>
+                        <p class="count-course"> 3 Courses</p>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- New Release Section -->
+<section class="new-release-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">New <span class="highlight">Release</span></h2>
+            <a href="https://eduma.thimpress.com/demo-marketplace/courses/" class="see-more-btn">
+                See more
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="courses-slider-wrapper">
+            <div class="courses-slider">
+                <!-- Slider Navigation -->
+                <div class="slider-nav slider-nav-prev" title="Previous">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="slider-nav slider-nav-next" title="Next">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                
+                <!-- Courses Container -->
+                <div class="courses-container">
+                    <!-- Courses Grid -->
+                    <div class="courses-grid">
+                <!-- Course Item 1 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">AI & Machine Learning</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="AI Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">Complete AI & Machine Learning Bootcamp 2024</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Master artificial intelligence and machine learning from scratch. Learn Python, TensorFlow, neural networks, and build real AI applications that solve business problems...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">Dr. Alex Chen</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>35 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$149.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Item 2 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">Blockchain</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
+                                 alt="Blockchain Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">Blockchain Development & Cryptocurrency</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Learn blockchain technology, smart contracts, and cryptocurrency development. Build decentralized applications (DApps) and understand the future of finance and technology...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">Maria Santos</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>28 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$129.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Item 3 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">Cloud Computing</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Cloud Computing Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">AWS Cloud Architect Certification 2024</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Master Amazon Web Services and become a certified cloud architect. Learn EC2, S3, Lambda, RDS, and advanced cloud architecture patterns for scalable applications...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">John Mitchell</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>42 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$199.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Item 4 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">Mobile Development</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
+                                 alt="Mobile Development Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">React Native & Flutter Development</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Build cross-platform mobile apps with React Native and Flutter. Learn to create iOS and Android applications with a single codebase and deploy to app stores...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">Emma Wilson</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>32 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$119.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Item 5 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">Cybersecurity</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Cybersecurity Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">Ethical Hacking & Cybersecurity Fundamentals</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Learn ethical hacking, penetration testing, and cybersecurity best practices. Protect systems from cyber threats and become a certified security professional...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">Robert Kim</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>26 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$139.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Item 6 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">DevOps</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
+                                 alt="DevOps Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">Complete DevOps Engineer Bootcamp</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Master DevOps tools and practices including Docker, Kubernetes, Jenkins, Terraform, and CI/CD pipelines. Automate deployments and infrastructure management...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">Anna Petrov</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>38 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$159.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Item 7 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">Game Development</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Game Development Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">Unity 3D Game Development Masterclass</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Create stunning 3D games with Unity engine. Learn C# programming, game physics, animation, and publish games to multiple platforms including mobile and PC...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">Chris Taylor</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>45 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$179.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Item 8 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">IoT</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="#">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
+                                 alt="IoT Course" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="#">Internet of Things (IoT) Development</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Build smart connected devices and IoT applications. Learn Arduino, Raspberry Pi, sensors, wireless communication, and cloud integration for IoT solutions...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">Sophie Zhang</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>29 Lessons</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">$109.00</span>
+                            <span class="price-suffix">incl. tax</span>
+                        </div>
+                        <div class="course-button">
+                            <a href="#" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Start Learning</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slider Pagination -->
+            <div class="slider-pagination">
+                <span class="pagination-bullet active"></span>
+                <span class="pagination-bullet"></span>
+                <span class="pagination-bullet"></span>
+                <span class="pagination-bullet"></span>
+                <span class="pagination-bullet"></span>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- End Home Page Content -->

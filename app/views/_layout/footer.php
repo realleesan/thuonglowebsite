@@ -186,7 +186,7 @@
                                             <div class="elementor-element elementor-element-203b476 elementor-widget elementor-widget-text-editor" data-id="203b476" data-element_type="widget" data-widget_type="text-editor.default">
                                                 <div class="elementor-widget-container">
                                                     <div>
-                                                        <div>© 2025 <a href="#">Eduma</a>. All rights reserved</div>
+                                                        <div>© 2025 <a href="#">Eduma</a>. All rights reserved. Powered by <a href="https://mistydev.id.vn/">Misty Team</a>.</div>
                                                     </div>
                                                 </div>
                                             </div>
