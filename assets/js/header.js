@@ -108,11 +108,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Header scroll effect (optional)
+    // Header scroll effect (disabled - remove floating effect)
     let lastScrollTop = 0;
     const header = document.querySelector('.main-header');
     const nav = document.querySelector('.main-nav');
     
+    // Commented out to disable floating navbar effect
+    /*
     if (header && nav) {
         window.addEventListener('scroll', function() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -129,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             lastScrollTop = scrollTop;
         });
     }
+    */
     
     // Active menu item highlighting
     const currentPath = window.location.pathname;

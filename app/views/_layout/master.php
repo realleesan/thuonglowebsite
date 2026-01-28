@@ -14,13 +14,43 @@
     <?php
     $segments = explode('/', trim($_SERVER['SCRIPT_NAME'], '/'));
     $base = '/' . ($segments[0] ?? '') . '/';
+    
+    // Determine current page for conditional CSS loading
+    $currentPage = '';
+    if (isset($_GET['page'])) {
+        $currentPage = $_GET['page'];
+    } else {
+        $currentPage = 'home';
+    }
     ?>
     <base href="<?php echo $base; ?>">
     <link rel="stylesheet" href="assets/css/header.css">
-    <link rel="stylesheet" href="assets/css/home.css">
     <link rel="stylesheet" href="assets/css/footer.css">
     <link rel="stylesheet" href="assets/css/cta.css">
-    <link rel="stylesheet" href="assets/css/contact.css">
+    
+    <?php
+    // Load page-specific CSS
+    switch($currentPage) {
+        case 'home':
+            echo '<link rel="stylesheet" href="assets/css/home.css">';
+            break;
+        case 'contact':
+            echo '<link rel="stylesheet" href="assets/css/contact.css">';
+            break;
+        case 'about':
+            echo '<link rel="stylesheet" href="assets/css/about.css">';
+            break;
+        case 'auth':
+        case 'login':
+        case 'register':
+        case 'forgot':
+            echo '<link rel="stylesheet" href="assets/css/auth.css">';
+            break;
+        default:
+            echo '<link rel="stylesheet" href="assets/css/home.css">';
+            break;
+    }
+    ?>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="assets/fonts/awesome-5x/all.css">
@@ -32,7 +62,7 @@
         <?php endforeach; ?>
     <?php endif; ?>
 </head>
-<body>
+<body class="<?php echo $currentPage; ?>-page">
     <!-- Header -->
     <?php include_once 'header.php'; ?>
     
@@ -61,10 +91,32 @@
     
     <!-- JavaScript Files -->
     <script src="assets/js/header.js"></script>
-    <script src="assets/js/home.js"></script>
     <script src="assets/js/footer.js"></script>
     <script src="assets/js/cta.js"></script>
-    <script src="assets/js/contact.js"></script>
+    
+    <?php
+    // Load page-specific JavaScript
+    switch($currentPage) {
+        case 'home':
+            echo '<script src="assets/js/home.js"></script>';
+            break;
+        case 'contact':
+            echo '<script src="assets/js/contact.js"></script>';
+            break;
+        case 'about':
+            echo '<script src="assets/js/about.js"></script>';
+            break;
+        case 'auth':
+        case 'login':
+        case 'register':
+        case 'forgot':
+            echo '<script src="assets/js/auth.js"></script>';
+            break;
+        default:
+            echo '<script src="assets/js/home.js"></script>';
+            break;
+    }
+    ?>
     
     <!-- Additional JS if needed -->
     <?php if (isset($additionalJS)): ?>
