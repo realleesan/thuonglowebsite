@@ -12,8 +12,8 @@
 @font-face {
     font-family: 'FontAwesome';
     src: url('../fonts/awesome-5x/fa-solid-900.woff2') format('woff2'),
-         url('../fonts/awesome-5x/fa-solid-900.woff') format('woff'),
-         url('../fonts/awesome-5x/fa-solid-900.ttf') format('truetype');
+        url('../fonts/awesome-5x/fa-solid-900.woff') format('woff'),
+        url('../fonts/awesome-5x/fa-solid-900.ttf') format('truetype');
     font-weight: 900;
     font-style: normal;
     font-display: swap;
@@ -22,8 +22,8 @@
 @font-face {
     font-family: 'FontAwesome';
     src: url('../fonts/awesome-5x/fa-regular-400.woff2') format('woff2'),
-         url('../fonts/awesome-5x/fa-regular-400.woff') format('woff'),
-         url('../fonts/awesome-5x/fa-regular-400.ttf') format('truetype');
+        url('../fonts/awesome-5x/fa-regular-400.woff') format('woff'),
+        url('../fonts/awesome-5x/fa-regular-400.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -32,8 +32,8 @@
 @font-face {
     font-family: 'FontAwesome';
     src: url('../fonts/awesome-5x/fa-brands-400.woff2') format('woff2'),
-         url('../fonts/awesome-5x/fa-brands-400.woff') format('woff'),
-         url('../fonts/awesome-5x/fa-brands-400.ttf') format('truetype');
+        url('../fonts/awesome-5x/fa-brands-400.woff') format('woff'),
+        url('../fonts/awesome-5x/fa-brands-400.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -46,10 +46,13 @@
     box-sizing: border-box;
 }
 
-html, body {
-    overflow-x: hidden; /* Only hide horizontal scroll */
+html {
+    overflow-x: hidden;
+}
+
+body {
     max-width: 100%;
-    /* Keep vertical scrollbar for system */
+    /* Keep vertical scrollbar for system - handled by html usually */
 }
 
 body {
@@ -178,11 +181,11 @@ body {
     .hero-content {
         gap: 40px;
     }
-    
+
     .hero-title {
         font-size: 42px;
     }
-    
+
     .hero-subtitle p {
         font-size: 16px;
     }
@@ -192,22 +195,22 @@ body {
     .hero-section {
         padding: 60px 0;
     }
-    
+
     .hero-content {
         flex-direction: column;
         gap: 40px;
         text-align: center;
     }
-    
+
     .hero-left,
     .hero-right {
         max-width: 100%;
     }
-    
+
     .hero-title {
         font-size: 36px;
     }
-    
+
     .hero-buttons {
         justify-content: center;
     }
@@ -217,21 +220,21 @@ body {
     .hero-section {
         padding: 40px 0;
     }
-    
+
     .hero-title {
         font-size: 28px;
     }
-    
+
     .hero-subtitle p {
         font-size: 14px;
     }
-    
+
     .btn-primary,
     .btn-secondary {
         padding: 12px 24px;
         font-size: 14px;
     }
-    
+
     .hero-buttons {
         flex-direction: column;
         align-items: center;
@@ -247,8 +250,10 @@ body {
 
 .popular-courses-section .container {
     overflow: visible;
-    max-width: 1320px; /* Reset về width chuẩn như các section khác */
-    padding: 0 20px; /* Add padding to prevent edge clipping */
+    max-width: 1320px;
+    /* Reset về width chuẩn như các section khác */
+    padding: 0 20px;
+    /* Add padding to prevent edge clipping */
 }
 
 /* GLOBAL SCROLLBAR HIDING FOR SLIDER AREA */
@@ -305,25 +310,31 @@ body {
 .courses-slider-wrapper {
     position: relative;
     width: 100%;
-    overflow: visible !important; /* Change to visible */
+    overflow: visible !important;
+    /* Change to visible */
     margin: 0 auto;
-    max-width: 1200px; /* Contain the slider */
+    max-width: 1200px;
+    /* Contain the slider */
 }
 
 .courses-slider {
     position: relative;
     margin: 0 auto;
     padding: 0;
-    overflow: visible !important; /* Change to visible to prevent clipping */
+    overflow: visible !important;
+    /* Change to visible to prevent clipping */
     width: 100%;
     max-width: 1200px;
 }
 
 .courses-container {
-    overflow: hidden !important; /* Hide overflow to show only 4 items */
-    width: 1125px; /* Exact width for 4 items: 4*270 + 3*15 = 1125px */
+    overflow: hidden !important;
+    /* Hide overflow to show only 4 items */
+    width: 1125px;
+    /* Exact width for 4 items: 4*270 + 3*15 = 1125px */
     max-width: 100%;
-    margin: 0 auto; /* Center the container */
+    margin: 0 auto;
+    /* Center the container */
     position: relative;
     padding: 10px 0;
 }
@@ -340,18 +351,21 @@ body {
     display: flex;
     gap: 15px;
     transition: transform 0.5s ease;
-    width: max-content; /* Let it be as wide as needed */
+    width: max-content;
+    /* Let it be as wide as needed */
     align-items: stretch;
     /* Add a clip-path to hide items outside viewport */
     position: relative;
 }
 
 .courses-grid .course-item {
-    flex: 0 0 270px; /* Back to fixed width */
+    flex: 0 0 270px;
+    /* Back to fixed width */
     min-width: 270px;
     width: 270px;
     display: flex;
-    flex-direction: column; /* Stack content vertically */
+    flex-direction: column;
+    /* Stack content vertically */
 }
 
 .slider-nav {
@@ -480,7 +494,8 @@ body {
     transition: all 0.3s ease;
     position: relative;
     /* Ensure border-radius is not clipped */
-    transform: translateZ(0); /* Force hardware acceleration */
+    transform: translateZ(0);
+    /* Force hardware acceleration */
 }
 
 /* Hide all navigation arrows */
@@ -689,39 +704,40 @@ body {
     .popular-courses-section {
         padding: 60px 0;
     }
-    
+
     .section-title {
         font-size: 32px;
     }
-    
+
     .courses-grid {
         gap: 25px;
     }
-    
+
     .courses-grid .course-item {
-        flex: 0 0 250px; /* Fixed width for consistency */
+        flex: 0 0 250px;
+        /* Fixed width for consistency */
         min-width: 250px;
         width: 250px;
     }
-    
+
     .slider-nav {
         width: 45px;
         height: 45px;
     }
-    
+
     .slider-nav svg {
         width: 20px;
         height: 20px;
     }
-    
+
     .courses-slider {
         padding: 0 60px;
     }
-    
+
     .slider-nav-prev {
         left: 10px;
     }
-    
+
     .slider-nav-next {
         right: 10px;
     }
@@ -731,56 +747,57 @@ body {
     .popular-courses-section {
         padding: 50px 0;
     }
-    
+
     .section-header {
         flex-direction: column;
         gap: 20px;
         text-align: center;
         margin-bottom: 40px;
     }
-    
+
     .section-title {
         font-size: 28px;
     }
-    
+
     .courses-slider {
         margin: 0;
         padding: 0 45px;
     }
-    
+
     .courses-grid {
         gap: 20px;
     }
-    
+
     .courses-grid .course-item {
-        flex: 0 0 100%; /* Mobile: 1 item per view */
+        flex: 0 0 100%;
+        /* Mobile: 1 item per view */
         min-width: auto;
         width: 100%;
     }
-    
+
     .slider-nav {
         display: flex;
         width: 40px;
         height: 40px;
     }
-    
+
     .slider-nav svg {
         width: 18px;
         height: 18px;
     }
-    
+
     .slider-nav-prev {
         left: 2px;
     }
-    
+
     .slider-nav-next {
         right: 2px;
     }
-    
+
     .course-image img {
         height: 200px;
     }
-    
+
     /* Show more pagination bullets on mobile for single item navigation */
     .pagination-bullet {
         width: 25px;
@@ -792,51 +809,51 @@ body {
     .popular-courses-section {
         padding: 40px 0;
     }
-    
+
     .section-title {
         font-size: 24px;
     }
-    
+
     .course-content {
         padding: 15px;
     }
-    
+
     .course-title a {
         font-size: 16px;
     }
-    
+
     .course-excerpt {
         font-size: 13px;
     }
-    
+
     .courses-slider {
         padding: 0 40px;
     }
-    
+
     .slider-nav {
         width: 35px;
         height: 35px;
     }
-    
+
     .slider-nav svg {
         width: 16px;
         height: 16px;
     }
-    
+
     .slider-nav-prev {
         left: 2px;
     }
-    
+
     .slider-nav-next {
         right: 2px;
     }
-    
+
     .pagination-bullet {
         width: 20px;
         height: 5px;
         gap: 6px;
     }
-    
+
     .slider-pagination {
         gap: 6px;
     }
@@ -1043,7 +1060,7 @@ body {
     .elementor-section.elementor-element-2932ede {
         padding: 60px 0;
     }
-    
+
     .elementor-section.elementor-element-2932ede .section-title {
         font-size: 32px;
     }
@@ -1053,18 +1070,18 @@ body {
     .elementor-section.elementor-element-2932ede {
         padding: 50px 0;
     }
-    
+
     .thim-widget-course-categories-grid ul {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .elementor-section.elementor-element-2932ede .section-header {
         flex-direction: column;
         gap: 20px;
         align-items: flex-start;
     }
-    
+
     .elementor-section.elementor-element-2932ede .section-title {
         font-size: 28px;
     }
@@ -1074,16 +1091,16 @@ body {
     .elementor-section.elementor-element-2932ede {
         padding: 40px 0;
     }
-    
+
     .elementor-section.elementor-element-2932ede .section-title {
         font-size: 24px;
     }
-    
+
     .thim-widget-course-categories-grid li .category-title {
         font-size: 18px;
         bottom: 35px;
     }
-    
+
     .thim-widget-course-categories-grid li .count-course {
         font-size: 13px;
         bottom: 12px;
@@ -1299,39 +1316,39 @@ body {
     .new-release-section {
         padding: 60px 0;
     }
-    
+
     .new-release-section .section-title {
         font-size: 32px;
     }
-    
+
     .new-release-section .courses-grid {
         gap: 25px;
     }
-    
+
     .new-release-section .courses-grid .course-item {
         flex: 0 0 250px;
         min-width: 250px;
         width: 250px;
     }
-    
+
     .new-release-section .slider-nav {
         width: 45px;
         height: 45px;
     }
-    
+
     .new-release-section .slider-nav svg {
         width: 20px;
         height: 20px;
     }
-    
+
     .new-release-section .courses-slider {
         padding: 0 60px;
     }
-    
+
     .new-release-section .slider-nav-prev {
         left: 10px;
     }
-    
+
     .new-release-section .slider-nav-next {
         right: 10px;
     }
@@ -1341,56 +1358,56 @@ body {
     .new-release-section {
         padding: 50px 0;
     }
-    
+
     .new-release-section .section-header {
         flex-direction: column;
         gap: 20px;
         text-align: center;
         margin-bottom: 40px;
     }
-    
+
     .new-release-section .section-title {
         font-size: 28px;
     }
-    
+
     .new-release-section .courses-slider {
         margin: 0;
         padding: 0 45px;
     }
-    
+
     .new-release-section .courses-grid {
         gap: 20px;
     }
-    
+
     .new-release-section .courses-grid .course-item {
         flex: 0 0 100%;
         min-width: auto;
         width: 100%;
     }
-    
+
     .new-release-section .slider-nav {
         display: flex;
         width: 40px;
         height: 40px;
     }
-    
+
     .new-release-section .slider-nav svg {
         width: 18px;
         height: 18px;
     }
-    
+
     .new-release-section .slider-nav-prev {
         left: 2px;
     }
-    
+
     .new-release-section .slider-nav-next {
         right: 2px;
     }
-    
+
     .new-release-section .course-image img {
         height: 200px;
     }
-    
+
     .new-release-section .pagination-bullet {
         width: 25px;
         height: 6px;
@@ -1401,51 +1418,51 @@ body {
     .new-release-section {
         padding: 40px 0;
     }
-    
+
     .new-release-section .section-title {
         font-size: 24px;
     }
-    
+
     .new-release-section .course-content {
         padding: 15px;
     }
-    
+
     .new-release-section .course-title a {
         font-size: 16px;
     }
-    
+
     .new-release-section .course-excerpt {
         font-size: 13px;
     }
-    
+
     .new-release-section .courses-slider {
         padding: 0 40px;
     }
-    
+
     .new-release-section .slider-nav {
         width: 35px;
         height: 35px;
     }
-    
+
     .new-release-section .slider-nav svg {
         width: 16px;
         height: 16px;
     }
-    
+
     .new-release-section .slider-nav-prev {
         left: 2px;
     }
-    
+
     .new-release-section .slider-nav-next {
         right: 2px;
     }
-    
+
     .new-release-section .pagination-bullet {
         width: 20px;
         height: 5px;
         gap: 6px;
     }
-    
+
     .new-release-section .slider-pagination {
         gap: 6px;
     }
