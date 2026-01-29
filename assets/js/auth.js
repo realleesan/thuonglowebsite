@@ -4,39 +4,41 @@ window.toggleAuthPassword = function(fieldId) {
     const input = document.getElementById(fieldId);
     if (!input) return;
 
-    // Cách 1: Tìm icon theo ID quy ước (Cũ)
+    const wrapper = input.closest('.password-wrapper');
+    const toggleBtn = wrapper ? wrapper.querySelector('.password-toggle') : null;
+
+    // Lấy icon theo ID hoặc tìm trong wrapper
     let iconId;
     if (fieldId === 'password') iconId = 'password-icon';
     else if (fieldId === 'new_password') iconId = 'new-password-icon';
     else if (fieldId === 'confirm_password') iconId = 'confirm-password-icon';
+
     let icon = document.getElementById(iconId);
 
-    // Cách 2: (Mới - Mạnh mẽ hơn) Nếu không thấy ID, tự tìm icon nằm chung trong wrapper
-    if (!icon) {
-        const wrapper = input.closest('.password-wrapper');
-        if (wrapper) {
-            // Tìm thẻ i hoặc svg nằm trong button toggle
-            icon = wrapper.querySelector('.password-toggle i, .password-toggle svg');
-        }
+    if (!icon && wrapper) {
+        icon = wrapper.querySelector('.password-toggle-icon, .password-toggle i, .password-toggle svg');
     }
 
     // Thực hiện đổi
     if (input.type === 'password') {
         input.type = 'text';
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-pressed', 'true');
+            const hideLabel = toggleBtn.dataset.labelHide || 'Ẩn mật khẩu';
+            toggleBtn.setAttribute('aria-label', hideLabel);
+        }
         if (icon) {
-            // Hỗ trợ cả FontAwesome (class) và SVG (nếu có)
-            if (icon.classList.contains('fa-eye')) {
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            }
+            icon.classList.add('is-hidden');
         }
     } else {
         input.type = 'password';
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-pressed', 'false');
+            const showLabel = toggleBtn.dataset.labelShow || 'Hiển thị mật khẩu';
+            toggleBtn.setAttribute('aria-label', showLabel);
+        }
         if (icon) {
-            if (icon.classList.contains('fa-eye-slash')) {
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            icon.classList.remove('is-hidden');
         }
     }
 };

@@ -1,6 +1,22 @@
 <?php
 require_once __DIR__ . '/auth.php'; 
 
+if (!function_exists('forgot_redirect')) {
+    function forgot_redirect(string $url): void {
+        if (!headers_sent()) {
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            header('Location: ' . $url);
+            exit;
+        }
+
+        echo '<script>window.location.href = ' . json_encode($url) . ';</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"></noscript>';
+        exit;
+    }
+}
+
 // --- 0. LOGIC RESET (MỚI THÊM) ---
 // Nếu người dùng bấm từ trang Login sang (có ?reset=true)
 if (isset($_GET['reset']) && $_GET['reset'] == 'true') {
@@ -8,8 +24,7 @@ if (isset($_GET['reset']) && $_GET['reset'] == 'true') {
     unset($_SESSION['forgot_step'], $_SESSION['reset_code'], $_SESSION['reset_contact'], $_SESSION['flash_error'], $_SESSION['flash_success']);
     
     // Chuyển hướng lại chính trang này (bỏ ?reset=true) để bắt đầu sạch sẽ
-    header('Location: index.php?page=forgot');
-    exit;
+    forgot_redirect('index.php?page=forgot');
 }
 
 // --- 1. LẤY DỮ LIỆU TỪ SESSION (QUAN TRỌNG) ---
@@ -17,7 +32,7 @@ $step = $_SESSION['forgot_step'] ?? 'input';
 $error = $_SESSION['flash_error'] ?? '';
 $success = $_SESSION['flash_success'] ?? '';
 
-// Xóa thông báo sau khi đã lấy ra (để F5 không hiện lại)
+// Xóa thông báo sau khi đã lấy ra (để F5 không hiện lại)F
 unset($_SESSION['flash_error'], $_SESSION['flash_success']);
 
 // --- HÀM GIẢ LẬP (Giữ nguyên) ---
@@ -83,103 +98,122 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Lưu session và Chuyển hướng về trang Login
             session_write_close(); 
-            header('Location: index.php?page=login');
-            exit;
+            forgot_redirect('index.php?page=login');
         }
     }
     
     // --- CHUYỂN HƯỚNG VỀ CHÍNH TRANG NÀY ĐỂ TRÁNH LỖI FORM RESUBMISSION ---
     session_write_close(); // Đảm bảo Session được lưu trước khi chuyển trang
-    header('Location: index.php?page=forgot');
-    exit;
+    forgot_redirect('index.php?page=forgot');
 }
 ?>
 
-<section class="auth-section">
-    <div class="container">
-        <div class="auth-panel" style="max-width: 550px; margin: 0 auto;">
-            
-            <h1 class="auth-heading" style="text-align: center; margin-bottom: 30px;">Lấy lại mật khẩu</h1>
-            
-            <div class="step-indicator">
-                <div class="step <?php echo $step === 'input' ? 'active' : 'completed'; ?>">
-                    <span>1</span><p>Nhập tin</p>
-                </div>
-                <div class="step-line"></div>
-                <div class="step <?php echo $step === 'verify' ? 'active' : ($step === 'reset' ? 'completed' : ''); ?>">
-                    <span>2</span><p>Mã code</p>
-                </div>
-                <div class="step-line"></div>
-                <div class="step <?php echo $step === 'reset' ? 'active' : ''; ?>">
-                    <span>3</span><p>Đổi pass</p>
-                </div>
-            </div>
+<!-- Main Content -->
+<div id="wrapper-container" class="wrapper-container forgot-wrapper">
+    <div class="content-pusher">
+        <div id="main-content">
+            <div class="elementor elementor-forgot">
 
-            <?php if ($error): ?>
-                <div class="alert alert-error" style="margin-bottom: 20px;"><?php echo $error; ?></div>
-            <?php endif; ?>
-            
-            <?php if ($success): ?>
-                <div class="alert alert-success" style="margin-bottom: 20px;"><?php echo $success; ?></div>
-            <?php endif; ?>
+                <section class="forgot-form-section">
+                    <div class="container">
+                        <div class="auth-panel forgot-panel">
+                            <h2 class="auth-heading">Khôi phục tài khoản</h2>
 
-            <?php if ($step === 'input'): ?>
-                <form method="POST" action="index.php?page=forgot" class="auth-form">
-                    <input type="hidden" name="action" value="send_code">
-                    <div class="form-group">
-                        <input type="text" name="contact" class="form-control" placeholder="Nhập Email hoặc SĐT" required autofocus>
-                    </div>
-                    <button type="submit" class="btn-primary auth-submit-btn">Lấy mã (Test)</button>
-                </form>
+                            <div class="step-indicator">
+                                <div class="step <?php echo $step === 'input' ? 'active' : 'completed'; ?>">
+                                    <span>1</span>
+                                    <p>Nhập thông tin</p>
+                                </div>
+                                <div class="step-line"></div>
+                                <div class="step <?php echo $step === 'verify' ? 'active' : ($step === 'reset' ? 'completed' : ''); ?>">
+                                    <span>2</span>
+                                    <p>Nhập mã</p>
+                                </div>
+                                <div class="step-line"></div>
+                                <div class="step <?php echo $step === 'reset' ? 'active' : ''; ?>">
+                                    <span>3</span>
+                                    <p>Đổi mật khẩu</p>
+                                </div>
+                            </div>
 
-            <?php elseif ($step === 'verify'): ?>
-                <form method="POST" action="index.php?page=forgot" class="auth-form">
-                    <input type="hidden" name="action" value="verify_code">
-                    <div class="form-group">
-                        <input type="text" name="verification_code" class="form-control" 
-                               style="text-align: center; font-size: 24px; letter-spacing: 5px;" 
-                               placeholder="000000" maxlength="6" required autofocus>
-                    </div>
-                    <button type="submit" class="btn-primary auth-submit-btn">Xác thực</button>
-                    
-                    <div style="text-align:center; margin-top:15px;">
-                        <button type="submit" name="action" value="change_contact" class="ref-code-action" style="border:none; background:none;">
-                            Nhập lại SĐT khác?
-                        </button>
-                    </div>
-                </form>
+                            <?php if ($error): ?>
+                                <div class="alert alert-error"><?php echo $error; ?></div>
+                            <?php endif; ?>
 
-            <?php elseif ($step === 'reset'): ?>
-                <form method="POST" action="index.php?page=forgot" class="auth-form">
-                    <input type="hidden" name="action" value="reset_password">
-        
-                    <div class="form-group">
-                        <label class="form-label" for="new_password">Mật khẩu mới</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Mật khẩu mới" required autofocus>
-                            <button type="button" class="password-toggle" onclick="toggleAuthPassword('new_password')" aria-label="Hiển thị mật khẩu mới">
-                                <i class="fa-solid fa-eye" id="new-password-icon"></i>
-                            </button>
+                            <?php if ($success): ?>
+                                <div class="alert alert-success"><?php echo $success; ?></div>
+                            <?php endif; ?>
+
+                            <?php if ($step === 'input'): ?>
+                                <form method="POST" action="index.php?page=forgot" class="auth-form">
+                                    <input type="hidden" name="action" value="send_code">
+                                    <div class="form-group">
+                                        <label for="contact">Email hoặc Số điện thoại</label>
+                                        <input type="text" id="contact" name="contact" class="form-control" placeholder="Nhập Email hoặc SĐT" required autofocus>
+                                    </div>
+                                    <button type="submit" class="btn-primary auth-submit-btn">Gửi mã xác thực</button>
+                                </form>
+
+                                <div class="forgot-info">
+                                    <p>Hệ thống sẽ gửi mã code 6 chữ số tới thông tin bạn cung cấp. Mã có hiệu lực trong 10 phút.</p>
+                                </div>
+
+                            <?php elseif ($step === 'verify'): ?>
+                                <form method="POST" action="index.php?page=forgot" class="auth-form">
+                                    <input type="hidden" name="action" value="verify_code">
+                                    <div class="form-group">
+                                        <label for="verification_code">Nhập mã xác thực</label>
+                                        <input type="text" id="verification_code" name="verification_code" class="form-control code-input"
+                                               placeholder="000000" maxlength="6" required autofocus>
+                                    </div>
+                                    <button type="submit" class="btn-primary auth-submit-btn">Xác thực</button>
+
+                                    <div class="forgot-actions">
+                                        <button type="submit" name="action" value="change_contact" class="ref-code-action">
+                                            Nhập lại thông tin khác
+                                        </button>
+                                    </div>
+                                </form>
+
+                            <?php elseif ($step === 'reset'): ?>
+                                <form method="POST" action="index.php?page=forgot" class="auth-form">
+                                    <input type="hidden" name="action" value="reset_password">
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="new_password">Mật khẩu mới</label>
+                                        <div class="password-wrapper">
+                                            <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Mật khẩu mới" required autofocus>
+                                            <button type="button" class="password-toggle" onclick="toggleAuthPassword('new_password')"
+                                                    aria-label="Hiển thị mật khẩu mới" aria-pressed="false" data-label-show="Hiển thị mật khẩu mới"
+                                                    data-label-hide="Ẩn mật khẩu mới">
+                                                <span class="password-toggle-icon" id="new-password-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="confirm_password">Nhập lại mật khẩu</label>
+                                        <div class="password-wrapper">
+                                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Nhập lại mật khẩu" required>
+                                            <button type="button" class="password-toggle" onclick="toggleAuthPassword('confirm_password')"
+                                                    aria-label="Hiển thị lại mật khẩu" aria-pressed="false" data-label-show="Hiển thị lại mật khẩu"
+                                                    data-label-hide="Ẩn mật khẩu">
+                                                <span class="password-toggle-icon" id="confirm-password-icon" aria-hidden="true"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn-primary auth-submit-btn">Đổi mật khẩu</button>
+                                </form>
+                            <?php endif; ?>
+
+                            <div class="register-link">
+                                <a href="index.php?page=login">← Quay lại đăng nhập</a>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="confirm_password">Nhập lại mật khẩu</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Nhập lại mật khẩu" required>
-                            <button type="button" class="password-toggle" onclick="toggleAuthPassword('confirm_password')" aria-label="Hiển thị lại mật khẩu">
-                                <i class="fa-solid fa-eye" id="confirm-password-icon"></i>
-                            </button>
-                        </div>
-                    </div>
-        
-                    <button type="submit" class="btn-primary auth-submit-btn">Đổi mật khẩu</button>
-                </form>
-            <?php endif; ?>
-
-            <div class="register-link" style="margin-top: 20px;">
-                <a href="index.php?page=login">← Quay lại đăng nhập</a>
+                </section>
             </div>
         </div>
     </div>
-</section>
+</div>

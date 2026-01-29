@@ -44,8 +44,17 @@
         case 'auth':
         case 'login':
         case 'register':
-        case 'forgot':
             echo '<link rel="stylesheet" href="assets/css/auth.css">';
+            break;
+
+        case 'forgot':
+            echo '<link rel="stylesheet" href="assets/css/forgot.css">';
+            break;
+
+        case 'checkout':
+        case 'payment':
+        case 'payment_success':
+            echo '<link rel="stylesheet" href="assets/css/payment.css">';
             break;
         default:
             echo '<link rel="stylesheet" href="assets/css/home.css">';
@@ -114,8 +123,10 @@
         case 'auth':
         case 'login':
         case 'register':
-        case 'forgot':
             echo '<script src="assets/js/auth.js"></script>';
+            break;
+        case 'forgot':
+            echo '<script src="assets/js/forgot.js"></script>';
             break;
         default:
             echo '<script src="assets/js/home.js"></script>';

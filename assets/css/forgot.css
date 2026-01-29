@@ -72,5 +72,357 @@
 /* --- CÁC STYLE CŨ (Giữ lại để không lỗi giao diện khác) --- */
 .verification-extra { margin-top: 8px; }
 .inline-form { display: inline; }
-.password-wrapper { position: relative; }
-.password-toggle { background: transparent; border: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); cursor: pointer; }
+
+@font-face {
+    font-family: 'Font Awesome 5 Free';
+    src: url('../fonts/awesome-5x/fa-solid-900.woff2') format('woff2'),
+         url('../fonts/awesome-5x/fa-solid-900.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+
+.password-toggle-icon {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 1;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle-icon::before {
+    content: "\f06e";
+}
+
+.password-toggle-icon.is-hidden::before {
+    content: "\f070";
+}
+
+.password-toggle i,
+.password-toggle svg {
+    font-size: 20px;
+    line-height: 1;
+    color: inherit;
+    width: 1.1em;
+    height: 1.1em;
+}
+
+.password-toggle:hover,
+.password-toggle:focus {
+    color: #111827;
+}
+
+/* Forgot Password Page Styles */
+
+.forgot-page {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1F2937;
+    background: #ffffff;
+}
+
+.forgot-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.forgot-page .wrapper-container {
+    min-height: 100vh;
+}
+
+.forgot-page .hero-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 12px;
+}
+
+.forgot-page .hero-subtitle {
+    font-size: 18px;
+    color: #6B7280;
+    margin: 0;
+}
+
+.forgot-page .forgot-hero-section {
+    padding: 60px 0 30px;
+    background: linear-gradient(135deg, rgba(53, 109, 241, 0.08), rgba(53, 109, 241, 0));
+}
+
+.forgot-page .forgot-form-section {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    align-items: center;
+    padding: 0 0 80px;
+}
+
+.forgot-page .auth-panel {
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+    border-radius: 18px;
+    padding: 48px;
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+.forgot-page .auth-heading {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    color: #111827;
+    text-align: center;
+}
+
+.forgot-page .auth-form .form-group {
+    margin-bottom: 24px;
+}
+
+.forgot-page label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 10px;
+}
+
+.forgot-page .form-control {
+    width: 100%;
+    border: 1px solid #D1D5DB;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.forgot-page .form-control:focus {
+    outline: none;
+    border-color: #356DF1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.18);
+}
+
+.forgot-page .btn-primary {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    background: #356DF1;
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.forgot-page .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(53, 109, 241, 0.25);
+}
+
+.forgot-info {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #6B7280;
+    background: #F9FAFB;
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.forgot-actions {
+    margin-top: 18px;
+    text-align: center;
+}
+
+.forgot-actions .ref-code-action {
+    background: none;
+    border: none;
+    color: #356DF1;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.register-link {
+    margin-top: 32px;
+    text-align: center;
+}
+
+.register-link a {
+    color: #356DF1;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+/* Step indicator */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    min-width: 70px;
+}
+
+.step span {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid #E5E7EB;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+}
+
+.step p {
+    font-size: 14px;
+    color: #9CA3AF;
+    margin: 0;
+    font-weight: 500;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #E5E7EB;
+}
+
+.step.active span {
+    background: #356DF1;
+    border-color: #356DF1;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.25);
+}
+
+.step.active p {
+    color: #356DF1;
+    font-weight: 700;
+}
+
+.step.completed span {
+    background: #10B981;
+    border-color: #10B981;
+    color: #ffffff;
+}
+
+.step.completed p {
+    color: #10B981;
+}
+
+.alert {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.alert-error {
+    background: #FEE2E2;
+    color: #B91C1C;
+    border: 1px solid #FCA5A5;
+}
+
+.alert-success {
+    background: #DCFCE7;
+    color: #047857;
+    border: 1px solid #86EFAC;
+}
+
+.code-input {
+    letter-spacing: 8px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+
+.password-toggle i,
+.password-toggle svg {
+    font-size: 20px;
+    line-height: 1;
+    color: inherit;
+    width: 1.1em;
+    height: 1.1em;
+}
+
+.password-toggle:hover,
+.password-toggle:focus {
+    color: #111827;
+}
+
+@media (max-width: 768px) {
+    .forgot-page .auth-panel {
+        padding: 32px 24px;
+    }
+
+    .step-indicator {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .step-line {
+        width: 2px;
+        height: 30px;
+    }
+}

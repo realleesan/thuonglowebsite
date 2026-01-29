@@ -3,16 +3,41 @@
 (function(){
     function togglePassword(fieldId) {
         const passwordInput = document.getElementById(fieldId);
-        const iconId = fieldId === 'new_password' ? 'new-password-icon' : 'confirm-password-icon';
-        const passwordIcon = document.getElementById(iconId);
-
         if (!passwordInput) return;
+
+        const wrapper = passwordInput.closest('.password-wrapper');
+        const toggleBtn = wrapper ? wrapper.querySelector('.password-toggle') : null;
+
+        let iconId;
+        if (fieldId === 'new_password') iconId = 'new-password-icon';
+        else if (fieldId === 'confirm_password') iconId = 'confirm-password-icon';
+
+        let passwordIcon = iconId ? document.getElementById(iconId) : null;
+
+        if (!passwordIcon && wrapper) {
+            passwordIcon = wrapper.querySelector('.password-toggle-icon, .password-toggle i, .password-toggle svg');
+        }
+
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            if (passwordIcon) passwordIcon.className = 'fas fa-eye-slash';
+            if (toggleBtn) {
+                toggleBtn.setAttribute('aria-pressed', 'true');
+                const hideLabel = toggleBtn.dataset.labelHide || 'Ẩn mật khẩu';
+                toggleBtn.setAttribute('aria-label', hideLabel);
+            }
+            if (passwordIcon) {
+                passwordIcon.classList.add('is-hidden');
+            }
         } else {
             passwordInput.type = 'password';
-            if (passwordIcon) passwordIcon.className = 'fas fa-eye';
+            if (toggleBtn) {
+                toggleBtn.setAttribute('aria-pressed', 'false');
+                const showLabel = toggleBtn.dataset.labelShow || 'Hiển thị mật khẩu';
+                toggleBtn.setAttribute('aria-label', showLabel);
+            }
+            if (passwordIcon) {
+                passwordIcon.classList.remove('is-hidden');
+            }
         }
     }
 

@@ -6,6 +6,15 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
 
+@font-face {
+    font-family: 'Font Awesome 5 Free';
+    src: url('../fonts/awesome-5x/fa-solid-900.woff2') format('woff2'),
+         url('../fonts/awesome-5x/fa-solid-900.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -109,27 +118,50 @@ body {
 .password-toggle {
     position: absolute;
     top: 50%;
-    right: 16px;
+    right: 12px;
     transform: translateY(-50%);
     background: none;
     border: none;
     color: #6B7280;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
 }
 
 .password-toggle i,
 .password-toggle svg {
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1;
     color: inherit;
-    width: 1em;
-    height: 1em;
+    width: 1.1em;
+    height: 1.1em;
 }
 
-.password-toggle:hover {
+.password-toggle-icon {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 1;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle-icon::before {
+    content: "\f06e";
+}
+
+.password-toggle-icon.is-hidden::before {
+    content: "\f070";
+}
+
+.password-toggle:hover,
+.password-toggle:focus {
     color: #111827;
 }
 
