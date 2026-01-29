@@ -1,10 +1,76 @@
-/* Styles specific to the forgot password view */
+/* --- PHẦN MỚI: Trang trí thanh tiến trình 1-2-3 --- */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    position: relative;
+    padding: 0 10px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    min-width: 60px;
+}
+
+/* Hình tròn chứa số */
+.step span {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #E5E7EB;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+}
+
+/* Chữ bên dưới (Nhập tin, Mã code...) */
+.step p {
+    font-size: 13px;
+    color: #9CA3AF;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Đường kẻ nối giữa các bước */
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #E5E7EB;
+    margin: -22px 5px 0 5px; /* Căn chỉnh để nằm giữa hình tròn */
+}
+
+/* --- TRẠNG THÁI --- */
+
+/* Đang thực hiện (Màu xanh dương) */
+.step.active span {
+    background: #356DF1;
+    border-color: #356DF1;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.2);
+}
+.step.active p { color: #356DF1; font-weight: 700; }
+
+/* Đã hoàn thành (Màu xanh lá) */
+.step.completed span {
+    background: #10B981;
+    border-color: #10B981;
+    color: #fff;
+}
+.step.completed p { color: #10B981; }
+
+
+/* --- CÁC STYLE CŨ (Giữ lại để không lỗi giao diện khác) --- */
 .verification-extra { margin-top: 8px; }
 .inline-form { display: inline; }
-
-/* minor utility tweaks used by the view */
 .password-wrapper { position: relative; }
 .password-toggle { background: transparent; border: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); cursor: pointer; }
-
-.debug-console { margin-top: 16px; font-size: 13px; color: #666; }
-.debug-item { margin-right: 12px; }

@@ -20,14 +20,15 @@
     <link rel="stylesheet" href="assets/css/home.css">
     <link rel="stylesheet" href="assets/css/footer.css">
     <link rel="stylesheet" href="assets/css/cta.css">
+    <link rel="stylesheet" href="assets/css/about.css">
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="assets/fonts/awesome-5x/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <!-- Additional CSS if needed -->
     <?php if (isset($additionalCSS)): ?>
         <?php foreach ($additionalCSS as $css): ?>
-            <link rel="stylesheet" href="<?php echo $css; ?>">
+            <link rel="stylesheet" href="<?php echo $css; ?>?v=<?php echo time(); ?>">
         <?php endforeach; ?>
     <?php endif; ?>
 </head>

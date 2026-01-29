@@ -16,6 +16,10 @@
         }
     }
 
+    if (!window.toggleAuthPassword) {
+        window.toggleAuthPassword = togglePassword;
+    }
+
     function resendCode() {
         if (confirm('Bạn có muốn gửi lại mã xác thực?')) {
             const form = document.createElement('form');

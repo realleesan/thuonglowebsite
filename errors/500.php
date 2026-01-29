@@ -68,7 +68,7 @@ $base = '/' . ($segments[0] ?? '') . '/';
         <div class="content">
             <h1 class="error-code">500</h1>
             <p class="error-message">Internal Server Error</p>
-            <a href="<?php echo $base; ?>app/views/home/index.php" class="back-home-btn">Quay lại trang chủ</a>
+            <a href="<?php echo $base; ?>index.php?page=home" class="back-home-btn">Quay lại trang chủ</a>
             <div class="sad-file-icon"></div>
         </div>
     </div>

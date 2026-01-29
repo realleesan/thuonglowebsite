@@ -96,7 +96,7 @@
                             <a href="/gallery/">Gallery</a>
                             <a href="/faqs/">FAQs</a>
                             <a href="/shop/">Shop</a>
-                            <a href="/about-us/">About Us</a>
+                            <a href="index.php?page=about">About Us</a>
                             <a href="/contact/">Contact</a>
                         </div>
                     </li>
@@ -117,7 +117,7 @@
                 <!-- Right Side Buttons -->
                 <div class="header-buttons">
                     <a href="/get-started/" class="btn-get-started">Get Started</a>
-                    <a href="/account/" class="btn-login">
+                    <a href="index.php?page=login" class="btn-login">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M8 8C10.21 8 12 6.21 12 4C12 1.79 10.21 0 8 0C5.79 0 4 1.79 4 4C4 6.21 5.79 8 8 8ZM8 10C5.33 10 0 11.34 0 14V16H16V14C16 11.34 10.67 10 8 10Z" stroke="currentColor" stroke-width="1" fill="none"/>
                         </svg>

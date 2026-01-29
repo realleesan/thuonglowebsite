@@ -197,16 +197,16 @@ function logout() {
     // Xóa cookie ref_code khi logout
     setcookie('ref_code', '', time() - 3600, '/');
     
-    header('Location: login.php');
+    header('Location: index.php?page=login');
     exit;
 }
 
 /**
  * Yêu cầu đăng nhập
  */
-function requireAuth($redirectTo = 'login.php') {
+function requireAuth($redirectPage = 'login') {
     if (!isLoggedIn()) {
-        header("Location: $redirectTo");
+        header("Location: index.php?page=" . $redirectPage);
         exit;
     }
 }
@@ -214,9 +214,9 @@ function requireAuth($redirectTo = 'login.php') {
 /**
  * Yêu cầu quyền truy cập
  */
-function requireRole($requiredRole, $redirectTo = 'login.php') {
+function requireRole($requiredRole, $redirectTo = 'login') {
     if (!checkAccess($requiredRole)) {
-        header("Location: $redirectTo");
+        header("Location: index.php?page=login");
         exit;
     }
 }

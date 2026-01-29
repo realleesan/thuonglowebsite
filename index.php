@@ -1,4 +1,5 @@
 <?php
+ob_start();
 // Khởi tạo session
 session_start();
 
@@ -23,6 +24,8 @@ switch($page) {
         $content = 'app/views/about/about.php';
         $showPageHeader = true;
         $showCTA = false;
+        $additionalCSS = ['assets/css/about.css?v=' . time()];
+        $additionalJS = ['assets/js/about.js?v=' . time()];
         break;
         
     case 'products':
@@ -52,6 +55,24 @@ switch($page) {
         $showPageHeader = false;
         $showCTA = false;
         break;
+
+    case 'forgot':
+        $title = 'Quên mật khẩu';
+        $content = 'app/views/auth/forgot.php';
+        $showPageHeader = true;
+        $showCTA = true;
+        
+        // Thêm ?v=time() vào CSS để xóa cache cũ
+        $additionalCSS = [
+            'assets/css/auth.css', 
+            'assets/css/forgot.css'
+        ];
+        
+        $additionalJS = [
+            'assets/js/auth.js',
+            'assets/js/forgot.js'
+        ];
+        break;
         
     case 'register':
         $title = 'Đăng ký - Thuong Lo';
@@ -66,8 +87,32 @@ switch($page) {
         $showPageHeader = false;
         $showCTA = false;
         break;
+
+    case 'checkout':
+        $title = 'Thanh toán - Thuong Lo';
+        $content = 'app/views/payment/checkout.php';
+        $showPageHeader = true;
+        $additionalCSS = ['assets/css/payment.css?v=' . time()];
+        break;
+
+    case 'payment':
+        $title = 'Quét mã QR - Thuong Lo';
+        $content = 'app/views/payment/payment.php';
+        $showPageHeader = true;
+        $additionalCSS = ['assets/css/payment.css?v=' . time()];
+        break;
+
+    case 'payment_success':
+        $title = 'Thanh toán thành công';
+        $content = 'app/views/payment/success.php';
+        $showPageHeader = true;
+        $additionalCSS = ['assets/css/payment.css?v=' . time()];
+        break;
+
+// ...
 }
 
 // Include master layout
 include_once 'app/views/_layout/master.php';
+ob_end_flush();
 ?>
