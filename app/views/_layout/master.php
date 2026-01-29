@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="assets/css/header.css">
     <link rel="stylesheet" href="assets/css/footer.css">
     <link rel="stylesheet" href="assets/css/cta.css">
+    <link rel="stylesheet" href="assets/css/pusher.css">
     
     <?php
     // Load page-specific CSS
@@ -89,10 +90,14 @@
     <!-- Footer -->
     <?php include_once 'footer.php'; ?>
     
+    <!-- Scroll to Top Button -->
+    <?php include_once 'pusher.php'; ?>
+    
     <!-- JavaScript Files -->
     <script src="assets/js/header.js"></script>
     <script src="assets/js/footer.js"></script>
     <script src="assets/js/cta.js"></script>
+    <script src="assets/js/pusher.js"></script>
     
     <?php
     // Load page-specific JavaScript
