@@ -41,11 +41,28 @@
         case 'about':
             echo '<link rel="stylesheet" href="assets/css/about.css">';
             break;
+        case 'products':
+        case 'courses':
+            echo '<link rel="stylesheet" href="assets/css/products.css">';
+            break;
+        case 'details':
+        case 'course-details':
+            echo '<link rel="stylesheet" href="assets/css/details.css">';
+            break;
         case 'auth':
         case 'login':
         case 'register':
-        case 'forgot':
             echo '<link rel="stylesheet" href="assets/css/auth.css">';
+            break;
+
+        case 'forgot':
+            echo '<link rel="stylesheet" href="assets/css/forgot.css">';
+            break;
+
+        case 'checkout':
+        case 'payment':
+        case 'payment_success':
+            echo '<link rel="stylesheet" href="assets/css/payment.css">';
             break;
         default:
             echo '<link rel="stylesheet" href="assets/css/home.css">';
@@ -111,11 +128,21 @@
         case 'about':
             echo '<script src="assets/js/about.js"></script>';
             break;
+        case 'products':
+        case 'courses':
+            echo '<script src="assets/js/products.js"></script>';
+            break;
+        case 'details':
+        case 'course-details':
+            echo '<script src="assets/js/details.js"></script>';
+            break;
         case 'auth':
         case 'login':
         case 'register':
-        case 'forgot':
             echo '<script src="assets/js/auth.js"></script>';
+            break;
+        case 'forgot':
+            echo '<script src="assets/js/forgot.js"></script>';
             break;
         default:
             echo '<script src="assets/js/home.js"></script>';

@@ -59,18 +59,35 @@ function mockLogin($phone, $password, $role = 'user') {
     return true;
 }
 
-/**
- * Mô phỏng đăng ký - Luôn thành công
- */
-function mockRegister($fullName, $email, $phone, $password, $refCode = '') {
-    // Lưu mã giới thiệu vào session nếu có
-    if (!empty($refCode)) {
-        $_SESSION['referred_by'] = $refCode;
-        setcookie('ref_code', $refCode, time() + (30 * 24 * 60 * 60), '/'); // 30 ngày
+if (!function_exists('mockRegister')) {
+    function mockRegister($fullName, $email, $phone, $password, $refCode = '') {
+        if (!empty($refCode)) {
+            $_SESSION['referred_by'] = $refCode;
+            if (!headers_sent()) {
+                setcookie('ref_code', $refCode, time() + (30 * 24 * 60 * 60), '/');
+            } else {
+                $_SESSION['queued_ref_code'] = $refCode;
+            }
+        }
+
+        return mockLogin($phone, $password, 'user');
     }
-    
-    // Tự động đăng nhập sau khi đăng ký
-    return mockLogin($phone, $password, 'user');
+}
+
+if (!function_exists('maybe_flush_auth_header')) {
+    function maybe_flush_auth_header(string $url): void {
+        if (!headers_sent()) {
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            header('Location: ' . $url);
+            exit;
+        }
+
+        echo '<script>window.location.href = ' . json_encode($url) . ';</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"></noscript>';
+        exit;
+    }
 }
 
 /**
@@ -157,7 +174,7 @@ function getRefCode() {
     // Ưu tiên lấy từ URL parameter
     if (isset($_GET['ref']) && !empty($_GET['ref'])) {
         $refCode = sanitize($_GET['ref']);
-        setcookie('ref_code', $refCode, time() + (30 * 24 * 60 * 60), '/');
+
         return $refCode;
     }
     
@@ -171,7 +188,6 @@ function getRefCode() {
 function getRefCodeFromUrl() {
     if (isset($_GET['ref']) && !empty($_GET['ref'])) {
         $refCode = sanitize($_GET['ref']);
-        setcookie('ref_code', $refCode, time() + (30 * 24 * 60 * 60), '/');
         return $refCode;
     }
     return '';
@@ -197,16 +213,16 @@ function logout() {
     // Xóa cookie ref_code khi logout
     setcookie('ref_code', '', time() - 3600, '/');
     
-    header('Location: login.php');
+    header('Location: index.php?page=login');
     exit;
 }
 
 /**
  * Yêu cầu đăng nhập
  */
-function requireAuth($redirectTo = 'login.php') {
+function requireAuth($redirectPage = 'login') {
     if (!isLoggedIn()) {
-        header("Location: $redirectTo");
+        header("Location: index.php?page=" . $redirectPage);
         exit;
     }
 }
@@ -214,9 +230,9 @@ function requireAuth($redirectTo = 'login.php') {
 /**
  * Yêu cầu quyền truy cập
  */
-function requireRole($requiredRole, $redirectTo = 'login.php') {
+function requireRole($requiredRole, $redirectTo = 'login') {
     if (!checkAccess($requiredRole)) {
-        header("Location: $redirectTo");
+        header("Location: index.php?page=login");
         exit;
     }
 }
