@@ -39,6 +39,14 @@ switch($page) {
         $showCTA = true;
         break;
         
+    case 'details':
+    case 'course-details':
+        $title = 'Chi tiết khóa học - Thuong Lo';
+        $content = 'app/views/products/details.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        break;
+        
     case 'news':
         $title = 'Tin tức - Thuong Lo';
         $content = 'app/views/news/news.php';

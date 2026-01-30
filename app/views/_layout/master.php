@@ -41,6 +41,14 @@
         case 'about':
             echo '<link rel="stylesheet" href="assets/css/about.css">';
             break;
+        case 'products':
+        case 'courses':
+            echo '<link rel="stylesheet" href="assets/css/products.css">';
+            break;
+        case 'details':
+        case 'course-details':
+            echo '<link rel="stylesheet" href="assets/css/details.css">';
+            break;
         case 'auth':
         case 'login':
         case 'register':
@@ -119,6 +127,14 @@
             break;
         case 'about':
             echo '<script src="assets/js/about.js"></script>';
+            break;
+        case 'products':
+        case 'courses':
+            echo '<script src="assets/js/products.js"></script>';
+            break;
+        case 'details':
+        case 'course-details':
+            echo '<script src="assets/js/details.js"></script>';
             break;
         case 'auth':
         case 'login':
