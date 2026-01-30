@@ -60,15 +60,21 @@
 /* Hero */
 .about-page .hero-section {
     position: relative;
-    padding: 80px 0;
+    padding: 100px 0 120px;
     overflow: hidden;
-    background: #ffffff;
+    color: #ffffff;
 }
 
 .about-page .hero-background {
     position: absolute;
     inset: 0;
-    background-image:#ffffff;
+    background: linear-gradient(120deg, rgba(17, 24, 39, 0.78), rgba(37, 99, 235, 0.55)),
+                url('../img/about_hero_banner.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: saturate(110%);
+    transform: scale(1.02);
     z-index: 0;
 }
 
@@ -81,27 +87,78 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    animation: heroGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+    0% {
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            0 0 40px rgba(53, 109, 241, 0.1);
+    }
+    100% {
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            0 0 60px rgba(53, 109, 241, 0.2);
+    }
 }
 
 .about-page .hero-content h1 {
-    font-size: 48px;
+    font-size: 56px;
     font-weight: 700;
     line-height: 1.2;
-    color: #1F2937;
+    color: #ffffff;
+    text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(53, 109, 241, 0.3);
+    letter-spacing: -0.02em;
+    position: relative;
 }
 
 .about-page .hero-content h1 .highlight {
-    color: #356DF1;
+    background: linear-gradient(135deg, #FBBF24, #F59E0B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(251, 191, 36, 0.4);
+    position: relative;
+    display: inline-block;
 }
 
 .about-page .hero-content p {
     font-size: 18px;
-    color: #6B7280;
+    color: rgba(241, 245, 249, 0.92);
+    text-shadow: 
+        0 1px 2px rgba(0, 0, 0, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 400;
+    line-height: 1.7;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
 }
 
 /* Stats */
 .about-page .stats-section {
-    background: #111827;
+    background: #356DF1 ;
     color: #F9FAFB;
     padding: 80px 0;
 }
@@ -114,15 +171,18 @@
 }
 
 .about-page .stats-text h2 {
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 700;
     margin-bottom: 16px;
+    text-align: center;
+
 }
 
 .about-page .stats-text p {
-    font-size: 16px;
+    font-size: 24px;
     color: #D1D5DB;
     line-height: 1.8;
+    text-align: center;
 }
 
 .about-page .stats-grid {
@@ -132,12 +192,16 @@
 }
 
 .about-page .stat-card {
+    background: #F9FAFB;
     border-radius: 16px;
     padding: 28px 24px;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(20px);
-    transition: all 0.3s ease;
-    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
+    
 }
 
 .about-page .stat-card:hover {
@@ -153,9 +217,15 @@
 }
 
 .about-page .stat-number {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     margin-bottom: 6px;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum", "lnum";
+    text-shadow: 0 4px 16px rgba(15, 23, 42, 0.4);
+    display: inline-flex;
+    align-items: baseline;
 }
 
 .about-page .stat-label {
@@ -192,9 +262,11 @@
 }
 
 .about-page .features-grid {
+
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px;
+    grid-template-columns: 1fr; /* Mặc định 1 cột trên điện thoại */
+    gap: 20px;
+    padding: 0 15px;
 }
 
 .about-page .feature-card {
@@ -209,12 +281,22 @@
     height: 64px;
     border-radius: 16px;
     background: #EEF2FF;
-    color: #356DF1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
     margin-bottom: 24px;
+    overflow: hidden;
+    position: relative;
+}
+
+.about-page .feature-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+    transition: transform 0.3s ease;
+    display: block;
+}
+
+.about-page .feature-card:hover .feature-image img {
+    transform: scale(1.05);
 }
 
 .about-page .feature-card h3 {
@@ -244,9 +326,23 @@
 
 .about-page .testimonial-visual {
     width: 100%;
-    padding-top: 125%;
+    height: 100%;
+    object-fit: cover;
     border-radius: 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.about-page .testimonial-image {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    border-radius: 24px;
+    overflow: hidden;
     background: linear-gradient(180deg, #E1E9FD 0%, #C7D2FE 100%);
+    max-width: 300px; /* Giới hạn độ rộng ảnh founder trên mobile */
+    margin: 0 auto;
 }
 
 .about-page .quote-icon {
@@ -263,8 +359,10 @@
 }
 
 .about-page .testimonial-author {
+    font-size: 26px;
     font-weight: 600;
     color: #1F2937;
+    text-align: right;
 }
 
 /* CTA */
@@ -280,15 +378,15 @@
 }
 
 .about-page .cta-tag {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 36px;
+    font-weight: 700;
     letter-spacing: 0.08em;
     color: #356DF1;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 
 .about-page .cta-title {
-    font-size: 36px;
+    font-size: 30px;
     font-weight: 700;
     color: #1F2937;
     margin-bottom: 48px;
@@ -342,12 +440,13 @@
     color: #ffffff;
     background: #356DF1;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .about-page .cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(53, 109, 241, 0.2);
+    background-color: #000000;
+    color: white;
+    transform: translateY(-1px);
 }
 
 /* Modal */
@@ -471,6 +570,8 @@
     .about-page .testimonial-container {
         grid-template-columns: 1fr;
         text-align: center;
+        gap: 30px;
+        display: grid;
     }
 
     .about-page .cta-features {
@@ -479,6 +580,11 @@
 }
 
 @media (max-width: 640px) {
+    .about-page .hero-content {
+        padding: 30px 20px;
+        margin: 0 15px;
+    }
+    
     .about-page .hero-content h1 {
         font-size: 32px;
     }
@@ -494,5 +600,19 @@
 
     .about-page .cta-title {
         font-size: 28px;
+    }
+}
+
+
+
+/* --- Media Queries (Cho màn hình lớn hơn) --- */
+@media (min-width: 992px) {
+    .about-page .features-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 cột trên Desktop */
+    }
+
+    .about-page .testimonial-container {
+        grid-template-columns: 320px 1fr; /* Ảnh bên trái, chữ bên phải */
+        text-align: left;
     }
 }

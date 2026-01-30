@@ -13,7 +13,7 @@
                                     <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </span>
-                            <span>About</span>
+                            <span>About Us</span>
                         </div>
                     </div>
                 </section>
@@ -23,8 +23,8 @@
                     <div class="hero-background" aria-hidden="true"></div>
                     <div class="container">
                         <div class="hero-content">
-                            <h1>Learn <span class="highlight">with passion</span><br>to live <span class="highlight">with purpose</span></h1>
-                            <p>Chúng tôi giúp bạn khai phá tiềm năng của mình thông qua hệ thống khóa học toàn diện và đội ngũ giảng viên chuyên nghiệp. Hãy đồng hành cùng hàng nghìn học viên đã thay đổi sự nghiệp với Eduma.</p>
+                            <h1>Thượng Lộ<br><span class="highlight">Nguồn Hàng Gốc</span> &<span class="highlight"> Tự Động Hóa Logistics</span></h1>
+                            <p>Nền tảng tiên phong cung cấp các gói dữ liệu nhà cung cấp độc quyền và giải pháp vận chuyển thông minh. Chúng tôi bảo vệ tài sản thông tin của bạn bằng công nghệ mã hóa hiện đại, đồng thời tự động hóa quy trình từ thanh toán đến bàn giao dữ liệu chỉ trong vài giây.</p>
                         </div>
                     </div>
                 </section>
@@ -34,25 +34,25 @@
                     <div class="container">
                         <div class="stats-wrapper">
                             <div class="stats-text">
-                                <h2>We Just Keep Growing</h2>
-                                <p>Eduma tự hào là một trong những nền tảng giáo dục trực tuyến hàng đầu tại Việt Nam. Cam kết về chất lượng và sự thành công của học viên giúp chúng tôi xây dựng cộng đồng học tập mạnh mẽ.</p>
+                                <h2>Hết lòng tận tâm, sản phẩm xứng đáng</h2>
+                                <p>Chúng tôi cam kết mang đến cho khách hàng những sản phẩm chất lượng cao, giá cả hợp lý và dịch vụ khách hàng tốt nhất.</p>
                             </div>
                             <div class="stats-grid">
                                 <div class="stat-card">
-                                    <div class="stat-number">54,832</div>
-                                    <div class="stat-label">Đơn vị Logistic</div>
+                                    <div class="stat-number">100,000+</div>
+                                    <div class="stat-label">Data Nguồn Hàng Xác Thực</div>
                                 </div>
                                 <div class="stat-card">
-                                    <div class="stat-number">10,223</div>
-                                    <div class="stat-label">Đối tác tin tưởng</div>
+                                    <div class="stat-number">24/7</div>
+                                    <div class="stat-label">Hệ Thống Mở Khóa Tự Động</div>
                                 </div>
                                 <div class="stat-card">
-                                    <div class="stat-number">25,678</div>
-                                    <div class="stat-label">Người dùng</div>
+                                    <div class="stat-number">100 %</div>
+                                    <div class="stat-label">Cam Kết Bảo Mật Chống Sao Chép</div>
                                 </div>
                                 <div class="stat-card">
-                                    <div class="stat-number">2,678</div>
-                                    <div class="stat-label">Chứng nhận ủy quyền</div>
+                                    <div class="stat-number">50+</div>
+                                    <div class="stat-label">Đối Tác Logistics Chiến Lược</div>
                                 </div>
                             </div>
                         </div>
@@ -63,31 +63,31 @@
                 <section class="special-section">
                     <div class="container">
                         <div class="special-inner">
-                            <h2>What Make Us <span class="highlight">Special</span>?</h2>
-                            <p>Chúng tôi kết hợp công nghệ hiện đại với kinh nghiệm giáo dục thực tiễn để mang đến trải nghiệm học tập xuất sắc, phù hợp với từng cá nhân và mục tiêu nghề nghiệp của bạn.</p>
+                            <h2>Thông Tin <span class="highlight">& Tốc Độ</span></h2>
+                            <p>Giải pháp toàn diện giúp doanh nghiệp tiếp cận nguồn hàng tận gốc và vận chuyển xuyên biên giới an toàn.</p>
                         </div>
 
                         <div class="features-grid">
                             <div class="feature-card">
                                 <div class="feature-image">
-                                    <i class="fas fa-users"></i>
+                                    <img src="assets/img/about_tt&tt_1.jpg" alt="Kho Nguồn Hàng Độc Quyền">
                                 </div>
-                                <h3>Why We Are?</h3>
-                                <p>Đội ngũ Eduma gồm những nhà giáo dục và chuyên gia công nghệ đầy tâm huyết, hướng tới mục tiêu mang tri thức chất lượng đến với mọi người học.</p>
+                                <h3>Kho Nguồn Hàng Độc Quyền</h3>
+                                <p>Thượng Lộ cung cấp các gói dữ liệu nhà máy, xưởng sản xuất đã qua kiểm duyệt kỹ lưỡng. Là "vũ khí bí mật" giúp bạn tối ưu biên lợi nhuận ngay từ khâu nhập hàng.</p>
                             </div>
                             <div class="feature-card">
                                 <div class="feature-image">
-                                    <i class="fas fa-lightbulb"></i>
+                                    <img src="assets/img/about_tt&tt_2.jpg" alt="Công Nghệ Chống Sao Chép">
                                 </div>
-                                <h3>What We Do?</h3>
-                                <p>Chúng tôi xây dựng các chương trình học toàn diện, cá nhân hóa lộ trình và hỗ trợ học viên liên tục để đảm bảo hiệu quả học tập tối ưu.</p>
+                                <h3>Công Nghệ Chống Sao Chép</h3>
+                                <p>Hệ thống của chúng tôi tích hợp các lớp bảo mật cấp cao, ngăn chặn hành vi chia sẻ trái phép hoặc bán lại, đảm bảo lợi thế cạnh tranh độc tôn cho chủ sở hữu gói.</p>
                             </div>
                             <div class="feature-card">
                                 <div class="feature-image">
-                                    <i class="fas fa-rocket"></i>
+                                    <img src="assets/img/about_tt&tt_3.jpg" alt="Thanh Toán & Kích Hoạt Tự Động">
                                 </div>
-                                <h3>How It Works?</h3>
-                                <p>Nền tảng học tập thông minh, bài học tương tác, thực hành thực tế và đánh giá liên tục giúp bạn làm chủ kiến thức trước khi tiến bước tiếp theo.</p>
+                                <h3>Thanh Toán & Kích Hoạt Tự Động</h3>
+                                <p>Loại bỏ quy trình xác nhận thủ công chậm chạp. Với Thượng Lộ, ngay sau khi quét QR thanh toán, hệ thống Logistics được kích hoạt và kho dữ liệu được mở khóa tự động 100%.</p>
                             </div>
                         </div>
                     </div>
@@ -98,12 +98,12 @@
                     <div class="container">
                         <div class="testimonial-container">
                             <div class="testimonial-image">
-                                <div class="testimonial-visual"></div>
+                                <img src="assets/img/about_founder.jpg" alt="Founder Thượng Lộ" class="testimonial-visual">
                             </div>
                             <div class="testimonial-content">
                                 <div class="quote-icon">"</div>
-                                <p class="testimonial-text">“Eduma chính là bệ phóng cho sự nghiệp của tôi. Các khóa học được thiết kế khoa học, đội ngũ giảng viên tận tâm và luôn sẵn sàng hỗ trợ.”</p>
-                                <div class="testimonial-author">John Smith, Co-Founder</div>
+                                <p class="testimonial-text"> Trong thương mại điện tử, ai nắm giữ Nguồn Hàng Gốc và tối ưu được Logistics, người đó nắm giữ thị phần. Thượng Lộ ra đời để trao quyền năng đó cho bạn thông qua công nghệ tự động hóa và cơ chế bảo mật dữ liệu khắt khe nhất.</p>
+                                <div class="testimonial-author">- Founder Thượng Lộ -</div>
                             </div>
                         </div>
                     </div>
@@ -114,7 +114,7 @@
                     <div class="container">
                         <div class="cta-container">
                             <div class="cta-tag">Đăng ký Affiliate</div>
-                            <h2 class="cta-title">Muốn hợp tác với chúng tôi?<br>Đăng ký làm agent ngay!</h2>
+                            <h2 class="cta-title">Muốn hợp tác với chúng tôi?<br>Đăng ký Affiliate ngay!</h2>
 
                             <div class="cta-features">
                                 <div class="cta-feature">
@@ -155,7 +155,7 @@
                                 </div>
                             </div>
 
-                            <button class="cta-button" onclick="openModal()">ĐĂNG KÝ AGENT NGAY</button>
+                            <button class="cta-button" onclick="openModal()">ĐĂNG KÝ ĐẠI LÝ NGAY</button>
                         </div>
                     </div>
                 </section>

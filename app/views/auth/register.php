@@ -125,28 +125,7 @@ $debugInfo = getDebugInfo();
                                 <span class="icon">✓</span>
                                 Mã giới thiệu đã được tự động điền từ link giới thiệu
                             </div>
-                        <?php elseif (isset($_COOKIE['ref_code']) && !empty($_COOKIE['ref_code'])): ?>
-                            <div class="ref-code-info ref-code-info--hint">
-                                <span class="icon">ℹ</span>
-                                Bạn có mã giới thiệu đã lưu: <strong><?php echo htmlspecialchars($_COOKIE['ref_code']); ?></strong>
-                                <button type="button" onclick="useSavedRefCode()" class="ref-code-action">Sử dụng</button>
-                                <button type="button" onclick="clearSavedRefCode()" class="ref-code-action ref-code-action--danger">Xóa</button>
-                            </div>
                         <?php endif; ?>
-                    </div>
-
-                    <div class="social-login social-register">
-                        <div class="social-login-text">Đăng ký nhanh với:</div>
-                        <div class="social-buttons">
-                            <button type="button" class="social-btn google" onclick="registerWithGoogle()">
-                                <i class="fab fa-google"></i>
-                                Google
-                            </button>
-                            <button type="button" class="social-btn facebook" onclick="registerWithFacebook()">
-                                <i class="fab fa-facebook-f"></i>
-                                Facebook
-                            </button>
-                        </div>
                     </div>
 
                     <div class="terms-checkbox">

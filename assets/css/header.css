@@ -329,7 +329,9 @@ body {
     font-weight: 600;
     line-height: 1.2;
     transition: all 0.3s ease;
+    cursor: pointer;
 }
+
 
 .btn-get-started:hover {
     background-color: #000000;

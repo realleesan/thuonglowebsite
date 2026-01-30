@@ -25,7 +25,7 @@ function closeModal() {
 }
 
 // --- 2. CÁC HÀM XỬ LÝ SỐ CHẠY (Counter) ---
-function animateValue(obj, start, end, duration) {
+function animateValue(obj, start, end, duration, finalText) {
     let startTimestamp = null;
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
@@ -35,12 +35,12 @@ function animateValue(obj, start, end, duration) {
         const easeProgress = 1 - Math.pow(1 - progress, 3);
         
         const currentVal = Math.floor(easeProgress * (end - start) + start);
-        obj.innerHTML = currentVal;
+        obj.textContent = currentVal.toLocaleString('en-US');
         
         if (progress < 1) {
             window.requestAnimationFrame(step);
         } else {
-            obj.innerHTML = end;
+            obj.textContent = finalText !== undefined ? finalText : end.toLocaleString('en-US');
         }
     };
     window.requestAnimationFrame(step);
@@ -52,13 +52,14 @@ function initCounter() {
     if (statNumbers.length === 0) return;
 
     statNumbers.forEach(stat => {
+        const originalText = stat.textContent.trim();
         // Lấy số từ nội dung text
-        const rawText = stat.innerText.replace(/[^0-9]/g, '');
+        const rawText = originalText.replace(/[^0-9]/g, '');
         const finalValue = parseInt(rawText, 10);
         
         if (!isNaN(finalValue) && finalValue > 0) {
-            stat.innerText = "0"; // Reset về 0
-            animateValue(stat, 0, finalValue, 2000); // Chạy trong 2 giây
+            stat.textContent = "0"; // Reset về 0
+            animateValue(stat, 0, finalValue, 2000, originalText); // Chạy trong 2 giây và khôi phục định dạng
         }
     });
 }

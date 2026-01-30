@@ -75,6 +75,7 @@ $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'u
                                placeholder="Username or email" required
                                value="<?php echo htmlspecialchars($rememberedPhone); ?>">
                     </div>
+        
 
                     <div class="form-group">
                         <label for="password" class="form-label">Mật khẩu</label>
@@ -89,24 +90,6 @@ $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'u
                         </div>
                     </div>
 
-                    <div class="social-login">
-                        <div class="social-login-text">Or login with:</div>
-                        <div class="social-buttons">
-                            <button type="button" class="social-btn google" onclick="loginWithGoogle()">
-                                <i class="fab fa-google"></i>
-                                Google
-                            </button>
-                            <button type="button" class="social-btn x" onclick="loginWithX()">
-                                <i class="fab fa-x-twitter"></i>
-                                X.com
-                            </button>
-                            <button type="button" class="social-btn linkedin" onclick="loginWithLinkedIn()">
-                                <i class="fab fa-linkedin-in"></i>
-                                LinkedIn
-                            </button>
-                        </div>
-                    </div>
-
                     <div class="remember-forgot">
                         <label class="remember-me">
                             <input type="checkbox" name="remember_me" <?php echo $rememberedPhone ? 'checked' : ''; ?>>
@@ -117,7 +100,7 @@ $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'u
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-primary auth-submit-btn">Login</button>
+                    <button type="submit" class="btn-primary auth-submit-btn">Đăng nhập</button>
 
                     <input type="hidden" name="role" id="selected-role" value="<?php echo htmlspecialchars($rememberedRole); ?>">
                 </form>

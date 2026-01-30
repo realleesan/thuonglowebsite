@@ -160,16 +160,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <?php elseif ($step === 'verify'): ?>
                                 <form method="POST" action="index.php?page=forgot" class="auth-form">
-                                    <input type="hidden" name="action" value="verify_code">
                                     <div class="form-group">
                                         <label for="verification_code">Nhập mã xác thực</label>
                                         <input type="text" id="verification_code" name="verification_code" class="form-control code-input"
                                                placeholder="000000" maxlength="6" required autofocus>
                                     </div>
-                                    <button type="submit" class="btn-primary auth-submit-btn">Xác thực</button>
+                                    <button type="submit" class="btn-primary auth-submit-btn" name="action" value="verify_code">Xác thực</button>
 
                                     <div class="forgot-actions">
-                                        <button type="submit" name="action" value="change_contact" class="ref-code-action">
+                                        <button type="submit" name="action" value="change_contact" class="ref-code-action" formnovalidate>
                                             Nhập lại thông tin khác
                                         </button>
                                     </div>

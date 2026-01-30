@@ -15,6 +15,20 @@
     font-display: swap;
 }
 
+
+/* Auth Main */
+.hero-background {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(17, 24, 39, 0.78), rgba(37, 99, 235, 0.55)),
+                url('../img/about_hero_banner.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: saturate(110%);
+    transform: scale(1.02);
+    z-index: 0;
+}
 body {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -44,7 +58,11 @@ body {
     font-size: 32px;
     font-weight: 700;
     color: #1F2937;
-    margin-bottom: 12px;
+    margin-bottom: 5px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
 }
 
 .auth-subheading {
@@ -165,63 +183,6 @@ body {
     color: #111827;
 }
 
-.social-login {
-    margin-top: 12px;
-}
-
-.social-login-text {
-    font-size: 14px;
-    color: #6B7280;
-    margin-bottom: 12px;
-    text-align: left;
-}
-
-.social-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.social-btn {
-    flex: 1 1 14px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid transparent;
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.social-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
-}
-
-.social-btn.google {
-    background: #FEE2E2;
-    color: #B91C1C;
-}
-
-.social-btn.x {
-    background: #0F172A;
-    color: #ffffff;
-}
-
-.social-btn.facebook {
-    background: #EFF6FF;
-    color: #1D4ED8;
-}
-
-.social-btn.linkedin {
-    background: #E0F2FE;
-    color: #0B61C3;
-}
-
 .remember-forgot {
     display: flex;
     align-items: center;
@@ -258,21 +219,25 @@ body {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    padding: 16px;
-    background-color: #0A66C2;
-    color: white;
     border: none;
-    border-radius: 8px;
     font-size: 16px;
-    font-weight: 600;
+
     cursor: pointer;
+    background-color: #356DF1;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
     transition: all 0.3s ease;
 }
 
 .auth-submit-btn:hover {
-    background-color: #094d92;
+    background-color: #000000;
+    color: white;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3);
 }
 
 .register-link {
@@ -289,7 +254,9 @@ body {
 }
 
 .register-link a:hover {
-    text-decoration: underline;
+    color: black;
+    transform: translateY(-1px);
+    cursor: pointer;
 }
 
 .role-demo {
@@ -456,7 +423,9 @@ body {
 }
 
 .terms-checkbox a:hover {
-    text-decoration: underline;
+    color: black;
+    transform: translateY(-1px);
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {

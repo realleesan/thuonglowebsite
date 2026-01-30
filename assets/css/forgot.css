@@ -234,15 +234,20 @@
     font-weight: 600;
     border: none;
     border-radius: 10px;
-    background: #356DF1;
-    color: #ffffff;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #356DF1;
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: all 0.3s ease;
 }
 
 .forgot-page .btn-primary:hover {
+    background-color: #000000;
+    color: white;
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(53, 109, 241, 0.25);
+    cursor: pointer;
 }
 
 .forgot-info {
@@ -267,6 +272,26 @@
     cursor: pointer;
     padding: 0;
 }
+.forgot-actions .ref-code-action:hover {
+    color: black;
+    transform: translateY(-1px);
+    cursor: pointer;
+}
+
+.forgot-wrapper .forgot-form-section {
+    min-height: calc(100vh - 160px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0 80px;
+}
+
+.forgot-wrapper .forgot-form-section .container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
 
 .register-link {
     margin-top: 32px;
@@ -280,7 +305,10 @@
 }
 
 .register-link a:hover {
-    text-decoration: underline;
+    color: black;
+    transform: translateY(-1px);
+    cursor: pointer;
+
 }
 
 /* Step indicator */
