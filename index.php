@@ -36,7 +36,7 @@ switch($page) {
         $title = 'Sản phẩm - Thuong Lo';
         $content = 'app/views/products/products.php';
         $showPageHeader = true;
-        $showCTA = true;
+        $showCTA = false;
         break;
         
     case 'details':
