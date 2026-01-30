@@ -408,6 +408,9 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Include Related Courses Section -->
+            <?php include __DIR__ . '/../_layout/related.php'; ?>
         </div>
     </div>
 </div>

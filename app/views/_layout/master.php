@@ -48,6 +48,7 @@
         case 'details':
         case 'course-details':
             echo '<link rel="stylesheet" href="assets/css/details.css">';
+            echo '<link rel="stylesheet" href="assets/css/related.css">';
             break;
         case 'auth':
         case 'login':
@@ -135,6 +136,7 @@
         case 'details':
         case 'course-details':
             echo '<script src="assets/js/details.js"></script>';
+            echo '<script src="assets/js/related.js"></script>';
             break;
         case 'auth':
         case 'login':
