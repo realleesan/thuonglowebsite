@@ -3,21 +3,6 @@
     <div class="content-pusher">
         <div id="main-content">
             <div class="elementor elementor-15130">
-                <!-- Breadcrumb Section -->
-                <section class="breadcrumb-section">
-                    <div class="container">
-                        <div class="breadcrumb">
-                            <a href="/">Home</a>
-                            <span class="delimiter">
-                                <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </span>
-                            <span>Courses</span>
-                        </div>
-                    </div>
-                </section>
-
                 <!-- Main Products Section -->
                 <section class="products-section">
                     <div class="container">
@@ -26,7 +11,7 @@
                             <div class="products-main">
                                 <!-- Header with Title and Filter Button -->
                                 <div class="products-header">
-                                    <h1 class="page-title">Courses</h1>
+                                    <h1 class="page-title">Sản phẩm</h1>
                                     <button class="filter-toggle-btn" id="filterToggle">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                                             <path d="M8.37013 7.79006C8.42013 8.22006 8.73013 8.55006 9.17013 8.63006C9.24013 8.64006 9.31013 8.65006 9.38013 8.65006C9.74013 8.65006 10.0701 8.46006 10.2401 8.15006C10.2401 8.15006 10.3701 7.93006 10.3701 7.86006V6.83006H21.3701C21.4801 6.83006 21.8501 6.61006 21.9301 6.52006C22.1301 6.31006 22.2301 5.99006 22.1801 5.68006C22.1401 5.36006 21.9601 5.10006 21.7001 4.95006C21.6801 4.94006 21.3401 4.81006 21.2801 4.81006H10.3701V3.77006C10.3701 3.64006 10.1101 3.30006 10.0601 3.25006C9.80013 3.01006 9.39013 2.94006 9.03013 3.07006C8.68013 3.19006 8.44013 3.47006 8.39013 3.81006C8.34013 4.16006 8.36013 4.61006 8.37013 5.05006C8.37013 5.25006 8.39013 5.44006 8.39013 5.61006C8.39013 5.78006 8.39013 5.96006 8.37013 6.16006C8.35013 6.71006 8.33013 7.34006 8.37013 7.80006V7.79006Z" fill="#098CE9"></path>
@@ -42,18 +27,18 @@
                                 <!-- Top Bar with Results and Sort -->
                                 <div class="products-topbar">
                                     <div class="results-count">
-                                        <span>Showing 1-12 of 20 results</span>
+                                        <span>Hiển thị 1-12 trong tổng số 20 kết quả</span>
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">
                                             <select name="order_by" class="sort-select">
-                                                <option value="post_date" selected>Newly published</option>
-                                                <option value="post_title">Title a-z</option>
-                                                <option value="post_title_desc">Title z-a</option>
-                                                <option value="price">Price high to low</option>
-                                                <option value="price_low">Price low to high</option>
-                                                <option value="popular">Popular</option>
-                                                <option value="rating">Average Ratings</option>
+                                                <option value="post_date" selected>Mới nhất</option>
+                                                <option value="post_title">Tên A-Z</option>
+                                                <option value="post_title_desc">Tên Z-A</option>
+                                                <option value="price">Giá cao đến thấp</option>
+                                                <option value="price_low">Giá thấp đến cao</option>
+                                                <option value="popular">Phổ biến</option>
+                                                <option value="rating">Đánh giá trung bình</option>
                                             </select>
                                         </form>
                                     </div>
@@ -64,39 +49,36 @@
                                     <!-- Course Item 1 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Language Learning</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/12/Introduction-learnpress-lms-plugin-4-675x450.png" 
-                                                     alt="Introduction LearnPress – LMS plugin" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">Introduction LearnPress – LMS plugin</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                A WordPress LMS Plugin to create WordPress Learning Management System. Turn your WP to LMS WordPress with Courses, Lessons, Quizzes & more.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>15 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price free">Free</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -105,39 +87,36 @@
                                     <!-- Course Item 2 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Coaching</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="/?page=details">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Create an LMS Website with LearnPress" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="/?page=details">Create an LMS Website with LearnPress</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                Lorem ipsum dolor sit amet. Qui incidunt dolores non similique ducimus et debitis molestiae.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>14 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price free">Free</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -146,50 +125,36 @@
                                     <!-- Course Item 3 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Teaching Online</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                                     alt="How To Sell In-Person Course With LearnPress" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">How To Sell In-Person Course With LearnPress</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                This course is a detailed and easy tutorial to get you all setup and going with the use of LearnPress LMS Plugin. It is a free and simple plugin to...
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
-                                                <div class="course-location">
-                                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <g clip-path="url(#clip0_81_2007)">
-                                                            <path d="M14 7.16675C14 11.8334 8 15.8334 8 15.8334C8 15.8334 2 11.8334 2 7.16675C2 5.57545 2.63214 4.04933 3.75736 2.92411C4.88258 1.79889 6.4087 1.16675 8 1.16675C9.5913 1.16675 11.1174 1.79889 12.2426 2.92411C13.3679 4.04933 14 5.57545 14 7.16675Z" stroke="#666666" stroke-linecap="round" stroke-linejoin="round"/>
-                                                            <path d="M8 9.16675C9.10457 9.16675 10 8.27132 10 7.16675C10 6.06218 9.10457 5.16675 8 5.16675C6.89543 5.16675 6 6.06218 6 7.16675C6 8.27132 6.89543 9.16675 8 9.16675Z" stroke="#666666" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </g>
-                                                    </svg>
-                                                    <span>In-Person workshop, Edinburgh</span>
-                                                </div>
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>10 lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price-prefix">Only</span>
-                                                <span class="price">$120.00</span>
-                                                <span class="price-suffix">pw</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -198,40 +163,36 @@
                                     <!-- Course Item 4 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Coaching</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                                     alt="How To Create An Online Course" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">How To Create An Online Course</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                The jQuery team knows all about cross-browser issues, and they have written this knowledge into the jQuery library. jQuery will run exactly the same in all major browsers, including Internet...
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>0 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$30.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -240,40 +201,36 @@
                                     <!-- Course Item 5 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Coaching</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-4-675x450.jpg" 
-                                                     alt="The Complete Online Teaching Masterclass" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">The Complete Online Teaching Masterclass</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                In this course, We'll learn how to create websites by structuring and styling your pages with HTML and CSS.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>0 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$25.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -282,40 +239,36 @@
                                     <!-- Course Item 6 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Coaching</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-5-675x450.jpg" 
-                                                     alt="Online Course Creation Secrets" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">Online Course Creation Secrets</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                Learn how to create and sell online courses that students love. Master the art of course creation from planning to launch.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>8 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$65.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -324,40 +277,36 @@
                                     <!-- Course Item 7 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Online Business</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-6-675x450.jpg" 
-                                                     alt="Launch Your Own Online School And..." loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">Launch Your Own Online School And...</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                Build and launch your own online school from scratch. Learn the complete process from setup to student acquisition.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>12 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$49.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -366,40 +315,36 @@
                                     <!-- Course Item 8 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Teaching Online</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-7-675x450.jpg" 
-                                                     alt="How To Teach Online Courses Effectively" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">How To Teach Online Courses Effectively</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                Master the art of online teaching. Learn proven strategies to engage students and deliver effective online education.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>15 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$85.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -408,40 +353,36 @@
                                     <!-- Course Item 9 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Technology</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-8-675x450.jpg" 
-                                                     alt="Instructional Design For Learning And..." loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">Instructional Design For Learning And...</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                This course will introduce you to the field of instructional design and provide you with a solid foundation in the principles and practices.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>18 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$65.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -450,40 +391,36 @@
                                     <!-- Course Item 10 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Language Learning</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-9-675x450.jpg" 
-                                                     alt="How To Teach English Online And Get Paid" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">How To Teach English Online And Get Paid</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                In this course, learn how to teach English online and create a sustainable income from teaching English as a second language.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>22 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$35.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -492,40 +429,36 @@
                                     <!-- Course Item 11 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Online Business</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-9-675x450.jpg" 
-                                                     alt="How To Teach An Online Course" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">How To Teach An Online Course</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                This course will introduce you to the fundamentals of online course creation and provide you with practical skills to teach effectively online.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>16 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$55.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -534,40 +467,36 @@
                                     <!-- Course Item 12 -->
                                     <div class="course-item">
                                         <div class="course-category">
-                                            <a href="#" class="category-tag">Technology</a>
+                                            <a href="#" class="category-tag">Data nguồn hàng</a>
                                         </div>
                                         <div class="course-image">
-                                            <a href="#">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/course-9-675x450.jpg" 
-                                                     alt="Accelerate Your Course Creation Speed" loading="lazy">
+                                            <a href="?page=details">
+                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
                                             </a>
                                         </div>
                                         <div class="course-content">
                                             <h4 class="course-title">
-                                                <a href="#">Accelerate Your Course Creation Speed</a>
+                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                                             </h4>
-                                            <div class="course-excerpt">
-                                                Learn advanced techniques and tools to create online courses faster without compromising quality. Streamline your course creation process.
-                                            </div>
+                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
                                             <div class="course-instructor">
-                                                <a href="#" class="instructor-name">Keny White</a>
+                                                <a href="#" class="instructor-name">ThuongLo.com</a>
                                             </div>
                                             <div class="course-meta">
                                                 <div class="course-lessons">
                                                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span>14 Lessons</span>
+                                                    <span>1000+ Nhà cung cấp</span>
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                <span class="price">$75.00</span>
-                                                <span class="price-suffix">incl. tax</span>
+                                                <span class="price">2.500.000đ</span>
                                             </div>
                                             <div class="course-button">
-                                                <a href="#" class="btn-start-learning">
+                                                <a href="?page=details" class="btn-start-learning">
                                                     <i class="fas fa-play"></i>
-                                                    <span>Start Learning</span>
+                                                    <span>Xem chi tiết</span>
                                                 </a>
                                             </div>
                                         </div>
@@ -582,8 +511,8 @@
                                                 <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <a href="#" class="page-link">1</a>
-                                        <a href="#" class="page-link active">2</a>
+                                        <a href="#" class="page-link active">1</a>
+                                        <a href="#" class="page-link">2</a>
                                         <a href="#" class="page-link">3</a>
                                         <a href="#" class="page-link">4</a>
                                         <a href="#" class="page-link">5</a>
@@ -599,7 +528,7 @@
                             <!-- Right Column - Sidebar -->
                             <div class="products-sidebar" id="productsSidebar">
                                 <div class="sidebar-header">
-                                    <h3>Filters</h3>
+                                    <h3>Bộ lọc</h3>
                                     <button class="sidebar-close" id="sidebarClose">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -607,49 +536,49 @@
                                 <div class="sidebar-content">
                                     <!-- Categories Filter -->
                                     <div class="filter-section">
-                                        <h3 class="filter-title">Categories</h3>
+                                        <h3 class="filter-title">Danh mục</h3>
                                         <div class="filter-content">
                                             <ul class="category-list">
-                                                <li><a href="#">Most searched</a> <span class="count">(14)</span></li>
-                                                <li><a href="#">Teacher Training</a> <span class="count">(14)</span></li>
-                                                <li><a href="#">Coaching</a> <span class="count">(14)</span></li>
-                                                <li><a href="#">Online Business</a> <span class="count">(14)</span></li>
-                                                <li><a href="#">Technology</a> <span class="count">(14)</span></li>
-                                                <li><a href="#">Passive Income</a> <span class="count">(14)</span></li>
-                                                <li><a href="#">Language Learning</a> <span class="count">(14)</span></li>
+                                                <li><a href="#">Tìm kiếm nhiều nhất</a> <span class="count">(14)</span></li>
+                                                <li><a href="#">Gói Data Nguồn Hàng</a> <span class="count">(8)</span></li>
+                                                <li><a href="#">Vận Chuyển</a> <span class="count">(6)</span></li>
+                                                <li><a href="#">Mua Hàng Trọn Gói</a> <span class="count">(4)</span></li>
+                                                <li><a href="#">Thanh Toán Quốc Tế</a> <span class="count">(3)</span></li>
+                                                <li><a href="#">Đánh Hàng</a> <span class="count">(2)</span></li>
+                                                <li><a href="#">Sản Phẩm Khác</a> <span class="count">(5)</span></li>
                                             </ul>
                                         </div>
                                     </div>
 
                                     <!-- Reset Button -->
                                     <div class="filter-section">
-                                        <button class="reset-filters-btn">Reset</button>
+                                        <button class="reset-filters-btn">Đặt lại</button>
                                     </div>
 
                                     <!-- Author Filter -->
                                     <div class="filter-section">
-                                        <h3 class="filter-title">Author</h3>
+                                        <h3 class="filter-title">Nhà cung cấp</h3>
                                         <div class="filter-content">
                                             <ul class="author-list">
-                                                <li><a href="#">Keny White</a></li>
+                                                <li><a href="#">ThuongLo.com</a></li>
                                             </ul>
                                         </div>
                                     </div>
 
                                     <!-- Price Filter -->
                                     <div class="filter-section">
-                                        <h3 class="filter-title">Price</h3>
+                                        <h3 class="filter-title">Giá</h3>
                                         <div class="filter-content">
                                             <ul class="price-list">
-                                                <li><a href="#">Free</a></li>
-                                                <li><a href="#">Paid</a></li>
+                                                <li><a href="#">Miễn phí</a></li>
+                                                <li><a href="#">Có phí</a></li>
                                             </ul>
                                         </div>
                                     </div>
 
                                     <!-- Apply Button -->
                                     <div class="filter-section">
-                                        <button class="apply-filters-btn">Apply</button>
+                                        <button class="apply-filters-btn">Áp dụng</button>
                                     </div>
                                 </div>
                             </div>

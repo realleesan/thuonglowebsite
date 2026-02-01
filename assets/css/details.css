@@ -1,39 +1,5 @@
 /* Course Details Page Styles */
 
-/* Breadcrumb Section */
-.breadcrumb-section {
-    background-color: #E1E9FD;
-    padding: 20px 0;
-}
-
-.breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 14px;
-    color: #444;
-}
-
-.breadcrumb a {
-    color: #356DF1;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.breadcrumb a:hover {
-    color: #2563eb;
-}
-
-.breadcrumb .delimiter {
-    color: #4444445C;
-    display: flex;
-    align-items: center;
-}
-
-.breadcrumb span:last-child {
-    color: #444;
-}
-
 /* Course Details Section */
 .course-details-section {
     padding: 40px 0 80px;
@@ -498,7 +464,7 @@
 .price {
     font-size: 16px;
     font-weight: 600;
-    color: #f24c0a;
+    color: #2563eb;
     line-height: 1.25;
 }
 
@@ -599,11 +565,6 @@
 }
 
 @media (max-width: 480px) {
-    .breadcrumb {
-        font-size: 12px;
-        gap: 10px;
-    }
-    
     .course-details-section {
         padding: 20px 0 40px;
     }

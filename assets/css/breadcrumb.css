@@ -1,0 +1,189 @@
+/* ===================================
+   BREADCRUMB COMPONENT STYLES
+   =================================== */
+
+/* Force override any conflicting styles */
+.breadcrumb-section * {
+    box-sizing: border-box;
+}
+
+/* Breadcrumb Section */
+.breadcrumb-section {
+    background-color: #E1E9FD !important; /* Force light background */
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(53, 109, 241, 0.1);
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+/* Breadcrumb Links */
+.breadcrumb-link {
+    color: #444 !important; /* Màu đen như text bình thường - Force override */
+    text-decoration: none !important;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.breadcrumb-link:hover {
+    color: #356DF1 !important; /* Chỉ khi hover mới xanh - Force override */
+    /* Bỏ text-decoration: underline; */
+}
+
+.breadcrumb-link:focus {
+    outline: 2px solid #356DF1;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Current Page (không có link) */
+.breadcrumb-current {
+    color: #444 !important;
+    font-weight: 500;
+}
+
+/* Delimiter (mũi tên) */
+.delimiter {
+    color: #4444445C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 6px;
+    height: 10px;
+}
+
+.delimiter svg {
+    width: 6px;
+    height: 10px;
+    color: inherit;
+}
+
+/* ===================================
+   RESPONSIVE DESIGN
+   =================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+    .breadcrumb-section {
+        padding: 16px 0;
+    }
+    
+    .breadcrumb {
+        font-size: 13px;
+        gap: 10px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .breadcrumb-section {
+        padding: 12px 0;
+    }
+    
+    .breadcrumb {
+        font-size: 12px;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    /* Ẩn một số breadcrumb trung gian trên mobile nếu quá dài */
+    .breadcrumb .breadcrumb-link:not(:first-child):not(:last-child),
+    .breadcrumb .breadcrumb-current:not(:last-child) {
+        display: none;
+    }
+    
+    /* Hiển thị dấu ... cho breadcrumb bị ẩn */
+    .breadcrumb .breadcrumb-link:first-child + .delimiter::after {
+        content: "...";
+        color: #4444445C;
+        margin: 0 4px;
+    }
+}
+
+/* ===================================
+   ACCESSIBILITY IMPROVEMENTS
+   =================================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .breadcrumb-link {
+        color: #000; /* Đen đậm hơn cho high contrast */
+    }
+    
+    .breadcrumb-link:hover {
+        color: #0000EE; /* Xanh đậm khi hover */
+    }
+    
+    .breadcrumb-current {
+        color: #000;
+    }
+    
+    .delimiter {
+        color: #666;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .breadcrumb-link {
+        transition: none;
+    }
+}
+
+/* ===================================
+   ADDITIONAL SPECIFICITY RULES
+   =================================== */
+
+/* Ensure breadcrumb links work consistently across all pages */
+.breadcrumb-section .breadcrumb .breadcrumb-link,
+.breadcrumb-section .breadcrumb a.breadcrumb-link {
+    color: #444 !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.breadcrumb-section .breadcrumb .breadcrumb-link:hover,
+.breadcrumb-section .breadcrumb a.breadcrumb-link:hover {
+    color: #356DF1 !important;
+    text-decoration: none !important;
+}
+
+.breadcrumb-section .breadcrumb .breadcrumb-current {
+    color: #444 !important;
+    font-weight: 500 !important;
+}
+
+/* 
+@media (prefers-color-scheme: dark) {
+    .breadcrumb-section {
+        background-color: #1a1a2e;
+    }
+    
+    .breadcrumb-link {
+        color: #e0e0e0;
+    }
+    
+    .breadcrumb-link:hover {
+        color: #7c9aff;
+    }
+    
+    .breadcrumb-current {
+        color: #e0e0e0;
+    }
+    
+    .delimiter {
+        color: #666;
+    }
+}
+*/

@@ -41,41 +41,6 @@ body {
     width: 100%;
 }
 
-/* Breadcrumb Section */
-.contact-page .breadcrumb-section {
-    background-color: #E1E9FD;
-    padding: 20px 0;
-}
-
-.contact-page .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #6B7280;
-}
-
-.contact-page .breadcrumb a {
-    color: #356DF1;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.contact-page .breadcrumb a:hover {
-    text-decoration: underline;
-}
-
-.contact-page .delimiter {
-    display: flex;
-    align-items: center;
-    color: #9CA3AF;
-}
-
-.contact-page .delimiter svg {
-    width: 6px;
-    height: 10px;
-}
-
 /* Hero Section */
 .contact-page .hero-section {
     background: #356DF1 !important;

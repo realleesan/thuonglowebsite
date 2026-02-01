@@ -147,11 +147,11 @@
 }
 
 .elementor-element-18fb26a img {
-    width: 160px;
+    width: 200px;
     height: auto;
 }
 
-.elementor-element-d6709c2 .widget-button {
+.elementor-element-d6709c2 .elementor-widget-container a {
     display: inline-block;
     padding: 12px 24px;
     font-family: 'Inter', sans-serif;
@@ -164,9 +164,11 @@
     border-radius: 10px;
     text-decoration: none;
     transition: all 0.3s ease;
+    margin-top: -10px;
+    margin-left: 30px;
 }
 
-.elementor-element-d6709c2 .widget-button:hover {
+.elementor-element-d6709c2 .elementor-widget-container a:hover {
     color: #ffffff;
     background-color: #000000;
     border-color: #000000;
@@ -435,6 +437,11 @@
         text-align: center;
     }
     
+    .elementor-element-d6709c2 .elementor-widget-container a {
+        margin-left: 0;
+        margin-top: 0;
+    }
+    
     .elementor-element-ed9e25f,
     .elementor-element-9fe5798,
     .elementor-element-f095090,
@@ -494,6 +501,11 @@
     
     .elementor-element-d6709c2 {
         text-align: center;
+    }
+    
+    .elementor-element-d6709c2 .elementor-widget-container a {
+        margin-left: 0;
+        margin-top: 0;
     }
     
     .elementor-element-ed9e25f,
@@ -603,11 +615,11 @@
 }
 
 /* Custom CSS from original */
-footer#colophon .elementor-8920 .elementor-element.elementor-element-d6709c2 .widget-button {
+footer#colophon .elementor-8920 .elementor-element.elementor-element-d6709c2 .elementor-widget-container a {
     color: #082645;
 }
 
-footer#colophon .elementor-8920 .elementor-element.elementor-element-d6709c2 .widget-button:hover {
+footer#colophon .elementor-8920 .elementor-element.elementor-element-d6709c2 .elementor-widget-container a:hover {
     color: #fff;
 }
 

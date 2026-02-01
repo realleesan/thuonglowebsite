@@ -3,28 +3,17 @@
     <div class="content-pusher">
         <div id="main-content">
             <div class="elementor elementor-87">
-                <!-- Breadcrumb Section -->
-                <section class="breadcrumb-section">
-                    <div class="container">
-                        <div class="breadcrumb">
-                            <a href="/">Home</a>
-                            <span class="delimiter">
-                                <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </span>
-                            <span>Contact</span>
-                        </div>
-                    </div>
-                </section>
+                <?php 
+                // Breadcrumb sẽ được hiển thị từ master layout
+                ?>
 
                     <!-- Hero Section -->
                     <section class="hero-section">
                         <div class="hero-background"></div>
                         <div class="container">
                             <div class="hero-content">
-                                <h1 class="hero-title">How can we help?</h1>
-                                <p class="hero-subtitle">A member of our team would love to help you with your query.</p>
+                                <h1 class="hero-title">Chúng tôi có thể giúp gì cho bạn?</h1>
+                                <p class="hero-subtitle">Đội ngũ ThuongLo sẵn sàng hỗ trợ và tư vấn mọi thắc mắc của bạn.</p>
                             </div>
                         </div>
                     </section>
@@ -33,13 +22,13 @@
                     <section class="contact-form-section">
                         <div class="container">
                             <div class="section-header">
-                                <h2 class="section-title">Fill The Form Below</h2>
-                                <p class="section-subtitle">so we can get to know you and<br>your needs better.</p>
+                                <h2 class="section-title">Điền thông tin liên hệ</h2>
+                                <p class="section-subtitle">để chúng tôi hiểu rõ hơn về<br>nhu cầu của bạn.</p>
                             </div>
                             
                             <div class="contact-content">
                                 <div class="contact-info">
-                                    <h3 class="info-title">Here's What We Can Help With:</h3>
+                                    <h3 class="info-title">Chúng tôi có thể hỗ trợ bạn:</h3>
                                     <ul class="help-list">
                                         <li>
                                             <span class="check-icon">
@@ -48,7 +37,7 @@
                                                     <path d="M28.499895,15.1749985 L17.999895,25.5749985 C17.699895,25.8749985 17.399895,25.9749985 17.099895,25.9749985 C16.799895,25.9749985 16.399895,25.8749985 16.199895,25.5749985 L10.899895,20.3749985 C10.399895,19.8749985 10.399895,19.0749985 10.899895,18.5749985 C11.399895,18.0749985 12.199895,18.0749985 12.799895,18.5749985 L17.099895,22.8749985 L26.699895,13.3749985 C27.199895,12.8749985 27.999895,12.8749985 28.599895,13.3749985 C29.199895,13.8749985 28.999895,14.6749985 28.499895,15.1749985 Z" fill="#FFFFFF"></path>
                                                 </svg>
                                             </span>
-                                            Contact our sales team to talk about your LMS requirements
+                                            Tư vấn về gói data nguồn hàng và dịch vụ nhập khẩu
                                         </li>
                                         <li>
                                             <span class="check-icon">
@@ -57,7 +46,7 @@
                                                     <path d="M28.499895,15.1749985 L17.999895,25.5749985 C17.699895,25.8749985 17.399895,25.9749985 17.099895,25.9749985 C16.799895,25.9749985 16.399895,25.8749985 16.199895,25.5749985 L10.899895,20.3749985 C10.399895,19.8749985 10.399895,19.0749985 10.899895,18.5749985 C11.399895,18.0749985 12.199895,18.0749985 12.799895,18.5749985 L17.099895,22.8749985 L26.699895,13.3749985 C27.199895,12.8749985 27.999895,12.8749985 28.599895,13.3749985 C29.199895,13.8749985 28.999895,14.6749985 28.499895,15.1749985 Z" fill="#FFFFFF"></path>
                                                 </svg>
                                             </span>
-                                            Get customer support
+                                            Hỗ trợ khách hàng và giải đáp thắc mắc
                                         </li>
                                         <li>
                                             <span class="check-icon">
@@ -66,7 +55,7 @@
                                                     <path d="M28.499895,15.1749985 L17.999895,25.5749985 C17.699895,25.8749985 17.399895,25.9749985 17.099895,25.9749985 C16.799895,25.9749985 16.399895,25.8749985 16.199895,25.5749985 L10.899895,20.3749985 C10.399895,19.8749985 10.399895,19.0749985 10.899895,18.5749985 C11.399895,18.0749985 12.199895,18.0749985 12.799895,18.5749985 L17.099895,22.8749985 L26.699895,13.3749985 C27.199895,12.8749985 27.999895,12.8749985 28.599895,13.3749985 C29.199895,13.8749985 28.999895,14.6749985 28.499895,15.1749985 Z" fill="#FFFFFF"></path>
                                                 </svg>
                                             </span>
-                                            Contact our partnerships team
+                                            Liên hệ đối tác và hợp tác kinh doanh
                                         </li>
                                         <li>
                                             <span class="check-icon">
@@ -75,38 +64,38 @@
                                                     <path d="M28.499895,15.1749985 L17.999895,25.5749985 C17.699895,25.8749985 17.399895,25.9749985 17.099895,25.9749985 C16.799895,25.9749985 16.399895,25.8749985 16.199895,25.5749985 L10.899895,20.3749985 C10.399895,19.8749985 10.399895,19.0749985 10.899895,18.5749985 C11.399895,18.0749985 12.199895,18.0749985 12.799895,18.5749985 L17.099895,22.8749985 L26.699895,13.3749985 C27.199895,12.8749985 27.999895,12.8749985 28.599895,13.3749985 C29.199895,13.8749985 28.999895,14.6749985 28.499895,15.1749985 Z" fill="#FFFFFF"></path>
                                                 </svg>
                                             </span>
-                                            Answer any other questions you may have
+                                            Giải đáp mọi câu hỏi khác bạn có thể có
                                         </li>
                                     </ul>
-                                    <p class="policy-text">Run into a problem using Eduma? Check out our <a href="#">Policy</a> for set-up guides, feature release notes, and troubleshooting articles.</p>
+                                    <p class="policy-text">Gặp vấn đề khi sử dụng dịch vụ ThuongLo? Xem <a href="#">Chính sách</a> của chúng tôi để biết hướng dẫn sử dụng, cập nhật tính năng và các bài viết hỗ trợ.</p>
                                 </div>
 
                                 <div class="contact-form">
                                     <form class="contact-form-wrapper" method="post" action="/contact/" novalidate>
                                         <div class="form-row">
                                             <div class="form-group">
-                                                <input type="text" name="your-name" placeholder="*Your Name" class="form-control" required>
+                                                <input type="text" name="your-name" placeholder="*Họ và tên" class="form-control" required>
                                             </div>
                                             <div class="form-group">
                                                 <input type="email" name="your-email" placeholder="*Email" class="form-control" required>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <input type="text" name="your-subject" placeholder="*Subject" class="form-control" required>
+                                            <input type="text" name="your-subject" placeholder="*Tiêu đề" class="form-control" required>
                                         </div>
                                         <div class="form-group">
-                                            <textarea name="your-message" placeholder="*Message" class="form-control" rows="10" required></textarea>
+                                            <textarea name="your-message" placeholder="*Nội dung tin nhắn" class="form-control" rows="10" required></textarea>
                                         </div>
                                         <div class="checkbox-group">
                                             <label class="checkbox-label">
                                                 <input type="checkbox" name="your-consent" value="1">
                                                 <span class="checkmark"></span>
-                                                Opt in for the latest promotions and events. You may unsubscribe at any time.
+                                                Đăng ký nhận thông tin khuyến mãi và sự kiện mới nhất. Bạn có thể hủy đăng ký bất cứ lúc nào.
                                             </label>
                                         </div>
-                                        <p class="privacy-text">By filling out this form and clicking submit, you agree to our <a href="#">privacy policy.</a></p>
+                                        <p class="privacy-text">Bằng cách điền form này và nhấn gửi, bạn đồng ý với <a href="#">chính sách bảo mật</a> của chúng tôi.</p>
                                         <div class="form-submit">
-                                            <button type="submit" class="submit-btn">Submit</button>
+                                            <button type="submit" class="submit-btn">Gửi tin nhắn</button>
                                         </div>
                                     </form>
                                 </div>
@@ -125,10 +114,11 @@
                                             <ellipse cx="30.2001" cy="27.2" rx="8.4" ry="8.4" fill="#E1E9FD"></ellipse>
                                         </svg>
                                     </div>
-                                    <h3 class="card-title">Address way</h3>
+                                    <h3 class="card-title">Địa chỉ văn phòng</h3>
                                     <div class="card-content">
-                                        1800 Abbot Kinney Blvd. Unit D & E Venice<br>
-                                        <a href="#" class="view-map">View Map</a>
+                                        Tầng 12, Tòa nhà ABC, 123 Đường Nguyễn Huệ<br>
+                                        Quận 1, TP. Hồ Chí Minh<br>
+                                        <a href="#" class="view-map">Xem bản đồ</a>
                                     </div>
                                 </div>
 
@@ -138,11 +128,11 @@
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M27.2 5H32.8C46.7176 5 58 16.2824 58 30.2C58 44.1176 46.7176 55.4 32.8 55.4H13.2C7.01441 55.4 2 50.3856 2 44.2V30.2C2 16.2824 13.2824 5 27.2 5ZM30 33C31.5464 33 32.8 31.7464 32.8 30.2C32.8 28.6536 31.5464 27.4 30 27.4C28.4536 27.4 27.2 28.6536 27.2 30.2C27.2 31.7464 28.4536 33 30 33ZM44 30.2C44 31.7464 42.7464 33 41.2 33C39.6536 33 38.4 31.7464 38.4 30.2C38.4 28.6536 39.6536 27.4 41.2 27.4C42.7464 27.4 44 28.6536 44 30.2ZM18.8 33C20.3464 33 21.6 31.7464 21.6 30.2C21.6 28.6536 20.3464 27.4 18.8 27.4C17.2536 27.4 16 28.6536 16 30.2C16 31.7464 17.2536 33 18.8 33Z" fill="#00D084"></path>
                                         </svg>
                                     </div>
-                                    <h3 class="card-title">Contact info</h3>
+                                    <h3 class="card-title">Thông tin liên hệ</h3>
                                     <div class="card-content">
-                                        Mobile: (+88) - 1990 - 6886<br>
-                                        Hotline: 1800 - 1102<br>
-                                        Mail: contact@eduma.com
+                                        Điện thoại: (+84) 28 - 3825 - 6789<br>
+                                        Hotline: 1900 - 1234<br>
+                                        Email: contact@thuonglo.com
                                     </div>
                                 </div>
 
@@ -152,10 +142,10 @@
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M18.2716 5.74381C19.2601 5.31155 19.711 4.1598 19.2788 3.1713C18.8465 2.1828 17.6948 1.73188 16.7063 2.16414C10.8282 4.73456 5.84066 8.95548 2.32696 14.2401C1.72961 15.1385 1.97368 16.3511 2.8721 16.9484C3.77052 17.5458 4.98308 17.3017 5.58042 16.4033C8.6832 11.7367 13.0875 8.0108 18.2716 5.74381ZM43.294 2.16414C42.3055 1.73188 41.1538 2.1828 40.7215 3.1713C40.2893 4.1598 40.7402 5.31155 41.7287 5.74381C46.9128 8.0108 51.3171 11.7367 54.4199 16.4033C55.0172 17.3017 56.2298 17.5458 57.1282 16.9484C58.0266 16.3511 58.2707 15.1385 57.6733 14.2401C54.1596 8.95548 49.1721 4.73456 43.294 2.16414ZM49.4027 47.9623C52.7471 43.7428 54.7442 38.4069 54.7442 32.6046C54.7442 18.9388 43.6659 7.86045 30.0001 7.86045C16.3343 7.86045 5.25597 18.9388 5.25597 32.6046C5.25597 38.4068 7.25303 43.7426 10.5973 47.962L5.04072 54.8163C4.3613 55.6543 4.48993 56.8845 5.32801 57.5639C6.16609 58.2433 7.39626 58.1147 8.07567 57.2766L13.2855 50.8502C17.6884 54.8859 23.5567 57.3487 30.0001 57.3487C36.4434 57.3487 42.3115 54.8859 46.7145 50.8504L51.9244 57.2767C52.6038 58.1147 53.834 58.2433 54.672 57.5639C55.5101 56.8845 55.6387 55.6543 54.9593 54.8162L49.4027 47.9623ZM29.9999 17.6279C31.0788 17.6279 31.9534 18.5025 31.9534 19.5814V31.5591L38.8975 36.1885C39.7952 36.7869 40.0377 37.9998 39.4393 38.8975C38.8408 39.7952 37.628 40.0377 36.7303 39.4393L28.9163 34.23C28.3729 33.8677 28.0465 33.2577 28.0465 32.6046V19.5814C28.0465 18.5025 28.9211 17.6279 29.9999 17.6279Z" fill="#FF971A"></path>
                                         </svg>
                                     </div>
-                                    <h3 class="card-title">Work timer</h3>
+                                    <h3 class="card-title">Giờ làm việc</h3>
                                     <div class="card-content">
-                                        Monday - Friday: 09:00 - 20:00<br>
-                                        Sunday & Saturday: 10:30 - 22:00
+                                        Thứ 2 - Thứ 6: 08:00 - 18:00<br>
+                                        Thứ 7 & Chủ nhật: 09:00 - 17:00
                                     </div>
                                 </div>
                             </div>

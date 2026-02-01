@@ -35,6 +35,9 @@
         case 'home':
             echo '<link rel="stylesheet" href="assets/css/home.css">';
             break;
+        case 'categories':
+            echo '<link rel="stylesheet" href="assets/css/categories.css">';
+            break;
         case 'contact':
             echo '<link rel="stylesheet" href="assets/css/contact.css">';
             break;
@@ -55,11 +58,9 @@
         case 'register':
             echo '<link rel="stylesheet" href="assets/css/auth.css">';
             break;
-
         case 'forgot':
             echo '<link rel="stylesheet" href="assets/css/forgot.css">';
             break;
-
         case 'checkout':
         case 'payment':
         case 'payment_success':
@@ -71,8 +72,11 @@
     }
     ?>
     
+    <!-- Breadcrumb CSS - Load after page-specific CSS to ensure priority -->
+    <link rel="stylesheet" href="assets/css/breadcrumb.css">
+    
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="assets/fonts/awesome-5x/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Additional CSS if needed -->
     <?php if (isset($additionalCSS)): ?>
@@ -84,6 +88,11 @@
 <body class="<?php echo $currentPage; ?>-page">
     <!-- Header -->
     <?php include_once 'header.php'; ?>
+    
+    <!-- Breadcrumb (if needed) -->
+    <?php if (isset($showBreadcrumb) && $showBreadcrumb && isset($breadcrumbs)): ?>
+        <?php render_breadcrumb($breadcrumbs); ?>
+    <?php endif; ?>
     
     <!-- Page Header (if needed) -->
     <?php if (isset($showPageHeader) && $showPageHeader): ?>
@@ -116,12 +125,16 @@
     <script src="assets/js/footer.js"></script>
     <script src="assets/js/cta.js"></script>
     <script src="assets/js/pusher.js"></script>
+    <script src="assets/js/breadcrumb.js"></script>
     
     <?php
     // Load page-specific JavaScript
     switch($currentPage) {
         case 'home':
             echo '<script src="assets/js/home.js"></script>';
+            break;
+         case 'categories':
+            echo '<link rel="stylesheet" href="assets/js/categories.js">';
             break;
         case 'contact':
             echo '<script src="assets/js/contact.js"></script>';

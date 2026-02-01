@@ -22,41 +22,6 @@
     width: 100%;
 }
 
-/* Breadcrumb */
-.about-page .breadcrumb-section {
-    background: #E1E9FD;
-    padding: 20px 0;
-}
-
-.about-page .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #6B7280;
-}
-
-.about-page .breadcrumb a {
-    color: #356DF1;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.about-page .breadcrumb a:hover {
-    text-decoration: underline;
-}
-
-.about-page .delimiter {
-    display: flex;
-    align-items: center;
-    color: #9CA3AF;
-}
-
-.about-page .delimiter svg {
-    width: 6px;
-    height: 10px;
-}
-
 /* Hero */
 .about-page .hero-section {
     position: relative;

@@ -7,22 +7,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoriesMenu = document.querySelector('.categories-menu');
     
     if (categoriesDropdown && categoriesBtn && categoriesMenu) {
-        // Toggle dropdown on click
+        // Show dropdown on hover
+        categoriesDropdown.addEventListener('mouseenter', function() {
+            categoriesMenu.style.opacity = '1';
+            categoriesMenu.style.visibility = 'visible';
+            categoriesMenu.style.transform = 'translateY(0px)';
+        });
+        
+        // Hide dropdown on mouse leave
+        categoriesDropdown.addEventListener('mouseleave', function() {
+            categoriesMenu.style.opacity = '0';
+            categoriesMenu.style.visibility = 'hidden';
+            categoriesMenu.style.transform = 'translateY(-10px)';
+        });
+        
+        // Handle click on categories button - allow navigation to categories page
         categoriesBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const isVisible = categoriesMenu.style.opacity === '1';
-            
-            if (isVisible) {
-                categoriesMenu.style.opacity = '0';
-                categoriesMenu.style.visibility = 'hidden';
-                categoriesMenu.style.transform = 'translateY(-10px)';
-            } else {
-                categoriesMenu.style.opacity = '1';
-                categoriesMenu.style.visibility = 'visible';
-                categoriesMenu.style.transform = 'translateY(0px)';
-            }
+            // Allow normal navigation to categories page
+            // Dropdown will show on hover anyway
         });
         
         // Close dropdown when clicking outside
@@ -40,19 +42,42 @@ document.addEventListener('DOMContentLoaded', function() {
     
     dropdownItems.forEach(function(item) {
         const dropdownMenu = item.querySelector('.dropdown-menu');
+        const dropdownBtn = item.querySelector('.dropdown-btn');
         
         if (dropdownMenu) {
+            // Show dropdown on hover
             item.addEventListener('mouseenter', function() {
                 dropdownMenu.style.opacity = '1';
                 dropdownMenu.style.visibility = 'visible';
                 dropdownMenu.style.transform = 'translateY(0)';
             });
             
+            // Hide dropdown on mouse leave
             item.addEventListener('mouseleave', function() {
                 dropdownMenu.style.opacity = '0';
                 dropdownMenu.style.visibility = 'hidden';
                 dropdownMenu.style.transform = 'translateY(-10px)';
             });
+            
+            // Handle click on dropdown button - toggle dropdown
+            if (dropdownBtn) {
+                dropdownBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isVisible = dropdownMenu.style.opacity === '1';
+                    
+                    if (isVisible) {
+                        dropdownMenu.style.opacity = '0';
+                        dropdownMenu.style.visibility = 'hidden';
+                        dropdownMenu.style.transform = 'translateY(-10px)';
+                    } else {
+                        dropdownMenu.style.opacity = '1';
+                        dropdownMenu.style.visibility = 'visible';
+                        dropdownMenu.style.transform = 'translateY(0px)';
+                    }
+                });
+            }
         }
     });
     
@@ -134,13 +159,28 @@ document.addEventListener('DOMContentLoaded', function() {
     */
     
     // Active menu item highlighting
-    const currentPath = window.location.pathname;
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = urlParams.get('page') || 'home';
     const menuLinks = document.querySelectorAll('.main-menu a');
+    const menuButtons = document.querySelectorAll('.main-menu .dropdown-btn');
     
+    // Define page groups for dropdown menus (same as PHP)
+    const guidePages = ['about', 'guide', 'contact', 'faq'];
+    const newsPages = ['news'];
+    const productPages = ['products', 'details', 'course-details']; // Removed 'categories' from here
+    
+    // First, remove all active classes to ensure clean state
+    document.querySelectorAll('.main-menu > li').forEach(function(li) {
+        li.classList.remove('active');
+    });
+    
+    // Check if current page belongs to any dropdown group
+    let isInGuideGroup = guidePages.includes(currentPage);
+    let isInNewsGroup = newsPages.includes(currentPage);
+    let isInProductGroup = productPages.includes(currentPage);
+    
+    // Handle regular menu links
     menuLinks.forEach(function(link) {
-        // Remove active class first
-        link.parentElement.classList.remove('active');
-        
         try {
             const linkHref = link.getAttribute('href');
             
@@ -149,27 +189,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // For relative URLs, compare directly
-            if (linkHref.startsWith('/')) {
-                if (linkHref === currentPath) {
-                    link.parentElement.classList.add('active');
-                } else if (currentPath !== '/' && linkHref !== '/' && currentPath.startsWith(linkHref + '/')) {
+            // Handle home page (root link)
+            if (linkHref === './' || linkHref === '/') {
+                if (currentPage === 'home') {
                     link.parentElement.classList.add('active');
                 }
-            } else {
-                // For absolute URLs, use URL constructor
-                const linkPath = new URL(link.href).pathname;
-                if (linkPath === currentPath) {
-                    link.parentElement.classList.add('active');
-                } else if (currentPath !== '/' && linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
-                    link.parentElement.classList.add('active');
-                }
+                return;
             }
+            
+            // Parse the page parameter from the link
+            let linkPage = null;
+            if (linkHref.includes('?page=')) {
+                const linkUrl = new URL(linkHref, window.location.origin);
+                linkPage = linkUrl.searchParams.get('page');
+            }
+            
+            // Direct page match
+            if (linkPage && linkPage === currentPage) {
+                link.parentElement.classList.add('active');
+                return;
+            }
+            
+            // Check for dropdown group matches
+            if (linkPage === 'products' && isInProductGroup) {
+                link.parentElement.classList.add('active');
+            } else if (linkPage === 'news' && isInNewsGroup) {
+                link.parentElement.classList.add('active');
+            }
+            
         } catch (e) {
             // Skip invalid URLs
             console.warn('Invalid URL in menu:', link.href);
         }
     });
+    
+    // Handle dropdown buttons (like "Hướng dẫn")
+    menuButtons.forEach(function(button) {
+        const buttonText = button.textContent.trim();
+        
+        // Check if current page belongs to this dropdown group
+        if (buttonText.includes('Hướng dẫn') && isInGuideGroup) {
+            button.parentElement.classList.add('active');
+        }
+    });
+    
+    // Categories dropdown is handled by PHP class, no need for additional JS
     
     // Button hover effects
     const buttons = document.querySelectorAll('.btn-get-started, .btn-login');

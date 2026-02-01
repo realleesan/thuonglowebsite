@@ -87,14 +87,19 @@ body {
     color: #1F2937;
 }
 
+.logo img,
 .logo svg {
-    height: 36px;
-    width: auto;
+    height: auto;
+    width: 200px;
 }
 
 /* Categories Dropdown */
 .categories-dropdown {
     position: relative;
+}
+
+.categories-dropdown.active .categories-btn {
+    color: #356DF1;
 }
 
 .categories-btn {
@@ -109,6 +114,7 @@ body {
     align-items: center;
     gap: 8px;
     line-height: 1.2;
+    text-decoration: none;
 }
 
 .categories-btn:hover {
@@ -266,6 +272,27 @@ body {
     flex-shrink: 0;
 }
 
+/* Dropdown button styling */
+.dropdown-btn {
+    display: flex;
+    align-items: center;
+    padding: 22px 16px;
+    color: #374151;
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.2;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.dropdown-btn svg {
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
 /* Dropdown Menu */
 .dropdown-menu {
     position: absolute;
@@ -287,6 +314,12 @@ body {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+}
+
+/* Ensure dropdown still works when parent has button */
+.has-dropdown > a,
+.has-dropdown > .dropdown-btn {
+    position: relative;
 }
 
 .dropdown-menu a {
@@ -401,7 +434,20 @@ body {
         gap: 10px;
     }
 }
+/* Active menu styling - ensure only one active at a time */
+.main-menu > li.active > a,
+.main-menu > li.active > .dropdown-btn {
+    color: #356DF1 !important;
+}
+
+.main-menu > li:not(.active) > a,
+.main-menu > li:not(.active) > .dropdown-btn {
+    color: #374151;
+}
+
 .main-menu > li:hover > a,
-.main-menu > li.active > a {
+.main-menu > li:hover > .dropdown-btn,
+.main-menu > li.active > a,
+.main-menu > li.active > .dropdown-btn {
     color: #356DF1;
 }

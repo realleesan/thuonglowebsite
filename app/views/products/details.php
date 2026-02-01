@@ -2,27 +2,6 @@
 <div id="wrapper-container" class="wrapper-container">
     <div class="content-pusher">
         <div id="main-content">
-            <!-- Breadcrumb Section -->
-            <section class="breadcrumb-section">
-                <div class="container">
-                    <div class="breadcrumb">
-                        <a href="/">Home</a>
-                        <span class="delimiter">
-                            <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <a href="/?page=products">Courses</a>
-                        <span class="delimiter">
-                            <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <span>Language Learning</span>
-                    </div>
-                </div>
-            </section>
-
             <!-- Course Details Section -->
             <section class="course-details-section">
                 <div class="container">
@@ -31,10 +10,10 @@
                         <div class="course-details-main">
                             <!-- Course Header -->
                             <div class="course-header">
-                                <h1 class="course-title">Create an LMS Website with LearnPress</h1>
+                                <h1 class="course-title">Data nguồn hàng chất lượng cao</h1>
                                 <div class="course-instructor">
-                                    <span class="instructor-label">A course by</span>
-                                    <a href="#" class="instructor-name">Keny White</a>
+                                    <span class="instructor-label">Được cung cấp bởi</span>
+                                    <a href="#" class="instructor-name">ThuongLo.com</a>
                                 </div>
                                 <div class="course-meta">
                                     <div class="meta-item">
@@ -42,19 +21,19 @@
                                             <path d="M8 1V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
                                         </svg>
-                                        <span>Feb/2025</span>
+                                        <span>Cập nhật 02/2025</span>
                                     </div>
                                     <div class="meta-item">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>14 lessons</span>
+                                        <span>10,000+ sản phẩm</span>
                                     </div>
                                     <div class="meta-item">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M8 2L10.09 6.26L15 7L11 10.74L12.18 15.74L8 13.27L3.82 15.74L5 10.74L1 7L5.91 6.26L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>English</span>
+                                        <span>Tiếng Việt</span>
                                     </div>
                                 </div>
                             </div>
@@ -62,81 +41,81 @@
                             <!-- Course Tabs -->
                             <div class="course-tabs">
                                 <div class="tabs-nav">
-                                    <button class="tab-item active" data-tab="description">Description</button>
-                                    <button class="tab-item" data-tab="curriculum">Curriculum</button>
-                                    <button class="tab-item" data-tab="instructor">Instructor</button>
+                                    <button class="tab-item active" data-tab="description">Mô tả</button>
+                                    <button class="tab-item" data-tab="curriculum">Nội dung gói</button>
+                                    <button class="tab-item" data-tab="instructor">Nhà cung cấp</button>
                                 </div>
 
                                 <div class="tabs-content">
                                     <!-- Description Tab -->
                                     <div class="tab-panel active" id="description">
                                         <div class="course-description">
-                                            <h4>What you'll learn</h4>
+                                            <h4>Bạn sẽ nhận được gì</h4>
                                             <div class="learning-objectives">
                                                 <div class="objectives-grid">
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Automate tasks on their computer by writing simple Python programs.</span>
+                                                        <span>Cơ sở dữ liệu 10,000+ sản phẩm hot trend từ Trung Quốc</span>
                                                     </div>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Programmatically generate and update Excel spreadsheets.</span>
+                                                        <span>Thông tin chi tiết nhà cung cấp uy tín và giá gốc</span>
                                                     </div>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Crawl web sites and pull information from online sources.</span>
+                                                        <span>Hướng dẫn tìm kiếm và đánh giá sản phẩm tiềm năng</span>
                                                     </div>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Use Python's debugging tools to quickly figure out bugs in your code.</span>
+                                                        <span>Công cụ phân tích thị trường và xu hướng tiêu dùng</span>
                                                     </div>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Write programs that can do text pattern recognition with "regular expressions"</span>
+                                                        <span>Hỗ trợ kết nối trực tiếp với nhà cung cấp</span>
                                                     </div>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Parse PDFs and Word documents.</span>
+                                                        <span>Tư vấn chiến lược kinh doanh và marketing</span>
                                                     </div>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Write programs that send out email notifications.</span>
+                                                        <span>Dịch vụ thanh toán quốc tế an toàn và nhanh chóng</span>
                                                     </div>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Programmatically control the mouse and keyboard to click and type for you.</span>
+                                                        <span>Hệ thống quản lý đơn hàng và theo dõi vận chuyển</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="course-content-description">
-                                                <h4>Course Description</h4>
-                                                <p>Lorem ipsum dolor sit amet. Qui incidunt dolores non similique ducimus et debitis molestiae. Et galisum voluptas et galisum dolorem aut internos accusantium et quos obcaecati! Aut praesentium laborum et nemo labore et expedita voluptatem qui dolor soluta aut fuga consequuntur et sint nostrum.</p>
+                                                <h4>Mô tả gói dịch vụ</h4>
+                                                <p>Gói Data Nguồn Hàng Premium của ThuongLo là giải pháp toàn diện cho các doanh nghiệp muốn khởi nghiệp hoặc mở rộng kinh doanh dropshipping từ Trung Quốc. Chúng tôi cung cấp cơ sở dữ liệu sản phẩm được cập nhật liên tục với hơn 10,000 mặt hàng hot trend, kèm theo thông tin chi tiết về nhà cung cấp uy tín và giá cả cạnh tranh.</p>
                                                 
-                                                <p>Sed omnis modi qui neque galisum et omnis voluptatem. Et quaerat voluptatem et aliquid aspernatur et labore sequi et dolorem facilis et quos voluptate. Et quos sint et quaerat voluptatem qui omnis voluptatem et aliquid aspernatur et labore sequi et dolorem facilis et quos voluptate.</p>
+                                                <p>Với kinh nghiệm nhiều năm trong lĩnh vực thương mại điện tử xuyên biên giới, ThuongLo không chỉ cung cấp dữ liệu mà còn đồng hành cùng bạn trong suốt quá trình kinh doanh. Từ việc tìm kiếm sản phẩm, đàm phán với nhà cung cấp, đến quản lý đơn hàng và vận chuyển - tất cả đều được hỗ trợ một cách chuyên nghiệp.</p>
                                                 
-                                                <h5>Requirements</h5>
+                                                <h5>Yêu cầu</h5>
                                                 <ul>
-                                                    <li>Basic computer skills</li>
-                                                    <li>No prior programming experience required</li>
-                                                    <li>Windows, Mac, or Linux computer</li>
-                                                    <li>Internet connection for downloading Python and course materials</li>
+                                                    <li>Có kinh nghiệm cơ bản về thương mại điện tử</li>
+                                                    <li>Đã đăng ký tài khoản kinh doanh hợp pháp</li>
+                                                    <li>Có khả năng đầu tư vốn ban đầu cho hàng hóa</li>
+                                                    <li>Kết nối internet ổn định để sử dụng hệ thống quản lý</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -147,8 +126,8 @@
                                         <div class="course-curriculum">
                                             <div class="curriculum-section">
                                                 <div class="section-header">
-                                                    <h5>Section 1: Getting Started</h5>
-                                                    <span class="section-info">5 lessons • 45 min</span>
+                                                    <h5>Phần 1: Cơ sở dữ liệu sản phẩm</h5>
+                                                    <span class="section-info">5 danh mục • 3,500 sản phẩm</span>
                                                 </div>
                                                 <div class="section-lessons">
                                                     <div class="lesson-item">
@@ -157,8 +136,8 @@
                                                                 <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                             </svg>
                                                         </div>
-                                                        <span class="lesson-title">Introduction to Python</span>
-                                                        <span class="lesson-duration">10 min</span>
+                                                        <span class="lesson-title">Thời trang & Phụ kiện</span>
+                                                        <span class="lesson-duration">1,200 SP</span>
                                                     </div>
                                                     <div class="lesson-item">
                                                         <div class="lesson-icon">
@@ -166,8 +145,8 @@
                                                                 <path d="M8 12L3 7L13 7L8 12Z" fill="currentColor"/>
                                                             </svg>
                                                         </div>
-                                                        <span class="lesson-title">Installing Python</span>
-                                                        <span class="lesson-duration">8 min</span>
+                                                        <span class="lesson-title">Điện tử & Công nghệ</span>
+                                                        <span class="lesson-duration">800 SP</span>
                                                     </div>
                                                     <div class="lesson-item">
                                                         <div class="lesson-icon">
@@ -175,16 +154,16 @@
                                                                 <path d="M8 12L3 7L13 7L8 12Z" fill="currentColor"/>
                                                             </svg>
                                                         </div>
-                                                        <span class="lesson-title">Your First Python Program</span>
-                                                        <span class="lesson-duration">12 min</span>
+                                                        <span class="lesson-title">Gia dụng & Nội thất</span>
+                                                        <span class="lesson-duration">900 SP</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="curriculum-section">
                                                 <div class="section-header">
-                                                    <h5>Section 2: Python Basics</h5>
-                                                    <span class="section-info">6 lessons • 1 hr 20 min</span>
+                                                    <h5>Phần 2: Dịch vụ hỗ trợ</h5>
+                                                    <span class="section-info">6 dịch vụ • Hỗ trợ 24/7</span>
                                                 </div>
                                                 <div class="section-lessons">
                                                     <div class="lesson-item">
@@ -193,8 +172,8 @@
                                                                 <path d="M8 12L3 7L13 7L8 12Z" fill="currentColor"/>
                                                             </svg>
                                                         </div>
-                                                        <span class="lesson-title">Variables and Data Types</span>
-                                                        <span class="lesson-duration">15 min</span>
+                                                        <span class="lesson-title">Vận chuyển chính ngạch</span>
+                                                        <span class="lesson-duration">Toàn quốc</span>
                                                     </div>
                                                     <div class="lesson-item">
                                                         <div class="lesson-icon">
@@ -202,16 +181,16 @@
                                                                 <path d="M8 12L3 7L13 7L8 12Z" fill="currentColor"/>
                                                             </svg>
                                                         </div>
-                                                        <span class="lesson-title">Control Structures</span>
-                                                        <span class="lesson-duration">18 min</span>
+                                                        <span class="lesson-title">Thanh toán quốc tế</span>
+                                                        <span class="lesson-duration">An toàn</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="curriculum-section">
                                                 <div class="section-header">
-                                                    <h5>Section 3: Advanced Topics</h5>
-                                                    <span class="section-info">3 lessons • 45 min</span>
+                                                    <h5>Phần 3: Dịch vụ cao cấp</h5>
+                                                    <span class="section-info">3 dịch vụ • Premium</span>
                                                 </div>
                                                 <div class="section-lessons">
                                                     <div class="lesson-item">
@@ -220,8 +199,8 @@
                                                                 <path d="M8 12L3 7L13 7L8 12Z" fill="currentColor"/>
                                                             </svg>
                                                         </div>
-                                                        <span class="lesson-title">Working with Files</span>
-                                                        <span class="lesson-duration">20 min</span>
+                                                        <span class="lesson-title">Đánh hàng & Phiên dịch</span>
+                                                        <span class="lesson-duration">Chuyên nghiệp</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -233,22 +212,22 @@
                                         <div class="instructor-info">
                                             <div class="instructor-profile">
                                                 <div class="instructor-avatar">
-                                                    <img src="https://bombyx.live/wp-content/uploads/2022/09/KennyWhite-sq-1024x1024.jpg" alt="Keny White" />
+                                                    <img src="https://bombyx.live/wp-content/uploads/2022/09/KennyWhite-sq-1024x1024.jpg" alt="ThuongLo.com" />
                                                 </div>
                                                 <div class="instructor-details">
-                                                    <h4>Keny White</h4>
+                                                    <h4>ThuongLo.com</h4>
                                                     <div class="instructor-stats">
                                                         <div class="stat-item">
                                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                 <path d="M8 1L10.09 5.26L15 6L11 9.74L12.18 14.74L8 12.27L3.82 14.74L5 9.74L1 6L5.91 5.26L8 1Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                             </svg>
-                                                            <span>66 Students</span>
+                                                            <span>2,500+ Khách hàng</span>
                                                         </div>
                                                         <div class="stat-item">
                                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                 <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                                                             </svg>
-                                                            <span>20 Courses</span>
+                                                            <span>5 năm kinh nghiệm</span>
                                                         </div>
                                                     </div>
                                                     <div class="instructor-social">
@@ -267,8 +246,8 @@
                                                 </div>
                                             </div>
                                             <div class="instructor-bio">
-                                                <p>Sarah Salmin is a certified yoga & mobility specialist with 40 years of experience helping students recover from pain, improve posture, and enjoy a freer, more comfortable movement in daily life.</p>
-                                                <p>She has been teaching yoga and movement classes for over 15 years and has helped thousands of students improve their flexibility, strength, and overall well-being.</p>
+                                                <p>ThuongLo là đội ngũ chuyên gia có hơn 5 năm kinh nghiệm trong lĩnh vực thương mại điện tử xuyên biên giới, chuyên cung cấp các giải pháp dropshipping từ Trung Quốc về Việt Nam.</p>
+                                                <p>Chúng tôi đã hỗ trợ hơn 2,500 khách hàng thành công trong việc xây dựng và phát triển cửa hàng online, với tổng doanh thu đạt hàng trăm tỷ đồng. Đội ngũ của chúng tôi bao gồm các chuyên gia về sourcing, logistics, marketing và customer service.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -277,55 +256,55 @@
 
                             <!-- Reviews Section -->
                             <div class="reviews-section">
-                                <h4>Reviews</h4>
+                                <h4>Đánh giá khách hàng</h4>
                                 <div class="reviews-summary">
                                     <div class="rating-overview">
                                         <div class="rating-score">
-                                            <span class="score">0.0</span>
+                                            <span class="score">4.8</span>
                                             <div class="stars">
-                                                <i class="far fa-star"></i>
-                                                <i class="far fa-star"></i>
-                                                <i class="far fa-star"></i>
-                                                <i class="far fa-star"></i>
-                                                <i class="far fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
                                             </div>
-                                            <span class="rating-count">0 ratings</span>
+                                            <span class="rating-count">156 đánh giá</span>
                                         </div>
                                         <div class="rating-breakdown">
                                             <div class="rating-bar">
                                                 <span>5</span>
                                                 <div class="bar">
-                                                    <div class="fill" style="width: 0%"></div>
+                                                    <div class="fill" style="width: 85%"></div>
                                                 </div>
-                                                <span>0</span>
+                                                <span>132</span>
                                             </div>
                                             <div class="rating-bar">
                                                 <span>4</span>
                                                 <div class="bar">
-                                                    <div class="fill" style="width: 0%"></div>
+                                                    <div class="fill" style="width: 10%"></div>
                                                 </div>
-                                                <span>0</span>
+                                                <span>16</span>
                                             </div>
                                             <div class="rating-bar">
                                                 <span>3</span>
                                                 <div class="bar">
-                                                    <div class="fill" style="width: 0%"></div>
+                                                    <div class="fill" style="width: 3%"></div>
                                                 </div>
-                                                <span>0</span>
+                                                <span>5</span>
                                             </div>
                                             <div class="rating-bar">
                                                 <span>2</span>
                                                 <div class="bar">
-                                                    <div class="fill" style="width: 0%"></div>
+                                                    <div class="fill" style="width: 1%"></div>
                                                 </div>
-                                                <span>0</span>
+                                                <span>2</span>
                                             </div>
                                             <div class="rating-bar">
                                                 <span>1</span>
                                                 <div class="bar">
-                                                    <div class="fill" style="width: 0%"></div>
+                                                    <div class="fill" style="width: 1%"></div>
                                                 </div>
-                                                <span>0</span>
+                                                <span>1</span>
                                             </div>
                                         </div>
                                     </div>
@@ -337,16 +316,16 @@
                         <div class="course-sidebar">
                             <div class="course-card">
                                 <div class="course-badge">
-                                    <span>Coaching</span>
+                                    <span>Premium</span>
                                 </div>
                                 <div class="course-image">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" alt="Create an LMS Website with LearnPress" />
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" alt="Gói Data Nguồn Hàng Premium" />
                                 </div>
                                 <div class="course-card-content">
                                     <div class="course-price">
-                                        <span class="price">Free</span>
+                                        <span class="price">2,500,000₫</span>
                                     </div>
-                                    <button class="btn-enroll">Start Now</button>
+                                    <button class="btn-enroll">Đăng ký ngay</button>
                                     
                                     <div class="course-includes">
                                         <div class="include-item">
@@ -354,52 +333,52 @@
                                                 <path d="M16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z" fill="#356DF1"/>
                                                 <path d="M11.3333 6L7 10.3333L4.66667 8" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                            <span>100% positive reviews</span>
+                                            <span>98% khách hàng hài lòng</span>
                                         </div>
                                         <div class="include-item">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M8 1L10.09 5.26L15 6L11 9.74L12.18 14.74L8 12.27L3.82 14.74L5 9.74L1 6L5.91 5.26L8 1Z" stroke="#356DF1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                            <span>79 students</span>
+                                            <span>2,500+ khách hàng</span>
                                         </div>
                                         <div class="include-item">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#356DF1" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                            <span>14 lessons</span>
+                                            <span>10,000+ sản phẩm</span>
                                         </div>
                                         <div class="include-item">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M8 2L10.09 6.26L15 7L11 10.74L12.18 15.74L8 13.27L3.82 15.74L5 10.74L1 7L5.91 6.26L8 2Z" stroke="#356DF1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                            <span>Language: English</span>
+                                            <span>Ngôn ngữ: Tiếng Việt</span>
                                         </div>
                                         <div class="include-item">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M3 8L6 11L13 4" stroke="#356DF1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                            <span>Assessments: Yes</span>
+                                            <span>Hỗ trợ: 24/7</span>
                                         </div>
                                         <div class="include-item">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M8 1V8L12 12" stroke="#356DF1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <circle cx="8" cy="8" r="7" stroke="#356DF1" stroke-width="1.5"/>
                                             </svg>
-                                            <span>Available on the app</span>
+                                            <span>Có app mobile</span>
                                         </div>
                                         <div class="include-item">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M8 1V8L12 12" stroke="#356DF1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <circle cx="8" cy="8" r="7" stroke="#356DF1" stroke-width="1.5"/>
                                             </svg>
-                                            <span>Unlimited access forever</span>
+                                            <span>Truy cập không giới hạn</span>
                                         </div>
                                         <div class="include-item">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M3 8L6 11L13 4" stroke="#356DF1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                            <span>Skill level</span>
-                                            <span class="skill-level">All levels</span>
+                                            <span>Phù hợp</span>
+                                            <span class="skill-level">Mọi cấp độ</span>
                                         </div>
                                     </div>
                                 </div>

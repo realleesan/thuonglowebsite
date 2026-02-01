@@ -6,23 +6,23 @@
         <div class="hero-content">
             <div class="hero-left">
                 <h1 class="hero-title">
-                    First Education Theme For
-                    <span class="highlight">Marketplace</span>
+                    Nền tảng data nguồn hàng và dịch vụ
+                    <span class="highlight">Thương mại xuyên biên giới</span>
                 </h1>
                 <div class="hero-subtitle">
-                    <p>This will be the best place for anyone to sell courses online, with all the necessary eCommerce features. This is Eduma - Education WordPress Theme.</p>
+                    <p>ThuongLo là nền tảng hàng đầu cung cấp data nguồn hàng chất lượng, dịch vụ vận chuyển chính ngạch và hỗ trợ toàn diện cho các doanh nghiệp muốn phát triển thương mại xuyên biên giới.</p>
                 </div>
                 <div class="hero-buttons">
-                    <a href="https://1.envato.market/Yx2YR" target="_blank" rel="noopener" class="btn-primary">Create your free account</a>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/courses/" class="btn-secondary">View Courses</a>
+                    <a href="/register/" class="btn-primary">Đăng ký miễn phí</a>
+                    <a href="/products/" class="btn-secondary">Xem sản phẩm</a>
                 </div>
             </div>
             <div class="hero-right">
                 <div class="hero-image">
                     <img fetchpriority="high" decoding="async" width="600" height="600" 
-                         src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-banner-top.jpg" 
-                         alt="home banner top" 
-                         srcset="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-banner-top.jpg 600w, https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-banner-top-360x360.jpg 360w, https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-banner-top-150x150.jpg 150w, https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-banner-top-100x100.jpg 100w"
+                         src="assets/images/home/home-banner-final.png" 
+                         alt="ThuongLo - Nền tảng thương mại xuyên biên giới" 
+                         srcset="assets/images/home/home-banner-final.png 600w, assets/images/home/home-banner-final.png 360w, assets/images/home/home-banner-final.png 150w, assets/images/home/home-banner-final.png 100w"
                          sizes="(max-width: 600px) 100vw, 600px" />
                 </div>
             </div>
@@ -30,13 +30,13 @@
     </div>
 </section>
 
-<!-- Popular Courses Section -->
+<!-- Popular Services Section -->
 <section class="popular-courses-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Popular <span class="highlight">Courses</span></h2>
-            <a href="https://eduma.thimpress.com/demo-marketplace/courses/" class="see-more-btn">
-                See more
+            <h2 class="section-title">Sản phẩm <span class="highlight">Nổi bật</span></h2>
+            <a href="/products/" class="see-more-btn">
+                Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -61,263 +61,253 @@
                 <div class="courses-container">
                     <!-- Courses Grid -->
                     <div class="courses-grid">
-                <!-- Course Item 1 -->
+                <!-- Service Item 1 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Photography</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Photography Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Photography Crash Course for Photographer</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            The jQuery team knows all about cross-browser issues, and they have written this knowledge into the jQuery library. jQuery will run exactly the same in all major browsers, including Internet...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Keny White</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>0 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$30.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Course Item 2 -->
+                <!-- Service Item 2 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Online Business</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Online Business Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Become a PHP Master and Make Money Fast</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            The jQuery team knows all about cross-browser issues, and they have written this knowledge into the jQuery library. jQuery will run exactly the same in all major browsers, including Internet...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Keny White</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>0 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$30.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Course Item 3 -->
+                <!-- Service Item 3 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Teaching Online</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Teaching Online Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">How To Sell In-Person Course With LearnPress</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            This course is a detailed and easy tutorial to get you all setup and going with the use of LearnPress LMS Plugin. It is a free and simple plugin to...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Keny White</a>
-                        </div>
-                        <div class="course-meta">
-                            <div class="course-location">
-                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <g clip-path="url(#clip0_81_2007)">
-                                        <path d="M14 7.16675C14 11.8334 8 15.8334 8 15.8334C8 15.8334 2 11.8334 2 7.16675C2 5.57545 2.63214 4.04933 3.75736 2.92411C4.88258 1.79889 6.4087 1.16675 8 1.16675C9.5913 1.16675 11.1174 1.79889 12.2426 2.92411C13.3679 4.04933 14 5.57545 14 7.16675Z" stroke="#666666" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M8 9.16675C9.10457 9.16675 10 8.27132 10 7.16675C10 6.06218 9.10457 5.16675 8 5.16675C6.89543 5.16675 6 6.06218 6 7.16675C6 8.27132 6.89543 9.16675 8 9.16675Z" stroke="#666666" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </g>
-                                </svg>
-                                <span>In-Person workshop, Edinburgh</span>
-                            </div>
-                            <div class="course-lessons">
-                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <span>10 lessons</span>
-                            </div>
-                        </div>
-                        <div class="course-price">
-                            <span class="price-prefix">Only</span>
-                            <span class="price">$120.00</span>
-                            <span class="price-suffix">pw</span>
-                        </div>
-                        <div class="course-button">
-                            <a href="#" class="btn-start-learning">
-                                <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Course Item 4 -->
-                <div class="course-item">
-                    <div class="course-category">
-                        <a href="#" class="category-tag">Coaching</a>
-                    </div>
-                    <div class="course-image">
-                        <a href="#">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                 alt="Coaching Course" loading="lazy">
-                        </a>
-                    </div>
-                    <div class="course-content">
-                        <h4 class="course-title">
-                            <a href="#">How To Create An Online Course</a>
-                        </h4>
-                        <div class="course-excerpt">
-                            The jQuery team knows all about cross-browser issues, and they have written this knowledge into the jQuery library. jQuery will run exactly the same in all major browsers, including Internet...
-                        </div>
-                        <div class="course-instructor">
-                            <a href="#" class="instructor-name">Keny White</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>0 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$30.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Course Item 5 -->
+                <!-- Service Item 4 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Web Development</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Web Development Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Complete JavaScript Bootcamp 2024</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Master JavaScript from basics to advanced concepts. Learn ES6+, DOM manipulation, async programming, and modern frameworks. Build real-world projects and become a JavaScript expert...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Sarah Johnson</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>25 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$89.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Course Item 6 -->
+                <!-- Service Item 5 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Design</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                 alt="Design Course" loading="lazy">
+                        <a href="/products/category/data-nguon-hang/">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">UI/UX Design Fundamentals</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Learn the principles of user interface and user experience design. Master design tools, create wireframes, prototypes, and build stunning user interfaces that convert...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Mike Chen</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>18 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$65.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Item 6 -->
+                <div class="course-item">
+                    <div class="course-category">
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
+                    </div>
+                    <div class="course-image">
+                        <a href="/products/category/data-nguon-hang/">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="course-content">
+                        <h4 class="course-title">
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                        </h4>
+                        <div class="course-excerpt">
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
+                        </div>
+                        <div class="course-instructor">
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
+                        </div>
+                        <div class="course-meta">
+                            <div class="course-lessons">
+                                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>1000+ Nhà cung cấp</span>
+                            </div>
+                        </div>
+                        <div class="course-price">
+                            <span class="price">500.000đ</span>
+                            
+                        </div>
+                        <div class="course-button">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                                <i class="fas fa-play"></i>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -326,40 +316,40 @@
                 <!-- Course Item 7 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Marketing</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Marketing Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Digital Marketing Mastery</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Complete guide to digital marketing including SEO, social media marketing, email marketing, PPC advertising, and analytics. Grow your business online effectively...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Lisa Rodriguez</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>22 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$75.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -368,46 +358,46 @@
                 <!-- Course Item 8 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Data Science</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                 alt="Data Science Course" loading="lazy">
+                        <a href="/products/category/data-nguon-hang/">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Python for Data Science & Machine Learning</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Learn Python programming for data analysis, visualization, and machine learning. Master pandas, numpy, matplotlib, scikit-learn and build real data science projects...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">David Park</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>30 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$99.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-            
+          
             <!-- Slider Pagination -->
             <div class="slider-pagination">
                 <span class="pagination-bullet active"></span>
@@ -420,13 +410,13 @@
     </div>
 </section>
 
-<!-- Outstanding Categories Section -->
+<!-- Outstanding Services Section -->
 <section class="elementor-section elementor-top-section elementor-element elementor-element-2932ede elementor-section-stretched elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="2932ede" data-element_type="section" data-settings="{&quot;stretch_section&quot;:&quot;section-stretched&quot;}">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Outstanding <span class="highlight">Categories</span></h2>
-            <a href="https://eduma.thimpress.com/demo-marketplace/courses/" class="see-more-btn">
-                See more
+            <h2 class="section-title">Danh mục <span class="highlight">Nổi bật</span></h2>
+            <a href="/products/" class="see-more-btn">
+                Xem tất cả
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -436,66 +426,66 @@
         <div class="thim-widget-course-categories-grid layout-image-cats">
             <ul class="columns-3">
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/coaching/">
+                    <a href="/products/category/data-nguon-hang/">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
-                        <span class="category-title">Coaching</span>
-                        <p class="count-course"> 14 Courses</p>
+                        <span class="category-title">Data nguồn hàng</span>
+                        <p class="count-course">1000+ Nhà cung cấp</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/language-learning/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-9-380x126.jpg" alt="Language Learning" width="380" height="126"> 
-                        <span class="category-title">Language Learning</span>
-                        <p class="count-course"> 14 Courses</p>
+                    <a href="/products/category/van-chuyen-chinh-ngach/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Vận chuyển chính ngạch</span>
+                        <p class="count-course">An toàn - Nhanh chóng</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/online-business/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/language-learning-380x126.jpg" alt="Online Business" width="380" height="126"> 
-                        <span class="category-title">Online Business</span>
-                        <p class="count-course"> 14 Courses</p>
+                    <a href="/products/category/mua-hang-tron-goi/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Mua hàng trọn gói</span>
+                        <p class="count-course">Từ A đến Z</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/passive-income/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/passive-income-380x126.jpg" alt="Passive Income" width="380" height="126"> 
-                        <span class="category-title">Passive Income</span>
-                        <p class="count-course"> 12 Courses</p>
+                    <a href="/products/category/thanh-toan-quoc-te/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Thanh toán quốc tế</span>
+                        <p class="count-course">Tỷ giá ưu đãi</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/photography/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-6-380x126.jpg" alt="Photography" width="380" height="126"> 
-                        <span class="category-title">Photography</span>
-                        <p class="count-course"> 14 Courses</p>
+                    <a href="/products/category/dich-vu-danh-hang/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Dịch vụ đánh hàng</span>
+                        <p class="count-course">Chuyên nghiệp</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/teacher-training/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-5-380x126.jpg" alt="Teacher Training" width="380" height="126"> 
-                        <span class="category-title">Teacher Training</span>
-                        <p class="count-course"> 14 Courses</p>
+                    <a href="/products/category/phien-dich/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Phiên dịch</span>
+                        <p class="count-course">Trung - Việt</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/teaching-online/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/teaching-online-380x126.jpg" alt="Teaching Online" width="380" height="126"> 
-                        <span class="category-title">Teaching Online</span>
-                        <p class="count-course"> 16 Courses</p>
+                    <a href="/products/category/ho-tro-di-lai/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Hỗ trợ đi lại</span>
+                        <p class="count-course">Ăn ở - Di chuyển</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/technology/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/05/category-box-8-380x126.jpg" alt="Technology" width="380" height="126"> 
-                        <span class="category-title">Technology</span>
-                        <p class="count-course"> 7 Courses</p>
+                    <a href="/products/category/tu-van-kinh-doanh/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Tư vấn kinh doanh</span>
+                        <p class="count-course">Chuyên gia</p>
                     </a>
                 </li>
                 <li>
-                    <a href="https://eduma.thimpress.com/demo-marketplace/course-category/technology/video-creation/">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/video-creation-380x126.jpg" alt="Video Creation" width="380" height="126"> 
-                        <span class="category-title">Video Creation</span>
-                        <p class="count-course"> 3 Courses</p>
+                    <a href="/products/category/dich-vu-khac/">
+                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <span class="category-title">Sản phẩm khác</span>
+                        <p class="count-course">Linh hoạt</p>
                     </a>
                 </li>
             </ul>
@@ -503,13 +493,13 @@
     </div>
 </section>
 
-<!-- New Release Section -->
+<!-- Latest Updates Section -->
 <section class="new-release-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">New <span class="highlight">Release</span></h2>
-            <a href="https://eduma.thimpress.com/demo-marketplace/courses/" class="see-more-btn">
-                See more
+            <h2 class="section-title">Sản phẩm <span class="highlight">Mới nhất</span></h2>
+            <a href="/news/" class="see-more-btn">
+                Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -532,87 +522,87 @@
                 
                 <!-- Courses Container -->
                 <div class="courses-container">
-                    <!-- Courses Grid -->
+                    <!-- News Grid -->
                     <div class="courses-grid">
-                <!-- Course Item 1 -->
+                <!-- News Item 1 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">AI & Machine Learning</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="AI Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Complete AI & Machine Learning Bootcamp 2024</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Master artificial intelligence and machine learning from scratch. Learn Python, TensorFlow, neural networks, and build real AI applications that solve business problems...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Dr. Alex Chen</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>35 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$149.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Course Item 2 -->
+                <!-- News Item 2 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Blockchain</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                 alt="Blockchain Course" loading="lazy">
+                        <a href="/products/category/data-nguon-hang/">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Blockchain Development & Cryptocurrency</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Learn blockchain technology, smart contracts, and cryptocurrency development. Build decentralized applications (DApps) and understand the future of finance and technology...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Maria Santos</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>28 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$129.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -621,40 +611,40 @@
                 <!-- Course Item 3 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Cloud Computing</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Cloud Computing Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">AWS Cloud Architect Certification 2024</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Master Amazon Web Services and become a certified cloud architect. Learn EC2, S3, Lambda, RDS, and advanced cloud architecture patterns for scalable applications...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">John Mitchell</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>42 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$199.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -663,40 +653,40 @@
                 <!-- Course Item 4 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Mobile Development</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                 alt="Mobile Development Course" loading="lazy">
+                        <a href="/products/category/data-nguon-hang/">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">React Native & Flutter Development</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Build cross-platform mobile apps with React Native and Flutter. Learn to create iOS and Android applications with a single codebase and deploy to app stores...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Emma Wilson</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>32 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$119.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -705,40 +695,40 @@
                 <!-- Course Item 5 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Cybersecurity</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Cybersecurity Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Ethical Hacking & Cybersecurity Fundamentals</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Learn ethical hacking, penetration testing, and cybersecurity best practices. Protect systems from cyber threats and become a certified security professional...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Robert Kim</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>26 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$139.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -747,40 +737,40 @@
                 <!-- Course Item 6 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">DevOps</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                 alt="DevOps Course" loading="lazy">
+                        <a href="/products/category/data-nguon-hang/">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Complete DevOps Engineer Bootcamp</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Master DevOps tools and practices including Docker, Kubernetes, Jenkins, Terraform, and CI/CD pipelines. Automate deployments and infrastructure management...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Anna Petrov</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>38 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$159.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -789,40 +779,40 @@
                 <!-- Course Item 7 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">Game Development</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
+                        <a href="/products/category/data-nguon-hang/">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
-                                 alt="Game Development Course" loading="lazy">
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Unity 3D Game Development Masterclass</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Create stunning 3D games with Unity engine. Learn C# programming, game physics, animation, and publish games to multiple platforms including mobile and PC...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Chris Taylor</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>45 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$179.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -831,40 +821,40 @@
                 <!-- Course Item 8 -->
                 <div class="course-item">
                     <div class="course-category">
-                        <a href="#" class="category-tag">IoT</a>
+                        <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="#">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/10/eduma-learnpress-lms-4-675x450.png" 
-                                 alt="IoT Course" loading="lazy">
+                        <a href="/products/category/data-nguon-hang/">
+                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                                 alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="#">Internet of Things (IoT) Development</a>
+                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
-                            Build smart connected devices and IoT applications. Learn Arduino, Raspberry Pi, sensors, wireless communication, and cloud integration for IoT solutions...
+                            Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
                         </div>
                         <div class="course-instructor">
-                            <a href="#" class="instructor-name">Sophie Zhang</a>
+                            <a href="#" class="instructor-name">ThuongLo.com</a>
                         </div>
                         <div class="course-meta">
                             <div class="course-lessons">
                                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>29 Lessons</span>
+                                <span>1000+ Nhà cung cấp</span>
                             </div>
                         </div>
                         <div class="course-price">
-                            <span class="price">$109.00</span>
-                            <span class="price-suffix">incl. tax</span>
+                            <span class="price">500.000đ</span>
+                            
                         </div>
                         <div class="course-button">
-                            <a href="#" class="btn-start-learning">
+                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
-                                <span>Start Learning</span>
+                                <span>Xem chi tiết</span>
                             </a>
                         </div>
                     </div>
@@ -883,11 +873,11 @@
     </div>
 </section>
 
-<!-- Mission -->
+<!-- Why Choose ThuongLo -->
 <section class="mission-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">What To Expect From A <span class="highlight">Eduma Courses?</span></h2>
+            <h2 class="section-title">Tại sao chọn <span class="highlight">ThuongLo?</span></h2>
         </div>
         
         <div class="mission-grid">
@@ -901,8 +891,8 @@
                         </g>
                     </svg>
                 </div>
-                <h3 class="mission-title">Highly Experienced</h3>
-                <p class="mission-description">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur</p>
+                <h3 class="mission-title">Kinh nghiệm dày dặn</h3>
+                <p class="mission-description">Hơn 10 năm kinh nghiệm trong lĩnh vực thương mại xuyên biên giới, hiểu rõ thị trường và quy trình</p>
             </div>
             
             <div class="mission-item">
@@ -914,8 +904,8 @@
                         </g>
                     </svg>
                 </div>
-                <h3 class="mission-title">Question, Quiz & Course</h3>
-                <p class="mission-description">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur</p>
+                <h3 class="mission-title">Dịch vụ toàn diện</h3>
+                <p class="mission-description">Từ data nguồn hàng, vận chuyển, thanh toán đến hỗ trợ đánh hàng - tất cả trong một nền tảng</p>
             </div>
             
             <div class="mission-item">
@@ -927,8 +917,8 @@
                         </g>
                     </svg>
                 </div>
-                <h3 class="mission-title">Dedicated Support</h3>
-                <p class="mission-description">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur</p>
+                <h3 class="mission-title">Hỗ trợ 24/7</h3>
+                <p class="mission-description">Đội ngũ hỗ trợ chuyên nghiệp sẵn sàng giải đáp mọi thắc mắc và hỗ trợ khách hàng mọi lúc</p>
             </div>
             
             <!-- Row 2 -->
@@ -941,8 +931,8 @@
                         </g>
                     </svg>
                 </div>
-                <h3 class="mission-title">Highly Experienced</h3>
-                <p class="mission-description">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur</p>
+                <h3 class="mission-title">Giá cả cạnh tranh</h3>
+                <p class="mission-description">Cam kết mang đến mức giá tốt nhất thị trường với chất lượng dịch vụ vượt trội</p>
             </div>
             
             <div class="mission-item">
@@ -954,8 +944,8 @@
                         </g>
                     </svg>
                 </div>
-                <h3 class="mission-title">Question, Quiz & Course</h3>
-                <p class="mission-description">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur</p>
+                <h3 class="mission-title">Giá cả cạnh tranh</h3>
+                <p class="mission-description">Cam kết mang đến mức giá tốt nhất thị trường với chất lượng dịch vụ vượt trội</p>
             </div>
             
             <div class="mission-item">
@@ -967,16 +957,19 @@
                         </g>
                     </svg>
                 </div>
-                <h3 class="mission-title">Dedicated Support</h3>
-                <p class="mission-description">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur</p>
+                <h3 class="mission-title">Giá cả cạnh tranh</h3>
+                <p class="mission-description">Cam kết mang đến mức giá tốt nhất thị trường với chất lượng dịch vụ vượt trội</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Customer says Section -->
+<!-- Customer Reviews Section -->
 <section class="customer-says-section">
     <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Khách hàng <span class="highlight">Nói gì</span></h2>
+        </div>
         <div class="testimonial-slider-wrapper">
             <!-- Navigation Arrows -->
             <div class="testimonial-nav testimonial-nav-prev" title="Previous">
@@ -1017,13 +1010,13 @@
 
                                     <!-- Testimonial Text -->
                                     <div class="testimonial-text">
-                                        <p>LearnPress is a WordPress complete solution for creating a Learning Management System (LMS). It can help me to create courses, lessons and quizzes and manage them as easy as I want. I've learned a lot, and I highly recommend it. Thank you.</p>
+                                        <p>ThuongLo đã giúp tôi tiết kiệm rất nhiều thời gian và chi phí trong việc tìm nguồn hàng từ Trung Quốc. Data họ cung cấp rất chính xác và đội ngũ hỗ trợ luôn nhiệt tình. Tôi đã tăng được 300% doanh thu sau 6 tháng sử dụng dịch vụ.</p>
                                     </div>
 
                                     <!-- Customer Info -->
                                     <div class="customer-info">
-                                        <p class="customer-name">- Bennett Cu</p>
-                                        <div class="customer-position">/ Front-end Developer</div>
+                                        <p class="customer-name">- Nguyễn Minh Tuấn</p>
+                                        <div class="customer-position">/ CEO Minh Tuấn Trading</div>
                                     </div>
                                 </div>
 
@@ -1059,20 +1052,20 @@
 
                                     <!-- Testimonial Text -->
                                     <div class="testimonial-text">
-                                        <p>The platform is incredibly user-friendly and has transformed the way I deliver online courses. The interface is intuitive and my students love the interactive features. It's been a game-changer for my business.</p>
+                                        <p>Dịch vụ vận chuyển chính ngạch của ThuongLo rất uy tín và an toàn. Hàng hóa luôn được giao đúng hẹn và nguyên vẹn. Đặc biệt, đội ngũ phiên dịch giúp tôi giao tiếp với nhà cung cấp Trung Quốc một cách dễ dàng và hiệu quả.</p>
                                     </div>
 
                                     <!-- Customer Info -->
                                     <div class="customer-info">
-                                        <p class="customer-name">- Sarah Johnson</p>
-                                        <div class="customer-position">/ Online Educator</div>
+                                        <p class="customer-name">- Trần Thị Hương</p>
+                                        <div class="customer-position">/ Giám đốc Hương Fashion</div>
                                     </div>
                                 </div>
 
                                 <!-- Customer Avatar -->
                                 <div class="customer-avatar">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-testimonial.jpg" 
-                                         alt="Sarah Johnson" 
+                                         alt="Bennett Cu" 
                                          width="278" 
                                          height="278" 
                                          loading="lazy">
@@ -1101,20 +1094,20 @@
 
                                     <!-- Testimonial Text -->
                                     <div class="testimonial-text">
-                                        <p>Outstanding support and excellent features. I've tried many LMS platforms, but this one stands out for its simplicity and powerful capabilities. Highly recommended for anyone serious about online education.</p>
+                                        <p>Tôi đã sử dụng dịch vụ đánh hàng của ThuongLo để tham quan các nhà máy tại Quảng Châu. Đội ngũ hướng dẫn rất chuyên nghiệp, am hiểu thị trường và giúp tôi tìm được những nhà cung cấp uy tín với giá cả tốt nhất.</p>
                                     </div>
 
                                     <!-- Customer Info -->
                                     <div class="customer-info">
-                                        <p class="customer-name">- Michael Chen</p>
-                                        <div class="customer-position">/ Course Creator</div>
+                                        <p class="customer-name">- Lê Văn Đức</p>
+                                        <div class="customer-position">/ Chủ tịch Đức Phát Group</div>
                                     </div>
                                 </div>
 
                                 <!-- Customer Avatar -->
                                 <div class="customer-avatar">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-testimonial.jpg" 
-                                         alt="Michael Chen" 
+                                         alt="Bennett Cu" 
                                          width="278" 
                                          height="278" 
                                          loading="lazy">
@@ -1135,13 +1128,13 @@
     </div>
 </section>
 
-<!-- Upcoming Events Section -->
+<!-- Upcoming Training Section -->
 <section class="upcoming-events-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title"><span class="highlight">Upcoming</span> Events</h2>
-            <a href="https://eduma.thimpress.com/demo-marketplace/events/" class="see-more-btn">
-                See More
+            <h2 class="section-title"><span class="highlight"> Sự kiện</span> Sắp tới</h2>
+            <a href="/training/" class="see-more-btn">
+                Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -1166,11 +1159,11 @@
                 <div class="events-container">
                     <!-- Events Grid -->
                     <div class="events-grid">
-                        <!-- Event Item 1 -->
+                        <!-- Training Item 1 -->
                         <div class="event-item">
                             <div class="event-date-badge">
-                                <span class="date">30</span>
-                                <span class="month">September</span>
+                                <span class="date">15</span>
+                                <span class="month">Tháng 2</span>
                             </div>
                             <div class="event-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/events/applying-natural-laws-to-technology-and-society/">
@@ -1180,12 +1173,12 @@
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/events/applying-natural-laws-to-technology-and-society/">
-                                        Applying Natural Laws To Technology And Society
+                                    <a href="/training/thuong-mai-xb-co-ban/">
+                                        Khóa đào tạo Thương mại xuyên biên giới cơ bản
                                     </a>
                                 </h4>
                                 <div class="event-excerpt">
-                                    Morbi accumsan ipsum velit. Nam nec tellus a odio tincidunt auctor a...
+                                    Tìm hiểu các kiến thức cơ bản về thương mại xuyên biên giới, quy trình nhập khẩu và các thủ tục pháp lý cần thiết...
                                 </div>
                                 <div class="event-meta">
                                     <div class="event-time">
@@ -1193,159 +1186,39 @@
                                             <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>8:00 am - 5:00 pm</span>
+                                        <span>9:00 - 17:00</span>
                                     </div>
                                     <div class="event-location">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>NewYork, USA</span>
+                                        <span>Hồ Chí Minh</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Event Item 2 -->
-                        <div class="event-item">
-                            <div class="event-date-badge">
-                                <span class="date">26</span>
-                                <span class="month">September</span>
-                            </div>
-                            <div class="event-image">
-                                <a href="https://eduma.thimpress.com/demo-marketplace/events/managing-time-for-study/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-2-675x450.jpg" 
-                                         alt="Managing Time For Study" loading="lazy">
-                                </a>
-                            </div>
-                            <div class="event-content">
-                                <h4 class="event-title">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/events/managing-time-for-study/">
-                                        Managing Time For Study
-                                    </a>
-                                </h4>
-                                <div class="event-excerpt">
-                                    Morbi accumsan ipsum velit. Nam nec tellus a odio tincidunt auctor a...
-                                </div>
-                                <div class="event-meta">
-                                    <div class="event-time">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span>8:00 am - 5:00 pm</span>
-                                    </div>
-                                    <div class="event-location">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span>Paris, French</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Event Item 3 -->
-                        <div class="event-item">
-                            <div class="event-date-badge">
-                                <span class="date">18</span>
-                                <span class="month">December</span>
-                            </div>
-                            <div class="event-image">
-                                <a href="https://eduma.thimpress.com/demo-marketplace/events/education-autumn-tour/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-1-675x450.jpg" 
-                                         alt="Education Autumn Tour" loading="lazy">
-                                </a>
-                            </div>
-                            <div class="event-content">
-                                <h4 class="event-title">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/events/education-autumn-tour/">
-                                        Education Autumn Tour
-                                    </a>
-                                </h4>
-                                <div class="event-excerpt">
-                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry....
-                                </div>
-                                <div class="event-meta">
-                                    <div class="event-time">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span>7:00 am - 6:00 am</span>
-                                    </div>
-                                    <div class="event-location">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span>Berlin, Germany</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Event Item 4 -->
-                        <div class="event-item">
-                            <div class="event-date-badge">
-                                <span class="date">15</span>
-                                <span class="month">January</span>
-                            </div>
-                            <div class="event-image">
-                                <a href="#">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-14-675x450.jpg" 
-                                         alt="Digital Marketing Workshop" loading="lazy">
-                                </a>
-                            </div>
-                            <div class="event-content">
-                                <h4 class="event-title">
-                                    <a href="#">
-                                        Digital Marketing Workshop
-                                    </a>
-                                </h4>
-                                <div class="event-excerpt">
-                                    Learn the latest digital marketing strategies and tools to grow your business online...
-                                </div>
-                                <div class="event-meta">
-                                    <div class="event-time">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span>9:00 am - 4:00 pm</span>
-                                    </div>
-                                    <div class="event-location">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span>London, UK</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Event Item 5 -->
+                        <!-- Training Item 2 -->
                         <div class="event-item">
                             <div class="event-date-badge">
                                 <span class="date">22</span>
-                                <span class="month">February</span>
+                                <span class="month">Tháng 2</span>
                             </div>
                             <div class="event-image">
-                                <a href="#">
+                                <a href="/training/tim-nguon-hang-trung-quoc/">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-2-675x450.jpg" 
-                                         alt="AI & Machine Learning Conference" loading="lazy">
+                                         alt="Tìm nguồn hàng Trung Quốc hiệu quả" loading="lazy">
                                 </a>
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="#">
-                                        AI & Machine Learning Conference
+                                    <a href="/training/tim-nguon-hang-trung-quoc/">
+                                        Tìm nguồn hàng Trung Quốc hiệu quả
                                     </a>
                                 </h4>
                                 <div class="event-excerpt">
-                                    Explore the future of artificial intelligence and machine learning technologies...
+                                    Hướng dẫn chi tiết cách tìm kiếm và đánh giá nhà cung cấp uy tín, đàm phán giá cả và quản lý chất lượng sản phẩm...
                                 </div>
                                 <div class="event-meta">
                                     <div class="event-time">
@@ -1353,39 +1226,39 @@
                                             <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>10:00 am - 6:00 pm</span>
+                                        <span>8:30 - 16:30</span>
                                     </div>
                                     <div class="event-location">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>Tokyo, Japan</span>
+                                        <span>Hà Nội</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Event Item 6 -->
+                        <!-- Training Item 3 -->
                         <div class="event-item">
                             <div class="event-date-badge">
                                 <span class="date">05</span>
-                                <span class="month">March</span>
+                                <span class="month">Tháng 3</span>
                             </div>
                             <div class="event-image">
-                                <a href="#">
+                                <a href="/training/thu-tuc-hai-quan/">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-1-675x450.jpg" 
-                                         alt="Web Development Bootcamp" loading="lazy">
+                                         alt="Thủ tục hải quan và logistics" loading="lazy">
                                 </a>
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="#">
-                                        Web Development Bootcamp
+                                    <a href="/training/thu-tuc-hai-quan/">
+                                        Thủ tục hải quan và logistics
                                     </a>
                                 </h4>
                                 <div class="event-excerpt">
-                                    Intensive bootcamp covering modern web development technologies and frameworks...
+                                    Nắm vững các quy định hải quan mới nhất, cách kê khai và xử lý các vấn đề phát sinh trong quá trình nhập khẩu...
                                 </div>
                                 <div class="event-meta">
                                     <div class="event-time">
@@ -1393,14 +1266,134 @@
                                             <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>8:30 am - 5:30 pm</span>
+                                        <span>9:00 - 16:00</span>
                                     </div>
                                     <div class="event-location">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>Sydney, Australia</span>
+                                        <span>Đà Nẵng</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Item 4 -->
+                        <div class="event-item">
+                            <div class="event-date-badge">
+                                <span class="date">18</span>
+                                <span class="month">Tháng 3</span>
+                            </div>
+                            <div class="event-image">
+                                <a href="/training/marketing-online/">
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-14-675x450.jpg" 
+                                         alt="Marketing online cho doanh nghiệp XNK" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="event-content">
+                                <h4 class="event-title">
+                                    <a href="/training/marketing-online/">
+                                        Marketing online cho doanh nghiệp XNK
+                                    </a>
+                                </h4>
+                                <div class="event-excerpt">
+                                    Học cách xây dựng thương hiệu và tiếp thị sản phẩm nhập khẩu trên các nền tảng số hiệu quả...
+                                </div>
+                                <div class="event-meta">
+                                    <div class="event-time">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>13:00 - 17:00</span>
+                                    </div>
+                                    <div class="event-location">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>Online</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Item 5 -->
+                        <div class="event-item">
+                            <div class="event-date-badge">
+                                <span class="date">25</span>
+                                <span class="month">Tháng 3</span>
+                            </div>
+                            <div class="event-image">
+                                <a href="/training/quan-ly-rui-ro/">
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-2-675x450.jpg" 
+                                         alt="Quản lý rủi ro trong thương mại quốc tế" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="event-content">
+                                <h4 class="event-title">
+                                    <a href="/training/quan-ly-rui-ro/">
+                                        Quản lý rủi ro trong thương mại quốc tế
+                                    </a>
+                                </h4>
+                                <div class="event-excerpt">
+                                    Nhận biết và phòng tránh các rủi ro thường gặp, bảo hiểm hàng hóa và xử lý tranh chấp thương mại...
+                                </div>
+                                <div class="event-meta">
+                                    <div class="event-time">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>9:00 - 17:00</span>
+                                    </div>
+                                    <div class="event-location">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>Cần Thơ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Item 6 -->
+                        <div class="event-item">
+                            <div class="event-date-badge">
+                                <span class="date">10</span>
+                                <span class="month">Tháng 4</span>
+                            </div>
+                            <div class="event-image">
+                                <a href="/training/kinh-nghiem-danh-hang/">
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-1-675x450.jpg" 
+                                         alt="Kinh nghiệm đánh hàng tại Trung Quốc" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="event-content">
+                                <h4 class="event-title">
+                                    <a href="/training/kinh-nghiem-danh-hang/">
+                                        Kinh nghiệm đánh hàng tại Trung Quốc
+                                    </a>
+                                </h4>
+                                <div class="event-excerpt">
+                                    Chia sẻ kinh nghiệm thực tế từ các chuyên gia về cách đánh hàng hiệu quả, tránh rủi ro và tối ưu chi phí...
+                                </div>
+                                <div class="event-meta">
+                                    <div class="event-time">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.31814 11.6819 1.33337 8 1.33337C4.31814 1.33337 1.33337 4.31814 1.33337 8C1.33337 11.6819 4.31814 14.6667 8 14.6667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 4V8L10.6667 9.33333" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>8:00 - 17:00</span>
+                                    </div>
+                                    <div class="event-location">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M14 6.66667C14 11.3333 8 15.3333 8 15.3333C8 15.3333 2 11.3333 2 6.66667C2 5.07536 2.63214 3.54925 3.75736 2.42402C4.88258 1.2988 6.4087 0.666672 8 0.666672C9.5913 0.666672 11.1174 1.2988 12.2426 2.42402C13.3679 3.54925 14 5.07536 14 6.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 8.66667C9.10457 8.66667 10 7.77124 10 6.66667C10 5.5621 9.10457 4.66667 8 4.66667C6.89543 4.66667 6 5.5621 6 6.66667C6 7.77124 6.89543 8.66667 8 8.66667Z" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <span>Hồ Chí Minh</span>
                                     </div>
                                 </div>
                             </div>
@@ -1424,9 +1417,9 @@
 <section class="latest-news-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title"><span class="highlight">Latest</span> News</h2>
-            <a href="https://eduma.thimpress.com/demo-marketplace/blog/" class="see-more-btn">
-                See More
+            <h2 class="section-title"><span class="highlight">Tin tức</span> Mới nhất</h2>
+            <a href="/news/" class="see-more-btn">
+                Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -1454,19 +1447,19 @@
                         <!-- News Item 1 -->
                         <div class="news-item">
                             <div class="news-image">
-                                <a href="https://eduma.thimpress.com/demo-marketplace/lms-wordpress-plugin/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-14-768x443.jpg" 
-                                         alt="LMS WordPress Plugin" loading="lazy">
+                                <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                         alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/lms-wordpress-plugin/">
-                                        LMS WordPress Plugin
+                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                        Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
                                 <div class="news-excerpt">
-                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the...
+                                    Phân tích những xu hướng mới trong thương mại xuyên biên giới năm 2025, cơ hội và thách thức cho các doanh nghiệp Việt Nam...
                                 </div>
                                 <div class="news-meta">
                                     <div class="news-category">
@@ -1496,7 +1489,7 @@
                         </div>
 
                         <!-- News Item 2 -->
-                        <div class="news-item">
+                                                <div class="news-item">
                             <div class="news-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
@@ -1505,12 +1498,12 @@
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
-                                        Admin Earns Scholarship
+                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                        Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
                                 <div class="news-excerpt">
-                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy...
+                                    Phân tích những xu hướng mới trong thương mại xuyên biên giới năm 2025, cơ hội và thách thức cho các doanh nghiệp Việt Nam...
                                 </div>
                                 <div class="news-meta">
                                     <div class="news-category">
@@ -1525,11 +1518,11 @@
                                             <path d="M5.83333 1.8335V3.8335M11.1667 1.8335V3.8335M2.83333 6.56016H14.1667M14.5 6.16683V11.8335C14.5 13.8335 13.5 15.1668 11.1667 15.1668H5.83333C3.5 15.1668 2.5 13.8335 2.5 11.8335V6.16683C2.5 4.16683 3.5 2.8335 5.83333 2.8335H11.1667C13.5 2.8335 14.5 4.16683 14.5 6.16683Z" stroke="#444444" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M10.9633 9.6333H10.9693M10.9633 11.6333H10.9693M8.49663 9.6333H8.5033M8.49663 11.6333H8.5033M6.0293 9.6333H6.03596M6.0293 11.6333H6.03596" stroke="#444444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>20/08/2025</span>
+                                        <span>20/09/2025</span>
                                     </div>
                                 </div>
                                 <div class="news-read-more">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/" class="read-more-btn">
+                                    <a href="https://eduma.thimpress.com/demo-marketplace/lms-wordpress-plugin/" class="read-more-btn">
                                         Read More
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1540,21 +1533,21 @@
                         </div>
 
                         <!-- News Item 3 -->
-                        <div class="news-item">
+                                                <div class="news-item">
                             <div class="news-image">
-                                <a href="https://eduma.thimpress.com/demo-marketplace/forensic-team-earns-several/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-13-768x443.jpg" 
-                                         alt="Forensic Team Earns Several" loading="lazy">
+                                <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                         alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/forensic-team-earns-several/">
-                                        Forensic Team Earns Several
+                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                        Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
                                 <div class="news-excerpt">
-                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy...
+                                    Phân tích những xu hướng mới trong thương mại xuyên biên giới năm 2025, cơ hội và thách thức cho các doanh nghiệp Việt Nam...
                                 </div>
                                 <div class="news-meta">
                                     <div class="news-category">
@@ -1569,11 +1562,11 @@
                                             <path d="M5.83333 1.8335V3.8335M11.1667 1.8335V3.8335M2.83333 6.56016H14.1667M14.5 6.16683V11.8335C14.5 13.8335 13.5 15.1668 11.1667 15.1668H5.83333C3.5 15.1668 2.5 13.8335 2.5 11.8335V6.16683C2.5 4.16683 3.5 2.8335 5.83333 2.8335H11.1667C13.5 2.8335 14.5 4.16683 14.5 6.16683Z" stroke="#444444" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M10.9633 9.6333H10.9693M10.9633 11.6333H10.9693M8.49663 9.6333H8.5033M8.49663 11.6333H8.5033M6.0293 9.6333H6.03596M6.0293 11.6333H6.03596" stroke="#444444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>20/08/2025</span>
+                                        <span>20/09/2025</span>
                                     </div>
                                 </div>
                                 <div class="news-read-more">
-                                    <a href="https://eduma.thimpress.com/demo-marketplace/forensic-team-earns-several/" class="read-more-btn">
+                                    <a href="https://eduma.thimpress.com/demo-marketplace/lms-wordpress-plugin/" class="read-more-btn">
                                         Read More
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1584,21 +1577,21 @@
                         </div>
 
                         <!-- News Item 4 -->
-                        <div class="news-item">
+                                                <div class="news-item">
                             <div class="news-image">
-                                <a href="#">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-14-768x443.jpg" 
-                                         alt="Digital Learning Revolution" loading="lazy">
+                                <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                         alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="#">
-                                        Digital Learning Revolution
+                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                        Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
                                 <div class="news-excerpt">
-                                    Explore how digital transformation is reshaping education and creating new opportunities for learners worldwide...
+                                    Phân tích những xu hướng mới trong thương mại xuyên biên giới năm 2025, cơ hội và thách thức cho các doanh nghiệp Việt Nam...
                                 </div>
                                 <div class="news-meta">
                                     <div class="news-category">
@@ -1613,11 +1606,11 @@
                                             <path d="M5.83333 1.8335V3.8335M11.1667 1.8335V3.8335M2.83333 6.56016H14.1667M14.5 6.16683V11.8335C14.5 13.8335 13.5 15.1668 11.1667 15.1668H5.83333C3.5 15.1668 2.5 13.8335 2.5 11.8335V6.16683C2.5 4.16683 3.5 2.8335 5.83333 2.8335H11.1667C13.5 2.8335 14.5 4.16683 14.5 6.16683Z" stroke="#444444" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M10.9633 9.6333H10.9693M10.9633 11.6333H10.9693M8.49663 9.6333H8.5033M8.49663 11.6333H8.5033M6.0293 9.6333H6.03596M6.0293 11.6333H6.03596" stroke="#444444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>15/08/2025</span>
+                                        <span>20/09/2025</span>
                                     </div>
                                 </div>
                                 <div class="news-read-more">
-                                    <a href="#" class="read-more-btn">
+                                    <a href="https://eduma.thimpress.com/demo-marketplace/lms-wordpress-plugin/" class="read-more-btn">
                                         Read More
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1628,21 +1621,21 @@
                         </div>
 
                         <!-- News Item 5 -->
-                        <div class="news-item">
+                                                <div class="news-item">
                             <div class="news-image">
-                                <a href="#">
+                                <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
-                                         alt="Future of Online Education" loading="lazy">
+                                         alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="#">
-                                        Future of Online Education
+                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                        Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
                                 <div class="news-excerpt">
-                                    Discover the latest trends and innovations that are shaping the future of online learning and education technology...
+                                    Phân tích những xu hướng mới trong thương mại xuyên biên giới năm 2025, cơ hội và thách thức cho các doanh nghiệp Việt Nam...
                                 </div>
                                 <div class="news-meta">
                                     <div class="news-category">
@@ -1657,11 +1650,11 @@
                                             <path d="M5.83333 1.8335V3.8335M11.1667 1.8335V3.8335M2.83333 6.56016H14.1667M14.5 6.16683V11.8335C14.5 13.8335 13.5 15.1668 11.1667 15.1668H5.83333C3.5 15.1668 2.5 13.8335 2.5 11.8335V6.16683C2.5 4.16683 3.5 2.8335 5.83333 2.8335H11.1667C13.5 2.8335 14.5 4.16683 14.5 6.16683Z" stroke="#444444" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M10.9633 9.6333H10.9693M10.9633 11.6333H10.9693M8.49663 9.6333H8.5033M8.49663 11.6333H8.5033M6.0293 9.6333H6.03596M6.0293 11.6333H6.03596" stroke="#444444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>10/08/2025</span>
+                                        <span>20/09/2025</span>
                                     </div>
                                 </div>
                                 <div class="news-read-more">
-                                    <a href="#" class="read-more-btn">
+                                    <a href="https://eduma.thimpress.com/demo-marketplace/lms-wordpress-plugin/" class="read-more-btn">
                                         Read More
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1672,21 +1665,21 @@
                         </div>
 
                         <!-- News Item 6 -->
-                        <div class="news-item">
+                                                <div class="news-item">
                             <div class="news-image">
-                                <a href="#">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-13-768x443.jpg" 
-                                         alt="EdTech Innovation Summit" loading="lazy">
+                                <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
+                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                         alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="#">
-                                        EdTech Innovation Summit
+                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                        Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
                                 <div class="news-excerpt">
-                                    Join industry leaders and educators at the annual EdTech Innovation Summit to explore cutting-edge educational technologies...
+                                    Phân tích những xu hướng mới trong thương mại xuyên biên giới năm 2025, cơ hội và thách thức cho các doanh nghiệp Việt Nam...
                                 </div>
                                 <div class="news-meta">
                                     <div class="news-category">
@@ -1701,11 +1694,11 @@
                                             <path d="M5.83333 1.8335V3.8335M11.1667 1.8335V3.8335M2.83333 6.56016H14.1667M14.5 6.16683V11.8335C14.5 13.8335 13.5 15.1668 11.1667 15.1668H5.83333C3.5 15.1668 2.5 13.8335 2.5 11.8335V6.16683C2.5 4.16683 3.5 2.8335 5.83333 2.8335H11.1667C13.5 2.8335 14.5 4.16683 14.5 6.16683Z" stroke="#444444" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M10.9633 9.6333H10.9693M10.9633 11.6333H10.9693M8.49663 9.6333H8.5033M8.49663 11.6333H8.5033M6.0293 9.6333H6.03596M6.0293 11.6333H6.03596" stroke="#444444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span>05/08/2025</span>
+                                        <span>20/09/2025</span>
                                     </div>
                                 </div>
                                 <div class="news-read-more">
-                                    <a href="#" class="read-more-btn">
+                                    <a href="https://eduma.thimpress.com/demo-marketplace/lms-wordpress-plugin/" class="read-more-btn">
                                         Read More
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
