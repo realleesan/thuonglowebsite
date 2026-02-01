@@ -13,8 +13,8 @@
                     <p>ThuongLo là nền tảng hàng đầu cung cấp data nguồn hàng chất lượng, dịch vụ vận chuyển chính ngạch và hỗ trợ toàn diện cho các doanh nghiệp muốn phát triển thương mại xuyên biên giới.</p>
                 </div>
                 <div class="hero-buttons">
-                    <a href="/register/" class="btn-primary">Đăng ký miễn phí</a>
-                    <a href="/products/" class="btn-secondary">Xem sản phẩm</a>
+                    <a href="?page=register" class="btn-primary">Đăng ký miễn phí</a>
+                    <a href="?page=products" class="btn-secondary">Xem sản phẩm</a>
                 </div>
             </div>
             <div class="hero-right">
@@ -35,7 +35,7 @@
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Sản phẩm <span class="highlight">Nổi bật</span></h2>
-            <a href="/products/" class="see-more-btn">
+            <a href="?page=products" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -67,14 +67,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -95,7 +95,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -109,14 +109,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -137,7 +137,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -151,14 +151,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -179,7 +179,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -193,14 +193,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -221,7 +221,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -235,14 +235,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -263,7 +263,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -277,14 +277,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -305,7 +305,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -319,14 +319,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -347,7 +347,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -361,14 +361,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -389,7 +389,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -415,7 +415,7 @@
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Danh mục <span class="highlight">Nổi bật</span></h2>
-            <a href="/products/" class="see-more-btn">
+            <a href="?page=products" class="see-more-btn">
                 Xem tất cả
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -426,63 +426,63 @@
         <div class="thim-widget-course-categories-grid layout-image-cats">
             <ul class="columns-3">
                 <li>
-                    <a href="/products/category/data-nguon-hang/">
+                    <a href="?page=details">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Data nguồn hàng</span>
                         <p class="count-course">1000+ Nhà cung cấp</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/van-chuyen-chinh-ngach/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Vận chuyển chính ngạch</span>
                         <p class="count-course">An toàn - Nhanh chóng</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/mua-hang-tron-goi/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Mua hàng trọn gói</span>
                         <p class="count-course">Từ A đến Z</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/thanh-toan-quoc-te/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Thanh toán quốc tế</span>
                         <p class="count-course">Tỷ giá ưu đãi</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/dich-vu-danh-hang/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Dịch vụ đánh hàng</span>
                         <p class="count-course">Chuyên nghiệp</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/phien-dich/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Phiên dịch</span>
                         <p class="count-course">Trung - Việt</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/ho-tro-di-lai/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Hỗ trợ đi lại</span>
                         <p class="count-course">Ăn ở - Di chuyển</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/tu-van-kinh-doanh/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Tư vấn kinh doanh</span>
                         <p class="count-course">Chuyên gia</p>
                     </a>
                 </li>
                 <li>
-                    <a href="/products/category/dich-vu-khac/">
+                    <a href="?page=categories">
                         <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Sản phẩm khác</span>
                         <p class="count-course">Linh hoạt</p>
@@ -498,7 +498,7 @@
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Sản phẩm <span class="highlight">Mới nhất</span></h2>
-            <a href="/news/" class="see-more-btn">
+            <a href="?page=news" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -530,14 +530,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -558,7 +558,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -572,14 +572,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -600,7 +600,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -614,14 +614,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -642,7 +642,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -656,14 +656,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -684,7 +684,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -698,14 +698,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -726,7 +726,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -740,14 +740,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -768,7 +768,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -782,14 +782,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -810,7 +810,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -824,14 +824,14 @@
                         <a href="#" class="category-tag">Data nguồn hàng</a>
                     </div>
                     <div class="course-image">
-                        <a href="/products/category/data-nguon-hang/">
+                        <a href="?page=details">
                             <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
                     <div class="course-content">
                         <h4 class="course-title">
-                            <a href="/products/category/data-nguon-hang/">Data nguồn hàng chất lượng cao</a>
+                            <a href="?page=details">Data nguồn hàng chất lượng cao</a>
                         </h4>
                         <div class="course-excerpt">
                             Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...
@@ -852,7 +852,7 @@
                             
                         </div>
                         <div class="course-button">
-                            <a href="/products/category/data-nguon-hang/" class="btn-start-learning">
+                            <a href="?page=details" class="btn-start-learning">
                                 <i class="fas fa-play"></i>
                                 <span>Xem chi tiết</span>
                             </a>
@@ -1133,7 +1133,7 @@
     <div class="container">
         <div class="section-header">
             <h2 class="section-title"><span class="highlight"> Sự kiện</span> Sắp tới</h2>
-            <a href="/training/" class="see-more-btn">
+            <a href="?page=news" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1173,7 +1173,7 @@
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="/training/thuong-mai-xb-co-ban/">
+                                    <a href="?page=news-details">
                                         Khóa đào tạo Thương mại xuyên biên giới cơ bản
                                     </a>
                                 </h4>
@@ -1206,14 +1206,14 @@
                                 <span class="month">Tháng 2</span>
                             </div>
                             <div class="event-image">
-                                <a href="/training/tim-nguon-hang-trung-quoc/">
+                                <a href="?page=news-details">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-2-675x450.jpg" 
                                          alt="Tìm nguồn hàng Trung Quốc hiệu quả" loading="lazy">
                                 </a>
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="/training/tim-nguon-hang-trung-quoc/">
+                                    <a href="?page=news-details">
                                         Tìm nguồn hàng Trung Quốc hiệu quả
                                     </a>
                                 </h4>
@@ -1246,14 +1246,14 @@
                                 <span class="month">Tháng 3</span>
                             </div>
                             <div class="event-image">
-                                <a href="/training/thu-tuc-hai-quan/">
+                                <a href="?page=news-details">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-1-675x450.jpg" 
                                          alt="Thủ tục hải quan và logistics" loading="lazy">
                                 </a>
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="/training/thu-tuc-hai-quan/">
+                                    <a href="?page=news-details">
                                         Thủ tục hải quan và logistics
                                     </a>
                                 </h4>
@@ -1286,14 +1286,14 @@
                                 <span class="month">Tháng 3</span>
                             </div>
                             <div class="event-image">
-                                <a href="/training/marketing-online/">
+                                <a href="?page=news-details">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-14-675x450.jpg" 
                                          alt="Marketing online cho doanh nghiệp XNK" loading="lazy">
                                 </a>
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="/training/marketing-online/">
+                                    <a href="?page=news-details">
                                         Marketing online cho doanh nghiệp XNK
                                     </a>
                                 </h4>
@@ -1326,14 +1326,14 @@
                                 <span class="month">Tháng 3</span>
                             </div>
                             <div class="event-image">
-                                <a href="/training/quan-ly-rui-ro/">
+                                <a href="?page=news-details">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-2-675x450.jpg" 
                                          alt="Quản lý rủi ro trong thương mại quốc tế" loading="lazy">
                                 </a>
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="/training/quan-ly-rui-ro/">
+                                    <a href="?page=news-details">
                                         Quản lý rủi ro trong thương mại quốc tế
                                     </a>
                                 </h4>
@@ -1366,14 +1366,14 @@
                                 <span class="month">Tháng 4</span>
                             </div>
                             <div class="event-image">
-                                <a href="/training/kinh-nghiem-danh-hang/">
+                                <a href="?page=news-details">
                                     <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-1-675x450.jpg" 
                                          alt="Kinh nghiệm đánh hàng tại Trung Quốc" loading="lazy">
                                 </a>
                             </div>
                             <div class="event-content">
                                 <h4 class="event-title">
-                                    <a href="/training/kinh-nghiem-danh-hang/">
+                                    <a href="?page=news-details">
                                         Kinh nghiệm đánh hàng tại Trung Quốc
                                     </a>
                                 </h4>
@@ -1418,7 +1418,7 @@
     <div class="container">
         <div class="section-header">
             <h2 class="section-title"><span class="highlight">Tin tức</span> Mới nhất</h2>
-            <a href="/news/" class="see-more-btn">
+            <a href="?page=news" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1454,7 +1454,7 @@
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                    <a href="?page=news-details">
                                         Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
@@ -1498,7 +1498,7 @@
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                    <a href="?page=news-details">
                                         Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
@@ -1542,7 +1542,7 @@
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                    <a href="?page=news-details">
                                         Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
@@ -1586,7 +1586,7 @@
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                    <a href="?page=news-details">
                                         Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
@@ -1630,7 +1630,7 @@
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                    <a href="?page=news-details">
                                         Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
@@ -1674,7 +1674,7 @@
                             </div>
                             <div class="news-content">
                                 <h4 class="news-title">
-                                    <a href="/news/xu-huong-thuong-mai-xb-2025/">
+                                    <a href="?page=news-details">
                                         Xu hướng thương mại xuyên biên giới 2025
                                     </a>
                                 </h4>
