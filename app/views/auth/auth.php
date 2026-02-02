@@ -213,7 +213,7 @@ function logout() {
     // Xóa cookie ref_code khi logout
     setcookie('ref_code', '', time() - 3600, '/');
     
-    header('Location: index.php?page=login');
+    header('Location: ' . page_url('login'));
     exit;
 }
 
@@ -222,7 +222,7 @@ function logout() {
  */
 function requireAuth($redirectPage = 'login') {
     if (!isLoggedIn()) {
-        header("Location: index.php?page=" . $redirectPage);
+        header("Location: " . page_url($redirectPage));
         exit;
     }
 }
@@ -232,7 +232,7 @@ function requireAuth($redirectPage = 'login') {
  */
 function requireRole($requiredRole, $redirectTo = 'login') {
     if (!checkAccess($requiredRole)) {
-        header("Location: index.php?page=login");
+        header("Location: " . page_url('login'));
         exit;
     }
 }

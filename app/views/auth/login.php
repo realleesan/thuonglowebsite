@@ -63,12 +63,12 @@ $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'u
                     <div class="alert alert-success"><?php echo $success; ?> Đang chuyển hướng...</div>
                     <script>
                         setTimeout(function() {
-                            window.location.href = 'index.php?page=home';
+                            window.location.href = '<?php echo page_url('home'); ?>';
                         }, 2000);
                     </script>
                 <?php endif; ?>
 
-                <form method="POST" action="" class="auth-form">
+                <form method="POST" action="<?php echo form_url(); ?>" class="auth-form">
                     <div class="form-group">
                         <label for="phone" class="form-label">Tên đăng nhập hoặc email</label>
                         <input type="tel" id="phone" name="phone" class="form-control"
@@ -96,7 +96,7 @@ $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'u
                             Remember Me
                         </label>
                         <div class="register-link" style="margin-top: 15px; margin-bottom: 10px;">
-                            <a href="index.php?page=forgot&reset=true">Quên mật khẩu?</a>
+                            <a href="<?php echo page_url('forgot', ['reset' => 'true']); ?>">Quên mật khẩu?</a>
                         </div>
                     </div>
 
@@ -106,7 +106,7 @@ $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'u
                 </form>
 
                 <div class="register-link">
-                    Not a member yet? <a href="index.php?page=register">Register now</a>
+                    Not a member yet? <a href="<?php echo page_url('register'); ?>">Register now</a>
                 </div>
 
                 <div class="role-demo">

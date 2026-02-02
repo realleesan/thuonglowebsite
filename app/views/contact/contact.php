@@ -71,7 +71,7 @@
                                 </div>
 
                                 <div class="contact-form">
-                                    <form class="contact-form-wrapper" method="post" action="/contact/" novalidate>
+                                    <form class="contact-form-wrapper" method="post" action="<?php echo form_url('contact'); ?>" novalidate>
                                         <div class="form-row">
                                             <div class="form-group">
                                                 <input type="text" name="your-name" placeholder="*Họ và tên" class="form-control" required>

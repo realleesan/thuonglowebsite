@@ -24,7 +24,7 @@ if (isset($_GET['reset']) && $_GET['reset'] == 'true') {
     unset($_SESSION['forgot_step'], $_SESSION['reset_code'], $_SESSION['reset_contact'], $_SESSION['flash_error'], $_SESSION['flash_success']);
     
     // Chuyển hướng lại chính trang này (bỏ ?reset=true) để bắt đầu sạch sẽ
-    forgot_redirect('index.php?page=forgot');
+    forgot_redirect(page_url('forgot'));
 }
 
 // --- 1. LẤY DỮ LIỆU TỪ SESSION (QUAN TRỌNG) ---
@@ -98,13 +98,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Lưu session và Chuyển hướng về trang Login
             session_write_close(); 
-            forgot_redirect('index.php?page=login');
+            forgot_redirect(page_url('login'));
         }
     }
     
     // --- CHUYỂN HƯỚNG VỀ CHÍNH TRANG NÀY ĐỂ TRÁNH LỖI FORM RESUBMISSION ---
     session_write_close(); // Đảm bảo Session được lưu trước khi chuyển trang
-    forgot_redirect('index.php?page=forgot');
+    forgot_redirect(page_url('forgot'));
 }
 ?>
 
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif; ?>
 
                             <?php if ($step === 'input'): ?>
-                                <form method="POST" action="index.php?page=forgot" class="auth-form">
+                                <form method="POST" action="<?php echo form_url('forgot'); ?>" class="auth-form">
                                     <input type="hidden" name="action" value="send_code">
                                     <div class="form-group">
                                         <label for="contact">Email hoặc Số điện thoại</label>
@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
 
                             <?php elseif ($step === 'verify'): ?>
-                                <form method="POST" action="index.php?page=forgot" class="auth-form">
+                                <form method="POST" action="<?php echo form_url('forgot'); ?>" class="auth-form">
                                     <div class="form-group">
                                         <label for="verification_code">Nhập mã xác thực</label>
                                         <input type="text" id="verification_code" name="verification_code" class="form-control code-input"
@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </form>
 
                             <?php elseif ($step === 'reset'): ?>
-                                <form method="POST" action="index.php?page=forgot" class="auth-form">
+                                <form method="POST" action="<?php echo form_url('forgot'); ?>" class="auth-form">
                                     <input type="hidden" name="action" value="reset_password">
 
                                     <div class="form-group">
@@ -207,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif; ?>
 
                             <div class="register-link">
-                                <a href="index.php?page=login">← Quay lại đăng nhập</a>
+                                <a href="<?php echo page_url('login'); ?>">← Quay lại đăng nhập</a>
                             </div>
                         </div>
                     </div>

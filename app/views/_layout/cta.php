@@ -4,7 +4,7 @@
         <div class="cta-content">
             <div class="cta-image">
                 <img loading="lazy" decoding="async" width="500" height="500"
-                     src="assets/images/home/cta-final-1.png"
+                     src="<?php echo img_url('home/cta-final-1.png'); ?>"
                      alt="Trở thành đối tác ThuongLo">
             </div>
             <div class="cta-text">

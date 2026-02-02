@@ -34,7 +34,7 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(120deg, rgba(17, 24, 39, 0.78), rgba(37, 99, 235, 0.55)),
-                url('../img/about_hero_banner.jpg');
+                url('../images/about/about_hero_banner.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

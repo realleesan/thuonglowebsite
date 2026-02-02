@@ -20,9 +20,9 @@
             <div class="hero-right">
                 <div class="hero-image">
                     <img fetchpriority="high" decoding="async" width="600" height="600" 
-                         src="assets/images/home/home-banner-final.png" 
+                         src="<?php echo img_url('home/home-banner-final.png'); ?>" 
                          alt="ThuongLo - Nền tảng thương mại xuyên biên giới" 
-                         srcset="assets/images/home/home-banner-final.png 600w, assets/images/home/home-banner-final.png 360w, assets/images/home/home-banner-final.png 150w, assets/images/home/home-banner-final.png 100w"
+                         srcset="<?php echo img_url('home/home-banner-final.png'); ?> 600w, <?php echo img_url('home/home-banner-final.png'); ?> 360w, <?php echo img_url('home/home-banner-final.png'); ?> 150w, <?php echo img_url('home/home-banner-final.png'); ?> 100w"
                          sizes="(max-width: 600px) 100vw, 600px" />
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -110,7 +110,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -152,7 +152,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -194,7 +194,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -236,7 +236,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -278,7 +278,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -320,7 +320,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -362,7 +362,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -427,63 +427,63 @@
             <ul class="columns-3">
                 <li>
                     <a href="?page=details">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Data nguồn hàng" width="380" height="126"> 
                         <span class="category-title">Data nguồn hàng</span>
                         <p class="count-course">1000+ Nhà cung cấp</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Vận chuyển chính ngạch</span>
                         <p class="count-course">An toàn - Nhanh chóng</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Mua hàng trọn gói</span>
                         <p class="count-course">Từ A đến Z</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Thanh toán quốc tế</span>
                         <p class="count-course">Tỷ giá ưu đãi</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Dịch vụ đánh hàng</span>
                         <p class="count-course">Chuyên nghiệp</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Phiên dịch</span>
                         <p class="count-course">Trung - Việt</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Hỗ trợ đi lại</span>
                         <p class="count-course">Ăn ở - Di chuyển</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Tư vấn kinh doanh</span>
                         <p class="count-course">Chuyên gia</p>
                     </a>
                 </li>
                 <li>
                     <a href="?page=categories">
-                        <img loading="lazy" decoding="async" src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/01/coaching-category-380x126.jpg" alt="Coaching" width="380" height="126"> 
+                        <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Coaching" width="380" height="126"> 
                         <span class="category-title">Sản phẩm khác</span>
                         <p class="count-course">Linh hoạt</p>
                     </a>
@@ -531,7 +531,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -573,7 +573,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -615,7 +615,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -657,7 +657,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -699,7 +699,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -741,7 +741,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -783,7 +783,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -825,7 +825,7 @@
                     </div>
                     <div class="course-image">
                         <a href="?page=details">
-                            <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" 
+                            <img src="<?php echo img_url('home/home-banner-top.png'); ?>" 
                                  alt="Data nguồn hàng chất lượng" loading="lazy">
                         </a>
                     </div>
@@ -1022,8 +1022,8 @@
 
                                 <!-- Customer Avatar -->
                                 <div class="customer-avatar">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-testimonial.jpg" 
-                                         alt="Bennett Cu" 
+                                    <img src="<?php echo img_url('about/about_founder.jpg'); ?>" 
+                                         alt="Nguyễn Minh Tuấn" 
                                          width="278" 
                                          height="278" 
                                          loading="lazy">
@@ -1064,7 +1064,7 @@
 
                                 <!-- Customer Avatar -->
                                 <div class="customer-avatar">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-testimonial.jpg" 
+                                    <img src="<?php echo img_url('about/about_founder.jpg'); ?>" 
                                          alt="Bennett Cu" 
                                          width="278" 
                                          height="278" 
@@ -1106,7 +1106,7 @@
 
                                 <!-- Customer Avatar -->
                                 <div class="customer-avatar">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2023/08/home-testimonial.jpg" 
+                                    <img src="<?php echo img_url('about/about_founder.jpg'); ?>" 
                                          alt="Bennett Cu" 
                                          width="278" 
                                          height="278" 
@@ -1167,7 +1167,7 @@
                             </div>
                             <div class="event-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/events/applying-natural-laws-to-technology-and-society/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-14-675x450.jpg" 
+                                    <img src="<?php echo img_url('home/cta.png'); ?>" 
                                          alt="Applying Natural Laws To Technology And Society" loading="lazy">
                                 </a>
                             </div>
@@ -1207,7 +1207,7 @@
                             </div>
                             <div class="event-image">
                                 <a href="?page=news-details">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-2-675x450.jpg" 
+                                    <img src="<?php echo img_url('home/banner-footer.png'); ?>" 
                                          alt="Tìm nguồn hàng Trung Quốc hiệu quả" loading="lazy">
                                 </a>
                             </div>
@@ -1247,7 +1247,7 @@
                             </div>
                             <div class="event-image">
                                 <a href="?page=news-details">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-1-675x450.jpg" 
+                                    <img src="<?php echo img_url('home/cta-final-1.png'); ?>" 
                                          alt="Thủ tục hải quan và logistics" loading="lazy">
                                 </a>
                             </div>
@@ -1287,7 +1287,7 @@
                             </div>
                             <div class="event-image">
                                 <a href="?page=news-details">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/06/courses-14-675x450.jpg" 
+                                    <img src="<?php echo img_url('home/cta.png'); ?>" 
                                          alt="Marketing online cho doanh nghiệp XNK" loading="lazy">
                                 </a>
                             </div>
@@ -1327,7 +1327,7 @@
                             </div>
                             <div class="event-image">
                                 <a href="?page=news-details">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-2-675x450.jpg" 
+                                    <img src="<?php echo img_url('home/banner-footer.png'); ?>" 
                                          alt="Quản lý rủi ro trong thương mại quốc tế" loading="lazy">
                                 </a>
                             </div>
@@ -1367,7 +1367,7 @@
                             </div>
                             <div class="event-image">
                                 <a href="?page=news-details">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/11/event-1-675x450.jpg" 
+                                    <img src="<?php echo img_url('home/cta-final-1.png'); ?>" 
                                          alt="Kinh nghiệm đánh hàng tại Trung Quốc" loading="lazy">
                                 </a>
                             </div>
@@ -1448,7 +1448,7 @@
                         <div class="news-item">
                             <div class="news-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                    <img src="<?php echo img_url('about/about_hero_banner.jpg'); ?>" 
                                          alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
@@ -1492,7 +1492,7 @@
                                                 <div class="news-item">
                             <div class="news-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                    <img src="<?php echo img_url('about/about_hero_banner.jpg'); ?>" 
                                          alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
@@ -1536,7 +1536,7 @@
                                                 <div class="news-item">
                             <div class="news-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                    <img src="<?php echo img_url('about/about_hero_banner.jpg'); ?>" 
                                          alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
@@ -1580,7 +1580,7 @@
                                                 <div class="news-item">
                             <div class="news-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                    <img src="<?php echo img_url('about/about_hero_banner.jpg'); ?>" 
                                          alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
@@ -1624,7 +1624,7 @@
                                                 <div class="news-item">
                             <div class="news-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                    <img src="<?php echo img_url('about/about_hero_banner.jpg'); ?>" 
                                          alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
@@ -1668,7 +1668,7 @@
                                                 <div class="news-item">
                             <div class="news-image">
                                 <a href="https://eduma.thimpress.com/demo-marketplace/admin-earns-scholarship/">
-                                    <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2015/12/courses-2-768x443.jpg" 
+                                    <img src="<?php echo img_url('about/about_hero_banner.jpg'); ?>" 
                                          alt="Admin Earns Scholarship" loading="lazy">
                                 </a>
                             </div>
@@ -1723,3 +1723,4 @@
 </section>
 
 <!-- End Home Page Content -->
+

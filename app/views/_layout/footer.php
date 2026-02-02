@@ -12,14 +12,14 @@
                                         <div class="elementor-widget-wrap elementor-element-populated">
                                             <div class="elementor-element elementor-element-18fb26a elementor-widget-mobile__width-inherit elementor-widget elementor-widget-image" data-id="18fb26a" data-element_type="widget" data-widget_type="image.default">
                                                 <div class="elementor-widget-container">
-                                                    <a href="./">
-                                                        <img loading="lazy" decoding="async" width="160" height="36" src="assets/icons/logo/logo.svg" class="attachment-full size-full wp-image-14235" alt="ThuongLo">
+                                                    <a href="<?php echo base_url(); ?>">
+                                                        <img loading="lazy" decoding="async" width="160" height="36" src="<?php echo icon_url('logo/logo.svg'); ?>" class="attachment-full size-full wp-image-14235" alt="ThuongLo">
                                                     </a>
                                                 </div>
                                             </div>
                                             <div class="elementor-element elementor-element-d6709c2 elementor-widget thim-widget-button" data-id="d6709c2" data-element_type="widget" data-widget_type="thim-button.default">
                                                 <div class="elementor-widget-container">
-                                                    <a href="?page=contact">Liên hệ tư vấn</a>
+                                                    <a href="<?php echo nav_url('contact'); ?>">Liên hệ tư vấn</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -39,13 +39,13 @@
                                                 <div class="elementor-widget-container">
                                                     <div class="header-info-swapper">
                                                         <ul class="thim-header-info">
-                                                            <li><a href="?page=categories&category=data-nguon-hang">Data nguồn hàng</a></li>
-                                                            <li><a href="?page=categories&category=van-chuyen-chinh-ngach">Vận chuyển chính ngạch</a></li>
-                                                            <li><a href="?page=categories&category=mua-hang-tron-goi">Mua hàng trọn gói</a></li>
-                                                            <li><a href="?page=categories&category=thanh-toan-quoc-te">Thanh toán quốc tế</a></li>
-                                                            <li><a href="?page=categories&category=dich-vu-danh-hang">Dịch vụ đánh hàng</a></li>
+                                                            <li><a href="<?php echo page_url('categories', ['category' => 'data-nguon-hang']); ?>">Data nguồn hàng</a></li>
+                                                            <li><a href="<?php echo page_url('categories', ['category' => 'van-chuyen-chinh-ngach']); ?>">Vận chuyển chính ngạch</a></li>
+                                                            <li><a href="<?php echo page_url('categories', ['category' => 'mua-hang-tron-goi']); ?>">Mua hàng trọn gói</a></li>
+                                                            <li><a href="<?php echo page_url('categories', ['category' => 'thanh-toan-quoc-te']); ?>">Thanh toán quốc tế</a></li>
+                                                            <li><a href="<?php echo page_url('categories', ['category' => 'dich-vu-danh-hang']); ?>">Dịch vụ đánh hàng</a></li>
                                                             <li>
-                                                                <a href="?page=categories&category=phien-dich">
+                                                                <a href="<?php echo page_url('categories', ['category' => 'phien-dich']); ?>">
                                                                     Phiên dịch
                                                                     <span>
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="47" height="20" viewBox="0 0 47 20" fill="none">
@@ -55,8 +55,8 @@
                                                                     </span>
                                                                 </a>
                                                             </li>
-                                                            <li><a href="?page=categories&category=ho-tro-di-lai">Hỗ trợ đi lại & ăn ở</a></li>
-                                                            <li><a href="?page=categories&category=dich-vu-khac">Dịch vụ khác</a></li>
+                                                            <li><a href="<?php echo page_url('categories', ['category' => 'ho-tro-di-lai']); ?>">Hỗ trợ đi lại & ăn ở</a></li>
+                                                            <li><a href="<?php echo page_url('categories', ['category' => 'dich-vu-khac']); ?>">Dịch vụ khác</a></li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -78,12 +78,12 @@
                                                 <div class="elementor-widget-container">
                                                     <div class="header-info-swapper">
                                                         <ul class="thim-header-info">
-                                                            <li><a href="?page=guide&type=how-to-order">Cách đặt hàng</a></li>
-                                                            <li><a href="?page=guide&type=payment">Hướng dẫn thanh toán</a></li>
-                                                            <li><a href="?page=guide&type=shipping">Quy trình vận chuyển</a></li>
-                                                            <li><a href="?page=guide&type=customs">Thủ tục hải quan</a></li>
+                                                            <li><a href="<?php echo page_url('guide', ['type' => 'how-to-order']); ?>">Cách đặt hàng</a></li>
+                                                            <li><a href="<?php echo page_url('guide', ['type' => 'payment']); ?>">Hướng dẫn thanh toán</a></li>
+                                                            <li><a href="<?php echo page_url('guide', ['type' => 'shipping']); ?>">Quy trình vận chuyển</a></li>
+                                                            <li><a href="<?php echo page_url('guide', ['type' => 'customs']); ?>">Thủ tục hải quan</a></li>
                                                             <li>
-                                                                <a href="?page=news">
+                                                                <a href="<?php echo nav_url('news'); ?>">
                                                                     Tin tức
                                                                     <span>
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="74" height="20" viewBox="0 0 74 20" fill="none">
@@ -94,7 +94,7 @@
                                                                 </a>
                                                             </li>
                                                             <li>
-                                                                <a href="?page=faq">
+                                                                <a href="<?php echo nav_url('faq'); ?>">
                                                                     FAQ
                                                                     <span>
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="45" height="20" viewBox="0 0 45 20" fill="none">
@@ -104,7 +104,7 @@
                                                                     </span>
                                                                 </a>
                                                             </li>
-                                                            <li><a href="?page=guide&type=pricing">Bảng giá dịch vụ</a></li>
+                                                            <li><a href="<?php echo page_url('guide', ['type' => 'pricing']); ?>">Bảng giá dịch vụ</a></li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -125,11 +125,11 @@
                                                 <div class="elementor-widget-container">
                                                     <div class="header-info-swapper">
                                                         <ul class="thim-header-info">
-                                                            <li><a href="?page=about">Giới thiệu</a></li>
-                                                            <li><a href="?page=security">Bảo mật</a></li>
-                                                            <li><a href="?page=contact">Liên hệ</a></li>
+                                                            <li><a href="<?php echo nav_url('about'); ?>">Giới thiệu</a></li>
+                                                            <li><a href="<?php echo nav_url('security'); ?>">Bảo mật</a></li>
+                                                            <li><a href="<?php echo nav_url('contact'); ?>">Liên hệ</a></li>
                                                             <li>
-                                                                <a href="?page=careers">
+                                                                <a href="<?php echo nav_url('careers'); ?>">
                                                                     Tuyển dụng
                                                                     <span>
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="58" height="20" viewBox="0 0 58 20" fill="none">
@@ -139,10 +139,10 @@
                                                                     </span>
                                                                 </a>
                                                             </li>
-                                                            <li><a href="?page=affiliate">Trở thành đại lý</a></li>
-                                                            <li><a href="?page=terms">Điều khoản dịch vụ</a></li>
-                                                            <li><a href="?page=privacy">Chính sách bảo mật</a></li>
-                                                            <li><a href="?page=accessibility">Hỗ trợ tiếp cận</a></li>
+                                                            <li><a href="<?php echo nav_url('affiliate'); ?>">Trở thành đại lý</a></li>
+                                                            <li><a href="<?php echo nav_url('terms'); ?>">Điều khoản dịch vụ</a></li>
+                                                            <li><a href="<?php echo nav_url('privacy'); ?>">Chính sách bảo mật</a></li>
+                                                            <li><a href="<?php echo nav_url('accessibility'); ?>">Hỗ trợ tiếp cận</a></li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -164,11 +164,11 @@
                                                 <div class="elementor-widget-container">
                                                     <div class="header-info-swapper">
                                                         <ul class="thim-header-info">
-                                                            <li><a href="?page=features&type=user-management">Quản lý tài khoản</a></li>
-                                                            <li><a href="?page=features&type=order-tracking">Theo dõi đơn hàng</a></li>
-                                                            <li><a href="?page=features&type=reporting">Báo cáo thống kê</a></li>
-                                                            <li><a href="?page=features&type=support">Hỗ trợ 24/7</a></li>
-                                                            <li><a href="?page=features&type=multi-language">Đa ngôn ngữ</a></li>
+                                                            <li><a href="<?php echo page_url('features', ['type' => 'user-management']); ?>">Quản lý tài khoản</a></li>
+                                                            <li><a href="<?php echo page_url('features', ['type' => 'order-tracking']); ?>">Theo dõi đơn hàng</a></li>
+                                                            <li><a href="<?php echo page_url('features', ['type' => 'reporting']); ?>">Báo cáo thống kê</a></li>
+                                                            <li><a href="<?php echo page_url('features', ['type' => 'support']); ?>">Hỗ trợ 24/7</a></li>
+                                                            <li><a href="<?php echo page_url('features', ['type' => 'multi-language']); ?>">Đa ngôn ngữ</a></li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -186,7 +186,7 @@
                                             <div class="elementor-element elementor-element-203b476 elementor-widget elementor-widget-text-editor" data-id="203b476" data-element_type="widget" data-widget_type="text-editor.default">
                                                 <div class="elementor-widget-container">
                                                     <div>
-                                                        <div>© 2025 <a href="./">ThuongLo</a>. Tất cả quyền được bảo lưu. Được phát triển bởi <a href="https://mistydev.id.vn/">Misty Team</a>.</div>
+                                                        <div>© 2025 <a href="<?php echo base_url(); ?>">ThuongLo</a>. Tất cả quyền được bảo lưu. Được phát triển bởi <a href="https://mistydev.id.vn/">Misty Team</a>.</div>
                                                     </div>
                                                 </div>
                                             </div>

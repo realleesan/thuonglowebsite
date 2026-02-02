@@ -5,7 +5,7 @@
         <div class="checkout-wrap">
             <h3 class="mb-3">Đơn hàng của bạn</h3>
 
-            <form action="index.php?page=payment" method="POST">
+            <form action="<?php echo form_url('payment'); ?>" method="POST">
                 <table class="order-table">
                     <thead>
                         <tr>
@@ -16,7 +16,7 @@
                     <tbody>
                         <tr>
                             <td class="product-name">
-                                <img src="assets/images/course-thumb.jpg" style="width: 30px; margin-right: 10px; vertical-align: middle;">
+                                <img src="<?php echo img_url('home/home-banner-top.png'); ?>" style="width: 30px; margin-right: 10px; vertical-align: middle;">
                                 Khóa học: Lập trình Web Fullstack (Demo)
                             </td>
                             <td class="amount">250,000đ</td>

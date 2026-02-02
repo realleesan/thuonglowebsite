@@ -40,7 +40,7 @@ $orderId = $_GET['order_id'] ?? 'Unknown';
             </table>
 
             <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
-                <a href="index.php?page=products" class="btn-place-order" style="text-decoration: none; background: #333;">Về trang chủ</a>
+                <a href="<?php echo page_url('products'); ?>" class="btn-place-order" style="text-decoration: none; background: #333;">Về trang chủ</a>
                 <a href="#" class="btn-place-order" style="text-decoration: none;">Vào học ngay</a>
             </div>
         </div>

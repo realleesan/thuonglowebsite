@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 3. Sau 5 giây: Chuyển hướng sang trang Success (Thành công)
     setTimeout(() => {
-        window.location.href = 'index.php?page=payment_success&order_id=' + orderId;
+        window.location.href = '<?php echo page_url('payment_success', ['order_id' => '']); ?>' + orderId;
     }, 5000);
 });
 </script>

@@ -12,9 +12,6 @@
     
     <!-- CSS Files -->
     <?php
-    $segments = explode('/', trim($_SERVER['SCRIPT_NAME'], '/'));
-    $base = '/' . ($segments[0] ?? '') . '/';
-    
     // Determine current page for conditional CSS loading
     $currentPage = '';
     if (isset($_GET['page'])) {
@@ -23,57 +20,58 @@
         $currentPage = 'home';
     }
     ?>
-    <base href="<?php echo $base; ?>">
-    <link rel="stylesheet" href="assets/css/header.css">
-    <link rel="stylesheet" href="assets/css/footer.css">
-    <link rel="stylesheet" href="assets/css/cta.css">
-    <link rel="stylesheet" href="assets/css/pusher.css">
+    
+    <!-- Core CSS Files -->
+    <link rel="stylesheet" href="<?php echo versioned_css('header.css'); ?>">
+    <link rel="stylesheet" href="<?php echo versioned_css('footer.css'); ?>">
+    <link rel="stylesheet" href="<?php echo versioned_css('cta.css'); ?>">
+    <link rel="stylesheet" href="<?php echo versioned_css('pusher.css'); ?>">
     
     <?php
     // Load page-specific CSS
     switch($currentPage) {
         case 'home':
-            echo '<link rel="stylesheet" href="assets/css/home.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('home.css') . '">';
             break;
         case 'categories':
-            echo '<link rel="stylesheet" href="assets/css/categories.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('categories.css') . '">';
             break;
         case 'contact':
-            echo '<link rel="stylesheet" href="assets/css/contact.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('contact.css') . '">';
             break;
         case 'about':
-            echo '<link rel="stylesheet" href="assets/css/about.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('about.css') . '">';
             break;
         case 'products':
         case 'courses':
-            echo '<link rel="stylesheet" href="assets/css/products.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('products.css') . '">';
             break;
         case 'details':
         case 'course-details':
-            echo '<link rel="stylesheet" href="assets/css/details.css">';
-            echo '<link rel="stylesheet" href="assets/css/related.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('details.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('related.css') . '">';
             break;
         case 'auth':
         case 'login':
         case 'register':
-            echo '<link rel="stylesheet" href="assets/css/auth.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('auth.css') . '">';
             break;
         case 'forgot':
-            echo '<link rel="stylesheet" href="assets/css/forgot.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('forgot.css') . '">';
             break;
         case 'checkout':
         case 'payment':
         case 'payment_success':
-            echo '<link rel="stylesheet" href="assets/css/payment.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('payment.css') . '">';
             break;
         default:
-            echo '<link rel="stylesheet" href="assets/css/home.css">';
+            echo '<link rel="stylesheet" href="' . versioned_css('home.css') . '">';
             break;
     }
     ?>
     
     <!-- Breadcrumb CSS - Load after page-specific CSS to ensure priority -->
-    <link rel="stylesheet" href="assets/css/breadcrumb.css">
+    <link rel="stylesheet" href="<?php echo versioned_css('breadcrumb.css'); ?>"
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -121,46 +119,46 @@
     <?php include_once 'pusher.php'; ?>
     
     <!-- JavaScript Files -->
-    <script src="assets/js/header.js"></script>
-    <script src="assets/js/footer.js"></script>
-    <script src="assets/js/cta.js"></script>
-    <script src="assets/js/pusher.js"></script>
-    <script src="assets/js/breadcrumb.js"></script>
+    <script src="<?php echo versioned_js('header.js'); ?>"></script>
+    <script src="<?php echo versioned_js('footer.js'); ?>"></script>
+    <script src="<?php echo versioned_js('cta.js'); ?>"></script>
+    <script src="<?php echo versioned_js('pusher.js'); ?>"></script>
+    <script src="<?php echo versioned_js('breadcrumb.js'); ?>"></script>
     
     <?php
     // Load page-specific JavaScript
     switch($currentPage) {
         case 'home':
-            echo '<script src="assets/js/home.js"></script>';
+            echo '<script src="' . versioned_js('home.js') . '"></script>';
             break;
          case 'categories':
-            echo '<link rel="stylesheet" href="assets/js/categories.js">';
+            echo '<script src="' . versioned_js('categories.js') . '"></script>';
             break;
         case 'contact':
-            echo '<script src="assets/js/contact.js"></script>';
+            echo '<script src="' . versioned_js('contact.js') . '"></script>';
             break;
         case 'about':
-            echo '<script src="assets/js/about.js"></script>';
+            echo '<script src="' . versioned_js('about.js') . '"></script>';
             break;
         case 'products':
         case 'courses':
-            echo '<script src="assets/js/products.js"></script>';
+            echo '<script src="' . versioned_js('products.js') . '"></script>';
             break;
         case 'details':
         case 'course-details':
-            echo '<script src="assets/js/details.js"></script>';
-            echo '<script src="assets/js/related.js"></script>';
+            echo '<script src="' . versioned_js('details.js') . '"></script>';
+            echo '<script src="' . versioned_js('related.js') . '"></script>';
             break;
         case 'auth':
         case 'login':
         case 'register':
-            echo '<script src="assets/js/auth.js"></script>';
+            echo '<script src="' . versioned_js('auth.js') . '"></script>';
             break;
         case 'forgot':
-            echo '<script src="assets/js/forgot.js"></script>';
+            echo '<script src="' . versioned_js('forgot.js') . '"></script>';
             break;
         default:
-            echo '<script src="assets/js/home.js"></script>';
+            echo '<script src="' . versioned_js('home.js') . '"></script>';
             break;
     }
     ?>

@@ -52,12 +52,12 @@ $debugInfo = getDebugInfo();
                     <div class="alert alert-success"><?php echo $success; ?></div>
                     <script>
                         setTimeout(function() {
-                            window.location.href = 'index.php?page=home';
+                            window.location.href = '<?php echo page_url('home'); ?>';
                         }, 2000);
                     </script>
                 <?php endif; ?>
 
-                <form method="POST" action="" id="registerForm" class="auth-form">
+                <form method="POST" action="<?php echo form_url(); ?>" id="registerForm" class="auth-form">
                     <div class="form-group">
                         <label for="full_name">Họ và tên <span class="required">*</span></label>
                         <input type="text" id="full_name" name="full_name" class="form-control"
@@ -140,7 +140,7 @@ $debugInfo = getDebugInfo();
                 </form>
 
                 <div class="register-link">
-                    Đã có tài khoản? <a href="index.php?page=login">Đăng nhập ngay</a>
+                    Đã có tài khoản? <a href="<?php echo page_url('login'); ?>">Đăng nhập ngay</a>
                 </div>
             </div>
         </div>

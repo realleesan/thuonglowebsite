@@ -59,21 +59,21 @@
                         <div class="features-grid">
                             <div class="feature-card">
                                 <div class="feature-image">
-                                    <img src="assets/img/about_tt&tt_1.jpg" alt="Kho Nguồn Hàng Độc Quyền">
+                                    <img src="<?php echo img_url('about/about_tt&tt_1.jpg'); ?>" alt="Kho Nguồn Hàng Độc Quyền">
                                 </div>
                                 <h3>Kho Nguồn Hàng Độc Quyền</h3>
                                 <p>Thượng Lộ cung cấp các gói dữ liệu nhà máy, xưởng sản xuất đã qua kiểm duyệt kỹ lưỡng. Là "vũ khí bí mật" giúp bạn tối ưu biên lợi nhuận ngay từ khâu nhập hàng.</p>
                             </div>
                             <div class="feature-card">
                                 <div class="feature-image">
-                                    <img src="assets/img/about_tt&tt_2.jpg" alt="Công Nghệ Chống Sao Chép">
+                                    <img src="<?php echo img_url('about/about_tt&tt_2.jpg'); ?>" alt="Công Nghệ Chống Sao Chép">
                                 </div>
                                 <h3>Công Nghệ Chống Sao Chép</h3>
                                 <p>Hệ thống của chúng tôi tích hợp các lớp bảo mật cấp cao, ngăn chặn hành vi chia sẻ trái phép hoặc bán lại, đảm bảo lợi thế cạnh tranh độc tôn cho chủ sở hữu gói.</p>
                             </div>
                             <div class="feature-card">
                                 <div class="feature-image">
-                                    <img src="assets/img/about_tt&tt_3.jpg" alt="Thanh Toán & Kích Hoạt Tự Động">
+                                    <img src="<?php echo img_url('about/about_tt&tt_3.jpg'); ?>" alt="Thanh Toán & Kích Hoạt Tự Động">
                                 </div>
                                 <h3>Thanh Toán & Kích Hoạt Tự Động</h3>
                                 <p>Loại bỏ quy trình xác nhận thủ công chậm chạp. Với Thượng Lộ, ngay sau khi quét QR thanh toán, hệ thống Logistics được kích hoạt và kho dữ liệu được mở khóa tự động 100%.</p>
@@ -87,7 +87,7 @@
                     <div class="container">
                         <div class="testimonial-container">
                             <div class="testimonial-image">
-                                <img src="assets/img/about_founder.jpg" alt="Founder Thượng Lộ" class="testimonial-visual">
+                                <img src="<?php echo img_url('about/about_founder.jpg'); ?>" alt="Founder Thượng Lộ" class="testimonial-visual">
                             </div>
                             <div class="testimonial-content">
                                 <div class="quote-icon">"</div>
@@ -160,7 +160,7 @@
             <h2 id="agentModalTitle">Đăng Ký Làm Agent</h2>
         </div>
         <div class="modal-body">
-            <form id="agentForm">
+            <form id="agentForm" action="<?php echo form_url('agent-register'); ?>" method="POST">
                 <div class="form-group">
                     <label for="fullName">Họ và Tên *</label>
                     <input type="text" id="fullName" name="fullName" required>

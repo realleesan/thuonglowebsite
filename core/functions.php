@@ -233,3 +233,242 @@ function get_news_breadcrumb_from_db($news_id) {
     // Fallback nếu không lấy được từ database
     return generate_news_breadcrumb('Tin tức', 'Chi tiết tin tức');
 }
+
+// ============================================================================
+// URL HELPER FUNCTIONS
+// ============================================================================
+
+// Global variables for URL building
+global $config, $urlBuilder;
+
+/**
+ * Initialize URL Builder
+ * Should be called after config is loaded
+ */
+function init_url_builder() {
+    global $config, $urlBuilder;
+    
+    if (!isset($urlBuilder) && isset($config)) {
+        require_once __DIR__ . '/UrlBuilder.php';
+        $urlBuilder = new UrlBuilder($config);
+    }
+}
+
+/**
+ * Get asset URL
+ * @param string $path Asset path relative to assets directory
+ * @return string Full asset URL
+ */
+function asset_url($path) {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    return $urlBuilder ? $urlBuilder->asset($path) : 'assets/' . ltrim($path, '/');
+}
+
+/**
+ * Get CSS file URL
+ * @param string $file CSS filename
+ * @return string Full CSS URL
+ */
+function css_url($file) {
+    return asset_url('css/' . ltrim($file, '/'));
+}
+
+/**
+ * Get JavaScript file URL
+ * @param string $file JS filename
+ * @return string Full JS URL
+ */
+function js_url($file) {
+    return asset_url('js/' . ltrim($file, '/'));
+}
+
+/**
+ * Get image URL
+ * @param string $file Image filename
+ * @return string Full image URL
+ */
+function img_url($file) {
+    return asset_url('images/' . ltrim($file, '/'));
+}
+
+/**
+ * Get font URL
+ * @param string $file Font filename
+ * @return string Full font URL
+ */
+function font_url($file) {
+    return asset_url('fonts/' . ltrim($file, '/'));
+}
+
+/**
+ * Get icon URL
+ * @param string $file Icon filename
+ * @return string Full icon URL
+ */
+function icon_url($file) {
+    return asset_url('icons/' . ltrim($file, '/'));
+}
+
+/**
+ * Get versioned asset URL (for cache busting)
+ * @param string $path Asset path
+ * @return string Versioned asset URL
+ */
+function versioned_asset($path) {
+    global $config;
+    
+    $assetUrl = asset_url($path);
+    
+    // Add version parameter for cache busting
+    if (isset($config['performance']['cache_assets']) && $config['performance']['cache_assets']) {
+        $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/assets/' . ltrim($path, '/');
+        $version = file_exists($fullPath) ? filemtime($fullPath) : time();
+        $assetUrl .= '?v=' . $version;
+    }
+    
+    return $assetUrl;
+}
+
+/**
+ * Get versioned CSS URL
+ * @param string $file CSS filename
+ * @return string Versioned CSS URL
+ */
+function versioned_css($file) {
+    return versioned_asset('css/' . ltrim($file, '/'));
+}
+
+/**
+ * Get versioned JS URL
+ * @param string $file JS filename
+ * @return string Versioned JS URL
+ */
+function versioned_js($file) {
+    return versioned_asset('js/' . ltrim($file, '/'));
+}
+
+/**
+ * Generate page URL
+ * @param string $page Page name
+ * @param array $params Additional parameters
+ * @return string Page URL
+ */
+function page_url($page, $params = []) {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    return $urlBuilder ? $urlBuilder->page($page, $params) : '?page=' . $page;
+}
+
+/**
+ * Generate navigation URL
+ * @param string $page Page name
+ * @return string Navigation URL
+ */
+function nav_url($page) {
+    return page_url($page);
+}
+
+/**
+ * Get base URL
+ * @return string Base URL
+ */
+function base_url($path = '') {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    return $urlBuilder ? $urlBuilder->url($path) : '/' . ltrim($path, '/');
+}
+
+/**
+ * Get current environment
+ * @return string Environment name (local, hosting)
+ */
+function get_environment() {
+    global $config;
+    return isset($config['app']['environment']) ? $config['app']['environment'] : 'hosting';
+}
+
+/**
+ * Check if running in local environment
+ * @return bool
+ */
+function is_local() {
+    return get_environment() === 'local';
+}
+
+/**
+ * Check if running in hosting environment
+ * @return bool
+ */
+function is_hosting() {
+    return get_environment() === 'hosting';
+}
+
+/**
+ * Check if debug mode is enabled
+ * @return bool
+ */
+function is_debug() {
+    global $config;
+    return isset($config['app']['debug']) ? $config['app']['debug'] : false;
+}
+
+/**
+ * Generate form action URL
+ * @param string $page Page name for form submission
+ * @param array $params Additional parameters
+ * @return string Form action URL
+ */
+function form_url($page = '', $params = []) {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    if (empty($page)) {
+        // Return current page URL for self-submitting forms
+        return $_SERVER['REQUEST_URI'] ?? '';
+    }
+    
+    return $urlBuilder ? $urlBuilder->page($page, $params) : 'index.php?page=' . $page;
+}
+
+/**
+ * Get configuration value
+ * @param string $key Configuration key (dot notation supported)
+ * @param mixed $default Default value if key not found
+ * @return mixed Configuration value
+ */
+function config($key, $default = null) {
+    global $config;
+    
+    if (!isset($config)) {
+        return $default;
+    }
+    
+    // Support dot notation (e.g., 'app.name')
+    $keys = explode('.', $key);
+    $value = $config;
+    
+    foreach ($keys as $k) {
+        if (!is_array($value) || !isset($value[$k])) {
+            return $default;
+        }
+        $value = $value[$k];
+    }
+    
+    return $value;
+}

@@ -3,8 +3,11 @@
 session_start();
 
 // Include các file cần thiết
-require_once 'config.php';
+$config = require_once 'config.php';
 require_once 'core/functions.php';
+
+// Initialize URL Builder
+init_url_builder();
 
 // Bật output buffering để các trang con có thể sử dụng header() sau khi layout đã bắt đầu render
 if (ob_get_level() === 0) {
