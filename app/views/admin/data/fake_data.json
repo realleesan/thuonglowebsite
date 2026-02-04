@@ -1,0 +1,207 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Gói Data Nguồn Hàng Premium",
+            "description": "Gói data nguồn hàng cao cấp với thông tin chi tiết về nhà cung cấp, giá cả và chất lượng sản phẩm",
+            "price": 2500000,
+            "category_id": 1,
+            "image": "data-package-premium.jpg",
+            "status": "active",
+            "created_at": "2024-01-15",
+            "updated_at": "2024-02-01"
+        },
+        {
+            "id": 2,
+            "name": "Gói Data Nguồn Hàng Cơ Bản",
+            "description": "Gói data nguồn hàng cơ bản với thông tin cần thiết cho việc kinh doanh",
+            "price": 1200000,
+            "category_id": 1,
+            "image": "data-package-basic.jpg",
+            "status": "active",
+            "created_at": "2024-01-10",
+            "updated_at": "2024-01-25"
+        },
+        {
+            "id": 3,
+            "name": "Dịch Vụ Vận Chuyển Chính Ngạch",
+            "description": "Dịch vụ vận chuyển hàng hóa qua đường chính ngạch, đảm bảo an toàn và hợp pháp",
+            "price": 500000,
+            "category_id": 2,
+            "image": "shipping-service.jpg",
+            "status": "active",
+            "created_at": "2024-01-20",
+            "updated_at": "2024-02-02"
+        },
+        {
+            "id": 4,
+            "name": "Gói Hàng Trọn Gói - NCC đến VCCN",
+            "description": "Dịch vụ mua hàng trọn gói từ nhà cung cấp đến vận chuyển chính ngạch",
+            "price": 3000000,
+            "category_id": 2,
+            "image": "full-package-service.jpg",
+            "status": "active",
+            "created_at": "2024-01-25",
+            "updated_at": "2024-02-03"
+        },
+        {
+            "id": 5,
+            "name": "Dịch Vụ Thanh Toán Quốc Tế",
+            "description": "Hỗ trợ thanh toán quốc tế an toàn và nhanh chóng cho các giao dịch thương mại",
+            "price": 800000,
+            "category_id": 3,
+            "image": "international-payment.jpg",
+            "status": "active",
+            "created_at": "2024-01-30",
+            "updated_at": "2024-02-04"
+        },
+        {
+            "id": 6,
+            "name": "Dịch Vụ Đánh Hàng Toàn Diện",
+            "description": "Bao gồm phiên dịch, đi lại và ăn ở trong quá trình đánh hàng",
+            "price": 1500000,
+            "category_id": 4,
+            "image": "sourcing-service.jpg",
+            "status": "active",
+            "created_at": "2024-02-01",
+            "updated_at": "2024-02-04"
+        }
+    ],
+    "categories": [
+        {
+            "id": 1,
+            "name": "Gói Data Nguồn Hàng",
+            "description": "Các gói data thông tin về nguồn hàng và nhà cung cấp",
+            "parent_id": null,
+            "sort_order": 1,
+            "status": "active",
+            "created_at": "2024-01-01"
+        },
+        {
+            "id": 2,
+            "name": "Dịch Vụ Vận Chuyển",
+            "description": "Các dịch vụ vận chuyển và logistics",
+            "parent_id": null,
+            "sort_order": 2,
+            "status": "active",
+            "created_at": "2024-01-01"
+        },
+        {
+            "id": 3,
+            "name": "Dịch Vụ Thanh Toán",
+            "description": "Các dịch vụ thanh toán và tài chính",
+            "parent_id": null,
+            "sort_order": 3,
+            "status": "active",
+            "created_at": "2024-01-01"
+        },
+        {
+            "id": 4,
+            "name": "Dịch Vụ Đánh Hàng",
+            "description": "Dịch vụ tìm kiếm và đánh giá nguồn hàng",
+            "parent_id": null,
+            "sort_order": 4,
+            "status": "active",
+            "created_at": "2024-01-01"
+        },
+        {
+            "id": 5,
+            "name": "Gói Data Cao Cấp",
+            "description": "Các gói data với thông tin chi tiết và độc quyền",
+            "parent_id": 1,
+            "sort_order": 1,
+            "status": "active",
+            "created_at": "2024-01-05"
+        }
+    ],
+    "news": [
+        {
+            "id": 1,
+            "title": "ThuongLo Ra Mắt Gói Data Nguồn Hàng Mới",
+            "summary": "Chúng tôi vừa ra mắt gói data nguồn hàng với thông tin cập nhật và chi tiết hơn",
+            "content": "ThuongLo tự hào giới thiệu gói data nguồn hàng mới với hơn 10,000 nhà cung cấp được xác minh và đánh giá chất lượng. Gói data này bao gồm thông tin chi tiết về giá cả, chất lượng sản phẩm, và khả năng cung ứng của từng nhà cung cấp.",
+            "image": "news-new-data-package.jpg",
+            "status": "published",
+            "author_id": 1,
+            "created_at": "2024-02-01",
+            "published_at": "2024-02-01"
+        },
+        {
+            "id": 2,
+            "title": "Dịch Vụ Vận Chuyển Chính Ngạch Mở Rộng",
+            "summary": "Mở rộng dịch vụ vận chuyển chính ngạch đến nhiều tỉnh thành mới",
+            "content": "Từ tháng 2/2024, dịch vụ vận chuyển chính ngạch của ThuongLo sẽ mở rộng đến 15 tỉnh thành mới, giúp khách hàng dễ dàng tiếp cận dịch vụ chất lượng cao với chi phí hợp lý.",
+            "image": "news-shipping-expansion.jpg",
+            "status": "published",
+            "author_id": 1,
+            "created_at": "2024-01-28",
+            "published_at": "2024-01-30"
+        },
+        {
+            "id": 3,
+            "title": "Hướng Dẫn Sử Dụng Dịch Vụ Thanh Toán Quốc Tế",
+            "summary": "Hướng dẫn chi tiết cách sử dụng dịch vụ thanh toán quốc tế an toàn",
+            "content": "Bài viết hướng dẫn chi tiết các bước thực hiện thanh toán quốc tế thông qua hệ thống của ThuongLo, đảm bảo an toàn và tuân thủ các quy định pháp luật.",
+            "image": "news-payment-guide.jpg",
+            "status": "draft",
+            "author_id": 2,
+            "created_at": "2024-02-03",
+            "published_at": null
+        }
+    ],
+    "events": [
+        {
+            "id": 1,
+            "name": "Hội Thảo Nguồn Hàng Trung Quốc 2024",
+            "description": "Hội thảo chia sẻ kinh nghiệm tìm kiếm và đánh giá nguồn hàng từ Trung Quốc",
+            "start_date": "2024-03-15",
+            "end_date": "2024-03-16",
+            "location": "Khách sạn Lotte, Hà Nội",
+            "max_participants": 200,
+            "status": "upcoming",
+            "created_at": "2024-01-20"
+        },
+        {
+            "id": 2,
+            "name": "Workshop Vận Chuyển Chính Ngạch",
+            "description": "Workshop thực hành về quy trình vận chuyển chính ngạch và thủ tục hải quan",
+            "start_date": "2024-02-25",
+            "end_date": "2024-02-25",
+            "location": "Trung tâm Hội nghị Quốc gia, TP.HCM",
+            "max_participants": 100,
+            "status": "upcoming",
+            "created_at": "2024-01-25"
+        },
+        {
+            "id": 3,
+            "name": "Gặp Gỡ Khách Hàng Quý I/2024",
+            "description": "Buổi gặp gỡ, trao đổi và lắng nghe ý kiến từ khách hàng",
+            "start_date": "2024-04-10",
+            "end_date": "2024-04-10",
+            "location": "Văn phòng ThuongLo, Hà Nội",
+            "max_participants": 50,
+            "status": "upcoming",
+            "created_at": "2024-02-01"
+        }
+    ],
+    "users": [
+        {
+            "id": 1,
+            "username": "admin",
+            "email": "admin@thuonglo.com",
+            "full_name": "Quản trị viên",
+            "role": "admin",
+            "status": "active",
+            "created_at": "2024-01-01"
+        },
+        {
+            "id": 2,
+            "username": "editor",
+            "email": "editor@thuonglo.com", 
+            "full_name": "Biên tập viên",
+            "role": "editor",
+            "status": "active",
+            "created_at": "2024-01-05"
+        }
+    ]
+}

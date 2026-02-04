@@ -115,9 +115,11 @@ window.fillDemoAccount = function(role) {
     if (demoAccounts[role]) {
         const phoneInput = document.getElementById('phone');
         const passwordInput = document.getElementById('password');
+        const roleInput = document.getElementById('selected-role');
         
         if (phoneInput) phoneInput.value = demoAccounts[role].phone;
         if (passwordInput) passwordInput.value = demoAccounts[role].password;
+        if (roleInput) roleInput.value = role;
     }
 };
 

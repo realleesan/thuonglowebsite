@@ -1,0 +1,43 @@
+/* Admin Breadcrumb Styles - Matching Website Design */
+
+.admin-breadcrumb-section {
+    background-color: #E1E9FD;
+    padding: 20px 0;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.admin-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-breadcrumb a {
+    color: #444;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.admin-breadcrumb a:hover {
+    color: #356DF1;
+}
+
+.admin-breadcrumb span {
+    color: #444;
+}
+
+.admin-breadcrumb .current {
+    color: #444;
+    font-weight: 500;
+}
+
+.admin-breadcrumb .delimiter {
+    color: #4444445C;
+}

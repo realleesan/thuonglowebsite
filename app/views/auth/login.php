@@ -37,15 +37,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = 'Đăng nhập thành công!';
             
             // Chuyển hướng đến dashboard tương ứng
-            $dashboardUrl = $_SESSION['dashboard_url'] ?? 'users/dashboard';
-            $redirectUrl = page_url($dashboardUrl);
+            $dashboardUrl = $_SESSION['dashboard_url'] ?? '?page=users&module=dashboard';
             
-            // Chuyển hướng ngay lập tức
+            // Chuyển hướng ngay lập tức với JavaScript
             echo '<script>
                 setTimeout(function() {
-                    window.location.href = "' . $redirectUrl . '";
-                }, 1500);
+                    window.location.href = "' . $dashboardUrl . '";
+                }, 1000);
             </script>';
+            
+            // Dừng xử lý để tránh hiển thị form lại
+            exit;
         } else {
             $error = 'Đăng nhập thất bại';
         }

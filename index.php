@@ -180,6 +180,139 @@ switch($page) {
         ];
         break;
         
+    case 'admin':
+        // Admin panel routing
+        $module = $_GET['module'] ?? 'dashboard';
+        $action = $_GET['action'] ?? 'index';
+        
+        // Check admin authentication
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            header('Location: ?page=login');
+            exit;
+        }
+        
+        // Set admin page variables
+        $title = 'Admin Panel - Thuong Lo';
+        $useAdminLayout = true; // Flag to use admin layout
+        
+        // Route to specific admin modules
+        switch($module) {
+            case 'dashboard':
+                $pageTitle = 'Dashboard';
+                $content = 'app/views/admin/dashboard.php';
+                break;
+                
+            case 'products':
+                $pageTitle = 'Quản lý sản phẩm';
+                if ($action === 'change') {
+                    $content = 'app/views/admin/products/change.php';
+                    $pageTitle = isset($_GET['id']) ? 'Sửa sản phẩm' : 'Thêm sản phẩm';
+                } elseif ($action === 'delete') {
+                    $content = 'app/views/admin/products/delete.php';
+                    $pageTitle = 'Xóa sản phẩm';
+                } else {
+                    $content = 'app/views/admin/products/index.php';
+                }
+                break;
+                
+            case 'categories':
+                $pageTitle = 'Quản lý danh mục';
+                if ($action === 'change') {
+                    $content = 'app/views/admin/categories/change.php';
+                    $pageTitle = isset($_GET['id']) ? 'Sửa danh mục' : 'Thêm danh mục';
+                } elseif ($action === 'delete') {
+                    $content = 'app/views/admin/categories/delete.php';
+                    $pageTitle = 'Xóa danh mục';
+                } else {
+                    $content = 'app/views/admin/categories/index.php';
+                }
+                break;
+                
+            case 'news':
+                $pageTitle = 'Quản lý tin tức';
+                if ($action === 'change') {
+                    $content = 'app/views/admin/news/change.php';
+                    $pageTitle = isset($_GET['id']) ? 'Sửa tin tức' : 'Thêm tin tức';
+                } elseif ($action === 'delete') {
+                    $content = 'app/views/admin/news/delete.php';
+                    $pageTitle = 'Xóa tin tức';
+                } else {
+                    $content = 'app/views/admin/news/index.php';
+                }
+                break;
+                
+            case 'events':
+                $pageTitle = 'Quản lý sự kiện';
+                if ($action === 'change') {
+                    $content = 'app/views/admin/events/change.php';
+                    $pageTitle = isset($_GET['id']) ? 'Sửa sự kiện' : 'Thêm sự kiện';
+                } elseif ($action === 'delete') {
+                    $content = 'app/views/admin/events/delete.php';
+                    $pageTitle = 'Xóa sự kiện';
+                } else {
+                    $content = 'app/views/admin/events/index.php';
+                }
+                break;
+                
+            case 'users':
+                $pageTitle = 'Quản lý người dùng';
+                $content = 'app/views/admin/users/index.php';
+                break;
+                
+            case 'settings':
+                $pageTitle = 'Cài đặt hệ thống';
+                $content = 'app/views/admin/settings/index.php';
+                break;
+                
+            default:
+                $pageTitle = 'Dashboard';
+                $content = 'app/views/admin/dashboard.php';
+                break;
+        }
+        break;
+        
+    case 'users':
+        // User dashboard routing
+        $module = $_GET['module'] ?? 'dashboard';
+        
+        // Check user authentication
+        if (!isset($_SESSION['role'])) {
+            header('Location: ?page=login');
+            exit;
+        }
+        
+        $title = 'Tài khoản - Thuong Lo';
+        $content = 'app/views/users/dashboard.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = [
+            ['title' => 'Trang chủ', 'url' => './'],
+            ['title' => 'Tài khoản']
+        ];
+        break;
+        
+    case 'affiliate':
+        // Affiliate dashboard routing
+        $module = $_GET['module'] ?? 'dashboard';
+        
+        // Check affiliate authentication
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'agent') {
+            header('Location: ?page=login');
+            exit;
+        }
+        
+        $title = 'Đại lý - Thuong Lo';
+        $content = 'app/views/affiliate/dashboard.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = [
+            ['title' => 'Trang chủ', 'url' => './'],
+            ['title' => 'Đại lý']
+        ];
+        break;
+        
     default:
         $title = 'Không tìm thấy trang - Thuong Lo';
         $content = 'errors/404.php';
@@ -190,7 +323,11 @@ switch($page) {
 }
 
 // Include master layout
-include_once 'app/views/_layout/master.php';
+if (isset($useAdminLayout) && $useAdminLayout) {
+    include_once 'app/views/_layout/admin_master.php';
+} else {
+    include_once 'app/views/_layout/master.php';
+}
 
 if (ob_get_level() > 0) {
     ob_end_flush();

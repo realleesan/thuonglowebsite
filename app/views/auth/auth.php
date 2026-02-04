@@ -93,13 +93,13 @@ function mockLogin($phone, $password, $role = 'user') {
         // Xác định dashboard URL theo role
         switch($role) {
             case 'admin':
-                $_SESSION['dashboard_url'] = 'admin/dashboard';
+                $_SESSION['dashboard_url'] = '?page=admin&module=dashboard';
                 break;
             case 'agent':
-                $_SESSION['dashboard_url'] = 'affiliate/dashboard';
+                $_SESSION['dashboard_url'] = '?page=affiliate&module=dashboard';
                 break;
             default:
-                $_SESSION['dashboard_url'] = 'users/dashboard';
+                $_SESSION['dashboard_url'] = '?page=users&module=dashboard';
         }
     }
     

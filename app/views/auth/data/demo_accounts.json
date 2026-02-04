@@ -5,7 +5,7 @@
     "full_name": "Nguyễn Văn A",
     "email": "user@thuonglo.com",
     "role": "user",
-    "dashboard_url": "users/dashboard"
+    "dashboard_url": "?page=users&module=dashboard"
   },
   "agent": {
     "phone": "0907654321", 
@@ -13,7 +13,7 @@
     "full_name": "Trần Thị B",
     "email": "agent@thuonglo.com",
     "role": "agent",
-    "dashboard_url": "affiliate/dashboard"
+    "dashboard_url": "?page=affiliate&module=dashboard"
   },
   "admin": {
     "phone": "admin",
@@ -21,6 +21,6 @@
     "full_name": "Quản trị viên",
     "email": "admin@thuonglo.com", 
     "role": "admin",
-    "dashboard_url": "admin/dashboard"
+    "dashboard_url": "?page=admin&module=dashboard"
   }
 }
