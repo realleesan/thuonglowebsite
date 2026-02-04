@@ -35,14 +35,73 @@ function checkAccess($requiredRole) {
 }
 
 /**
+ * Load demo accounts từ JSON file
+ */
+function loadDemoAccounts() {
+    $jsonFile = __DIR__ . '/data/demo_accounts.json';
+    if (file_exists($jsonFile)) {
+        $jsonContent = file_get_contents($jsonFile);
+        return json_decode($jsonContent, true);
+    }
+    return [];
+}
+
+/**
+ * Kiểm tra đăng nhập với demo account
+ */
+function checkDemoLogin($phone, $password, $role) {
+    $demoAccounts = loadDemoAccounts();
+    
+    if (isset($demoAccounts[$role])) {
+        $account = $demoAccounts[$role];
+        return ($account['phone'] === $phone && $account['password'] === $password);
+    }
+    
+    return false;
+}
+
+/**
+ * Lấy thông tin demo account theo role
+ */
+function getDemoAccount($role) {
+    $demoAccounts = loadDemoAccounts();
+    return $demoAccounts[$role] ?? null;
+}
+
+/**
  * Mô phỏng đăng nhập - Luôn thành công
  */
 function mockLogin($phone, $password, $role = 'user') {
-    // Tự động gán thông tin người dùng
-    $_SESSION['user_id'] = generateUserId($phone);
-    $_SESSION['phone'] = $phone;
-    $_SESSION['role'] = $role;
-    $_SESSION['full_name'] = generateFullName($phone);
+    // Kiểm tra demo account trước
+    $demoAccount = getDemoAccount($role);
+    if ($demoAccount && checkDemoLogin($phone, $password, $role)) {
+        // Sử dụng thông tin từ demo account
+        $_SESSION['user_id'] = generateUserId($phone);
+        $_SESSION['phone'] = $demoAccount['phone'];
+        $_SESSION['role'] = $demoAccount['role'];
+        $_SESSION['full_name'] = $demoAccount['full_name'];
+        $_SESSION['email'] = $demoAccount['email'];
+        $_SESSION['dashboard_url'] = $demoAccount['dashboard_url'];
+    } else {
+        // Fallback về logic cũ
+        $_SESSION['user_id'] = generateUserId($phone);
+        $_SESSION['phone'] = $phone;
+        $_SESSION['role'] = $role;
+        $_SESSION['full_name'] = generateFullName($phone);
+        $_SESSION['email'] = $phone . '@thuonglo.com';
+        
+        // Xác định dashboard URL theo role
+        switch($role) {
+            case 'admin':
+                $_SESSION['dashboard_url'] = 'admin/dashboard';
+                break;
+            case 'agent':
+                $_SESSION['dashboard_url'] = 'affiliate/dashboard';
+                break;
+            default:
+                $_SESSION['dashboard_url'] = 'users/dashboard';
+        }
+    }
     
     // Gán thông tin bảo mật
     $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';

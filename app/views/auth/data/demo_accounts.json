@@ -1,0 +1,26 @@
+{
+  "user": {
+    "phone": "0901234567",
+    "password": "123456",
+    "full_name": "Nguyễn Văn A",
+    "email": "user@thuonglo.com",
+    "role": "user",
+    "dashboard_url": "users/dashboard"
+  },
+  "agent": {
+    "phone": "0907654321", 
+    "password": "123456",
+    "full_name": "Trần Thị B",
+    "email": "agent@thuonglo.com",
+    "role": "agent",
+    "dashboard_url": "affiliate/dashboard"
+  },
+  "admin": {
+    "phone": "admin",
+    "password": "admin123",
+    "full_name": "Quản trị viên",
+    "email": "admin@thuonglo.com", 
+    "role": "admin",
+    "dashboard_url": "admin/dashboard"
+  }
+}

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Set proper HTTP status code
 http_response_code(404);
 
@@ -147,7 +147,7 @@ if (!isset($urlBuilder)) {
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: #000000ff;
     transform: translateY(-2px);
 }
 
@@ -157,7 +157,7 @@ if (!isset($urlBuilder)) {
 }
 
 .btn-secondary:hover {
-    background-color: #545b62;
+    background-color: #000000ff;
     transform: translateY(-2px);
 }
 

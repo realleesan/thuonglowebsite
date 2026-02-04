@@ -1,0 +1,474 @@
+﻿<?php
+/**
+ * Core Functions
+ * CÃ¡c hÃ m tiá»‡n Ã­ch chung cho toÃ n bá»™ há»‡ thá»‘ng
+ */
+
+/**
+ * Render breadcrumb component
+ * 
+ * @param array $breadcrumbs Máº£ng breadcrumb items
+ * @param bool $return Tráº£ vá» HTML thay vÃ¬ echo
+ * @return string|void
+ */
+function render_breadcrumb($breadcrumbs = [], $return = false) {
+    // Báº¯t Ä‘áº§u output buffering
+    ob_start();
+    
+    // Include breadcrumb component
+    include __DIR__ . '/../app/views/_layout/breadcrumb.php';
+    
+    // Láº¥y ná»™i dung
+    $output = ob_get_clean();
+    
+    if ($return) {
+        return $output;
+    } else {
+        echo $output;
+    }
+}
+
+/**
+ * Táº¡o breadcrumb tá»± Ä‘á»™ng dá»±a trÃªn page hiá»‡n táº¡i
+ * 
+ * @param string $current_page Trang hiá»‡n táº¡i
+ * @param array $additional_items CÃ¡c item bá»• sung
+ * @return array
+ */
+function generate_breadcrumb($current_page = '', $additional_items = []) {
+    $breadcrumbs = [
+        ['title' => 'Trang chá»§', 'url' => './']
+    ];
+    
+    // Mapping cÃ¡c page vá»›i breadcrumb
+    $page_mapping = [
+        'products' => [
+            ['title' => 'Sáº£n pháº©m']
+        ],
+        'details' => [
+            ['title' => 'Sáº£n pháº©m', 'url' => '?page=products'],
+            ['title' => 'Chi tiáº¿t sáº£n pháº©m']
+        ],
+        'categories' => [
+            ['title' => 'Danh má»¥c']
+        ],
+        'about' => [
+            ['title' => 'Giá»›i thiá»‡u']
+        ],
+        'contact' => [
+            ['title' => 'LiÃªn há»‡']
+        ],
+        'news' => [
+            ['title' => 'Tin tá»©c']
+        ],
+        'news-details' => [
+            ['title' => 'Tin tá»©c', 'url' => '?page=news'],
+            ['title' => 'Chi tiáº¿t tin tá»©c']
+        ],
+        'auth' => [
+            ['title' => 'ÄÄƒng nháº­p']
+        ],
+        'register' => [
+            ['title' => 'ÄÄƒng kÃ½']
+        ],
+        'cart' => [
+            ['title' => 'Giá» hÃ ng']
+        ],
+        'checkout' => [
+            ['title' => 'Giá» hÃ ng', 'url' => '?page=cart'],
+            ['title' => 'Thanh toÃ¡n']
+        ],
+        'account' => [
+            ['title' => 'TÃ i khoáº£n']
+        ],
+        'orders' => [
+            ['title' => 'TÃ i khoáº£n', 'url' => '?page=account'],
+            ['title' => 'ÄÆ¡n hÃ ng']
+        ],
+        'wishlist' => [
+            ['title' => 'TÃ i khoáº£n', 'url' => '?page=account'],
+            ['title' => 'Danh sÃ¡ch yÃªu thÃ­ch']
+        ]
+    ];
+    
+    // ThÃªm breadcrumb cho page hiá»‡n táº¡i
+    if ($current_page && isset($page_mapping[$current_page])) {
+        $breadcrumbs = array_merge($breadcrumbs, $page_mapping[$current_page]);
+    }
+    
+    // ThÃªm cÃ¡c item bá»• sung
+    if (!empty($additional_items)) {
+        $breadcrumbs = array_merge($breadcrumbs, $additional_items);
+    }
+    
+    return $breadcrumbs;
+}
+
+/**
+ * Láº¥y page hiá»‡n táº¡i tá»« URL
+ * 
+ * @return string
+ */
+function get_current_page() {
+    return isset($_GET['page']) ? $_GET['page'] : 'home';
+}
+
+/**
+ * Táº¡o breadcrumb cho trang sáº£n pháº©m vá»›i category
+ * 
+ * @param string $category_name TÃªn danh má»¥c
+ * @param string $product_name TÃªn sáº£n pháº©m (optional)
+ * @return array
+ */
+function generate_product_breadcrumb($category_name = '', $product_name = '') {
+    $breadcrumbs = [
+        ['title' => 'Trang chá»§', 'url' => './'],
+        ['title' => 'Sáº£n pháº©m', 'url' => '?page=products']
+    ];
+    
+    if ($category_name) {
+        $breadcrumbs[] = ['title' => $category_name, 'url' => '?page=products&category=' . urlencode($category_name)];
+    }
+    
+    if ($product_name) {
+        $breadcrumbs[] = ['title' => $product_name];
+    }
+    
+    return $breadcrumbs;
+}
+
+/**
+ * Táº¡o breadcrumb cho trang tin tá»©c
+ * 
+ * @param string $category_name TÃªn danh má»¥c tin tá»©c
+ * @param string $news_title TiÃªu Ä‘á» tin tá»©c (optional)
+ * @return array
+ */
+function generate_news_breadcrumb($category_name = '', $news_title = '') {
+    $breadcrumbs = [
+        ['title' => 'Trang chá»§', 'url' => './'],
+        ['title' => 'Tin tá»©c', 'url' => '?page=news']
+    ];
+    
+    if ($category_name) {
+        $breadcrumbs[] = ['title' => $category_name, 'url' => '?page=news&category=' . urlencode($category_name)];
+    }
+    
+    if ($news_title) {
+        $breadcrumbs[] = ['title' => $news_title];
+    }
+    
+    return $breadcrumbs;
+}
+
+/**
+ * Láº¥y breadcrumb tá»« database cho sáº£n pháº©m
+ * 
+ * @param int $product_id ID sáº£n pháº©m
+ * @return array
+ */
+function get_product_breadcrumb_from_db($product_id) {
+    // VÃ­ dá»¥ láº¥y tá»« database (cáº§n implement database connection)
+    /*
+    try {
+        $pdo = new PDO(...); // Database connection
+        $stmt = $pdo->prepare("
+            SELECT p.name as product_name, c.name as category_name 
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            WHERE p.id = ?
+        ");
+        $stmt->execute([$product_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result) {
+            // Chá»‰ sá»­ dá»¥ng product name Ä‘á»ƒ trÃ¡nh trÃ¹ng láº·p
+            return [
+                ['title' => 'Trang chá»§', 'url' => './'],
+                ['title' => 'Sáº£n pháº©m', 'url' => '?page=products'],
+                ['title' => $result['product_name']]
+            ];
+        }
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+    }
+    */
+    
+    // Fallback náº¿u khÃ´ng láº¥y Ä‘Æ°á»£c tá»« database
+    return [
+        ['title' => 'Trang chá»§', 'url' => './'],
+        ['title' => 'Sáº£n pháº©m', 'url' => '?page=products'],
+        ['title' => 'Chi tiáº¿t sáº£n pháº©m']
+    ];
+}
+
+/**
+ * Láº¥y breadcrumb tá»« database cho tin tá»©c
+ * 
+ * @param int $news_id ID tin tá»©c
+ * @return array
+ */
+function get_news_breadcrumb_from_db($news_id) {
+    // VÃ­ dá»¥ láº¥y tá»« database (cáº§n implement database connection)
+    /*
+    try {
+        $pdo = new PDO(...); // Database connection
+        $stmt = $pdo->prepare("
+            SELECT n.title as news_title, c.name as category_name 
+            FROM news n 
+            LEFT JOIN news_categories c ON n.category_id = c.id 
+            WHERE n.id = ?
+        ");
+        $stmt->execute([$news_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result) {
+            return generate_news_breadcrumb($result['category_name'], $result['news_title']);
+        }
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+    }
+    */
+    
+    // Fallback náº¿u khÃ´ng láº¥y Ä‘Æ°á»£c tá»« database
+    return generate_news_breadcrumb('Tin tá»©c', 'Chi tiáº¿t tin tá»©c');
+}
+
+// ============================================================================
+// URL HELPER FUNCTIONS
+// ============================================================================
+
+// Global variables for URL building
+global $config, $urlBuilder;
+
+/**
+ * Initialize URL Builder
+ * Should be called after config is loaded
+ */
+function init_url_builder() {
+    global $config, $urlBuilder;
+    
+    if (!isset($urlBuilder) && isset($config)) {
+        require_once __DIR__ . '/UrlBuilder.php';
+        $urlBuilder = new UrlBuilder($config);
+    }
+}
+
+/**
+ * Get asset URL
+ * @param string $path Asset path relative to assets directory
+ * @return string Full asset URL
+ */
+function asset_url($path) {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    return $urlBuilder ? $urlBuilder->asset($path) : 'assets/' . ltrim($path, '/');
+}
+
+/**
+ * Get CSS file URL
+ * @param string $file CSS filename
+ * @return string Full CSS URL
+ */
+function css_url($file) {
+    return asset_url('css/' . ltrim($file, '/'));
+}
+
+/**
+ * Get JavaScript file URL
+ * @param string $file JS filename
+ * @return string Full JS URL
+ */
+function js_url($file) {
+    return asset_url('js/' . ltrim($file, '/'));
+}
+
+/**
+ * Get image URL
+ * @param string $file Image filename
+ * @return string Full image URL
+ */
+function img_url($file) {
+    return asset_url('images/' . ltrim($file, '/'));
+}
+
+/**
+ * Get font URL
+ * @param string $file Font filename
+ * @return string Full font URL
+ */
+function font_url($file) {
+    return asset_url('fonts/' . ltrim($file, '/'));
+}
+
+/**
+ * Get icon URL
+ * @param string $file Icon filename
+ * @return string Full icon URL
+ */
+function icon_url($file) {
+    return asset_url('icons/' . ltrim($file, '/'));
+}
+
+/**
+ * Get versioned asset URL (for cache busting)
+ * @param string $path Asset path
+ * @return string Versioned asset URL
+ */
+function versioned_asset($path) {
+    global $config;
+    
+    $assetUrl = asset_url($path);
+    
+    // Add version parameter for cache busting
+    if (isset($config['performance']['cache_assets']) && $config['performance']['cache_assets']) {
+        $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/assets/' . ltrim($path, '/');
+        $version = file_exists($fullPath) ? filemtime($fullPath) : time();
+        $assetUrl .= '?v=' . $version;
+    }
+    
+    return $assetUrl;
+}
+
+/**
+ * Get versioned CSS URL
+ * @param string $file CSS filename
+ * @return string Versioned CSS URL
+ */
+function versioned_css($file) {
+    return versioned_asset('css/' . ltrim($file, '/'));
+}
+
+/**
+ * Get versioned JS URL
+ * @param string $file JS filename
+ * @return string Versioned JS URL
+ */
+function versioned_js($file) {
+    return versioned_asset('js/' . ltrim($file, '/'));
+}
+
+/**
+ * Generate page URL
+ * @param string $page Page name
+ * @param array $params Additional parameters
+ * @return string Page URL
+ */
+function page_url($page, $params = []) {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    return $urlBuilder ? $urlBuilder->page($page, $params) : '?page=' . $page;
+}
+
+/**
+ * Generate navigation URL
+ * @param string $page Page name
+ * @return string Navigation URL
+ */
+function nav_url($page) {
+    return page_url($page);
+}
+
+/**
+ * Get base URL
+ * @return string Base URL
+ */
+function base_url($path = '') {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    return $urlBuilder ? $urlBuilder->url($path) : '/' . ltrim($path, '/');
+}
+
+/**
+ * Get current environment
+ * @return string Environment name (local, hosting)
+ */
+function get_environment() {
+    global $config;
+    return isset($config['app']['environment']) ? $config['app']['environment'] : 'hosting';
+}
+
+/**
+ * Check if running in local environment
+ * @return bool
+ */
+function is_local() {
+    return get_environment() === 'local';
+}
+
+/**
+ * Check if running in hosting environment
+ * @return bool
+ */
+function is_hosting() {
+    return get_environment() === 'hosting';
+}
+
+/**
+ * Check if debug mode is enabled
+ * @return bool
+ */
+function is_debug() {
+    global $config;
+    return isset($config['app']['debug']) ? $config['app']['debug'] : false;
+}
+
+/**
+ * Generate form action URL
+ * @param string $page Page name for form submission
+ * @param array $params Additional parameters
+ * @return string Form action URL
+ */
+function form_url($page = '', $params = []) {
+    global $urlBuilder;
+    
+    if (!isset($urlBuilder)) {
+        init_url_builder();
+    }
+    
+    if (empty($page)) {
+        // Return current page URL for self-submitting forms
+        return $_SERVER['REQUEST_URI'] ?? '';
+    }
+    
+    return $urlBuilder ? $urlBuilder->page($page, $params) : 'index.php?page=' . $page;
+}
+
+/**
+ * Get configuration value
+ * @param string $key Configuration key (dot notation supported)
+ * @param mixed $default Default value if key not found
+ * @return mixed Configuration value
+ */
+function config($key, $default = null) {
+    global $config;
+    
+    if (!isset($config)) {
+        return $default;
+    }
+    
+    // Support dot notation (e.g., 'app.name')
+    $keys = explode('.', $key);
+    $value = $config;
+    
+    foreach ($keys as $k) {
+        if (!is_array($value) || !isset($value[$k])) {
+            return $default;
+        }
+        $value = $value[$k];
+    }
+    
+    return $value;
+}

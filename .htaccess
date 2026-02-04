@@ -1,6 +1,28 @@
 # Thuong Lo Website - URL Rewriting & Security Configuration
 # Generated for hosting environment: https://test1.web3b.com/
 
+# UTF-8 Encoding Configuration
+AddDefaultCharset UTF-8
+
+# Force UTF-8 for PHP files
+<FilesMatch "\.(php|phtml)$">
+    AddCharset UTF-8 .php
+    AddCharset UTF-8 .phtml
+</FilesMatch>
+
+# Content-Type headers for proper encoding
+<FilesMatch "\.(php|html|htm)$">
+    Header set Content-Type "text/html; charset=UTF-8"
+</FilesMatch>
+
+# PHP charset settings
+<IfModule mod_php.c>
+    php_value default_charset "UTF-8"
+    php_value internal_encoding "UTF-8"
+    php_value input_encoding "UTF-8"
+    php_value output_encoding "UTF-8"
+</IfModule>
+
 RewriteEngine On
 
 # Force HTTPS (if SSL available)

@@ -35,6 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $success = 'Đăng nhập thành công!';
+            
+            // Chuyển hướng đến dashboard tương ứng
+            $dashboardUrl = $_SESSION['dashboard_url'] ?? 'users/dashboard';
+            $redirectUrl = page_url($dashboardUrl);
+            
+            // Chuyển hướng ngay lập tức
+            echo '<script>
+                setTimeout(function() {
+                    window.location.href = "' . $redirectUrl . '";
+                }, 1500);
+            </script>';
         } else {
             $error = 'Đăng nhập thất bại';
         }
@@ -110,25 +121,39 @@ $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'u
                 </div>
 
                 <div class="role-demo">
-                    <div class="role-demo-text">Bạn là?</div>
+                    <div class="role-demo-text">Demo Account - Chọn vai trò để test giao diện</div>
                     <button type="button" class="demo-toggle" onclick="toggleRoleSelector()">
-                        Nhấn để truy cập với vai trò:
+                        Nhấn để chọn tài khoản demo
                     </button>
 
                     <div class="role-selector hidden" id="role-selector">
                         <div class="role-options">
                             <div class="role-option <?php echo $rememberedRole === 'user' ? 'active' : ''; ?>" onclick="selectRole('user')">
                                 <input type="radio" id="role_user" name="demo_role" value="user" <?php echo $rememberedRole === 'user' ? 'checked' : ''; ?>>
-                                <label for="role_user">Khách hàng</label>
+                                <label for="role_user">
+                                    <strong>Khách hàng</strong><br>
+                                    <small>SĐT: 0901234567 | MK: 123456</small>
+                                </label>
                             </div>
                             <div class="role-option <?php echo $rememberedRole === 'agent' ? 'active' : ''; ?>" onclick="selectRole('agent')">
                                 <input type="radio" id="role_agent" name="demo_role" value="agent" <?php echo $rememberedRole === 'agent' ? 'checked' : ''; ?>>
-                                <label for="role_agent">Đại lý</label>
+                                <label for="role_agent">
+                                    <strong>Đại lý</strong><br>
+                                    <small>SĐT: 0907654321 | MK: 123456</small>
+                                </label>
                             </div>
                             <div class="role-option <?php echo $rememberedRole === 'admin' ? 'active' : ''; ?>" onclick="selectRole('admin')">
                                 <input type="radio" id="role_admin" name="demo_role" value="admin" <?php echo $rememberedRole === 'admin' ? 'checked' : ''; ?>>
-                                <label for="role_admin">Quản trị</label>
+                                <label for="role_admin">
+                                    <strong>Quản trị viên</strong><br>
+                                    <small>TK: admin | MK: admin123</small>
+                                </label>
                             </div>
+                        </div>
+                        <div class="demo-instructions">
+                            <p><strong>Hướng dẫn:</strong></p>
+                            <p>1. Chọn vai trò → Thông tin sẽ tự động điền</p>
+                            <p>2. Nhấn "Đăng nhập" → Chuyển đến dashboard tương ứng</p>
                         </div>
                     </div>
                 </div>
