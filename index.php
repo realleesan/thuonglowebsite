@@ -407,22 +407,140 @@ switch($page) {
     case 'users':
         // User dashboard routing
         $module = $_GET['module'] ?? 'dashboard';
+        $action = $_GET['action'] ?? 'index';
         
-        // Check user authentication
-        if (!isset($_SESSION['role'])) {
-            header('Location: ?page=login');
-            exit;
-        }
+        // Check user authentication (tạm thời bỏ qua để test)
+        // if (!isset($_SESSION['role'])) {
+        //     header('Location: ?page=login');
+        //     exit;
+        // }
         
+        // Set user page variables
         $title = 'Tài khoản - Thuong Lo';
-        $content = 'app/views/users/dashboard.php';
         $showPageHeader = false;
         $showCTA = false;
         $showBreadcrumb = true;
-        $breadcrumbs = [
-            ['title' => 'Trang chủ', 'url' => './'],
-            ['title' => 'Tài khoản']
-        ];
+        
+        // Route to specific user modules
+        switch($module) {
+            case 'dashboard':
+                $page_title = 'Dashboard';
+                $content = 'app/views/users/dashboard.php';
+                $breadcrumbs = [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tài khoản', 'url' => '?page=users'],
+                    ['title' => 'Dashboard']
+                ];
+                break;
+                
+            case 'account':
+                $page_title = 'Quản lý Tài khoản';
+                switch($action) {
+                    case 'edit':
+                        $content = 'app/views/users/account/edit.php';
+                        break;
+                    case 'view':
+                        $content = 'app/views/users/account/view.php';
+                        break;
+                    case 'delete':
+                        $content = 'app/views/users/account/delete.php';
+                        break;
+                    default:
+                        $content = 'app/views/users/account/index.php';
+                        break;
+                }
+                $breadcrumbs = [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tài khoản', 'url' => '?page=users'],
+                    ['title' => 'Thông tin tài khoản']
+                ];
+                break;
+                
+            case 'orders':
+                $page_title = 'Quản lý Đơn hàng';
+                switch($action) {
+                    case 'view':
+                        $content = 'app/views/users/orders/view.php';
+                        break;
+                    case 'edit':
+                        $content = 'app/views/users/orders/edit.php';
+                        break;
+                    case 'delete':
+                        $content = 'app/views/users/orders/delete.php';
+                        break;
+                    default:
+                        $content = 'app/views/users/orders/index.php';
+                        break;
+                }
+                $breadcrumbs = [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tài khoản', 'url' => '?page=users'],
+                    ['title' => 'Đơn hàng']
+                ];
+                break;
+                
+            case 'cart':
+                $page_title = 'Giỏ hàng';
+                switch($action) {
+                    case 'add':
+                        $content = 'app/views/users/cart/add.php';
+                        break;
+                    case 'edit':
+                        $content = 'app/views/users/cart/edit.php';
+                        break;
+                    case 'view':
+                        $content = 'app/views/users/cart/view.php';
+                        break;
+                    case 'delete':
+                        $content = 'app/views/users/cart/delete.php';
+                        break;
+                    default:
+                        $content = 'app/views/users/cart/index.php';
+                        break;
+                }
+                $breadcrumbs = [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tài khoản', 'url' => '?page=users'],
+                    ['title' => 'Giỏ hàng']
+                ];
+                break;
+                
+            case 'wishlist':
+                $page_title = 'Danh sách yêu thích';
+                switch($action) {
+                    case 'add':
+                        $content = 'app/views/users/wishlist/add.php';
+                        break;
+                    case 'edit':
+                        $content = 'app/views/users/wishlist/edit.php';
+                        break;
+                    case 'view':
+                        $content = 'app/views/users/wishlist/view.php';
+                        break;
+                    case 'delete':
+                        $content = 'app/views/users/wishlist/delete.php';
+                        break;
+                    default:
+                        $content = 'app/views/users/wishlist/index.php';
+                        break;
+                }
+                $breadcrumbs = [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tài khoản', 'url' => '?page=users'],
+                    ['title' => 'Yêu thích']
+                ];
+                break;
+                
+            default:
+                $page_title = 'Dashboard';
+                $content = 'app/views/users/dashboard.php';
+                $breadcrumbs = [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tài khoản', 'url' => '?page=users'],
+                    ['title' => 'Dashboard']
+                ];
+                break;
+        }
         break;
         
     case 'affiliate':

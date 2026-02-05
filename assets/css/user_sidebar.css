@@ -1,0 +1,258 @@
+/* User Sidebar Styles - Sticky & Contained */
+.user-sidebar {
+    width: 250px;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.user-sidebar.collapsed {
+    width: 70px;
+}
+
+/* User Profile Section */
+.user-profile-section {
+    padding: 20px;
+    border-bottom: 1px solid #E5E7EB;
+    text-align: center;
+    background: #f9fafb;
+}
+
+.user-sidebar.collapsed .user-profile-section {
+    padding: 16px 10px;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 12px auto;
+    border-radius: 50%;
+    border: 2px solid #356DF1;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.user-sidebar.collapsed .user-avatar {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-info {
+    transition: all 0.3s ease;
+}
+
+.user-sidebar.collapsed .user-info {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 4px 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.user-level {
+    display: inline-block;
+    background: #356DF1;
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Navigation */
+.sidebar-nav {
+    padding: 20px 0;
+}
+
+.nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    margin-bottom: 4px;
+}
+
+.nav-divider {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 16px 20px;
+}
+
+.user-sidebar.collapsed .nav-divider {
+    margin: 16px 10px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #374151;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    background: #f8fafc;
+    color: #356DF1;
+    text-decoration: none;
+}
+
+.nav-item.active .nav-link {
+    background: #356DF1;
+    color: #ffffff;
+}
+
+.nav-item.active .nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #000000;
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    font-size: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.nav-text {
+    transition: opacity 0.3s ease;
+    flex: 1;
+}
+
+.user-sidebar.collapsed .nav-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+.user-sidebar.collapsed .nav-link {
+    padding: 12px 25px;
+    justify-content: center;
+}
+
+.user-sidebar.collapsed .nav-icon {
+    margin-right: 0;
+}
+
+/* Cart and Wishlist Counts */
+.cart-count,
+.wishlist-count {
+    background: #EF4444;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.user-sidebar.collapsed .cart-count,
+.user-sidebar.collapsed .wishlist-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    transform: scale(0.8);
+}
+
+/* Logout Link */
+.logout-link {
+    color: #EF4444 !important;
+}
+
+.logout-link:hover {
+    background: #FEE2E2 !important;
+    color: #DC2626 !important;
+}
+
+/* Scrollbar */
+.user-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.user-sidebar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.user-sidebar::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.user-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .user-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .user-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+}
+
+/* Layout Integration - Contained within site width */
+.user-content-with-sidebar {
+    max-width: 1320px;
+    margin: 32px auto 0 auto; /* Add top margin from breadcrumb */
+    padding: 0 20px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.user-dashboard {
+    flex: 1;
+    min-width: 0; /* Prevent flex item from overflowing */
+}
+
+@media (max-width: 768px) {
+    .user-content-with-sidebar {
+        flex-direction: column;
+        padding: 0 16px;
+    }
+    
+    .user-sidebar {
+        width: 100%;
+        position: static;
+        order: -1;
+    }
+}

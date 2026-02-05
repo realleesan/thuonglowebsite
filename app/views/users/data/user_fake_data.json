@@ -1,0 +1,121 @@
+{
+  "user": {
+    "id": 1,
+    "name": "Nguyễn Văn An",
+    "email": "nguyenvanan@example.com",
+    "phone": "0123456789",
+    "avatar": "assets/images/users/avatar-default.jpg",
+    "address": "123 Đường ABC, Quận 1, TP.HCM",
+    "join_date": "2024-01-15",
+    "status": "active",
+    "points": 1250,
+    "level": "VIP"
+  },
+  "stats": {
+    "total_orders": 24,
+    "total_spent": 15750000,
+    "data_purchased": 8,
+    "loyalty_points": 1250
+  },
+  "orders": [
+    {
+      "id": "ORD001",
+      "date": "2026-02-01",
+      "status": "completed",
+      "type": "data_nguon_hang",
+      "product_name": "Data Nguồn Hàng Premium",
+      "amount": 2500000,
+      "payment_method": "bank_transfer"
+    },
+    {
+      "id": "ORD002", 
+      "date": "2026-01-28",
+      "status": "processing",
+      "type": "van_chuyen",
+      "product_name": "Dịch vụ vận chuyển COD",
+      "amount": 150000,
+      "payment_method": "momo"
+    },
+    {
+      "id": "ORD003",
+      "date": "2026-01-25",
+      "status": "completed",
+      "type": "dich_vu_tt",
+      "product_name": "Dịch vụ thanh toán tự động",
+      "amount": 500000,
+      "payment_method": "bank_transfer"
+    },
+    {
+      "id": "ORD004",
+      "date": "2026-01-20",
+      "status": "completed", 
+      "type": "danh_hang",
+      "product_name": "Dịch vụ đánh hàng chuyên nghiệp",
+      "amount": 800000,
+      "payment_method": "bank_transfer"
+    },
+    {
+      "id": "ORD005",
+      "date": "2026-01-15",
+      "status": "cancelled",
+      "type": "data_nguon_hang",
+      "product_name": "Data Nguồn Hàng Basic",
+      "amount": 1200000,
+      "payment_method": "momo"
+    }
+  ],
+  "cart": [
+    {
+      "id": 1,
+      "product_name": "Data Nguồn Hàng VIP",
+      "price": 3500000,
+      "quantity": 1,
+      "type": "data_nguon_hang",
+      "added_date": "2026-02-05"
+    },
+    {
+      "id": 2,
+      "product_name": "Khóa học Dropshipping 2026",
+      "price": 1500000,
+      "quantity": 1,
+      "type": "khoa_hoc",
+      "added_date": "2026-02-04"
+    }
+  ],
+  "wishlist": [
+    {
+      "id": 1,
+      "product_name": "Tool Auto Order Premium",
+      "price": 2000000,
+      "type": "tool",
+      "added_date": "2026-02-03",
+      "note": "Chờ giảm giá"
+    },
+    {
+      "id": 2,
+      "product_name": "Data Nguồn Hàng Quốc Tế",
+      "price": 5000000,
+      "type": "data_nguon_hang", 
+      "added_date": "2026-02-01",
+      "note": ""
+    }
+  ],
+  "chartData": {
+    "revenue": {
+      "labels": ["Tháng 10", "Tháng 11", "Tháng 12", "Tháng 1", "Tháng 2"],
+      "data": [2.5, 4.2, 3.8, 5.1, 4.0]
+    },
+    "orderDistribution": {
+      "labels": ["Data Nguồn Hàng", "Vận Chuyển", "Dịch Vụ TT", "Đánh Hàng", "Khóa Học"],
+      "data": [45, 20, 15, 12, 8]
+    },
+    "orderStatus": {
+      "labels": ["Hoàn thành", "Đang xử lý", "Chờ xử lý", "Đã hủy"],
+      "data": [18, 3, 2, 1]
+    },
+    "purchaseTrend": {
+      "labels": ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"],
+      "data": [3, 5, 4, 7]
+    }
+  }
+}

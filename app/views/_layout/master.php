@@ -66,6 +66,10 @@ mb_http_output('UTF-8');
         case 'forgot':
             echo '<link rel="stylesheet" href="' . versioned_css('forgot.css') . '">';
             break;
+        case 'users':
+            echo '<link rel="stylesheet" href="' . versioned_css('user_sidebar.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_dashboard.css') . '">';
+            break;
         case 'checkout':
         case 'payment':
         case 'payment_success':
@@ -163,6 +167,11 @@ mb_http_output('UTF-8');
             break;
         case 'forgot':
             echo '<script src="' . versioned_js('forgot.js') . '"></script>';
+            break;
+        case 'users':
+            echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
+            echo '<script src="' . versioned_js('user_sidebar.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_dashboard.js') . '"></script>';
             break;
         default:
             echo '<script src="' . versioned_js('home.js') . '"></script>';
