@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="assets/css/admin_sidebar.css">
     <link rel="stylesheet" href="assets/css/admin_header.css">
     <link rel="stylesheet" href="assets/css/admin_footer.css">
-    <link rel="stylesheet" href="assets/css/admin_breadcrumb.css">
     <link rel="stylesheet" href="assets/css/admin_dashboard.css">
     <link rel="stylesheet" href="assets/css/admin_pages.css">
+    <link rel="stylesheet" href="assets/css/admin_products.css">
     
     <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -53,8 +53,8 @@
     <script src="assets/js/admin_sidebar.js"></script>
     <script src="assets/js/admin_header.js"></script>
     <script src="assets/js/admin_footer.js"></script>
-    <script src="assets/js/admin_breadcrumb.js"></script>
     <script src="assets/js/admin_pages.js"></script>
     <script src="assets/js/admin_dashboard.js"></script>
+    <script src="assets/js/admin_products.js"></script>
 </body>
 </html>
