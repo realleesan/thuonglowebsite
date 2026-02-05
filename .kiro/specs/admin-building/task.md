@@ -11,15 +11,15 @@
 * [X] Tạo CSS cho admin layout (admin_sidebar.css, admin_header.css, admin_footer.css, admin_breadcrumb.css)
 * [X] Tạo JS cho admin layout (admin_sidebar.js, admin_header.js, admin_footer.js, admin_breadcrumb.js)
 
-## Phase 2: Dashboard với Chart.js
+## Phase 2: Dashboard với Chart.js - Done ✅
 
-* [ ] Hoàn thiện dashboard.php với các biểu đồ thống kê
-* [ ] Tạo admin_dashboard.css
-* [ ] Tích hợp Chart.js
-* [ ] Tạo biểu đồ doanh thu theo thời gian
-* [ ] Tạo biểu đồ sản phẩm bán chạy
-* [ ] Tạo biểu đồ phân loại đơn hàng
-* [ ] Tạo biểu đồ người dùng mới
+* [X] Hoàn thiện dashboard.php với các biểu đồ thống kê
+* [X] Tạo admin_dashboard.css
+* [X] Tích hợp Chart.js
+* [X] Tạo biểu đồ doanh thu theo thời gian
+* [X] Tạo biểu đồ sản phẩm bán chạy
+* [X] Tạo biểu đồ phân loại đơn hàng
+* [x] Tạo biểu đồ người dùng mới
 
 ## Phase 3: Module Quản Lý Sản Phẩm (Products)
 

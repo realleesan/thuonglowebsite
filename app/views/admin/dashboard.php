@@ -177,6 +177,56 @@ $totalRevenue = array_sum(array_map(function($p) {
         </div>
     </div>
 
+    <!-- Charts Section -->
+    <div class="dashboard-charts">
+        <!-- Revenue Chart -->
+        <div class="chart-widget chart-widget-large">
+            <div class="widget-header">
+                <h3>Doanh thu theo thời gian</h3>
+                <div class="chart-controls">
+                    <select class="admin-form-control" id="revenueChartPeriod">
+                        <option value="7days">7 ngày</option>
+                        <option value="30days" selected>30 ngày</option>
+                        <option value="12months">12 tháng</option>
+                    </select>
+                </div>
+            </div>
+            <div class="widget-content">
+                <canvas id="revenueChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Products Chart -->
+        <div class="chart-widget">
+            <div class="widget-header">
+                <h3>Top 10 sản phẩm bán chạy</h3>
+            </div>
+            <div class="widget-content">
+                <canvas id="topProductsChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Orders Status Chart -->
+        <div class="chart-widget">
+            <div class="widget-header">
+                <h3>Phân loại đơn hàng</h3>
+            </div>
+            <div class="widget-content">
+                <canvas id="ordersStatusChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- New Users Chart -->
+        <div class="chart-widget">
+            <div class="widget-header">
+                <h3>Người dùng mới (4 tuần)</h3>
+            </div>
+            <div class="widget-content">
+                <canvas id="newUsersChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content Grid -->
     <div class="dashboard-content">
         <!-- Top Products -->

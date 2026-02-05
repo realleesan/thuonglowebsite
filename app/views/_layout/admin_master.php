@@ -37,7 +37,11 @@
             
             <!-- Content -->
             <div class="admin-content">
-                <?php echo $content; ?>
+                <?php 
+                if (isset($content) && $content) {
+                    include $content;
+                }
+                ?>
             </div>
             
             <!-- Footer -->
@@ -51,5 +55,6 @@
     <script src="assets/js/admin_footer.js"></script>
     <script src="assets/js/admin_breadcrumb.js"></script>
     <script src="assets/js/admin_pages.js"></script>
+    <script src="assets/js/admin_dashboard.js"></script>
 </body>
 </html>
