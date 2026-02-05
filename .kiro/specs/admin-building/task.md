@@ -39,11 +39,11 @@
 
 ## Phase 5: Module Quản Lý Tin Tức (News)
 
-* [ ] news/index.php - Danh sách tin tức
-* [ ] news/add.php - Thêm tin tức
-* [ ] news/edit.php - Sửa tin tức
-* [ ] news/view.php - Xem chi tiết tin tức
-* [ ] news/delete.php - Xóa tin tức
+* [x] news/index.php - Danh sách tin tức
+* [x] news/add.php - Thêm tin tức
+* [x] news/edit.php - Sửa tin tức
+* [x] news/view.php - Xem chi tiết tin tức
+* [x] news/delete.php - Xóa tin tức
 
 ## Phase 6: Module Quản Lý Sự Kiện (Events)
 
