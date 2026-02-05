@@ -1,107 +1,55 @@
-<?php
-// Set charset headers for proper UTF-8 encoding
-header('Content-Type: text/html; charset=UTF-8');
-mb_internal_encoding('UTF-8');
-mb_http_output('UTF-8');
-?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($title) ? $title : 'Admin Panel - Thuong Lo'; ?></title>
+    <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Admin ThuongLo</title>
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/admin_sidebar.css">
+    <link rel="stylesheet" href="assets/css/admin_header.css">
+    <link rel="stylesheet" href="assets/css/admin_footer.css">
+    <link rel="stylesheet" href="assets/css/admin_breadcrumb.css">
+    <link rel="stylesheet" href="assets/css/admin_dashboard.css">
+    <link rel="stylesheet" href="assets/css/admin_pages.css">
     
-    <!-- Font Awesome -->
+    <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
-    <!-- Admin CSS Files -->
-    <link rel="stylesheet" href="<?php echo versioned_css('admin.css'); ?>">
-    <link rel="stylesheet" href="<?php echo versioned_css('admin_sidebar.css'); ?>">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <?php
-    // Load module-specific CSS
-    $currentModule = $_GET['module'] ?? 'dashboard';
-    switch($currentModule) {
-        case 'products':
-        case 'categories':
-        case 'news':
-        case 'events':
-            echo '<link rel="stylesheet" href="' . versioned_css('admin.css') . '">';
-            break;
-    }
-    ?>
-    
-    <!-- Additional CSS if needed -->
-    <?php if (isset($additionalCSS)): ?>
-        <?php foreach ($additionalCSS as $css): ?>
-            <link rel="stylesheet" href="<?php echo $css; ?>">
-        <?php endforeach; ?>
-    <?php endif; ?>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="admin-layout">
-    <div class="admin-container">
-        <!-- Admin Sidebar -->
-        <?php include_once 'admin_sidebar.php'; ?>
+<body class="admin-body">
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <?php include 'app/views/_layout/admin_sidebar.php'; ?>
         
-        <!-- Main Admin Content -->
-        <main class="admin-main" id="adminMain">
-            <!-- Admin Header -->
-            <header class="admin-header">
-                <div class="admin-header-left">
-                    <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1><?php echo isset($pageTitle) ? $pageTitle : 'Dashboard'; ?></h1>
-                </div>
-                <div class="admin-header-right">
-                    <div class="admin-user-menu">
-                        <span>Xin chào, <?php echo $_SESSION['full_name'] ?? 'Admin'; ?></span>
-                        <a href="?page=auth&action=logout" class="logout-btn">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </a>
-                    </div>
-                </div>
-            </header>
+        <!-- Main Content Area -->
+        <div class="admin-main">
+            <!-- Header -->
+            <?php include 'app/views/_layout/admin_header.php'; ?>
             
-            <!-- Admin Content Area -->
+            <!-- Breadcrumb -->
+            <?php include 'app/views/_layout/admin_breadcrumb.php'; ?>
+            
+            <!-- Content -->
             <div class="admin-content">
-                <?php 
-                // Include the specific admin page content
-                if (isset($content) && $content) {
-                    include_once $content;
-                }
-                ?>
+                <?php echo $content; ?>
             </div>
-        </main>
+            
+            <!-- Footer -->
+            <?php include 'app/views/_layout/admin_footer.php'; ?>
+        </div>
     </div>
     
     <!-- JavaScript Files -->
-    <script src="<?php echo versioned_js('admin_sidebar.js'); ?>"></script>
-    <script src="<?php echo versioned_js('admin.js'); ?>"></script>
-    
-    <?php
-    // Load module-specific JavaScript
-    switch($currentModule) {
-        case 'products':
-        case 'categories':
-        case 'news':
-        case 'events':
-            echo '<script src="' . versioned_js('admin.js') . '"></script>';
-            break;
-    }
-    ?>
-    
-    <!-- Additional JS if needed -->
-    <?php if (isset($additionalJS)): ?>
-        <?php foreach ($additionalJS as $js): ?>
-            <script src="<?php echo $js; ?>"></script>
-        <?php endforeach; ?>
-    <?php endif; ?>
+    <script src="assets/js/admin_sidebar.js"></script>
+    <script src="assets/js/admin_header.js"></script>
+    <script src="assets/js/admin_footer.js"></script>
+    <script src="assets/js/admin_breadcrumb.js"></script>
+    <script src="assets/js/admin_pages.js"></script>
 </body>
 </html>

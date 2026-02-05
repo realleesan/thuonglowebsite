@@ -1,207 +1,263 @@
 {
-    "products": [
-        {
-            "id": 1,
-            "name": "Gói Data Nguồn Hàng Premium",
-            "description": "Gói data nguồn hàng cao cấp với thông tin chi tiết về nhà cung cấp, giá cả và chất lượng sản phẩm",
-            "price": 2500000,
-            "category_id": 1,
-            "image": "data-package-premium.jpg",
-            "status": "active",
-            "created_at": "2024-01-15",
-            "updated_at": "2024-02-01"
-        },
-        {
-            "id": 2,
-            "name": "Gói Data Nguồn Hàng Cơ Bản",
-            "description": "Gói data nguồn hàng cơ bản với thông tin cần thiết cho việc kinh doanh",
-            "price": 1200000,
-            "category_id": 1,
-            "image": "data-package-basic.jpg",
-            "status": "active",
-            "created_at": "2024-01-10",
-            "updated_at": "2024-01-25"
-        },
-        {
-            "id": 3,
-            "name": "Dịch Vụ Vận Chuyển Chính Ngạch",
-            "description": "Dịch vụ vận chuyển hàng hóa qua đường chính ngạch, đảm bảo an toàn và hợp pháp",
-            "price": 500000,
-            "category_id": 2,
-            "image": "shipping-service.jpg",
-            "status": "active",
-            "created_at": "2024-01-20",
-            "updated_at": "2024-02-02"
-        },
-        {
-            "id": 4,
-            "name": "Gói Hàng Trọn Gói - NCC đến VCCN",
-            "description": "Dịch vụ mua hàng trọn gói từ nhà cung cấp đến vận chuyển chính ngạch",
-            "price": 3000000,
-            "category_id": 2,
-            "image": "full-package-service.jpg",
-            "status": "active",
-            "created_at": "2024-01-25",
-            "updated_at": "2024-02-03"
-        },
-        {
-            "id": 5,
-            "name": "Dịch Vụ Thanh Toán Quốc Tế",
-            "description": "Hỗ trợ thanh toán quốc tế an toàn và nhanh chóng cho các giao dịch thương mại",
-            "price": 800000,
-            "category_id": 3,
-            "image": "international-payment.jpg",
-            "status": "active",
-            "created_at": "2024-01-30",
-            "updated_at": "2024-02-04"
-        },
-        {
-            "id": 6,
-            "name": "Dịch Vụ Đánh Hàng Toàn Diện",
-            "description": "Bao gồm phiên dịch, đi lại và ăn ở trong quá trình đánh hàng",
-            "price": 1500000,
-            "category_id": 4,
-            "image": "sourcing-service.jpg",
-            "status": "active",
-            "created_at": "2024-02-01",
-            "updated_at": "2024-02-04"
-        }
-    ],
-    "categories": [
-        {
-            "id": 1,
-            "name": "Gói Data Nguồn Hàng",
-            "description": "Các gói data thông tin về nguồn hàng và nhà cung cấp",
-            "parent_id": null,
-            "sort_order": 1,
-            "status": "active",
-            "created_at": "2024-01-01"
-        },
-        {
-            "id": 2,
-            "name": "Dịch Vụ Vận Chuyển",
-            "description": "Các dịch vụ vận chuyển và logistics",
-            "parent_id": null,
-            "sort_order": 2,
-            "status": "active",
-            "created_at": "2024-01-01"
-        },
-        {
-            "id": 3,
-            "name": "Dịch Vụ Thanh Toán",
-            "description": "Các dịch vụ thanh toán và tài chính",
-            "parent_id": null,
-            "sort_order": 3,
-            "status": "active",
-            "created_at": "2024-01-01"
-        },
-        {
-            "id": 4,
-            "name": "Dịch Vụ Đánh Hàng",
-            "description": "Dịch vụ tìm kiếm và đánh giá nguồn hàng",
-            "parent_id": null,
-            "sort_order": 4,
-            "status": "active",
-            "created_at": "2024-01-01"
-        },
-        {
-            "id": 5,
-            "name": "Gói Data Cao Cấp",
-            "description": "Các gói data với thông tin chi tiết và độc quyền",
-            "parent_id": 1,
-            "sort_order": 1,
-            "status": "active",
-            "created_at": "2024-01-05"
-        }
-    ],
-    "news": [
-        {
-            "id": 1,
-            "title": "ThuongLo Ra Mắt Gói Data Nguồn Hàng Mới",
-            "summary": "Chúng tôi vừa ra mắt gói data nguồn hàng với thông tin cập nhật và chi tiết hơn",
-            "content": "ThuongLo tự hào giới thiệu gói data nguồn hàng mới với hơn 10,000 nhà cung cấp được xác minh và đánh giá chất lượng. Gói data này bao gồm thông tin chi tiết về giá cả, chất lượng sản phẩm, và khả năng cung ứng của từng nhà cung cấp.",
-            "image": "news-new-data-package.jpg",
-            "status": "published",
-            "author_id": 1,
-            "created_at": "2024-02-01",
-            "published_at": "2024-02-01"
-        },
-        {
-            "id": 2,
-            "title": "Dịch Vụ Vận Chuyển Chính Ngạch Mở Rộng",
-            "summary": "Mở rộng dịch vụ vận chuyển chính ngạch đến nhiều tỉnh thành mới",
-            "content": "Từ tháng 2/2024, dịch vụ vận chuyển chính ngạch của ThuongLo sẽ mở rộng đến 15 tỉnh thành mới, giúp khách hàng dễ dàng tiếp cận dịch vụ chất lượng cao với chi phí hợp lý.",
-            "image": "news-shipping-expansion.jpg",
-            "status": "published",
-            "author_id": 1,
-            "created_at": "2024-01-28",
-            "published_at": "2024-01-30"
-        },
-        {
-            "id": 3,
-            "title": "Hướng Dẫn Sử Dụng Dịch Vụ Thanh Toán Quốc Tế",
-            "summary": "Hướng dẫn chi tiết cách sử dụng dịch vụ thanh toán quốc tế an toàn",
-            "content": "Bài viết hướng dẫn chi tiết các bước thực hiện thanh toán quốc tế thông qua hệ thống của ThuongLo, đảm bảo an toàn và tuân thủ các quy định pháp luật.",
-            "image": "news-payment-guide.jpg",
-            "status": "draft",
-            "author_id": 2,
-            "created_at": "2024-02-03",
-            "published_at": null
-        }
-    ],
-    "events": [
-        {
-            "id": 1,
-            "name": "Hội Thảo Nguồn Hàng Trung Quốc 2024",
-            "description": "Hội thảo chia sẻ kinh nghiệm tìm kiếm và đánh giá nguồn hàng từ Trung Quốc",
-            "start_date": "2024-03-15",
-            "end_date": "2024-03-16",
-            "location": "Khách sạn Lotte, Hà Nội",
-            "max_participants": 200,
-            "status": "upcoming",
-            "created_at": "2024-01-20"
-        },
-        {
-            "id": 2,
-            "name": "Workshop Vận Chuyển Chính Ngạch",
-            "description": "Workshop thực hành về quy trình vận chuyển chính ngạch và thủ tục hải quan",
-            "start_date": "2024-02-25",
-            "end_date": "2024-02-25",
-            "location": "Trung tâm Hội nghị Quốc gia, TP.HCM",
-            "max_participants": 100,
-            "status": "upcoming",
-            "created_at": "2024-01-25"
-        },
-        {
-            "id": 3,
-            "name": "Gặp Gỡ Khách Hàng Quý I/2024",
-            "description": "Buổi gặp gỡ, trao đổi và lắng nghe ý kiến từ khách hàng",
-            "start_date": "2024-04-10",
-            "end_date": "2024-04-10",
-            "location": "Văn phòng ThuongLo, Hà Nội",
-            "max_participants": 50,
-            "status": "upcoming",
-            "created_at": "2024-02-01"
-        }
-    ],
-    "users": [
-        {
-            "id": 1,
-            "username": "admin",
-            "email": "admin@thuonglo.com",
-            "full_name": "Quản trị viên",
-            "role": "admin",
-            "status": "active",
-            "created_at": "2024-01-01"
-        },
-        {
-            "id": 2,
-            "username": "editor",
-            "email": "editor@thuonglo.com", 
-            "full_name": "Biên tập viên",
-            "role": "editor",
-            "status": "active",
-            "created_at": "2024-01-05"
-        }
-    ]
+  "products": [
+    {
+      "id": 1,
+      "name": "Gói Data Nguồn Hàng Premium",
+      "category_id": 1,
+      "price": 5000000,
+      "stock": 100,
+      "status": "active",
+      "description": "Gói data nguồn hàng cao cấp với hơn 10,000 sản phẩm hot trend từ các nhà cung cấp uy tín",
+      "image": "assets/images/products/data-premium.jpg",
+      "created_at": "2024-01-01 10:00:00"
+    },
+    {
+      "id": 2,
+      "name": "Khóa Học Dropshipping Cơ Bản",
+      "category_id": 2,
+      "price": 2500000,
+      "stock": 50,
+      "status": "active",
+      "description": "Khóa học dropshipping từ A-Z dành cho người mới bắt đầu",
+      "image": "assets/images/products/course-basic.jpg",
+      "created_at": "2024-01-02 11:00:00"
+    },
+    {
+      "id": 3,
+      "name": "Tool Auto Đăng Sản Phẩm",
+      "category_id": 3,
+      "price": 1500000,
+      "stock": 200,
+      "status": "active",
+      "description": "Phần mềm tự động đăng sản phẩm lên các sàn thương mại điện tử",
+      "image": "assets/images/products/tool-auto.jpg",
+      "created_at": "2024-01-03 12:00:00"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Data Nguồn Hàng",
+      "slug": "data-nguon-hang",
+      "description": "Cơ sở dữ liệu sản phẩm từ các nhà cung cấp uy tín",
+      "status": "active",
+      "created_at": "2024-01-01 10:00:00"
+    },
+    {
+      "id": 2,
+      "name": "Khóa Học",
+      "slug": "khoa-hoc",
+      "description": "Các khóa học về kinh doanh online và dropshipping",
+      "status": "active",
+      "created_at": "2024-01-01 10:00:00"
+    },
+    {
+      "id": 3,
+      "name": "Công Cụ & Phần Mềm",
+      "slug": "cong-cu-phan-mem",
+      "description": "Các công cụ hỗ trợ kinh doanh online",
+      "status": "active",
+      "created_at": "2024-01-01 10:00:00"
+    }
+  ],
+  "news": [
+    {
+      "id": 1,
+      "title": "Xu hướng kinh doanh online 2024",
+      "slug": "xu-huong-kinh-doanh-online-2024",
+      "content": "Phân tích các xu hướng kinh doanh online mới nhất trong năm 2024...",
+      "excerpt": "Tìm hiểu những xu hướng kinh doanh online hot nhất năm 2024",
+      "image": "assets/images/news/trend-2024.jpg",
+      "status": "published",
+      "author": "Admin ThuongLo",
+      "created_at": "2024-01-15 09:00:00"
+    },
+    {
+      "id": 2,
+      "title": "Bí quyết chọn sản phẩm dropshipping hiệu quả",
+      "slug": "bi-quyet-chon-san-pham-dropshipping",
+      "content": "Hướng dẫn chi tiết cách chọn sản phẩm dropshipping có tiềm năng cao...",
+      "excerpt": "Những tiêu chí quan trọng khi chọn sản phẩm dropshipping",
+      "image": "assets/images/news/product-selection.jpg",
+      "status": "published",
+      "author": "Admin ThuongLo",
+      "created_at": "2024-01-20 14:30:00"
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "title": "Workshop Dropshipping 2024",
+      "slug": "workshop-dropshipping-2024",
+      "description": "Sự kiện chia sẻ kinh nghiệm dropshipping từ các chuyên gia hàng đầu",
+      "start_date": "2024-03-15 09:00:00",
+      "end_date": "2024-03-15 17:00:00",
+      "location": "Hà Nội",
+      "price": 500000,
+      "max_participants": 100,
+      "current_participants": 45,
+      "status": "upcoming",
+      "image": "assets/images/events/workshop-2024.jpg",
+      "created_at": "2024-01-10 08:00:00"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "user_id": 2,
+      "product_id": 1,
+      "quantity": 1,
+      "total": 5000000,
+      "status": "completed",
+      "payment_method": "bank_transfer",
+      "shipping_address": "123 Nguyễn Văn A, Quận 1, TP.HCM",
+      "created_at": "2024-01-25 10:30:00"
+    },
+    {
+      "id": 2,
+      "user_id": 3,
+      "product_id": 2,
+      "quantity": 1,
+      "total": 2500000,
+      "status": "processing",
+      "payment_method": "momo",
+      "shipping_address": "456 Trần Văn B, Quận 2, TP.HCM",
+      "created_at": "2024-01-26 15:45:00"
+    },
+    {
+      "id": 3,
+      "user_id": 4,
+      "product_id": 3,
+      "quantity": 2,
+      "total": 3000000,
+      "status": "pending",
+      "payment_method": "vnpay",
+      "shipping_address": "789 Lê Văn C, Quận 3, TP.HCM",
+      "created_at": "2024-01-27 09:15:00"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin ThuongLo",
+      "email": "admin@thuonglo.com",
+      "role": "admin",
+      "status": "active",
+      "phone": "0901234567",
+      "address": "Hà Nội, Việt Nam",
+      "created_at": "2024-01-01 00:00:00"
+    },
+    {
+      "id": 2,
+      "name": "Nguyễn Văn A",
+      "email": "nguyenvana@gmail.com",
+      "role": "user",
+      "status": "active",
+      "phone": "0912345678",
+      "address": "TP.HCM, Việt Nam",
+      "created_at": "2024-01-15 10:30:00"
+    },
+    {
+      "id": 3,
+      "name": "Trần Thị B",
+      "email": "tranthib@gmail.com",
+      "role": "agent",
+      "status": "active",
+      "phone": "0923456789",
+      "address": "Đà Nẵng, Việt Nam",
+      "created_at": "2024-01-20 14:20:00"
+    },
+    {
+      "id": 4,
+      "name": "Lê Văn C",
+      "email": "levanc@gmail.com",
+      "role": "user",
+      "status": "inactive",
+      "phone": "0934567890",
+      "address": "Cần Thơ, Việt Nam",
+      "created_at": "2024-01-25 16:45:00"
+    }
+  ],
+  "affiliates": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "commission_rate": 15,
+      "total_sales": 25000000,
+      "total_commission": 3750000,
+      "status": "active",
+      "referral_code": "AGENT001",
+      "created_at": "2024-01-20 14:20:00"
+    },
+    {
+      "id": 2,
+      "user_id": 5,
+      "commission_rate": 10,
+      "total_sales": 15000000,
+      "total_commission": 1500000,
+      "status": "active",
+      "referral_code": "AGENT002",
+      "created_at": "2024-01-22 09:30:00"
+    }
+  ],
+  "contacts": [
+    {
+      "id": 1,
+      "name": "Phạm Văn D",
+      "email": "phamvand@gmail.com",
+      "phone": "0945678901",
+      "subject": "Hỏi về gói data nguồn hàng",
+      "message": "Tôi muốn tìm hiểu thêm về gói data nguồn hàng premium. Có thể tư vấn chi tiết không?",
+      "status": "new",
+      "created_at": "2024-01-28 10:15:00"
+    },
+    {
+      "id": 2,
+      "name": "Hoàng Thị E",
+      "email": "hoangthie@gmail.com",
+      "phone": "0956789012",
+      "subject": "Khiếu nại về sản phẩm",
+      "message": "Tôi đã mua khóa học nhưng không thể truy cập. Xin hỗ trợ.",
+      "status": "replied",
+      "created_at": "2024-01-27 14:30:00"
+    }
+  ],
+  "settings": [
+    {
+      "key": "site_name",
+      "value": "ThuongLo - Nền tảng kinh doanh online",
+      "type": "text",
+      "description": "Tên website"
+    },
+    {
+      "key": "site_description",
+      "value": "Nền tảng cung cấp data nguồn hàng và khóa học kinh doanh online",
+      "type": "textarea",
+      "description": "Mô tả website"
+    },
+    {
+      "key": "contact_email",
+      "value": "contact@thuonglo.com",
+      "type": "email",
+      "description": "Email liên hệ"
+    },
+    {
+      "key": "contact_phone",
+      "value": "1900-1234",
+      "type": "text",
+      "description": "Số điện thoại liên hệ"
+    },
+    {
+      "key": "facebook_url",
+      "value": "https://facebook.com/thuonglo",
+      "type": "url",
+      "description": "Link Facebook"
+    },
+    {
+      "key": "commission_rate",
+      "value": "10",
+      "type": "number",
+      "description": "Tỷ lệ hoa hồng mặc định (%)"
+    }
+  ]
 }

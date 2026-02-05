@@ -1,371 +1,179 @@
-/**
- * Admin Sidebar - JavaScript
- * Handles sidebar navigation and responsive behavior
- */
-
-class AdminSidebar {
-    constructor() {
-        this.sidebar = document.querySelector('.admin-sidebar');
-        this.toggleButton = document.querySelector('.sidebar-toggle');
-        this.overlay = null;
-        this.isCollapsed = false;
-        this.isMobile = window.innerWidth <= 768;
+// Admin Sidebar JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('adminSidebar');
+    const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Toggle sidebar collapse/expand
+    if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            
+            // Debug: Log trạng thái sidebar
+            console.log('Sidebar collapsed:', sidebar.classList.contains('collapsed'));
+            
+            // Save state to localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('admin_sidebar_collapsed', isCollapsed);
+            
+            // Update header and breadcrumb positions
+            updateLayoutPositions();
+            
+            // Force logo update
+            updateLogoDisplay();
+        });
+    }
+    
+    // Update layout positions when sidebar changes
+    function updateLayoutPositions() {
+        const header = document.querySelector('.admin-header');
+        const breadcrumb = document.querySelector('.admin-breadcrumb');
+        const isCollapsed = sidebar.classList.contains('collapsed');
         
-        this.init();
-    }
-
-    init() {
-        this.createOverlay();
-        this.setupEventListeners();
-        this.setupResponsive();
-        this.highlightActiveMenu();
-        this.setupMenuAnimations();
-    }
-
-    createOverlay() {
-        this.overlay = document.createElement('div');
-        this.overlay.className = 'sidebar-overlay';
-        document.body.appendChild(this.overlay);
-    }
-
-    setupEventListeners() {
-        // Toggle button click
-        if (this.toggleButton) {
-            this.toggleButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.toggle();
-            });
+        if (window.innerWidth > 768) {
+            const leftPosition = isCollapsed ? '70px' : '250px';
+            if (header) header.style.left = leftPosition;
+            if (breadcrumb) breadcrumb.style.marginLeft = leftPosition;
         }
-
-        // Overlay click (mobile)
-        this.overlay.addEventListener('click', () => {
-            if (this.isMobile) {
-                this.hide();
-            }
-        });
-
-        // Window resize
-        window.addEventListener('resize', () => {
-            this.handleResize();
-        });
-
-        // Menu item clicks
-        this.setupMenuClicks();
-
-        // Keyboard navigation
-        this.setupKeyboardNavigation();
     }
-
-    setupMenuClicks() {
-        const menuLinks = this.sidebar.querySelectorAll('.nav-menu a');
-        menuLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                // Remove active class from all links
-                menuLinks.forEach(l => l.classList.remove('active'));
+    
+    // Update logo display based on sidebar state
+    function updateLogoDisplay() {
+        const logoFull = document.querySelector('.logo-full');
+        const logoMini = document.querySelector('.logo-mini');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        
+        // Debug: Log trạng thái logo
+        console.log('Logo update - Collapsed:', isCollapsed);
+        console.log('Logo full element:', logoFull);
+        console.log('Logo mini element:', logoMini);
+        
+        // Force CSS classes to work properly
+        if (logoFull && logoMini) {
+            if (isCollapsed) {
+                logoFull.style.display = 'none';
+                logoFull.style.opacity = '0';
+                logoFull.style.visibility = 'hidden';
                 
-                // Add active class to clicked link
-                link.classList.add('active');
+                logoMini.style.display = 'block';
+                logoMini.style.opacity = '1';
+                logoMini.style.visibility = 'visible';
+            } else {
+                logoFull.style.display = 'block';
+                logoFull.style.opacity = '1';
+                logoFull.style.visibility = 'visible';
                 
-                // Store active menu in localStorage
-                localStorage.setItem('admin_active_menu', link.getAttribute('href'));
+                logoMini.style.display = 'none';
+                logoMini.style.opacity = '0';
+                logoMini.style.visibility = 'hidden';
+            }
+        }
+    }
+    
+    // Restore sidebar state from localStorage
+    const savedState = localStorage.getItem('admin_sidebar_collapsed');
+    if (savedState === 'true') {
+        sidebar.classList.add('collapsed');
+    }
+    
+    // Update positions and logo after restoring state
+    setTimeout(() => {
+        updateLayoutPositions();
+        updateLogoDisplay();
+    }, 100);
+    
+    // Handle active menu highlighting
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item's parent
+            this.closest('.nav-item').classList.add('active');
+        });
+    });
+    
+    // Mobile sidebar toggle
+    function handleMobileToggle() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('mobile-hidden');
+            
+            // Add overlay for mobile
+            if (!document.querySelector('.sidebar-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('mobile-open');
+                    this.remove();
+                });
+                document.body.appendChild(overlay);
+            }
+        } else {
+            sidebar.classList.remove('mobile-hidden', 'mobile-open');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+    }
+    
+    // Mobile sidebar toggle button
+    if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
                 
-                // Hide sidebar on mobile after click
-                if (this.isMobile) {
-                    setTimeout(() => {
-                        this.hide();
-                    }, 150);
+                if (sidebar.classList.contains('mobile-open')) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'sidebar-overlay';
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 999;
+                    `;
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.remove('mobile-open');
+                        this.remove();
+                    });
+                    document.body.appendChild(overlay);
                 }
-            });
-        });
-    }
-
-    setupKeyboardNavigation() {
-        document.addEventListener('keydown', (e) => {
-            // ESC key to close sidebar on mobile
-            if (e.key === 'Escape' && this.isMobile && !this.isCollapsed) {
-                this.hide();
-            }
-            
-            // Alt + M to toggle sidebar
-            if (e.altKey && e.key === 'm') {
-                e.preventDefault();
-                this.toggle();
             }
         });
     }
-
-    setupResponsive() {
-        this.handleResize();
-    }
-
-    handleResize() {
-        const wasMobile = this.isMobile;
-        this.isMobile = window.innerWidth <= 768;
-        
-        if (wasMobile !== this.isMobile) {
-            if (this.isMobile) {
-                // Switching to mobile
-                this.hide();
-                this.updateContentMargin(false);
-            } else {
-                // Switching to desktop
-                this.show();
-                this.updateContentMargin(true);
-            }
-        }
-    }
-
-    toggle() {
-        if (this.isCollapsed) {
-            this.show();
-        } else {
-            this.hide();
-        }
-    }
-
-    show() {
-        this.isCollapsed = false;
-        this.sidebar.classList.remove('collapsed');
-        
-        if (this.isMobile) {
-            this.sidebar.classList.add('show');
-            this.overlay.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        } else {
-            this.updateContentMargin(true);
-        }
-        
-        // Trigger animation for menu items
-        this.animateMenuItems();
-    }
-
-    hide() {
-        this.isCollapsed = true;
-        
-        if (this.isMobile) {
-            this.sidebar.classList.remove('show');
-            this.overlay.classList.remove('show');
-            document.body.style.overflow = '';
-        } else {
-            this.sidebar.classList.add('collapsed');
-            this.updateContentMargin(false);
-        }
-    }
-
-    updateContentMargin(show) {
-        const content = document.querySelector('.admin-content');
-        if (content && !this.isMobile) {
-            content.style.marginLeft = show ? '250px' : '0';
-        }
-    }
-
-    highlightActiveMenu() {
-        const currentPath = window.location.search;
-        const menuLinks = this.sidebar.querySelectorAll('.nav-menu a');
-        
-        // First, try to get from localStorage
-        const storedActiveMenu = localStorage.getItem('admin_active_menu');
-        
-        menuLinks.forEach(link => {
-            link.classList.remove('active');
-            
-            const linkPath = link.getAttribute('href');
-            
-            // Check if this link matches current path or stored active menu
-            if (linkPath === currentPath || linkPath === storedActiveMenu) {
-                link.classList.add('active');
-            }
-        });
-        
-        // If no active menu found, highlight dashboard by default
-        const activeMenu = this.sidebar.querySelector('.nav-menu a.active');
-        if (!activeMenu) {
-            const dashboardLink = this.sidebar.querySelector('.nav-menu a[href*="dashboard"]');
-            if (dashboardLink) {
-                dashboardLink.classList.add('active');
-            }
-        }
-    }
-
-    setupMenuAnimations() {
-        const menuItems = this.sidebar.querySelectorAll('.nav-menu li');
-        
-        // Reset animation
-        menuItems.forEach((item, index) => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateX(-20px)';
-        });
-        
-        // Animate items
-        setTimeout(() => {
-            this.animateMenuItems();
-        }, 100);
-    }
-
-    animateMenuItems() {
-        const menuItems = this.sidebar.querySelectorAll('.nav-menu li');
-        
-        menuItems.forEach((item, index) => {
+    
+    // Handle window resize
+    window.addEventListener('resize', handleMobileToggle);
+    handleMobileToggle(); // Initial check
+    
+    // Smooth scrolling for navigation
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Add loading state
+            this.style.opacity = '0.7';
             setTimeout(() => {
-                item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                item.style.opacity = '1';
-                item.style.transform = 'translateX(0)';
-            }, index * 50);
+                this.style.opacity = '1';
+            }, 200);
         });
-    }
-
-    // Method to add notification badges
-    addNotificationBadge(menuSelector, count) {
-        const menuItem = this.sidebar.querySelector(menuSelector);
-        if (menuItem) {
-            let badge = menuItem.querySelector('.nav-menu-badge');
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'nav-menu-badge';
-                menuItem.appendChild(badge);
-            }
-            
-            if (count > 0) {
-                badge.textContent = count > 99 ? '99+' : count;
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-    }
-
-    // Method to remove notification badge
-    removeNotificationBadge(menuSelector) {
-        const menuItem = this.sidebar.querySelector(menuSelector);
-        if (menuItem) {
-            const badge = menuItem.querySelector('.nav-menu-badge');
-            if (badge) {
-                badge.remove();
-            }
-        }
-    }
-
-    // Method to update user info
-    updateUserInfo(userData) {
-        const userAvatar = this.sidebar.querySelector('.sidebar-user-avatar');
-        const userName = this.sidebar.querySelector('.sidebar-user-info h4');
-        const userRole = this.sidebar.querySelector('.sidebar-user-info p');
-        
-        if (userAvatar && userData.name) {
-            userAvatar.textContent = userData.name.charAt(0).toUpperCase();
-        }
-        
-        if (userName && userData.name) {
-            userName.textContent = userData.name;
-        }
-        
-        if (userRole && userData.role) {
-            userRole.textContent = userData.role;
-        }
-    }
-
-    // Method to add custom menu item
-    addMenuItem(menuData) {
-        const navMenu = this.sidebar.querySelector('.nav-menu');
-        if (navMenu && menuData) {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <a href="${menuData.href}">
-                    <span class="nav-menu-icon">${menuData.icon || '📄'}</span>
-                    <span class="nav-menu-text">${menuData.text}</span>
-                </a>
-            `;
-            
-            if (menuData.position === 'top') {
-                navMenu.insertBefore(li, navMenu.firstChild);
-            } else {
-                navMenu.appendChild(li);
-            }
-            
-            // Re-setup click handlers
-            this.setupMenuClicks();
-        }
-    }
-
-    // Method to remove menu item
-    removeMenuItem(href) {
-        const menuItem = this.sidebar.querySelector(`.nav-menu a[href="${href}"]`);
-        if (menuItem && menuItem.parentElement) {
-            menuItem.parentElement.remove();
-        }
-    }
-
-    // Method to get current active menu
-    getActiveMenu() {
-        const activeMenu = this.sidebar.querySelector('.nav-menu a.active');
-        return activeMenu ? activeMenu.getAttribute('href') : null;
-    }
-
-    // Method to set active menu programmatically
-    setActiveMenu(href) {
-        const menuLinks = this.sidebar.querySelectorAll('.nav-menu a');
-        menuLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === href) {
-                link.classList.add('active');
+    });
+    
+    // Auto-collapse sidebar on mobile after navigation
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    sidebar.classList.remove('mobile-open');
+                    const overlay = document.querySelector('.sidebar-overlay');
+                    if (overlay) {
+                        overlay.remove();
+                    }
+                }, 300);
             }
         });
-        
-        localStorage.setItem('admin_active_menu', href);
-    }
-}
-
-// Initialize sidebar when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.adminSidebar = new AdminSidebar();
+    });
 });
-
-// Utility functions for sidebar management
-window.SidebarUtils = {
-    // Show notification on menu item
-    showMenuNotification: (menuSelector, count) => {
-        if (window.adminSidebar) {
-            window.adminSidebar.addNotificationBadge(menuSelector, count);
-        }
-    },
-    
-    // Hide notification on menu item
-    hideMenuNotification: (menuSelector) => {
-        if (window.adminSidebar) {
-            window.adminSidebar.removeNotificationBadge(menuSelector);
-        }
-    },
-    
-    // Update user info in sidebar
-    updateUser: (userData) => {
-        if (window.adminSidebar) {
-            window.adminSidebar.updateUserInfo(userData);
-        }
-    },
-    
-    // Add custom menu item
-    addMenu: (menuData) => {
-        if (window.adminSidebar) {
-            window.adminSidebar.addMenuItem(menuData);
-        }
-    },
-    
-    // Remove menu item
-    removeMenu: (href) => {
-        if (window.adminSidebar) {
-            window.adminSidebar.removeMenuItem(href);
-        }
-    },
-    
-    // Get current active menu
-    getActiveMenu: () => {
-        return window.adminSidebar ? window.adminSidebar.getActiveMenu() : null;
-    },
-    
-    // Set active menu
-    setActiveMenu: (href) => {
-        if (window.adminSidebar) {
-            window.adminSidebar.setActiveMenu(href);
-        }
-    }
-};
