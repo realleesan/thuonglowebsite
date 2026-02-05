@@ -31,11 +31,11 @@
 
 ## Phase 4: Module Quản Lý Danh Mục (Categories)
 
-* [ ] categories/index.php - Danh sách danh mục
-* [ ] categories/add.php - Thêm danh mục
-* [ ] categories/edit.php - Sửa danh mục
-* [ ] categories/view.php - Xem chi tiết danh mục
-* [ ] categories/delete.php - Xóa danh mục
+* [x] categories/index.php - Danh sách danh mục
+* [x] categories/add.php - Thêm danh mục
+* [x] categories/edit.php - Sửa danh mục
+* [x] categories/view.php - Xem chi tiết danh mục
+* [x] categories/delete.php - Xóa danh mục
 
 ## Phase 5: Module Quản Lý Tin Tức (News)
 

@@ -1,0 +1,705 @@
+/* Categories Page Styles */
+.categories-page {
+    padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.categories-view-page {
+    max-width: 100%;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* Page Header Fixes */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-width: 100%;
+}
+
+.page-header-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.page-header-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Category specific styles */
+.category-info h4.category-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 4px 0;
+}
+
+.slug-text {
+    background: #f3f4f6;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.category-description {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.product-count-badge {
+    background: #e5e7eb;
+    color: #374151;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Category Add/Edit Form Styles */
+.categories-add-page .form-section,
+.categories-edit-page .form-section {
+    margin-bottom: 32px;
+}
+
+.checkbox-group {
+    margin: 16px 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+}
+
+.checkmark {
+    margin-left: 4px;
+}
+
+/* Category View Page Styles */
+.categories-view-page .details-container {
+    max-width: 100%;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.categories-view-page .details-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+    max-width: 100%;
+    width: 100%;
+}
+
+.category-image-display {
+    text-align: center;
+    padding: 20px;
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+}
+
+.category-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.no-image {
+    color: #9ca3af;
+    text-align: center;
+}
+
+.no-image i {
+    font-size: 48px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.info-group {
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item label {
+    font-weight: 500;
+    color: #374151;
+    margin: 0;
+}
+
+.info-value {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Products Grid in Category View */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.product-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.product-card .product-image {
+    height: 160px;
+    overflow: hidden;
+    background: #f9fafb;
+}
+
+.product-card .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-card .product-info {
+    padding: 16px;
+}
+
+.product-card .product-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.product-card .product-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #356df1;
+    margin: 0 0 8px 0;
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.stock-info {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.product-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.no-products {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.no-products i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+    color: #d1d5db;
+}
+
+.view-all-products {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Category Delete Page Styles */
+.categories-delete-page .delete-warning-container {
+    margin-bottom: 32px;
+}
+
+.delete-warning {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+}
+
+.warning-icon {
+    flex-shrink: 0;
+}
+
+.warning-icon i {
+    font-size: 24px;
+    color: #ef4444;
+}
+
+.warning-content h3 {
+    color: #dc2626;
+    margin: 0 0 12px 0;
+    font-size: 18px;
+}
+
+.warning-content p {
+    color: #374151;
+    margin: 0 0 16px 0;
+}
+
+.products-warning {
+    background: #fffbeb;
+    border: 1px solid #fed7aa;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.products-warning h4 {
+    color: #d97706;
+    margin: 0 0 12px 0;
+    font-size: 16px;
+}
+
+.products-list {
+    margin: 12px 0;
+    padding-left: 20px;
+}
+
+.products-list li {
+    margin-bottom: 4px;
+}
+
+.products-list a {
+    color: #356df1;
+    text-decoration: none;
+}
+
+.products-list a:hover {
+    text-decoration: underline;
+}
+
+.products-actions {
+    margin-top: 16px;
+}
+
+.products-actions p {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.products-actions ul {
+    margin: 8px 0 16px 20px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.safe-delete {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 16px 0;
+}
+
+.safe-delete p {
+    margin: 0;
+    color: #166534;
+}
+
+.text-success {
+    color: #10b981 !important;
+}
+
+.category-info-container {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.category-info-container h3 {
+    margin: 0 0 20px 0;
+    color: #374151;
+    font-size: 18px;
+}
+
+.category-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.description-preview {
+    grid-column: 1 / -1;
+}
+
+.description-preview label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.description-content {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.delete-form-container {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.delete-form h3 {
+    color: #dc2626;
+    margin: 0 0 20px 0;
+    font-size: 18px;
+}
+
+.confirmation-input {
+    margin-bottom: 24px;
+}
+
+.confirmation-input label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.confirmation-input input {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.confirmation-input input:focus {
+    outline: none;
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-note {
+    margin-top: 12px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.form-note i {
+    margin-right: 6px;
+    color: #3b82f6;
+}
+
+/* Move Products Modal */
+.products-preview {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.products-preview h4 {
+    margin: 0 0 12px 0;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.products-preview ul {
+    margin: 0;
+    padding-left: 20px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.products-preview li {
+    margin-bottom: 4px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .page-header-right {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 1024px) {
+    .categories-view-page .details-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .categories-view-page .details-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .category-info-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        justify-content: center;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .detail-row label {
+        min-width: auto;
+    }
+    
+    .detail-value {
+        text-align: left;
+        max-width: 100%;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .page-header-right {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .details-section {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card .product-actions {
+        flex-direction: column;
+    }
+    
+    .confirmation-input input {
+        max-width: 100%;
+    }
+}
+/* Details Section Styles */
+.details-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.details-content {
+    max-width: 100%;
+    width: 100%;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 100%;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row label {
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+    min-width: 80px;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.detail-value {
+    color: #6b7280;
+    font-size: 14px;
+    flex: 1;
+    text-align: right;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: calc(100% - 90px);
+}
+
+.section-title {
+    color: #374151;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.description-content {
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+/* Prevent horizontal overflow */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.details-container,
+.form-container,
+.table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Ensure buttons don't cause overflow */
+.page-header-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    max-width: 100%;
+}
+
+.page-header-right .btn {
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 6px 12px;
+}
+
+/* Make sure long text doesn't break layout */
+.category-name,
+.product-name,
+.description-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+}
+
+/* Responsive table */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.admin-table {
+    min-width: 800px;
+    width: 100%;
+}
+
+/* Force container widths */
+.categories-page,
+.categories-view-page,
+.details-container,
+.details-grid,
+.details-section {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
