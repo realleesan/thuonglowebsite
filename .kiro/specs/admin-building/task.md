@@ -29,29 +29,29 @@
 * [X] products/view.php - Xem chi tiết sản phẩm
 * [X] products/delete.php - Xóa sản phẩm
 
-## Phase 4: Module Quản Lý Danh Mục (Categories)
+## Phase 4: Module Quản Lý Danh Mục (Categories) - Done ✅
 
-* [x] categories/index.php - Danh sách danh mục
-* [x] categories/add.php - Thêm danh mục
-* [x] categories/edit.php - Sửa danh mục
-* [x] categories/view.php - Xem chi tiết danh mục
-* [x] categories/delete.php - Xóa danh mục
+* [X] categories/index.php - Danh sách danh mục
+* [X] categories/add.php - Thêm danh mục
+* [X] categories/edit.php - Sửa danh mục
+* [X] categories/view.php - Xem chi tiết danh mục
+* [X] categories/delete.php - Xóa danh mục
 
-## Phase 5: Module Quản Lý Tin Tức (News)
+## Phase 5: Module Quản Lý Tin Tức (News) - Done ✅
 
-* [x] news/index.php - Danh sách tin tức
-* [x] news/add.php - Thêm tin tức
-* [x] news/edit.php - Sửa tin tức
-* [x] news/view.php - Xem chi tiết tin tức
-* [x] news/delete.php - Xóa tin tức
+* [X] news/index.php - Danh sách tin tức
+* [X] news/add.php - Thêm tin tức
+* [X] news/edit.php - Sửa tin tức
+* [X] news/view.php - Xem chi tiết tin tức
+* [X] news/delete.php - Xóa tin tức
 
-## Phase 6: Module Quản Lý Sự Kiện (Events)
+## Phase 6: Module Quản Lý Sự Kiện (Events) - Done ✅
 
-* [ ] events/index.php - Danh sách sự kiện
-* [ ] events/add.php - Thêm sự kiện
-* [ ] events/edit.php - Sửa sự kiện
-* [ ] events/view.php - Xem chi tiết sự kiện
-* [ ] events/delete.php - Xóa sự kiện
+* [X] events/index.php - Danh sách sự kiện
+* [X] events/add.php - Thêm sự kiện
+* [X] events/edit.php - Sửa sự kiện
+* [X] events/view.php - Xem chi tiết sự kiện
+* [X] events/delete.php - Xóa sự kiện
 
 ## Phase 7: Module Quản Lý Đơn Hàng (Orders)
 
