@@ -53,12 +53,12 @@
 * [X] events/view.php - Xem chi tiết sự kiện
 * [X] events/delete.php - Xóa sự kiện
 
-## Phase 7: Module Quản Lý Đơn Hàng (Orders)
+## Phase 7: Module Quản Lý Đơn Hàng (Orders) - Done ✅
 
-* [ ] orders/index.php - Danh sách đơn hàng
-* [ ] orders/view.php - Xem chi tiết đơn hàng
-* [ ] orders/edit.php - Cập nhật trạng thái đơn hàng
-* [ ] orders/delete.php - Xóa đơn hàng
+* [X] orders/index.php - Danh sách đơn hàng
+* [X] orders/view.php - Xem chi tiết đơn hàng
+* [X] orders/edit.php - Cập nhật trạng thái đơn hàng
+* [X] orders/delete.php - Xóa đơn hàng
 
 ## Phase 8: Module Quản Lý Người Dùng (Users)
 
