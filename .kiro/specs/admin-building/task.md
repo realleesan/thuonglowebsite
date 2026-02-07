@@ -70,18 +70,18 @@
 
 ## Phase 9: Module Quản Lý Đại Lý (Affiliates) - Done ✅
 
-* [x] affiliates/index.php - Danh sách đại lý
-* [x] affiliates/add.php - Thêm đại lý
-* [x] affiliates/edit.php - Sửa đại lý
-* [x] affiliates/view.php - Xem chi tiết đại lý
-* [x] affiliates/delete.php - Xóa đại lý
+* [X] affiliates/index.php - Danh sách đại lý
+* [X] affiliates/add.php - Thêm đại lý
+* [X] affiliates/edit.php - Sửa đại lý
+* [X] affiliates/view.php - Xem chi tiết đại lý
+* [X] affiliates/delete.php - Xóa đại lý
 
-## Phase 10: Module Quản Lý Liên Hệ (Contact)
+## Phase 10: Module Quản Lý Liên Hệ (Contact) - Done ✅
 
-* [ ] contact/index.php - Danh sách liên hệ
-* [ ] contact/view.php - Xem chi tiết liên hệ
-* [ ] contact/edit.php - Cập nhật trạng thái
-* [ ] contact/delete.php - Xóa liên hệ
+* [X] contact/index.php - Danh sách liên hệ
+* [X] contact/view.php - Xem chi tiết liên hệ
+* [X] contact/edit.php - Cập nhật trạng thái
+* [X] contact/delete.php - Xóa liên hệ
 
 ## Phase 11: Module Báo Cáo Doanh Thu (Revenue)
 

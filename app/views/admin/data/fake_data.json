@@ -277,7 +277,7 @@
       "email": "phamvand@gmail.com",
       "phone": "0945678901",
       "subject": "Hỏi về gói data nguồn hàng",
-      "message": "Tôi muốn tìm hiểu thêm về gói data nguồn hàng premium. Có thể tư vấn chi tiết không?",
+      "message": "Tôi muốn tìm hiểu thêm về gói data nguồn hàng premium. Có thể tư vấn chi tiết không? Tôi đang kinh doanh online và cần nguồn hàng ổn định.",
       "status": "new",
       "created_at": "2024-01-28 10:15:00"
     },
@@ -290,6 +290,66 @@
       "message": "Tôi đã mua khóa học nhưng không thể truy cập. Xin hỗ trợ.",
       "status": "replied",
       "created_at": "2024-01-27 14:30:00"
+    },
+    {
+      "id": 3,
+      "name": "Nguyễn Minh F",
+      "email": "nguyenminhf@gmail.com",
+      "phone": "0967890123",
+      "subject": "Tư vấn về khóa học dropshipping",
+      "message": "Chào admin, tôi là người mới bắt đầu kinh doanh online. Muốn hỏi khóa học dropshipping có phù hợp với người mới không? Thời gian học bao lâu?",
+      "status": "read",
+      "created_at": "2024-01-26 09:45:00"
+    },
+    {
+      "id": 4,
+      "name": "Trần Thị G",
+      "email": "tranthig@gmail.com",
+      "phone": "0978901234",
+      "subject": "Hợp tác kinh doanh",
+      "message": "Công ty chúng tôi muốn hợp tác phân phối sản phẩm của ThuongLo. Xin liên hệ để trao đổi thêm.",
+      "status": "new",
+      "created_at": "2024-01-25 16:20:00"
+    },
+    {
+      "id": 5,
+      "name": "Lê Văn H",
+      "email": "levanh@gmail.com",
+      "phone": "0989012345",
+      "subject": "Báo lỗi website",
+      "message": "Tôi gặp lỗi khi thanh toán đơn hàng. Trang web báo lỗi 500. Xin kiểm tra giúp.",
+      "status": "replied",
+      "created_at": "2024-01-24 11:30:00"
+    },
+    {
+      "id": 6,
+      "name": "Võ Thị I",
+      "email": "vothii@gmail.com",
+      "phone": "0990123456",
+      "subject": "Yêu cầu hoàn tiền",
+      "message": "Tôi đã thanh toán nhầm 2 lần cho cùng 1 đơn hàng. Xin hoàn lại tiền thừa.",
+      "status": "read",
+      "created_at": "2024-01-23 08:15:00"
+    },
+    {
+      "id": 7,
+      "name": "Đặng Văn J",
+      "email": "dangvanj@gmail.com",
+      "phone": "0901234567",
+      "subject": "Đăng ký làm đại lý",
+      "message": "Tôi muốn đăng ký làm đại lý bán hàng cho ThuongLo. Xin gửi thông tin về chính sách hoa hồng.",
+      "status": "new",
+      "created_at": "2024-01-22 15:45:00"
+    },
+    {
+      "id": 8,
+      "name": "Bùi Thị K",
+      "email": "buithik@gmail.com",
+      "phone": "0912345678",
+      "subject": "Góp ý cải thiện dịch vụ",
+      "message": "Tôi nghĩ website nên có thêm tính năng chat trực tuyến để hỗ trợ khách hàng nhanh hơn.",
+      "status": "read",
+      "created_at": "2024-01-21 13:20:00"
     }
   ],
   "settings": [

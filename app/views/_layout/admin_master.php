@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="assets/css/admin_orders.css">
     <link rel="stylesheet" href="assets/css/admin_users.css">
     <link rel="stylesheet" href="assets/css/admin_affiliates.css">
+    <link rel="stylesheet" href="assets/css/admin_contact.css">
     
     <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -68,5 +69,6 @@
     <script src="assets/js/admin_orders.js"></script>
     <script src="assets/js/admin_users.js"></script>
     <script src="assets/js/admin_affiliates.js"></script>
+    <script src="assets/js/admin_contact.js"></script>
 </body>
 </html>
