@@ -1,0 +1,793 @@
+{
+  "affiliate_info": {
+    "id": "AFF123",
+    "name": "Nguyễn Văn Đại Lý",
+    "email": "affiliate@thuonglo.com",
+    "phone": "0987654321",
+    "avatar": "/assets/images/avatars/affiliate-avatar.jpg",
+    "joined_date": "2023-06-15",
+    "status": "active",
+    "tier": 2
+  },
+  "dashboard": {
+    "stats": {
+      "total_revenue": 125000000,
+      "weekly_revenue": 18500000,
+      "monthly_revenue": 45000000,
+      "total_clicks": 15420,
+      "pending_commission": 8500000,
+      "paid_commission": 36500000,
+      "conversion_rate": 3.2,
+      "total_customers": 156,
+      "active_campaigns": 3
+    },
+    "affiliate_info": {
+      "affiliate_id": "AFF123",
+      "affiliate_link": "https://thuonglo.com/ref/AFF123",
+      "referral_code": "AFF123"
+    },
+    "revenue_chart": {
+      "labels": ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"],
+      "data": [15000000, 18000000, 22000000, 19000000]
+    },
+    "clicks_chart": {
+      "labels": ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"],
+      "data": [2100, 2400, 2800, 2300]
+    },
+    "conversion_chart": {
+      "labels": ["Hoàn thành", "Đang xử lý", "Đã hủy"],
+      "data": [65, 25, 10]
+    },
+    "recent_customers": [
+      {
+        "id": 1,
+        "name": "Nguyễn Văn A",
+        "email": "nguyenvana@example.com",
+        "registered_date": "2024-01-15",
+        "total_orders": 3,
+        "total_spent": 5400000,
+        "commission_earned": 540000
+      },
+      {
+        "id": 2,
+        "name": "Trần Thị B",
+        "email": "tranthib@example.com",
+        "registered_date": "2024-01-18",
+        "total_orders": 2,
+        "total_spent": 3200000,
+        "commission_earned": 320000
+      },
+      {
+        "id": 3,
+        "name": "Lê Văn C",
+        "email": "levanc@example.com",
+        "registered_date": "2024-01-20",
+        "total_orders": 5,
+        "total_spent": 8900000,
+        "commission_earned": 890000
+      }
+    ],
+    "commission_status": {
+      "pending": 8500000,
+      "paid": 36500000,
+      "pending_count": 12,
+      "paid_count": 156
+    },
+    "renewal_reminders": [
+      {
+        "customer_name": "Nguyễn Văn A",
+        "product": "Gói Data Premium",
+        "expiry_date": "2024-02-15",
+        "days_left": 10
+      },
+      {
+        "customer_name": "Trần Thị B",
+        "product": "Khóa học nâng cao",
+        "expiry_date": "2024-02-20",
+        "days_left": 15
+      }
+    ]
+  },
+  "commissions": {
+    "overview": {
+      "total_earned": 45000000,
+      "pending": 8500000,
+      "paid": 36500000,
+      "this_month": 12500000,
+      "from_subscription": 32000000,
+      "from_logistics": 13000000
+    },
+    "history": [
+      {
+        "id": 1,
+        "date": "2024-01-20",
+        "order_id": "ORD-001",
+        "customer_name": "Nguyễn Văn A",
+        "product_type": "data_subscription",
+        "description": "Gia hạn gói Pro tháng 1",
+        "order_amount": 1800000,
+        "commission_rate": 10,
+        "commission_amount": 180000,
+        "status": "paid",
+        "paid_date": "2024-01-25"
+      },
+      {
+        "id": 2,
+        "date": "2024-01-22",
+        "order_id": "ORD-002",
+        "customer_name": "Trần Thị B",
+        "product_type": "logistics_service",
+        "description": "Đơn hàng #DH123 - Vận chuyển",
+        "order_amount": 1200000,
+        "commission_rate": 10,
+        "commission_amount": 120000,
+        "status": "paid",
+        "paid_date": "2024-01-27"
+      },
+      {
+        "id": 3,
+        "date": "2024-01-25",
+        "order_id": "ORD-003",
+        "customer_name": "Lê Văn C",
+        "product_type": "data_subscription",
+        "description": "Gia hạn gói Premium tháng 1",
+        "order_amount": 2500000,
+        "commission_rate": 10,
+        "commission_amount": 250000,
+        "status": "pending",
+        "paid_date": null
+      },
+      {
+        "id": 4,
+        "date": "2024-01-28",
+        "order_id": "ORD-004",
+        "customer_name": "Phạm Thị D",
+        "product_type": "logistics_service",
+        "description": "Đơn hàng #DH456 - Vận chuyển",
+        "order_amount": 3200000,
+        "commission_rate": 10,
+        "commission_amount": 320000,
+        "status": "pending",
+        "paid_date": null
+      },
+      {
+        "id": 5,
+        "date": "2024-01-15",
+        "order_id": "ORD-005",
+        "customer_name": "Hoàng Văn E",
+        "product_type": "data_subscription",
+        "description": "Đăng ký gói Basic tháng 1",
+        "order_amount": 900000,
+        "commission_rate": 10,
+        "commission_amount": 90000,
+        "status": "paid",
+        "paid_date": "2024-01-20"
+      },
+      {
+        "id": 6,
+        "date": "2024-01-18",
+        "order_id": "ORD-006",
+        "customer_name": "Vũ Thị F",
+        "product_type": "data_subscription",
+        "description": "Gia hạn gói Pro tháng 1",
+        "order_amount": 1800000,
+        "commission_rate": 10,
+        "commission_amount": 180000,
+        "status": "paid",
+        "paid_date": "2024-01-23"
+      },
+      {
+        "id": 7,
+        "date": "2024-01-30",
+        "order_id": "ORD-007",
+        "customer_name": "Đỗ Văn G",
+        "product_type": "logistics_service",
+        "description": "Đơn hàng #DH789 - Vận chuyển",
+        "order_amount": 1500000,
+        "commission_rate": 10,
+        "commission_amount": 150000,
+        "status": "pending",
+        "paid_date": null
+      },
+      {
+        "id": 8,
+        "date": "2024-02-01",
+        "order_id": "ORD-008",
+        "customer_name": "Nguyễn Thị H",
+        "product_type": "data_subscription",
+        "description": "Gia hạn gói Premium tháng 2",
+        "order_amount": 2500000,
+        "commission_rate": 10,
+        "commission_amount": 250000,
+        "status": "cancelled",
+        "paid_date": null
+      }
+    ],
+    "policy": {
+      "description": "Chính sách hoa hồng trọn đời (Lifetime Commission)",
+      "lifetime_info": "Bạn sẽ nhận hoa hồng từ tất cả các giao dịch của khách hàng do bạn giới thiệu, bao gồm cả các lần gia hạn và mua thêm dịch vụ trong tương lai.",
+      "commission_types": [
+        {
+          "type": "data_subscription",
+          "name": "Gói Data (Subscription)",
+          "description": "Thu nhập thụ động, lặp lại hàng tháng từ các gói data subscription",
+          "color": "purple"
+        },
+        {
+          "type": "logistics_service",
+          "name": "Vận chuyển (Logistics)",
+          "description": "Thu nhập phát sinh theo từng đơn hàng vận chuyển",
+          "color": "orange"
+        }
+      ],
+      "tiers": [
+        {
+          "level": 1,
+          "name": "Đồng",
+          "min_revenue": 0,
+          "max_revenue": 50000000,
+          "rate": 8,
+          "color": "#CD7F32"
+        },
+        {
+          "level": 2,
+          "name": "Bạc",
+          "min_revenue": 50000001,
+          "max_revenue": 100000000,
+          "rate": 10,
+          "color": "#C0C0C0"
+        },
+        {
+          "level": 3,
+          "name": "Vàng",
+          "min_revenue": 100000001,
+          "max_revenue": 200000000,
+          "rate": 12,
+          "color": "#FFD700"
+        },
+        {
+          "level": 4,
+          "name": "Kim Cương",
+          "min_revenue": 200000001,
+          "max_revenue": null,
+          "rate": 15,
+          "color": "#B9F2FF"
+        }
+      ]
+    }
+  },
+  "customers": [
+    {
+      "id": 1,
+      "name": "Nguyễn Văn A",
+      "email": "nguyenvana@example.com",
+      "phone": "0901234567",
+      "registered_date": "2024-01-15",
+      "total_orders": 3,
+      "total_spent": 5400000,
+      "commission_earned": 540000,
+      "status": "active",
+      "orders": [
+        {
+          "id": "ORD-001",
+          "date": "2024-01-20",
+          "amount": 1800000,
+          "status": "completed",
+          "products": ["Gói Data Premium"]
+        },
+        {
+          "id": "ORD-005",
+          "date": "2024-01-25",
+          "amount": 2200000,
+          "status": "completed",
+          "products": ["Khóa học nâng cao"]
+        },
+        {
+          "id": "ORD-009",
+          "date": "2024-01-30",
+          "amount": 1400000,
+          "status": "processing",
+          "products": ["Tool Auto"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Trần Thị B",
+      "email": "tranthib@example.com",
+      "phone": "0902345678",
+      "registered_date": "2024-01-18",
+      "total_orders": 2,
+      "total_spent": 3200000,
+      "commission_earned": 320000,
+      "status": "active",
+      "orders": [
+        {
+          "id": "ORD-002",
+          "date": "2024-01-22",
+          "amount": 1200000,
+          "status": "completed",
+          "products": ["Khóa học cơ bản"]
+        },
+        {
+          "id": "ORD-006",
+          "date": "2024-01-28",
+          "amount": 2000000,
+          "status": "completed",
+          "products": ["Gói VIP"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Lê Văn C",
+      "email": "levanc@example.com",
+      "phone": "0903456789",
+      "registered_date": "2024-01-20",
+      "total_orders": 5,
+      "total_spent": 8900000,
+      "commission_earned": 890000,
+      "status": "active",
+      "orders": [
+        {
+          "id": "ORD-003",
+          "date": "2024-01-25",
+          "amount": 2500000,
+          "status": "completed",
+          "products": ["Data Premium", "Tool Auto"]
+        },
+        {
+          "id": "ORD-007",
+          "date": "2024-01-27",
+          "amount": 1800000,
+          "status": "completed",
+          "products": ["Khóa học nâng cao"]
+        },
+        {
+          "id": "ORD-010",
+          "date": "2024-02-01",
+          "amount": 4600000,
+          "status": "completed",
+          "products": ["Gói VIP Premium"]
+        }
+      ]
+    }
+  ],
+  "finance": {
+    "wallet": {
+      "balance": 2500000,
+      "frozen": 500000,
+      "total_withdrawn": 24000000,
+      "total_earned": 45000000
+    },
+    "bank_accounts": [
+      {
+        "id": 1,
+        "bank_name": "Vietcombank",
+        "bank_code": "VCB",
+        "account_number": "1234567890",
+        "account_holder": "NGUYEN VAN DAI LY",
+        "branch": "Chi nhánh TP.HCM",
+        "is_default": true
+      },
+      {
+        "id": 2,
+        "bank_name": "Techcombank",
+        "bank_code": "TCB",
+        "account_number": "9876543210",
+        "account_holder": "NGUYEN VAN DAI LY",
+        "branch": "Chi nhánh Quận 1",
+        "is_default": false
+      }
+    ],
+    "transactions": [
+      {
+        "id": 1,
+        "date": "2024-02-07 14:30:00",
+        "type": "commission",
+        "amount": 180000,
+        "balance_after": 2500000,
+        "status": "completed",
+        "description": "Nhận hoa hồng 10% đơn hàng logistics #DH123",
+        "order_id": "ORD-001",
+        "reference": "COM-20240207-001"
+      },
+      {
+        "id": 2,
+        "date": "2024-02-06 10:15:00",
+        "type": "withdrawal",
+        "amount": -5000000,
+        "balance_after": 2320000,
+        "status": "completed",
+        "description": "Rút tiền về Vietcombank ****7890",
+        "withdrawal_id": "WD-001",
+        "reference": "WD-20240206-001"
+      },
+      {
+        "id": 3,
+        "date": "2024-02-05 16:45:00",
+        "type": "commission",
+        "amount": 250000,
+        "balance_after": 7320000,
+        "status": "completed",
+        "description": "Nhận hoa hồng 10% đơn hàng data subscription #SUB456",
+        "order_id": "ORD-003",
+        "reference": "COM-20240205-003"
+      },
+      {
+        "id": 4,
+        "date": "2024-02-04 09:20:00",
+        "type": "commission",
+        "amount": 120000,
+        "balance_after": 7070000,
+        "status": "completed",
+        "description": "Nhận hoa hồng 10% đơn hàng logistics #DH789",
+        "order_id": "ORD-002",
+        "reference": "COM-20240204-002"
+      },
+      {
+        "id": 5,
+        "date": "2024-02-03 11:30:00",
+        "type": "withdrawal",
+        "amount": -3000000,
+        "balance_after": 6950000,
+        "status": "pending",
+        "description": "Rút tiền về Techcombank ****3210",
+        "withdrawal_id": "WD-002",
+        "reference": "WD-20240203-002"
+      },
+      {
+        "id": 6,
+        "date": "2024-02-02 15:10:00",
+        "type": "commission",
+        "amount": 320000,
+        "balance_after": 9950000,
+        "status": "completed",
+        "description": "Nhận hoa hồng 10% đơn hàng logistics #DH456",
+        "order_id": "ORD-004",
+        "reference": "COM-20240202-004"
+      },
+      {
+        "id": 7,
+        "date": "2024-02-01 13:25:00",
+        "type": "commission",
+        "amount": 90000,
+        "balance_after": 9630000,
+        "status": "completed",
+        "description": "Nhận hoa hồng 10% đơn hàng data subscription #SUB123",
+        "order_id": "ORD-005",
+        "reference": "COM-20240201-005"
+      },
+      {
+        "id": 8,
+        "date": "2024-01-31 10:40:00",
+        "type": "withdrawal",
+        "amount": -2000000,
+        "balance_after": 9540000,
+        "status": "completed",
+        "description": "Rút tiền về Vietcombank ****7890",
+        "withdrawal_id": "WD-003",
+        "reference": "WD-20240131-003"
+      },
+      {
+        "id": 9,
+        "date": "2024-01-30 14:55:00",
+        "type": "commission",
+        "amount": 150000,
+        "balance_after": 11540000,
+        "status": "completed",
+        "description": "Nhận hoa hồng 10% đơn hàng logistics #DH999",
+        "order_id": "ORD-007",
+        "reference": "COM-20240130-007"
+      },
+      {
+        "id": 10,
+        "date": "2024-01-29 09:15:00",
+        "type": "commission",
+        "amount": 180000,
+        "balance_after": 11390000,
+        "status": "completed",
+        "description": "Nhận hoa hồng 10% đơn hàng data subscription #SUB789",
+        "order_id": "ORD-006",
+        "reference": "COM-20240129-006"
+      }
+    ],
+    "withdrawals": [
+      {
+        "id": "WD-001",
+        "withdrawal_code": "WD-20240206-001",
+        "date": "2024-02-06 10:15:00",
+        "amount": 5000000,
+        "bank_name": "Vietcombank",
+        "bank_code": "VCB",
+        "account_number": "1234567890",
+        "account_holder": "NGUYEN VAN DAI LY",
+        "status": "completed",
+        "requested_date": "2024-02-05 16:30:00",
+        "processed_date": "2024-02-06 10:15:00",
+        "note": "Rút tiền định kỳ",
+        "admin_note": "Đã chuyển khoản thành công"
+      },
+      {
+        "id": "WD-002",
+        "withdrawal_code": "WD-20240203-002",
+        "date": "2024-02-03 11:30:00",
+        "amount": 3000000,
+        "bank_name": "Techcombank",
+        "bank_code": "TCB",
+        "account_number": "9876543210",
+        "account_holder": "NGUYEN VAN DAI LY",
+        "status": "pending",
+        "requested_date": "2024-02-03 11:30:00",
+        "processed_date": null,
+        "note": "Rút tiền khẩn cấp",
+        "admin_note": null
+      },
+      {
+        "id": "WD-003",
+        "withdrawal_code": "WD-20240131-003",
+        "date": "2024-01-31 10:40:00",
+        "amount": 2000000,
+        "bank_name": "Vietcombank",
+        "bank_code": "VCB",
+        "account_number": "1234567890",
+        "account_holder": "NGUYEN VAN DAI LY",
+        "status": "completed",
+        "requested_date": "2024-01-30 14:20:00",
+        "processed_date": "2024-01-31 10:40:00",
+        "note": "Rút tiền cuối tháng",
+        "admin_note": "Đã chuyển khoản thành công"
+      }
+    ],
+    "withdrawal_settings": {
+      "min_amount": 500000,
+      "max_amount": 50000000,
+      "processing_time": "1-3 ngày làm việc",
+      "fee": 0,
+      "fee_percentage": 0,
+      "daily_limit": 10000000,
+      "monthly_limit": 50000000,
+      "rules": [
+        "Số tiền rút tối thiểu: 500,000 VNĐ",
+        "Số tiền rút tối đa mỗi lần: 50,000,000 VNĐ",
+        "Thời gian xử lý: 1-3 ngày làm việc",
+        "Không tính phí rút tiền",
+        "Chỉ rút về tài khoản đã đăng ký",
+        "Số dư khả dụng phải đủ để thực hiện giao dịch"
+      ]
+    }
+  },
+  "marketing": {
+    "affiliate_link": "https://thuonglo.com/ref/AFF123",
+    "affiliate_id": "AFF123",
+    "qr_code_url": "/assets/images/qr/AFF123.png",
+    "campaigns": [
+      {
+        "id": 1,
+        "name": "Tết 2024",
+        "start_date": "2024-01-01",
+        "end_date": "2024-02-15",
+        "clicks": 5420,
+        "conversions": 156,
+        "revenue": 28000000,
+        "commission": 2800000,
+        "status": "active",
+        "conversion_rate": 2.88
+      },
+      {
+        "id": 2,
+        "name": "Back to School",
+        "start_date": "2024-02-01",
+        "end_date": "2024-03-31",
+        "clicks": 3200,
+        "conversions": 89,
+        "revenue": 15000000,
+        "commission": 1500000,
+        "status": "active",
+        "conversion_rate": 2.78
+      },
+      {
+        "id": 3,
+        "name": "Flash Sale Cuối Tuần",
+        "start_date": "2024-01-15",
+        "end_date": "2024-01-31",
+        "clicks": 6800,
+        "conversions": 245,
+        "revenue": 42000000,
+        "commission": 4200000,
+        "status": "ended",
+        "conversion_rate": 3.60
+      }
+    ],
+    "banners": [
+      {
+        "id": 1,
+        "name": "Banner 728x90",
+        "size": "728x90",
+        "url": "/assets/images/banners/banner-728x90.jpg",
+        "type": "leaderboard"
+      },
+      {
+        "id": 2,
+        "name": "Banner 300x250",
+        "size": "300x250",
+        "url": "/assets/images/banners/banner-300x250.jpg",
+        "type": "medium-rectangle"
+      },
+      {
+        "id": 3,
+        "name": "Banner 160x600",
+        "size": "160x600",
+        "url": "/assets/images/banners/banner-160x600.jpg",
+        "type": "skyscraper"
+      },
+      {
+        "id": 4,
+        "name": "Banner 300x600",
+        "size": "300x600",
+        "url": "/assets/images/banners/banner-300x600.jpg",
+        "type": "half-page"
+      }
+    ],
+    "social_share": {
+      "facebook": "https://facebook.com/sharer.php?u=https://thuonglo.com/ref/AFF123",
+      "twitter": "https://twitter.com/intent/tweet?url=https://thuonglo.com/ref/AFF123",
+      "linkedin": "https://linkedin.com/sharing/share-offsite/?url=https://thuonglo.com/ref/AFF123",
+      "email": "mailto:?subject=Giới thiệu ThuongLo&body=https://thuonglo.com/ref/AFF123"
+    }
+  },
+  "profile": {
+    "id": 1,
+    "name": "Nguyễn Văn Đại Lý",
+    "email": "affiliate@thuonglo.com",
+    "phone": "0987654321",
+    "address": "123 Đường ABC, Quận 1, TP.HCM",
+    "avatar": "/assets/images/avatars/affiliate-avatar.jpg",
+    "affiliate_id": "AFF123",
+    "referral_code": "AFF123",
+    "affiliate_link": "https://thuonglo.com/ref/AFF123",
+    "bank_info": {
+      "bank_name": "Vietcombank",
+      "account_number": "1234567890",
+      "account_holder": "NGUYEN VAN DAI LY",
+      "branch": "Chi nhánh TP.HCM"
+    },
+    "joined_date": "2023-06-15",
+    "status": "active",
+    "tier": 2,
+    "tier_name": "Bạc",
+    "total_revenue": 125000000,
+    "total_commission": 12500000
+  },
+  "reports": {
+    "clicks": {
+      "total": 15420,
+      "unique": 12350,
+      "by_date": [
+        {
+          "date": "2024-01-20",
+          "clicks": 245,
+          "unique_clicks": 198
+        },
+        {
+          "date": "2024-01-21",
+          "clicks": 312,
+          "unique_clicks": 256
+        },
+        {
+          "date": "2024-01-22",
+          "clicks": 289,
+          "unique_clicks": 234
+        },
+        {
+          "date": "2024-01-23",
+          "clicks": 356,
+          "unique_clicks": 289
+        },
+        {
+          "date": "2024-01-24",
+          "clicks": 401,
+          "unique_clicks": 325
+        }
+      ],
+      "by_source": [
+        {
+          "source": "Facebook",
+          "clicks": 6800,
+          "percentage": 44,
+          "conversions": 218
+        },
+        {
+          "source": "Website",
+          "clicks": 5200,
+          "percentage": 34,
+          "conversions": 167
+        },
+        {
+          "source": "Email",
+          "clicks": 2100,
+          "percentage": 14,
+          "conversions": 67
+        },
+        {
+          "source": "Direct",
+          "clicks": 1320,
+          "percentage": 8,
+          "conversions": 40
+        }
+      ]
+    },
+    "orders": {
+      "total": 492,
+      "total_revenue": 125000000,
+      "total_commission": 12500000,
+      "average_order_value": 254065,
+      "by_date": [
+        {
+          "date": "2024-01-20",
+          "orders": 8,
+          "revenue": 14400000,
+          "commission": 1440000
+        },
+        {
+          "date": "2024-01-21",
+          "orders": 12,
+          "revenue": 21600000,
+          "commission": 2160000
+        },
+        {
+          "date": "2024-01-22",
+          "orders": 9,
+          "revenue": 16200000,
+          "commission": 1620000
+        },
+        {
+          "date": "2024-01-23",
+          "orders": 15,
+          "revenue": 27000000,
+          "commission": 2700000
+        },
+        {
+          "date": "2024-01-24",
+          "orders": 18,
+          "revenue": 32400000,
+          "commission": 3240000
+        }
+      ],
+      "by_product": [
+        {
+          "product_id": 1,
+          "product_name": "Gói Data Premium",
+          "orders": 156,
+          "revenue": 42000000,
+          "commission": 4200000,
+          "percentage": 33.6
+        },
+        {
+          "product_id": 2,
+          "product_name": "Khóa học nâng cao",
+          "orders": 128,
+          "revenue": 35000000,
+          "commission": 3500000,
+          "percentage": 28.0
+        },
+        {
+          "product_id": 3,
+          "product_name": "Tool Auto",
+          "orders": 98,
+          "revenue": 24000000,
+          "commission": 2400000,
+          "percentage": 19.2
+        },
+        {
+          "product_id": 4,
+          "product_name": "Gói VIP",
+          "orders": 110,
+          "revenue": 24000000,
+          "commission": 2400000,
+          "percentage": 19.2
+        }
+      ]
+    }
+  }
+}

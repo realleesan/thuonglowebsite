@@ -1,0 +1,695 @@
+/**
+ * Affiliate Components CSS
+ * Shared components used across all affiliate modules
+ * Module-specific styles are in separate files:
+ * - affiliate_dashboard.css
+ * - affiliate_commissions.css
+ * - affiliate_customers.css
+ */
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: #356DF1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2557d6;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #E5E7EB;
+    color: #4B5563;
+}
+
+.btn-secondary:hover {
+    background: #D1D5DB;
+    color: #1F2937;
+    text-decoration: none;
+}
+
+.btn-success {
+    background: #10B981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-danger {
+    background: #EF4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-warning {
+    background: #F59E0B;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #D97706;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-info {
+    background: #3B82F6;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2563EB;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+/* ============================================================================
+   CARDS
+   ============================================================================ */
+
+.card {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    max-width: 100%;
+    margin-bottom: 24px;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E5E7EB;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1F2937;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-title i {
+    color: #356DF1;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.card-body {
+    padding: 0;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* ============================================================================
+   BADGES
+   ============================================================================ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.badge-primary {
+    background: #356DF1;
+    color: white;
+}
+
+.badge-success {
+    background: #10B981;
+    color: white;
+}
+
+.badge-danger {
+    background: #EF4444;
+    color: white;
+}
+
+.badge-warning {
+    background: #F59E0B;
+    color: white;
+}
+
+.badge-info {
+    background: #3B82F6;
+    color: white;
+}
+
+.badge-secondary {
+    background: #6B7280;
+    color: white;
+}
+
+.badge-lg {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* ============================================================================
+   TABLES
+   ============================================================================ */
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.table thead th {
+    background: #F9FAFB;
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #4B5563;
+    border-bottom: 2px solid #E5E7EB;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid #E5E7EB;
+    color: #1F2937;
+}
+
+.table tbody tr:hover {
+    background: #F8FAFC;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tfoot td {
+    padding: 16px;
+    font-weight: 600;
+    background: #F9FAFB;
+    border-top: 2px solid #E5E7EB;
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============================================================================
+   FORMS
+   ============================================================================ */
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: #1F2937;
+    background: white;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #356DF1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+.form-control:disabled {
+    background: #F3F4F6;
+    cursor: not-allowed;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4B5563;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* ============================================================================
+   ALERTS
+   ============================================================================ */
+
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.alert-success {
+    background: #D1FAE5;
+    border: 1px solid #10B981;
+    color: #065F46;
+}
+
+.alert-danger {
+    background: #FEE2E2;
+    border: 1px solid #EF4444;
+    color: #991B1B;
+}
+
+.alert-warning {
+    background: #FEF3C7;
+    border: 1px solid #F59E0B;
+    color: #92400E;
+}
+
+.alert-info {
+    background: #DBEAFE;
+    border: 1px solid #3B82F6;
+    color: #1E40AF;
+}
+
+.alert-dismissible {
+    position: relative;
+    padding-right: 48px;
+}
+
+.alert-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* ============================================================================
+   PAGINATION
+   ============================================================================ */
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #E5E7EB;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.pagination {
+    display: flex;
+    gap: 8px;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #D1D5DB;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4B5563;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #F3F4F6;
+    border-color: #356DF1;
+    color: #356DF1;
+}
+
+.pagination-btn.active {
+    background: #356DF1;
+    border-color: #356DF1;
+    color: white;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================================
+   FILTERS
+   ============================================================================ */
+
+.filters-form {
+    margin-bottom: 0;
+}
+
+.filters-form .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.filters-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.filters-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.filters-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.filters-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 160px;
+    flex: 1;
+}
+
+.filter-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #4B5563;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    color: #D1D5DB;
+    margin-bottom: 20px;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 12px;
+}
+
+.empty-state-description {
+    font-size: 14px;
+    color: #6B7280;
+    margin-bottom: 24px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============================================================================
+   PAGE HEADER
+   ============================================================================ */
+
+.page-header {
+    margin-bottom: 32px;
+    max-width: 100%;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-title i {
+    color: #356DF1;
+}
+
+.page-description,
+.page-subtitle {
+    font-size: 14px;
+    color: #6B7280;
+    margin: 0;
+}
+
+/* ============================================================================
+   LOADING SPINNER
+   ============================================================================ */
+
+.loading-spinner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.spinner {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.spinner i {
+    font-size: 48px;
+    color: #356DF1;
+    margin-bottom: 16px;
+}
+
+.spinner p {
+    margin: 0;
+    font-size: 16px;
+    color: #4B5563;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-success {
+    color: #10B981;
+}
+
+.text-danger {
+    color: #EF4444;
+}
+
+.text-warning {
+    color: #F59E0B;
+}
+
+.text-info {
+    color: #3B82F6;
+}
+
+.fw-semibold {
+    font-weight: 600;
+}
+
+.fw-bold {
+    font-weight: 700;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+    .filters-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .filters-form .filter-group {
+        gap: 12px;
+    }
+    
+    .filter-item {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-grid,
+    .filters-grid-2,
+    .filters-grid-3,
+    .filters-grid-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-form .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-item {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .filter-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .filter-actions .btn {
+        flex: 1;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .card {
+        padding: 16px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .table thead {
+        display: none;
+    }
+    
+    .table tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+    }
+    
+    .table tbody td {
+        display: block;
+        text-align: right;
+        padding: 12px 16px;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    
+    .table tbody td:before {
+        content: attr(data-label);
+        float: left;
+        font-weight: 600;
+        color: #4B5563;
+    }
+    
+    .table tbody td:last-child {
+        border-bottom: none;
+    }
+}

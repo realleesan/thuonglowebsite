@@ -1,0 +1,579 @@
+/* ===================================
+   Affiliate System - Main Styles
+   =================================== */
+
+/* CSS Variables - Design System */
+:root {
+    /* Primary Colors */
+    --primary: #356DF1;
+    --secondary: #000000;
+    
+    /* Status Colors */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #3B82F6;
+    
+    /* Neutral Colors */
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+    --white: #FFFFFF;
+    
+    /* Typography */
+    --font-family: 'Inter', sans-serif;
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 28px;
+    --text-4xl: 32px;
+    
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --radius-xl: 12px;
+    --radius-full: 9999px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
+    
+    /* Transitions */
+    --transition-duration: 0.3s;
+    --transition-easing: ease;
+}
+
+/* ===================================
+   Base Styles
+   =================================== */
+* {
+    box-sizing: border-box;
+}
+
+.affiliate-body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    background: var(--gray-50);
+    color: var(--gray-700);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.affiliate-wrapper {
+    display: flex;
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.affiliate-main {
+    flex: 1;
+    margin-left: 250px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: calc(100vw - 250px);
+    transition: margin-left var(--transition-duration) var(--transition-easing);
+}
+
+.affiliate-sidebar.collapsed ~ .affiliate-main {
+    margin-left: 70px;
+    max-width: calc(100vw - 70px);
+}
+
+.affiliate-content {
+    flex: 1;
+    padding: var(--space-6);
+    margin-top: 140px;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* ===================================
+   Sidebar Styles
+   =================================== */
+.affiliate-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    z-index: 1000;
+    transition: all var(--transition-duration) var(--transition-easing);
+    overflow-y: auto;
+}
+
+.affiliate-sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar-header {
+    padding: 0 var(--space-4);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+}
+
+.logo-img {
+    height: 48px;
+    width: auto;
+    max-width: 180px;
+    transition: all var(--transition-duration) var(--transition-easing);
+}
+
+.logo-full {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
+.logo-mini {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.affiliate-sidebar.collapsed .logo-full {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.affiliate-sidebar.collapsed .logo-mini {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    height: 32px;
+    width: 32px;
+    max-width: 32px;
+    position: static;
+    transform: none;
+}
+
+.sidebar-nav {
+    padding: var(--space-5) 0;
+}
+
+.nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    margin-bottom: var(--space-1);
+}
+
+.nav-item.has-submenu {
+    position: relative;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: var(--space-3) var(--space-5);
+    color: var(--gray-700);
+    text-decoration: none;
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    transition: all var(--transition-duration) var(--transition-easing);
+    border-radius: 0;
+    position: relative;
+}
+
+.nav-arrow {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform var(--transition-duration) var(--transition-easing);
+}
+
+.nav-item.has-submenu.open .nav-arrow {
+    transform: rotate(180deg);
+}
+
+.affiliate-sidebar.collapsed .nav-arrow {
+    display: none;
+}
+
+/* Submenu Styles */
+.submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-duration) var(--transition-easing);
+    background: var(--gray-50);
+}
+
+.nav-item.has-submenu.open .submenu {
+    max-height: 500px;
+}
+
+.affiliate-sidebar.collapsed .submenu {
+    display: none;
+}
+
+.submenu-item {
+    margin: 0;
+}
+
+.submenu-link {
+    display: flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-5) var(--space-2) var(--space-12);
+    color: var(--gray-600);
+    text-decoration: none;
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    font-weight: var(--font-normal);
+    transition: all var(--transition-duration) var(--transition-easing);
+}
+
+.submenu-link:hover {
+    background: var(--gray-100);
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.submenu-item.active .submenu-link {
+    color: var(--primary);
+    font-weight: var(--font-medium);
+}
+
+.submenu-icon {
+    width: 8px;
+    height: 8px;
+    margin-right: var(--space-3);
+    font-size: 6px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.submenu-text {
+    transition: opacity var(--transition-duration) var(--transition-easing);
+}
+
+.nav-link:hover {
+    background: var(--gray-50);
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.nav-item.active .nav-link {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.nav-item.active .nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--secondary);
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: var(--space-3);
+    font-size: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.nav-text {
+    transition: opacity var(--transition-duration) var(--transition-easing);
+}
+
+.affiliate-sidebar.collapsed .nav-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+.affiliate-sidebar.collapsed .nav-link {
+    padding: var(--space-3) 25px;
+    justify-content: center;
+}
+
+.affiliate-sidebar.collapsed .nav-icon {
+    margin-right: 0;
+}
+
+/* Scrollbar Styling */
+.affiliate-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.affiliate-sidebar::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+.affiliate-sidebar::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 3px;
+}
+
+.affiliate-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+/* ===================================
+   Header Styles
+   Note: Detailed header styles moved to affiliate_header.css
+   =================================== */
+
+/* ===================================
+   Footer Styles
+   =================================== */
+.affiliate-footer {
+    background: var(--white);
+    border-top: 1px solid var(--gray-200);
+    padding: var(--space-4) var(--space-6);
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.footer-left {
+    flex: 1;
+}
+
+.copyright {
+    margin: 0;
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+    color: var(--gray-500);
+}
+
+.copyright strong {
+    color: var(--primary);
+    font-weight: var(--font-semibold);
+}
+
+.copyright a {
+    color: var(--primary);
+    font-weight: var(--font-semibold);
+    text-decoration: none;
+    transition: color var(--transition-duration) var(--transition-easing);
+}
+
+.copyright a:hover {
+    color: var(--secondary);
+    text-decoration: none;
+}
+
+.footer-right {
+    flex-shrink: 0;
+}
+
+.footer-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+}
+
+.version {
+    color: var(--gray-500);
+    font-weight: var(--font-medium);
+}
+
+.separator {
+    color: var(--gray-200);
+}
+
+.footer-link {
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: color var(--transition-duration) var(--transition-easing);
+}
+
+.footer-link:hover {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+/* ===================================
+   Breadcrumb Styles
+   =================================== */
+.affiliate-breadcrumb {
+    position: fixed;
+    top: 70px;
+    left: 250px;
+    right: 0;
+    height: 70px;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-6);
+    transition: left var(--transition-duration) var(--transition-easing);
+}
+
+.affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-breadcrumb {
+    left: 70px;
+}
+
+.breadcrumb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-family);
+    font-size: var(--text-sm);
+}
+
+.breadcrumb-link {
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: color var(--transition-duration) var(--transition-easing);
+}
+
+.breadcrumb-link:hover {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--gray-900);
+    font-weight: var(--font-medium);
+}
+
+.breadcrumb-separator {
+    color: var(--gray-400);
+    font-size: var(--text-xs);
+}
+
+/* ===================================
+   Responsive Design
+   =================================== */
+@media (max-width: 768px) {
+    .affiliate-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .affiliate-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    .affiliate-main {
+        margin-left: 0;
+        max-width: 100vw;
+    }
+    
+    .affiliate-sidebar.collapsed ~ .affiliate-main {
+        margin-left: 0;
+        max-width: 100vw;
+    }
+    
+    .affiliate-content {
+        padding: var(--space-4);
+    }
+    
+    .affiliate-header {
+        left: 0;
+        padding: 0 var(--space-4);
+    }
+    
+    .affiliate-breadcrumb {
+        left: 0;
+    }
+    
+    .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-breadcrumb {
+        left: 0;
+    }
+    
+    .header-title {
+        font-size: var(--text-lg);
+    }
+    
+    .user-name {
+        display: none;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-3);
+    }
+    
+    .footer-info {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .page-title {
+        font-size: 22px;
+    }
+    
+    .card {
+        padding: 16px;
+    }
+}

@@ -1,0 +1,830 @@
+/* ===================================
+   Affiliate Finance Module Styles
+   =================================== */
+
+/* Wallet Stats */
+.wallet-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.stat-card-primary .stat-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    color: #ffffff;
+}
+
+.stat-card-warning .stat-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    color: #ffffff;
+}
+
+.stat-card-success .stat-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    color: #ffffff;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.stat-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-note {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #9CA3AF;
+}
+
+/* Info Card */
+.info-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.info-card-header i {
+    font-size: 20px;
+    color: #356DF1;
+}
+
+.info-card-header h3 {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.info-card-body {
+    padding: 0;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+}
+
+.info-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* Transaction Table */
+.transaction-date {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.transaction-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #374151;
+    max-width: 300px;
+}
+
+.amount {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.amount-positive {
+    color: #10B981;
+}
+
+.amount-negative {
+    color: #EF4444;
+}
+
+.balance-after {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6B7280;
+    white-space: nowrap;
+}
+
+.reference-code {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background: #F3F4F6;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #374151;
+}
+
+/* Balance Card */
+.balance-card {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+}
+
+.balance-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.balance-card-header i {
+    font-size: 20px;
+}
+
+.balance-card-body {
+    text-align: center;
+}
+
+.balance-amount {
+    font-family: 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.balance-note {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Withdrawal Form */
+.withdrawal-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.form-label i {
+    color: #356DF1;
+    font-size: 14px;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: #EF4444;
+    margin-left: 4px;
+}
+
+.label-badge {
+    background: #DBEAFE;
+    color: #1E40AF;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.label-optional {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9CA3AF;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #374151;
+    background: #ffffff;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #356DF1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-help {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #6B7280;
+    margin-top: 6px;
+}
+
+.form-help i {
+    font-size: 12px;
+    color: #9CA3AF;
+}
+
+/* Withdrawal Code Display */
+.withdrawal-code-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #F9FAFB;
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px dashed #D1D5DB;
+}
+
+.withdrawal-code-display code {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: 1px;
+}
+
+.btn-copy {
+    background: #356DF1;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-copy:hover {
+    background: #000000;
+}
+
+/* Bank Details */
+.bank-details {
+    background: #F9FAFB;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 16px;
+    border: 1px solid #E5E7EB;
+}
+
+.bank-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.bank-detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.detail-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* Amount Input */
+.amount-input-wrapper {
+    position: relative;
+}
+
+.amount-input-wrapper .form-input {
+    padding-right: 40px;
+}
+
+.amount-suffix {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6B7280;
+}
+
+.amount-suggestions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.amount-btn {
+    background: #F3F4F6;
+    color: #374151;
+    border: 1px solid #D1D5DB;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.amount-btn:hover {
+    background: #356DF1;
+    color: #ffffff;
+    border-color: #356DF1;
+}
+
+/* Balance Preview */
+.balance-preview {
+    background: #F9FAFB;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 16px;
+    border: 1px solid #E5E7EB;
+}
+
+.preview-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.preview-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.preview-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.preview-negative {
+    color: #EF4444;
+}
+
+.preview-divider {
+    height: 1px;
+    background: #D1D5DB;
+    margin: 12px 0;
+}
+
+.preview-total {
+    padding-top: 12px;
+}
+
+.preview-total .preview-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.preview-total .preview-value {
+    font-size: 18px;
+    color: #356DF1;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.btn-lg {
+    padding: 14px 32px;
+    font-size: 15px;
+}
+
+/* Rules List */
+.rules-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.rule-item:last-child {
+    border-bottom: none;
+}
+
+.rule-item i {
+    color: #10B981;
+    font-size: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.rule-item span {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+}
+
+/* Wallet Status Card */
+.wallet-status-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.wallet-status-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.wallet-status-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.wallet-status-header i {
+    color: #356DF1;
+}
+
+.wallet-status-body {
+    padding: 0;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.status-item {
+    text-align: center;
+    padding: 20px;
+    background: #F9FAFB;
+    border-radius: 8px;
+}
+
+.status-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.status-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Webhook Controls */
+.webhook-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.webhook-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.webhook-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.webhook-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.webhook-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.webhook-icon-success {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    color: #ffffff;
+}
+
+.webhook-icon-primary {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    color: #ffffff;
+}
+
+.webhook-info {
+    flex: 1;
+}
+
+.webhook-title {
+    margin: 0 0 4px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.webhook-description {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.webhook-card-body {
+    padding: 0;
+}
+
+.webhook-card-body .form-group {
+    margin-bottom: 16px;
+}
+
+.webhook-card-body .form-input,
+.webhook-card-body .form-select {
+    max-width: 100%;
+}
+
+.webhook-card-body .amount-input-wrapper {
+    max-width: 100%;
+}
+
+.withdrawal-preview {
+    background: #F9FAFB;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+/* Webhook Logs */
+.webhook-logs {
+    background: #1F2937;
+    border-radius: 8px;
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #10B981;
+}
+
+.log-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9CA3AF;
+}
+
+.log-empty i {
+    font-size: 32px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.log-empty p {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+.log-entry {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid #10B981;
+}
+
+.log-timestamp {
+    color: #9CA3AF;
+    margin-bottom: 4px;
+}
+
+.log-message {
+    color: #10B981;
+}
+
+.log-error {
+    border-left-color: #EF4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.log-error .log-message {
+    color: #EF4444;
+}
+
+/* How It Works */
+.how-it-works {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.step-item {
+    display: flex;
+    gap: 16px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #356DF1;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h4 {
+    margin: 0 0 8px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.step-content p {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .wallet-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .webhook-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .balance-amount {
+        font-size: 36px;
+    }
+
+    .amount-suggestions {
+        justify-content: center;
+    }
+}

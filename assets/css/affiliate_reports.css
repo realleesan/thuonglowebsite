@@ -1,0 +1,215 @@
+/* ===================================
+   Affiliate Reports Module Styles
+   =================================== */
+
+/* Reports Stats */
+.reports-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card-info .stat-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    color: #ffffff;
+}
+
+/* Reports Charts */
+.reports-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.chart-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.chart-card-full {
+    grid-column: 1 / -1;
+}
+
+.chart-card-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.chart-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.chart-title i {
+    color: #356DF1;
+}
+
+.chart-card-body {
+    position: relative;
+    height: 300px;
+}
+
+.chart-card-body canvas {
+    max-height: 300px;
+}
+
+/* Source Name */
+.source-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.source-name i {
+    font-size: 18px;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 24px;
+    background: #F3F4F6;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #356DF1 0%, #667eea 100%);
+    border-radius: 12px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* Products Grid */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.product-performance-card {
+    background: #F9FAFB;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.product-performance-card:hover {
+    background: #F3F4F6;
+}
+
+.product-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.product-name {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.product-percentage {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #356DF1;
+}
+
+.product-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.product-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.product-stat .stat-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.product-stat .stat-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.product-stat .stat-value.text-success {
+    color: #10B981;
+}
+
+.product-progress {
+    margin-top: 12px;
+}
+
+.product-progress .progress-bar-container {
+    height: 6px;
+}
+
+.product-progress .progress-bar {
+    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reports-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .reports-charts {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card-body {
+        height: 250px;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-stats {
+        grid-template-columns: 1fr;
+    }
+}

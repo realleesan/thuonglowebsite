@@ -1,0 +1,394 @@
+/* ===================================
+   Affiliate Responsive CSS
+   =================================== */
+
+/* ===================================
+   Breakpoints
+   Mobile: < 768px
+   Tablet: 768px - 1024px
+   Desktop: > 1024px
+   =================================== */
+
+/* ===================================
+   Tablet (768px - 1024px)
+   =================================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+    /* Stat Cards - 2 columns */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Sidebar visible */
+    .affiliate-sidebar {
+        width: 250px;
+    }
+    
+    /* Adjust main content */
+    .affiliate-main {
+        margin-left: 250px;
+    }
+    
+    /* Tables - Scroll horizontally */
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+/* ===================================
+   Mobile (< 768px)
+   =================================== */
+@media (max-width: 768px) {
+    /* Sidebar - Hidden by default */
+    .affiliate-sidebar {
+        transform: translateX(-100%);
+        width: 250px;
+    }
+    
+    .affiliate-sidebar.mobile-open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    /* Main content - Full width */
+    .affiliate-main {
+        margin-left: 0;
+    }
+    
+    .affiliate-sidebar.collapsed ~ .affiliate-main {
+        margin-left: 0;
+    }
+    
+    /* Header - Full width */
+    .affiliate-header {
+        left: 0;
+        padding: 0 var(--space-4);
+    }
+    
+    .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-header {
+        left: 0;
+    }
+    
+    .header-title {
+        font-size: var(--text-lg);
+    }
+    
+    .user-name {
+        display: none;
+    }
+    
+    /* Breadcrumb - Full width */
+    .affiliate-breadcrumb {
+        left: 0;
+        padding: 0 var(--space-4);
+    }
+    
+    .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-breadcrumb {
+        left: 0;
+    }
+    
+    /* Content - Reduced padding */
+    .affiliate-content {
+        padding: var(--space-4);
+        margin-top: 140px;
+    }
+    
+    /* Stat Cards - Stack vertically */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stat-icon {
+        margin-right: 0;
+        margin-bottom: var(--space-4);
+    }
+    
+    .stat-value {
+        font-size: var(--text-3xl);
+    }
+    
+    /* Cards - Reduced padding */
+    .card {
+        padding: var(--space-4);
+    }
+    
+    /* Tables - Card view */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table {
+        min-width: 600px;
+    }
+    
+    /* Alternative: Card-based table for mobile */
+    .table-mobile-card {
+        display: block;
+    }
+    
+    .table-mobile-card thead {
+        display: none;
+    }
+    
+    .table-mobile-card tbody {
+        display: block;
+    }
+    
+    .table-mobile-card tr {
+        display: block;
+        margin-bottom: var(--space-4);
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        padding: var(--space-4);
+    }
+    
+    .table-mobile-card td {
+        display: flex;
+        justify-content: space-between;
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--gray-100);
+    }
+    
+    .table-mobile-card td:last-child {
+        border-bottom: none;
+    }
+    
+    .table-mobile-card td::before {
+        content: attr(data-label);
+        font-weight: var(--font-semibold);
+        color: var(--gray-700);
+    }
+    
+    /* Buttons - Full width */
+    .btn-mobile-full {
+        width: 100%;
+        display: block;
+    }
+    
+    /* Forms - Full width */
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-col {
+        width: 100%;
+        margin-bottom: var(--space-4);
+    }
+    
+    /* Footer - Stack vertically */
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-3);
+    }
+    
+    .footer-info {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    /* Charts - Adjust height */
+    .chart-container {
+        height: 250px;
+    }
+    
+    /* Modals - Full screen */
+    .modal-dialog {
+        margin: 0;
+        max-width: 100%;
+        height: 100vh;
+    }
+    
+    .modal-content {
+        border-radius: 0;
+        height: 100%;
+    }
+}
+
+/* ===================================
+   Extra Small Mobile (< 480px)
+   =================================== */
+@media (max-width: 480px) {
+    /* Further reduce spacing */
+    .affiliate-content {
+        padding: var(--space-3);
+    }
+    
+    .card {
+        padding: var(--space-3);
+    }
+    
+    /* Stat value - Smaller font */
+    .stat-value {
+        font-size: var(--text-2xl);
+    }
+    
+    /* Header title - Smaller */
+    .header-title {
+        font-size: var(--text-base);
+    }
+    
+    /* Buttons - Smaller padding */
+    .btn {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--text-xs);
+    }
+    
+    /* Tables - Smaller text */
+    .table {
+        font-size: var(--text-xs);
+    }
+    
+    .table th,
+    .table td {
+        padding: var(--space-2);
+    }
+}
+
+/* ===================================
+   Desktop (> 1024px)
+   =================================== */
+@media (min-width: 1024px) {
+    /* Stat Cards - 4 columns */
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    /* Multi-column layouts */
+    .content-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-6);
+    }
+    
+    .content-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+    
+    /* Sidebar - Full width */
+    .affiliate-sidebar {
+        width: 250px;
+    }
+    
+    .affiliate-sidebar.collapsed {
+        width: 70px;
+    }
+    
+    /* Charts - Larger height */
+    .chart-container {
+        height: 350px;
+    }
+}
+
+/* ===================================
+   Print Styles
+   =================================== */
+@media print {
+    /* Hide navigation elements */
+    .affiliate-sidebar,
+    .affiliate-header,
+    .affiliate-breadcrumb,
+    .affiliate-footer {
+        display: none;
+    }
+    
+    /* Full width content */
+    .affiliate-main {
+        margin-left: 0;
+    }
+    
+    .affiliate-content {
+        margin-top: 0;
+        padding: 0;
+    }
+    
+    /* Remove shadows and transitions */
+    .card,
+    .stat-card {
+        box-shadow: none;
+        border: 1px solid var(--gray-300);
+    }
+    
+    /* Ensure proper page breaks */
+    .card,
+    .stat-card,
+    .table {
+        page-break-inside: avoid;
+    }
+    
+    /* Black and white */
+    * {
+        color: #000 !important;
+        background: #fff !important;
+    }
+}
+
+/* ===================================
+   Utility Classes
+   =================================== */
+
+/* Hide on mobile */
+.hide-mobile {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .hide-mobile {
+        display: block;
+    }
+}
+
+/* Show only on mobile */
+.show-mobile {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .show-mobile {
+        display: none;
+    }
+}
+
+/* Hide on tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .hide-tablet {
+        display: none;
+    }
+}
+
+/* Hide on desktop */
+@media (min-width: 1024px) {
+    .hide-desktop {
+        display: none;
+    }
+}
+
+/* Responsive text alignment */
+.text-center-mobile {
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .text-center-mobile {
+        text-align: left;
+    }
+}
+
+/* Responsive spacing */
+.mb-mobile-4 {
+    margin-bottom: var(--space-4);
+}
+
+@media (min-width: 768px) {
+    .mb-mobile-4 {
+        margin-bottom: 0;
+    }
+}

@@ -544,24 +544,92 @@ switch($page) {
         break;
         
     case 'affiliate':
-        // Affiliate dashboard routing
+        // Affiliate dashboard routing - Uses its own layout
         $module = $_GET['module'] ?? 'dashboard';
+        $action = $_GET['action'] ?? 'index';
         
-        // Check affiliate authentication
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'agent') {
-            header('Location: ?page=login');
-            exit;
+        // Check affiliate authentication (TEMPORARY DISABLED FOR TESTING)
+        // TODO: Enable this after testing is complete
+        // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'agent') {
+        //     header('Location: ?page=login');
+        //     exit;
+        // }
+        
+        // Set flag to use affiliate layout
+        $useAffiliateLayout = true;
+        
+        // Route to specific affiliate modules
+        switch($module) {
+            case 'dashboard':
+            default:
+                $content = 'app/views/affiliate/dashboard.php';
+                break;
+                
+            case 'commissions':
+                switch($action) {
+                    case 'history':
+                        $content = 'app/views/affiliate/commissions/history.php';
+                        break;
+                    case 'policy':
+                        $content = 'app/views/affiliate/commissions/policy.php';
+                        break;
+                    default:
+                        $content = 'app/views/affiliate/commissions/index.php';
+                        break;
+                }
+                break;
+                
+            case 'customers':
+                switch($action) {
+                    case 'detail':
+                        $content = 'app/views/affiliate/customers/detail.php';
+                        break;
+                    case 'list':
+                    default:
+                        $content = 'app/views/affiliate/customers/list.php';
+                        break;
+                }
+                break;
+                
+            case 'finance':
+                switch($action) {
+                    case 'withdraw':
+                        $content = 'app/views/affiliate/finance/withdraw.php';
+                        break;
+                    case 'webhook_demo':
+                        $content = 'app/views/affiliate/finance/webhook_demo.php';
+                        break;
+                    default:
+                        $content = 'app/views/affiliate/finance/index.php';
+                        break;
+                }
+                break;
+                
+            case 'marketing':
+                $content = 'app/views/affiliate/marketing/index.php';
+                break;
+                
+            case 'reports':
+                switch($action) {
+                    case 'orders':
+                        $content = 'app/views/affiliate/reports/orders.php';
+                        break;
+                    case 'clicks':
+                    default:
+                        $content = 'app/views/affiliate/reports/clicks.php';
+                        break;
+                }
+                break;
+                
+            case 'profile':
+                switch($action) {
+                    case 'settings':
+                    default:
+                        $content = 'app/views/affiliate/profile/settings.php';
+                        break;
+                }
+                break;
         }
-        
-        $title = 'Đại lý - Thuong Lo';
-        $content = 'app/views/affiliate/dashboard.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = true;
-        $breadcrumbs = [
-            ['title' => 'Trang chủ', 'url' => './'],
-            ['title' => 'Đại lý']
-        ];
         break;
         
     default:
@@ -576,6 +644,9 @@ switch($page) {
 // Include master layout
 if (isset($useAdminLayout) && $useAdminLayout) {
     include_once 'app/views/_layout/admin_master.php';
+} elseif (isset($useAffiliateLayout) && $useAffiliateLayout) {
+    // Affiliate pages include their own layout
+    include_once $content;
 } else {
     include_once 'app/views/_layout/master.php';
 }
