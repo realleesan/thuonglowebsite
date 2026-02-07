@@ -88,13 +88,13 @@
 * [X] revenue/index.php - Tổng quan doanh thu
 * [X] revenue/view.php - Chi tiết doanh thu theo kỳ
 
-## Phase 12: Module Cài Đặt (Settings)
+## Phase 12: Module Cài Đặt (Settings) - Done ✅
 
-* [ ] settings/index.php - Danh sách cài đặt
-* [ ] settings/add.php - Thêm cài đặt
-* [ ] settings/edit.php - Sửa cài đặt
-* [ ] settings/view.php - Xem chi tiết cài đặt
-* [ ] settings/delete.php - Xóa cài đặt
+* [X] settings/index.php - Danh sách cài đặt
+* [X] settings/add.php - Thêm cài đặt
+* [X] settings/edit.php - Sửa cài đặt
+* [X] settings/view.php - Xem chi tiết cài đặt
+* [x] settings/delete.php - Xóa cài đặt
 
 ## Phase 13: Hoàn Thiện & Kiểm Tra
 
