@@ -60,13 +60,13 @@
 * [X] orders/edit.php - Cập nhật trạng thái đơn hàng
 * [X] orders/delete.php - Xóa đơn hàng
 
-## Phase 8: Module Quản Lý Người Dùng (Users)
+## Phase 8: Module Quản Lý Người Dùng (Users) - Done ✅
 
-* [ ] users/index.php - Danh sách người dùng
-* [ ] users/add.php - Thêm người dùng
-* [ ] users/edit.php - Sửa người dùng
-* [ ] users/view.php - Xem chi tiết người dùng
-* [ ] users/delete.php - Xóa người dùng
+* [X] users/index.php - Danh sách người dùng
+* [X] users/add.php - Thêm người dùng
+* [X] users/edit.php - Sửa người dùng
+* [X] users/view.php - Xem chi tiết người dùng
+* [X] users/delete.php - Xóa người dùng
 
 ## Phase 9: Module Quản Lý Đại Lý (Affiliates)
 
