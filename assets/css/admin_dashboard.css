@@ -154,7 +154,7 @@
 /* Charts Section */
 .dashboard-charts {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     gap: 24px;
     padding: 0 32px;
     margin-bottom: 32px;
@@ -168,7 +168,7 @@
 }
 
 .chart-widget-large {
-    grid-column: span 2;
+    /* Remove grid-column span since we want all 3 on same row */
 }
 
 .widget-header {
@@ -209,12 +209,26 @@
     max-height: 200px;
 }
 
-/* Dashboard Content Grid */
+/* Dashboard Content Grid - New Layout */
 .dashboard-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 24px;
     padding: 0 32px 32px 32px;
+}
+
+/* Row 1: New Users Chart + Top Products */
+.dashboard-row-1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+/* Row 2: Recent Activities + Quick Actions */
+.dashboard-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
 }
 
 .dashboard-widget {
@@ -444,16 +458,15 @@
         grid-template-columns: 1fr 1fr;
     }
     
+    /* On tablet, show revenue chart spanning 2 columns, others below */
     .chart-widget-large {
         grid-column: span 2;
     }
     
-    .dashboard-content {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .quick-actions-widget {
-        grid-column: span 2;
+    .dashboard-row-1,
+    .dashboard-row-2 {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 }
 
@@ -480,12 +493,13 @@
     }
     
     .dashboard-content {
-        grid-template-columns: 1fr;
         padding: 0 20px 32px 20px;
     }
     
-    .quick-actions-widget {
-        grid-column: span 1;
+    .dashboard-row-1,
+    .dashboard-row-2 {
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
     
     .quick-actions {

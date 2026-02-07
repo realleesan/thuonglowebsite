@@ -215,102 +215,108 @@ $totalRevenue = array_sum(array_map(function($p) {
                 <canvas id="ordersStatusChart" width="400" height="300"></canvas>
             </div>
         </div>
-
-        <!-- New Users Chart -->
-        <div class="chart-widget">
-            <div class="widget-header">
-                <h3>Người dùng mới (4 tuần)</h3>
-            </div>
-            <div class="widget-content">
-                <canvas id="newUsersChart" width="400" height="300"></canvas>
-            </div>
-        </div>
     </div>
 
     <!-- Main Content Grid -->
     <div class="dashboard-content">
-        <!-- Top Products -->
-        <div class="dashboard-widget">
-            <div class="widget-header">
-                <h3>Top sản phẩm (7 ngày)</h3>
-                <a href="?page=admin&module=products" class="widget-action">Xem tất cả →</a>
+        <!-- Row 1: New Users Chart + Top Products -->
+        <div class="dashboard-row-1">
+            <!-- New Users Chart -->
+            <div class="chart-widget">
+                <div class="widget-header">
+                    <h3>Người dùng mới (4 tuần)</h3>
+                </div>
+                <div class="widget-content">
+                    <canvas id="newUsersChart" width="400" height="300"></canvas>
+                </div>
             </div>
-            <div class="widget-content">
-                <?php if (empty($topProducts)): ?>
-                    <p class="no-data">Chưa có dữ liệu</p>
-                <?php else: ?>
-                    <div class="top-products-list">
-                        <?php foreach ($topProducts as $index => $product): ?>
-                        <div class="top-product-item">
-                            <div class="product-rank"><?php echo $index + 1; ?></div>
-                            <div class="product-info">
-                                <strong><?php echo htmlspecialchars($product['name']); ?></strong>
-                                <small><?php echo number_format($product['price'], 0, ',', '.'); ?> VNĐ</small>
+
+            <!-- Top Products -->
+            <div class="dashboard-widget">
+                <div class="widget-header">
+                    <h3>Top sản phẩm (7 ngày)</h3>
+                    <a href="?page=admin&module=products" class="widget-action">Xem tất cả →</a>
+                </div>
+                <div class="widget-content">
+                    <?php if (empty($topProducts)): ?>
+                        <p class="no-data">Chưa có dữ liệu</p>
+                    <?php else: ?>
+                        <div class="top-products-list">
+                            <?php foreach ($topProducts as $index => $product): ?>
+                            <div class="top-product-item">
+                                <div class="product-rank"><?php echo $index + 1; ?></div>
+                                <div class="product-info">
+                                    <strong><?php echo htmlspecialchars($product['name']); ?></strong>
+                                    <small><?php echo number_format($product['price'], 0, ',', '.'); ?> VNĐ</small>
+                                </div>
+                                <div class="product-badge">
+                                    <span class="admin-badge admin-badge-success"><?php echo $product['status']; ?></span>
+                                </div>
                             </div>
-                            <div class="product-badge">
-                                <span class="admin-badge admin-badge-success"><?php echo $product['status']; ?></span>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
-                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Recent Activities + Quick Actions -->
+        <div class="dashboard-row-2">
+            <!-- Recent Activities -->
+            <div class="dashboard-widget">
+                <div class="widget-header">
+                    <h3>Hoạt động gần đây</h3>
+                </div>
+                <div class="widget-content">
+                    <?php if (empty($recentActivities)): ?>
+                        <p class="no-data">Chưa có hoạt động nào</p>
+                    <?php else: ?>
+                        <ul class="activity-list">
+                            <?php foreach ($recentActivities as $activity): ?>
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="<?php echo $activity['icon']; ?>"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><?php echo htmlspecialchars($activity['title']); ?></p>
+                                    <small><?php echo date('d/m/Y H:i', strtotime($activity['date'])); ?></small>
+                                </div>
+                                <div class="activity-status">
+                                    <span class="admin-badge admin-badge-<?php echo $activity['status'] === 'active' ? 'success' : 'warning'; ?>">
+                                        <?php echo $activity['status']; ?>
+                                    </span>
+                                </div>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-widget quick-actions-widget">
+                <div class="widget-header">
+                    <h3>Thao tác nhanh</h3>
+                </div>
+                <div class="widget-content">
+                    <div class="quick-actions">
+                        <a href="?page=admin&module=products&action=change" class="quick-action-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Thêm sản phẩm</span>
+                        </a>
+                        <a href="?page=admin&module=news&action=change" class="quick-action-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Thêm tin tức</span>
+                        </a>
+                        <a href="?page=admin&module=categories&action=change" class="quick-action-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Thêm danh mục</span>
+                        </a>
+                        <a href="?page=admin&module=events&action=change" class="quick-action-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Thêm sự kiện</span>
+                        </a>
                     </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Recent Activities -->
-        <div class="dashboard-widget">
-            <div class="widget-header">
-                <h3>Hoạt động gần đây</h3>
-            </div>
-            <div class="widget-content">
-                <?php if (empty($recentActivities)): ?>
-                    <p class="no-data">Chưa có hoạt động nào</p>
-                <?php else: ?>
-                    <ul class="activity-list">
-                        <?php foreach ($recentActivities as $activity): ?>
-                        <li class="activity-item">
-                            <div class="activity-icon">
-                                <i class="<?php echo $activity['icon']; ?>"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p><?php echo htmlspecialchars($activity['title']); ?></p>
-                                <small><?php echo date('d/m/Y H:i', strtotime($activity['date'])); ?></small>
-                            </div>
-                            <div class="activity-status">
-                                <span class="admin-badge admin-badge-<?php echo $activity['status'] === 'active' ? 'success' : 'warning'; ?>">
-                                    <?php echo $activity['status']; ?>
-                                </span>
-                            </div>
-                        </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="dashboard-widget quick-actions-widget">
-            <div class="widget-header">
-                <h3>Thao tác nhanh</h3>
-            </div>
-            <div class="widget-content">
-                <div class="quick-actions">
-                    <a href="?page=admin&module=products&action=change" class="quick-action-btn">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Thêm sản phẩm</span>
-                    </a>
-                    <a href="?page=admin&module=news&action=change" class="quick-action-btn">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Thêm tin tức</span>
-                    </a>
-                    <a href="?page=admin&module=categories&action=change" class="quick-action-btn">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Thêm danh mục</span>
-                    </a>
-                    <a href="?page=admin&module=events&action=change" class="quick-action-btn">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Thêm sự kiện</span>
-                    </a>
                 </div>
             </div>
         </div>
