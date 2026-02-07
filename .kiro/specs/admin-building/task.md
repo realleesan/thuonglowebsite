@@ -83,10 +83,10 @@
 * [X] contact/edit.php - Cập nhật trạng thái
 * [X] contact/delete.php - Xóa liên hệ
 
-## Phase 11: Module Báo Cáo Doanh Thu (Revenue)
+## Phase 11: Module Báo Cáo Doanh Thu (Revenue) - Done ✅
 
-* [ ] revenue/index.php - Tổng quan doanh thu
-* [ ] revenue/view.php - Chi tiết doanh thu theo kỳ
+* [X] revenue/index.php - Tổng quan doanh thu
+* [X] revenue/view.php - Chi tiết doanh thu theo kỳ
 
 ## Phase 12: Module Cài Đặt (Settings)
 
