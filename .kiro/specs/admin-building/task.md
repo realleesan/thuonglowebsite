@@ -68,13 +68,13 @@
 * [X] users/view.php - Xem chi tiết người dùng
 * [X] users/delete.php - Xóa người dùng
 
-## Phase 9: Module Quản Lý Đại Lý (Affiliates)
+## Phase 9: Module Quản Lý Đại Lý (Affiliates) - Done ✅
 
-* [ ] affiliates/index.php - Danh sách đại lý
-* [ ] affiliates/add.php - Thêm đại lý
-* [ ] affiliates/edit.php - Sửa đại lý
-* [ ] affiliates/view.php - Xem chi tiết đại lý
-* [ ] affiliates/delete.php - Xóa đại lý
+* [x] affiliates/index.php - Danh sách đại lý
+* [x] affiliates/add.php - Thêm đại lý
+* [x] affiliates/edit.php - Sửa đại lý
+* [x] affiliates/view.php - Xem chi tiết đại lý
+* [x] affiliates/delete.php - Xóa đại lý
 
 ## Phase 10: Module Quản Lý Liên Hệ (Contact)
 

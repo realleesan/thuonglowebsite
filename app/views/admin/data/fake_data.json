@@ -176,6 +176,46 @@
       "phone": "0934567890",
       "address": "Cần Thơ, Việt Nam",
       "created_at": "2024-01-25 16:45:00"
+    },
+    {
+      "id": 5,
+      "name": "Phạm Minh D",
+      "email": "phamminhd@gmail.com",
+      "role": "agent",
+      "status": "active",
+      "phone": "0945678901",
+      "address": "Hải Phòng, Việt Nam",
+      "created_at": "2024-01-22 09:30:00"
+    },
+    {
+      "id": 6,
+      "name": "Hoàng Thị E",
+      "email": "hoangthie@gmail.com",
+      "role": "user",
+      "status": "active",
+      "phone": "0956789012",
+      "address": "Nha Trang, Việt Nam",
+      "created_at": "2024-01-25 16:45:00"
+    },
+    {
+      "id": 7,
+      "name": "Vũ Văn F",
+      "email": "vuvanf@gmail.com",
+      "role": "user",
+      "status": "active",
+      "phone": "0967890123",
+      "address": "Huế, Việt Nam",
+      "created_at": "2024-01-28 11:15:00"
+    },
+    {
+      "id": 8,
+      "name": "Đỗ Thị G",
+      "email": "dothig@gmail.com",
+      "role": "agent",
+      "status": "active",
+      "phone": "0978901234",
+      "address": "Vũng Tàu, Việt Nam",
+      "created_at": "2024-01-10 08:30:00"
     }
   ],
   "affiliates": [
@@ -198,6 +238,36 @@
       "status": "active",
       "referral_code": "AGENT002",
       "created_at": "2024-01-22 09:30:00"
+    },
+    {
+      "id": 3,
+      "user_id": 6,
+      "commission_rate": 12,
+      "total_sales": 8500000,
+      "total_commission": 1020000,
+      "status": "pending",
+      "referral_code": "AGENT003",
+      "created_at": "2024-01-25 16:45:00"
+    },
+    {
+      "id": 4,
+      "user_id": 7,
+      "commission_rate": 8,
+      "total_sales": 5200000,
+      "total_commission": 416000,
+      "status": "inactive",
+      "referral_code": "AGENT004",
+      "created_at": "2024-01-28 11:15:00"
+    },
+    {
+      "id": 5,
+      "user_id": 8,
+      "commission_rate": 20,
+      "total_sales": 45000000,
+      "total_commission": 9000000,
+      "status": "active",
+      "referral_code": "TOPAGENT",
+      "created_at": "2024-01-10 08:30:00"
     }
   ],
   "contacts": [
