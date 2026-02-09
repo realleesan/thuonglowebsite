@@ -106,7 +106,7 @@ function formatDate($date) {
             <div class="product-summary">
                 <div class="product-summary-image">
                     <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 </div>
                 <div class="product-summary-info">
                     <h3><?= htmlspecialchars($product['name']) ?></h3>

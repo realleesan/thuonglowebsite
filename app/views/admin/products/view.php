@@ -96,7 +96,7 @@ function getStatusBadge($status) {
             <div class="product-image-section">
                 <div class="product-image-main">
                     <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 </div>
                 <div class="product-image-info">
                     <p><strong>Hình ảnh:</strong> <?= basename($product['image']) ?></p>

@@ -69,14 +69,14 @@
         <!-- User Profile -->
         <div class="header-item user-dropdown">
             <button class="header-btn user-btn" id="userBtn">
-                <img src="assets/images/home/home-banner-final.png" alt="Admin" class="user-avatar">
+                <img src="<?php echo img_url('home/home-banner-final.png'); ?>" alt="Admin" class="user-avatar">
                 <span class="user-name">Admin ThuongLo</span>
                 <i class="fas fa-chevron-down"></i>
             </button>
             <div class="dropdown-menu user-menu" id="userMenu">
                 <div class="dropdown-header">
                     <div class="user-info">
-                        <img src="assets/images/home/home-banner-final.png" alt="Admin" class="user-avatar-large">
+                        <img src="<?php echo img_url('home/home-banner-final.png'); ?>" alt="Admin" class="user-avatar-large">
                         <div class="user-details">
                             <h6 class="user-name">Admin ThuongLo</h6>
                             <p class="user-email">admin@thuonglo.com</p>

@@ -150,7 +150,7 @@ function formatDate($date) {
                             <td>
                                 <div class="news-image">
                                     <img src="<?= $article['image'] ?>" alt="<?= htmlspecialchars($article['title']) ?>" 
-                                         onerror="this.src='assets/images/placeholder.jpg'">
+                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                                 </div>
                             </td>
                             <td>

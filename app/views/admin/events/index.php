@@ -158,7 +158,7 @@ function formatPrice($price) {
                             <td>
                                 <div class="event-image">
                                     <img src="<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>" 
-                                         onerror="this.src='assets/images/placeholder.jpg'">
+                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                                 </div>
                             </td>
                             <td>

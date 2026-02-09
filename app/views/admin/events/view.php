@@ -95,7 +95,7 @@ $status_info = getEventStatusInfo($current_event['status']);
             <div class="event-image-section">
                 <div class="event-image-main" onclick="openImageZoom('<?= $current_event['image'] ?>')">
                     <img src="<?= $current_event['image'] ?>" alt="<?= htmlspecialchars($current_event['title']) ?>" 
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 </div>
                 <div class="event-image-info">
                     <i class="fas fa-info-circle"></i>

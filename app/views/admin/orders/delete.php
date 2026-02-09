@@ -157,7 +157,7 @@ if ($order['payment_method'] != 'cod' && $order['status'] != 'cancelled') {
             <div class="order-summary-image">
                 <?php if ($product && $product['image']): ?>
                     <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name'] ?? '') ?>" 
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 <?php else: ?>
                     <div class="no-image">
                         <i class="fas fa-box"></i>
