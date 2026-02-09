@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Admin ThuongLo</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url('logo/logo_mini.svg'); ?>">
+    
     <!-- CSS Files -->
     <link rel="stylesheet" href="<?php echo css_url('admin_sidebar.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_header.css'); ?>">
