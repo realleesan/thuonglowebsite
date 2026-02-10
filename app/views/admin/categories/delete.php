@@ -1,20 +1,16 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$categories = $fake_data['categories'];
-$products = $fake_data['products'];
+// Load Models
+require_once __DIR__ . '/../../models/CategoriesModel.php';
+require_once __DIR__ . '/../../models/ProductsModel.php';
+
+$categoriesModel = new CategoriesModel();
+$productsModel = new ProductsModel();
 
 // Get category ID from URL
 $category_id = (int)($_GET['id'] ?? 0);
 
-// Find category
-$category = null;
-foreach ($categories as $cat) {
-    if ($cat['id'] == $category_id) {
-        $category = $cat;
-        break;
-    }
-}
+// Get category from database
+$category = $categoriesModel->getById($category_id);
 
 // Redirect if category not found
 if (!$category) {
@@ -23,9 +19,10 @@ if (!$category) {
 }
 
 // Check if category has products
-$category_products = array_filter($products, function($product) use ($category_id) {
-    return $product['category_id'] == $category_id;
-});
+$category_products = $productsModel->getByCategory($category_id);
+
+// Get all categories for move modal
+$allCategories = $categoriesModel->getAll();
 
 $has_products = !empty($category_products);
 $errors = [];
@@ -43,12 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Không thể xóa danh mục có sản phẩm. Vui lòng xóa hoặc chuyển các sản phẩm sang danh mục khác trước.';
     }
     
-    // If no errors, simulate delete (demo)
+    // If no errors, delete from database
     if (empty($errors)) {
-        $success = true;
-        // In real app: delete from database
-        // header('Location: ?page=admin&module=categories&success=deleted');
-        // exit;
+        if ($categoriesModel->delete($category_id)) {
+            $success = true;
+            header('Location: ?page=admin&module=categories&success=deleted');
+            exit;
+        } else {
+            $errors[] = 'Có lỗi xảy ra khi xóa danh mục';
+        }
     }
 }
 ?>
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Xóa danh mục thành công! (Demo - dữ liệu không được xóa thật)
+            Xóa danh mục thành công!
             <div class="alert-actions">
                 <a href="?page=admin&module=categories" class="btn btn-sm btn-primary">
                     Quay lại danh sách
@@ -265,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="target_category">Danh mục đích:</label>
                     <select id="target_category" class="form-control">
                         <option value="">Chọn danh mục</option>
-                        <?php foreach ($categories as $cat): ?>
+                        <?php foreach ($allCategories as $cat): ?>
                             <?php if ($cat['id'] != $category['id']): ?>
                                 <option value="<?= $cat['id'] ?>">
                                     <?= htmlspecialchars($cat['name']) ?>

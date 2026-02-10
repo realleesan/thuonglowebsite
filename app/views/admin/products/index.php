@@ -1,33 +1,78 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$products = $fake_data['products'];
-$categories = $fake_data['categories'];
+// Load Models
+require_once __DIR__ . '/../../../models/ProductsModel.php';
+require_once __DIR__ . '/../../../models/CategoriesModel.php';
 
-// Create category lookup
-$category_lookup = [];
-foreach ($categories as $category) {
-    $category_lookup[$category['id']] = $category['name'];
-}
+$productsModel = new ProductsModel();
+$categoriesModel = new CategoriesModel();
 
-// Search and filter
+// Get categories for filter dropdown
+$categories = $categoriesModel->getActive();
+
+// Search and filter parameters
 $search = $_GET['search'] ?? '';
 $category_filter = $_GET['category'] ?? '';
 $status_filter = $_GET['status'] ?? '';
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = 10;
 
-// Filter products
-$filtered_products = $products;
+// Build search filters
+$filters = [];
+if (!empty($search)) {
+    $filters['search'] = $search;
+}
+if (!empty($category_filter)) {
+    $filters['category_id'] = $category_filter;
+}
+if (!empty($status_filter)) {
+    $filters['status'] = $status_filter;
+}
+
+// Get total count for pagination
+$conditions = [];
+$bindings = [];
 
 if (!empty($search)) {
-    $filtered_products = array_filter($filtered_products, function($product) use ($search) {
-        return stripos($product['name'], $search) !== false || 
-               stripos($product['description'], $search) !== false;
-    });
+    $conditions[] = "(name LIKE ? OR description LIKE ?)";
+    $searchTerm = "%{$search}%";
+    $bindings = array_merge($bindings, [$searchTerm, $searchTerm]);
 }
 
 if (!empty($category_filter)) {
-    $filtered_products = array_filter($filtered_products, function($product) use ($category_filter) {
-        return $product['category_id'] == $category_filter;
+    $conditions[] = "category_id = ?";
+    $bindings[] = $category_filter;
+}
+
+if (!empty($status_filter)) {
+    $conditions[] = "status = ?";
+    $bindings[] = $status_filter;
+}
+
+// Get total count
+$countSql = "SELECT COUNT(*) as total FROM products";
+if (!empty($conditions)) {
+    $countSql .= " WHERE " . implode(' AND ', $conditions);
+}
+$totalResult = $productsModel->db->query($countSql, $bindings);
+$total_products = $totalResult[0]['total'] ?? 0;
+
+// Calculate pagination
+$total_pages = ceil($total_products / $per_page);
+$current_page = max(1, min($total_pages, $current_page));
+$offset = ($current_page - 1) * $per_page;
+
+// Get products with category info
+$sql = "
+    SELECT p.*, c.name as category_name
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+";
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+$sql .= " ORDER BY p.created_at DESC LIMIT {$per_page} OFFSET {$offset}";
+
+$filtered_products = $productsModel->db->query($sql, $bindings);
     });
 }
 

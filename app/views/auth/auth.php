@@ -1,8 +1,11 @@
 <?php
 /**
  * ThuongLo Auth System - Middleware & Authentication Functions
- * Mô phỏng hệ thống xác thực không cần Database
+ * Sử dụng Database thay vì JSON
  */
+
+// Load Users Model
+require_once __DIR__ . '/../../models/UsersModel.php';
 
 // Khởi tạo session
 if (session_status() == PHP_SESSION_NONE) {
@@ -35,63 +38,29 @@ function checkAccess($requiredRole) {
 }
 
 /**
- * Load demo accounts từ JSON file
+ * Kiểm tra đăng nhập với database
  */
-function loadDemoAccounts() {
-    $jsonFile = __DIR__ . '/data/demo_accounts.json';
-    if (file_exists($jsonFile)) {
-        $jsonContent = file_get_contents($jsonFile);
-        return json_decode($jsonContent, true);
-    }
-    return [];
+function authenticateUser($login, $password) {
+    $usersModel = new UsersModel();
+    return $usersModel->authenticate($login, $password);
 }
 
 /**
- * Kiểm tra đăng nhập với demo account
+ * Đăng nhập người dùng
  */
-function checkDemoLogin($phone, $password, $role) {
-    $demoAccounts = loadDemoAccounts();
+function loginUser($login, $password) {
+    $user = authenticateUser($login, $password);
     
-    if (isset($demoAccounts[$role])) {
-        $account = $demoAccounts[$role];
-        return ($account['phone'] === $phone && $account['password'] === $password);
-    }
-    
-    return false;
-}
-
-/**
- * Lấy thông tin demo account theo role
- */
-function getDemoAccount($role) {
-    $demoAccounts = loadDemoAccounts();
-    return $demoAccounts[$role] ?? null;
-}
-
-/**
- * Mô phỏng đăng nhập - Luôn thành công
- */
-function mockLogin($phone, $password, $role = 'user') {
-    // Kiểm tra demo account trước
-    $demoAccount = getDemoAccount($role);
-    if ($demoAccount && checkDemoLogin($phone, $password, $role)) {
-        // Sử dụng thông tin từ demo account
-        $_SESSION['user_id'] = generateUserId($phone);
-        $_SESSION['phone'] = $demoAccount['phone'];
-        $_SESSION['role'] = $demoAccount['role'];
-        $_SESSION['full_name'] = $demoAccount['full_name'];
-        $_SESSION['email'] = $demoAccount['email'];
-        $_SESSION['dashboard_url'] = $demoAccount['dashboard_url'];
-    } else {
-        // Fallback về logic cũ
-        $_SESSION['user_id'] = generateUserId($phone);
-        $_SESSION['phone'] = $phone;
-        $_SESSION['role'] = $role;
-        $_SESSION['full_name'] = generateFullName($phone);
-        $_SESSION['email'] = $phone . '@thuonglo.com';
+    if ($user) {
+        // Lưu thông tin user vào session
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['phone'] = $user['phone'];
+        $_SESSION['email'] = $user['email'];
+        $_SESSION['role'] = $user['role'];
+        $_SESSION['full_name'] = $user['name'];
         
         // Xác định dashboard URL theo role
-        switch($role) {
+        switch($user['role']) {
             case 'admin':
                 $_SESSION['dashboard_url'] = '?page=admin&module=dashboard';
                 break;
@@ -101,12 +70,31 @@ function mockLogin($phone, $password, $role = 'user') {
             default:
                 $_SESSION['dashboard_url'] = '?page=users&module=dashboard';
         }
+        
+        // Gán thông tin bảo mật
+        $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+        $_SESSION['device_id'] = generateDeviceId();
+        
+        return true;
     }
     
-    // Gán thông tin bảo mật
-    $_SESSION['ip_address'] = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-    $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
-    $_SESSION['device_id'] = generateDeviceId();
+    return false;
+}
+
+/**
+ * Đăng ký người dùng mới
+ */
+function registerUser($userData) {
+    $usersModel = new UsersModel();
+    
+    try {
+        $user = $usersModel->register($userData);
+        return $user;
+    } catch (Exception $e) {
+        return false;
+    }
+}
     $_SESSION['login_time'] = date('Y-m-d H:i:s');
     
     // Quản lý thiết bị - Xóa session cũ nếu đăng nhập thiết bị mới
@@ -160,8 +148,24 @@ function generateUserId($phone) {
  * Tạo tên đầy đủ mẫu từ số điện thoại
  */
 function generateFullName($phone) {
-    $names = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C', 'Phạm Thị D', 'Hoàng Văn E'];
-    return $names[array_sum(str_split($phone)) % count($names)];
+    // Use a simple hash-based approach to generate consistent names
+    $hash = crc32($phone);
+    
+    // Generate name components based on phone hash
+    $firstNameIndex = abs($hash) % 10;
+    $middleNameIndex = abs($hash >> 8) % 8;
+    $lastNameIndex = abs($hash >> 16) % 10;
+    
+    // Use configurable name arrays (could be moved to database in future)
+    static $nameComponents = [
+        'first' => ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan', 'Vũ', 'Võ', 'Đặng'],
+        'middle' => ['Văn', 'Thị', 'Minh', 'Hữu', 'Đức', 'Thanh', 'Quang', 'Anh'],
+        'last' => ['An', 'Bình', 'Cường', 'Dũng', 'Hải', 'Khoa', 'Long', 'Nam', 'Phong', 'Quân']
+    ];
+    
+    return $nameComponents['first'][$firstNameIndex] . ' ' . 
+           $nameComponents['middle'][$middleNameIndex] . ' ' . 
+           $nameComponents['last'][$lastNameIndex];
 }
 
 /**

@@ -1,21 +1,18 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$orders = $fake_data['orders'];
-$users = $fake_data['users'];
-$products = $fake_data['products'];
+// Load Models
+require_once __DIR__ . '/../../models/OrdersModel.php';
+require_once __DIR__ . '/../../models/UsersModel.php';
+require_once __DIR__ . '/../../models/ProductsModel.php';
+
+$ordersModel = new OrdersModel();
+$usersModel = new UsersModel();
+$productsModel = new ProductsModel();
 
 // Get order ID from URL
 $order_id = (int)($_GET['id'] ?? 0);
 
-// Find order
-$order = null;
-foreach ($orders as $o) {
-    if ($o['id'] == $order_id) {
-        $order = $o;
-        break;
-    }
-}
+// Get order from database
+$order = $ordersModel->getById($order_id);
 
 // Redirect if order not found
 if (!$order) {
@@ -23,22 +20,9 @@ if (!$order) {
     exit;
 }
 
-// Find related data
-$user = null;
-foreach ($users as $u) {
-    if ($u['id'] == $order['user_id']) {
-        $user = $u;
-        break;
-    }
-}
-
-$product = null;
-foreach ($products as $p) {
-    if ($p['id'] == $order['product_id']) {
-        $product = $p;
-        break;
-    }
-}
+// Get related data
+$user = $usersModel->getById($order['user_id']);
+$product = $productsModel->getById($order['product_id']);
 
 // Handle form submission
 $success_message = '';
@@ -59,15 +43,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        // In a real application, you would update the database here
-        $success_message = 'Cập nhật trạng thái đơn hàng thành công!';
+        // Update order in database
+        $updateData = [
+            'status' => $new_status,
+            'admin_note' => $admin_note
+        ];
         
-        // Update the order status for display purposes
-        $order['status'] = $new_status;
-        
-        // Simulate redirect after successful update
-        // header('Location: ?page=admin&module=orders&action=view&id=' . $order_id . '&updated=1');
-        // exit;
+        if ($ordersModel->update($order_id, $updateData)) {
+            $success_message = 'Cập nhật trạng thái đơn hàng thành công!';
+            
+            // Update the order status for display purposes
+            $order['status'] = $new_status;
+            
+            // TODO: Send email notification if requested
+            if ($notify_customer) {
+                // Send email notification logic here
+            }
+            
+            header('Location: ?page=admin&module=orders&action=view&id=' . $order_id . '&updated=1');
+            exit;
+        } else {
+            $error_message = 'Có lỗi xảy ra khi cập nhật đơn hàng';
+        }
     } else {
         $error_message = 'Có lỗi xảy ra khi cập nhật đơn hàng';
     }

@@ -1,21 +1,18 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$orders = $fake_data['orders'];
-$users = $fake_data['users'];
-$products = $fake_data['products'];
+// Load Models
+require_once __DIR__ . '/../../models/OrdersModel.php';
+require_once __DIR__ . '/../../models/UsersModel.php';
+require_once __DIR__ . '/../../models/ProductsModel.php';
+
+$ordersModel = new OrdersModel();
+$usersModel = new UsersModel();
+$productsModel = new ProductsModel();
 
 // Get order ID from URL
 $order_id = (int)($_GET['id'] ?? 0);
 
-// Find order
-$order = null;
-foreach ($orders as $o) {
-    if ($o['id'] == $order_id) {
-        $order = $o;
-        break;
-    }
-}
+// Get order from database
+$order = $ordersModel->getById($order_id);
 
 // Redirect if order not found
 if (!$order) {
@@ -23,22 +20,9 @@ if (!$order) {
     exit;
 }
 
-// Find related data
-$user = null;
-foreach ($users as $u) {
-    if ($u['id'] == $order['user_id']) {
-        $user = $u;
-        break;
-    }
-}
-
-$product = null;
-foreach ($products as $p) {
-    if ($p['id'] == $order['product_id']) {
-        $product = $p;
-        break;
-    }
-}
+// Get related data
+$user = $usersModel->getById($order['user_id']);
+$product = $productsModel->getById($order['product_id']);
 
 // Format price function
 function formatPrice($price) {
@@ -353,14 +337,19 @@ $timeline = generateOrderTimeline($order);
                             <div class="stat-item">
                                 <span class="stat-label">Tổng đơn hàng:</span>
                                 <span class="stat-value">
-                                    <?= count(array_filter($orders, fn($o) => $o['user_id'] == $user['id'])) ?>
+                                    <?php 
+                                    $userOrders = $ordersModel->getByUser($user['id']);
+                                    echo count($userOrders);
+                                    ?>
                                 </span>
                             </div>
                             <div class="stat-item">
                                 <span class="stat-label">Tổng chi tiêu:</span>
                                 <span class="stat-value">
-                                    <?= formatPrice(array_sum(array_map(fn($o) => $o['total'], 
-                                        array_filter($orders, fn($o) => $o['user_id'] == $user['id'])))) ?>
+                                    <?php 
+                                    $totalSpent = array_sum(array_map(fn($o) => $o['total'], $userOrders));
+                                    echo formatPrice($totalSpent);
+                                    ?>
                                 </span>
                             </div>
                             <div class="stat-item">

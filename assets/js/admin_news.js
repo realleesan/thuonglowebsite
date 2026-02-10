@@ -486,9 +486,10 @@ function drawSimpleChart(canvas) {
     const height = canvas.height;
     const padding = 20;
     
-    // Sample data
-    const data = [20, 45, 30, 60, 40, 80, 65];
-    const maxValue = Math.max(...data);
+    // Get data from data attributes or use empty array
+    const chartElement = document.querySelector('[data-news-chart-data]');
+    const data = chartElement ? JSON.parse(chartElement.dataset.newsChartData || '[]') : [0, 0, 0, 0, 0, 0, 0];
+    const maxValue = Math.max(...data) || 1;
     
     // Clear canvas
     ctx.clearRect(0, 0, width, height);

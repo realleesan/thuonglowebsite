@@ -1,21 +1,18 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$users = $fake_data['users'];
-$orders = $fake_data['orders'];
-$affiliates = $fake_data['affiliates'];
+// Load models
+require_once __DIR__ . '/../../../models/UsersModel.php';
+require_once __DIR__ . '/../../../models/OrdersModel.php';
+require_once __DIR__ . '/../../../models/AffiliateModel.php';
+
+$usersModel = new UsersModel();
+$ordersModel = new OrdersModel();
+$affiliateModel = new AffiliateModel();
 
 // Get user ID from URL
 $user_id = (int)($_GET['id'] ?? 0);
 
-// Find user
-$user = null;
-foreach ($users as $u) {
-    if ($u['id'] == $user_id) {
-        $user = $u;
-        break;
-    }
-}
+// Find user from database
+$user = $usersModel->getById($user_id);
 
 // Redirect if user not found
 if (!$user) {
@@ -23,18 +20,9 @@ if (!$user) {
     exit;
 }
 
-// Get related data
-$user_orders = array_filter($orders, function($order) use ($user_id) {
-    return $order['user_id'] == $user_id;
-});
-
-$user_affiliate = null;
-foreach ($affiliates as $affiliate) {
-    if ($affiliate['user_id'] == $user_id) {
-        $user_affiliate = $affiliate;
-        break;
-    }
-}
+// Get related data from database
+$user_orders = $ordersModel->getByUserId($user_id);
+$user_affiliate = $affiliateModel->getByUserId($user_id);
 
 // Handle form submission (demo)
 $success = false;

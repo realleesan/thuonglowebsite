@@ -1,20 +1,16 @@
 <?php
+// Load Models
+require_once __DIR__ . '/../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../models/UsersModel.php';
+
+$affiliateModel = new AffiliateModel();
+$usersModel = new UsersModel();
+
 // Get affiliate ID from URL
 $affiliate_id = (int)($_GET['id'] ?? 0);
 
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$affiliates = $fake_data['affiliates'];
-$users = $fake_data['users'];
-
-// Find affiliate
-$affiliate = null;
-foreach ($affiliates as $item) {
-    if ($item['id'] == $affiliate_id) {
-        $affiliate = $item;
-        break;
-    }
-}
+// Get affiliate from database
+$affiliate = $affiliateModel->getById($affiliate_id);
 
 // If affiliate not found, redirect
 if (!$affiliate) {
@@ -22,14 +18,8 @@ if (!$affiliate) {
     exit;
 }
 
-// Find user info
-$user = null;
-foreach ($users as $item) {
-    if ($item['id'] == $affiliate['user_id']) {
-        $user = $item;
-        break;
-    }
-}
+// Get user info
+$user = $usersModel->getById($affiliate['user_id']);
 
 // Handle form submission (demo)
 $success = false;
@@ -39,10 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm = $_POST['confirm'] ?? '';
     
     if ($confirm === 'DELETE') {
-        $success = true;
-        // In real app: delete from database
-        // header('Location: ?page=admin&module=affiliates&success=deleted');
-        // exit;
+        // Delete from database
+        if ($affiliateModel->delete($affiliate_id)) {
+            $success = true;
+            header('Location: ?page=admin&module=affiliates&success=deleted');
+            exit;
+        } else {
+            $error = 'Có lỗi xảy ra khi xóa đại lý';
+        }
     } else {
         $error = 'Vui lòng nhập "DELETE" để xác nhận xóa';
     }
@@ -85,7 +79,7 @@ function formatDate($date) {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Xóa đại lý thành công! (Demo - dữ liệu không được xóa thật)
+            Xóa đại lý thành công!
             <div class="alert-actions">
                 <a href="?page=admin&module=affiliates" class="btn btn-sm btn-primary">
                     Quay lại danh sách

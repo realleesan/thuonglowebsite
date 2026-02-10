@@ -4,18 +4,40 @@
  * Affiliate links, QR code, Banners, Social share
  */
 
-// Load data
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$marketingData = $dataLoader->getData('marketing');
-$affiliateInfo = $dataLoader->getData('affiliate_info');
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
 
-$affiliateLink = $marketingData['affiliate_link'];
-$affiliateId = $marketingData['affiliate_id'];
-$qrCodeUrl = $marketingData['qr_code_url'];
-$campaigns = $marketingData['campaigns'];
-$banners = $marketingData['banners'];
-$socialShare = $marketingData['social_share'];
+$affiliateModel = new AffiliateModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1; // Default for demo
+
+// Get affiliate data from database
+$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
+if (!$affiliateInfo) {
+    $affiliateInfo = ['referral_code' => 'DEMO001', 'name' => 'Demo User'];
+}
+
+// Generate marketing data
+$affiliateLink = "https://thuonglo.com/?ref=" . $affiliateInfo['referral_code'];
+$qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($affiliateLink);
+
+// Demo campaigns and banners
+$campaigns = [
+    ['id' => 1, 'name' => 'Summer Sale 2024', 'status' => 'active', 'clicks' => rand(100, 500)],
+    ['id' => 2, 'name' => 'New Product Launch', 'status' => 'paused', 'clicks' => rand(50, 200)]
+];
+
+$banners = [
+    ['id' => 1, 'name' => 'Banner 728x90', 'size' => '728x90', 'url' => 'assets/images/banners/728x90.jpg'],
+    ['id' => 2, 'name' => 'Banner 300x250', 'size' => '300x250', 'url' => 'assets/images/banners/300x250.jpg']
+];
+
+$socialShare = [
+    'facebook' => "https://www.facebook.com/sharer/sharer.php?u=" . urlencode($affiliateLink),
+    'twitter' => "https://twitter.com/intent/tweet?url=" . urlencode($affiliateLink),
+    'linkedin' => "https://www.linkedin.com/sharing/share-offsite/?url=" . urlencode($affiliateLink)
+];
 
 // Page title
 $page_title = 'Công cụ Marketing';

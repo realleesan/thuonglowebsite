@@ -1,7 +1,51 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$contacts = $fake_data['contacts'];
+// Load Models
+require_once __DIR__ . '/../../../models/ContactsModel.php';
+
+$contactsModel = new ContactsModel();
+
+// Search and filter parameters
+$search = $_GET['search'] ?? '';
+$status_filter = $_GET['status'] ?? '';
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = 10;
+
+// Build query conditions
+$conditions = [];
+$bindings = [];
+
+if (!empty($search)) {
+    $conditions[] = "(name LIKE ? OR email LIKE ? OR subject LIKE ?)";
+    $searchTerm = "%{$search}%";
+    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+}
+
+if (!empty($status_filter)) {
+    $conditions[] = "status = ?";
+    $bindings[] = $status_filter;
+}
+
+// Get total count for pagination
+$countSql = "SELECT COUNT(*) as total FROM contacts";
+if (!empty($conditions)) {
+    $countSql .= " WHERE " . implode(' AND ', $conditions);
+}
+$totalResult = $contactsModel->db->query($countSql, $bindings);
+$total_contacts = $totalResult[0]['total'] ?? 0;
+
+// Calculate pagination
+$total_pages = ceil($total_contacts / $per_page);
+$current_page = max(1, min($total_pages, $current_page));
+$offset = ($current_page - 1) * $per_page;
+
+// Get contacts
+$sql = "SELECT * FROM contacts";
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+$sql .= " ORDER BY created_at DESC LIMIT {$per_page} OFFSET {$offset}";
+
+$contacts = $contactsModel->db->query($sql, $bindings);
 
 // Search and filter
 $search = $_GET['search'] ?? '';

@@ -1,3 +1,25 @@
+<?php
+// Load Settings Model for contact information
+require_once __DIR__ . '/../../models/SettingsModel.php';
+
+$settingsModel = new SettingsModel();
+
+// Get contact settings from database
+$contactSettings = $settingsModel->getContactSettings();
+
+// Get default values from settings or use fallback
+$defaultContact = $contactSettings ?: [
+    'office_address' => 'Tầng 12, Tòa nhà ABC, 123 Đường Nguyễn Huệ<br>Quận 1, TP. Hồ Chí Minh',
+    'phone' => '(+84) 28 - 3825 - 6789',
+    'hotline' => '1900 - 1234',
+    'email' => 'contact@thuonglo.com',
+    'working_hours_weekday' => 'Thứ 2 - Thứ 6: 08:00 - 18:00',
+    'working_hours_weekend' => 'Thứ 7 & Chủ nhật: 09:00 - 17:00'
+];
+
+// Merge with database settings
+$contact = array_merge($defaultContact, $contactSettings);
+?>
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
     <div class="content-pusher">
@@ -116,8 +138,7 @@
                                     </div>
                                     <h3 class="card-title">Địa chỉ văn phòng</h3>
                                     <div class="card-content">
-                                        Tầng 12, Tòa nhà ABC, 123 Đường Nguyễn Huệ<br>
-                                        Quận 1, TP. Hồ Chí Minh<br>
+                                        <?php echo $contact['office_address']; ?><br>
                                         <a href="#" class="view-map">Xem bản đồ</a>
                                     </div>
                                 </div>
@@ -130,9 +151,9 @@
                                     </div>
                                     <h3 class="card-title">Thông tin liên hệ</h3>
                                     <div class="card-content">
-                                        Điện thoại: (+84) 28 - 3825 - 6789<br>
-                                        Hotline: 1900 - 1234<br>
-                                        Email: contact@thuonglo.com
+                                        Điện thoại: <?php echo htmlspecialchars($contact['phone']); ?><br>
+                                        Hotline: <?php echo htmlspecialchars($contact['hotline']); ?><br>
+                                        Email: <?php echo htmlspecialchars($contact['email']); ?>
                                     </div>
                                 </div>
 
@@ -144,8 +165,8 @@
                                     </div>
                                     <h3 class="card-title">Giờ làm việc</h3>
                                     <div class="card-content">
-                                        Thứ 2 - Thứ 6: 08:00 - 18:00<br>
-                                        Thứ 7 & Chủ nhật: 09:00 - 17:00
+                                        <?php echo htmlspecialchars($contact['working_hours_weekday']); ?><br>
+                                        <?php echo htmlspecialchars($contact['working_hours_weekend']); ?>
                                     </div>
                                 </div>
                             </div>

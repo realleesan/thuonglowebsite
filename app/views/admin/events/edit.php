@@ -1,19 +1,14 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$events = $fake_data['events'];
+// Load Models
+require_once __DIR__ . '/../../models/EventsModel.php';
+
+$eventsModel = new EventsModel();
 
 // Get event ID
 $event_id = (int)($_GET['id'] ?? 0);
 
-// Find event by ID
-$current_event = null;
-foreach ($events as $event) {
-    if ($event['id'] == $event_id) {
-        $current_event = $event;
-        break;
-    }
-}
+// Get event from database
+$current_event = $eventsModel->getById($event_id);
 
 // Redirect if event not found
 if (!$current_event) {
@@ -94,8 +89,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        $success = true;
-        // Trong thực tế sẽ cập nhật vào database
+        // Update event in database
+        if ($eventsModel->update($event_id, $form_data)) {
+            $success = true;
+            header('Location: ?page=admin&module=events&action=view&id=' . $event_id . '&updated=1');
+            exit;
+        } else {
+            $errors[] = 'Có lỗi xảy ra khi cập nhật sự kiện';
+        }
     }
 }
 

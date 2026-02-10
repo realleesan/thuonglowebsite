@@ -4,14 +4,27 @@
  * Form rút tiền với validation
  */
 
-// Load data
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$financeData = $dataLoader->getData('finance');
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
 
-$wallet = $financeData['wallet'];
-$bankAccounts = $financeData['bank_accounts'];
-$withdrawalSettings = $financeData['withdrawal_settings'];
+$affiliateModel = new AffiliateModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1;
+
+// Get affiliate data from database
+$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
+if (!$affiliateInfo) {
+    $affiliateInfo = ['pending_commission' => 0, 'paid_commission' => 0];
+}
+
+$wallet = [
+    'balance' => $affiliateInfo['pending_commission'],
+    'total_withdrawn' => $affiliateInfo['paid_commission']
+];
+
+$bankAccounts = []; // Demo - in real app get from database
+$withdrawalSettings = ['min_amount' => 100000, 'fee_percentage' => 2];
 
 // Generate unique withdrawal code
 $withdrawalCode = 'WD-' . date('Ymd') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);

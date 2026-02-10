@@ -1,36 +1,56 @@
 <?php
 // Enhanced Dashboard with Real Metrics
-// Load fake data
-$dataFile = __DIR__ . '/data/fake_data.json';
-$data = [];
+// Load Models
+require_once __DIR__ . '/../../models/ProductsModel.php';
+require_once __DIR__ . '/../../models/CategoriesModel.php';
+require_once __DIR__ . '/../../models/NewsModel.php';
+require_once __DIR__ . '/../../models/UsersModel.php';
+require_once __DIR__ . '/../../models/OrdersModel.php';
 
-if (file_exists($dataFile)) {
-    $jsonContent = file_get_contents($dataFile);
-    $data = json_decode($jsonContent, true) ?: [];
-}
+$productsModel = new ProductsModel();
+$categoriesModel = new CategoriesModel();
+$newsModel = new NewsModel();
+$usersModel = new UsersModel();
+$ordersModel = new OrdersModel();
 
-// Calculate current stats
+// Get actual data from database
+$products = $productsModel->getAll();
+$categories = $categoriesModel->getAll();
+$news = $newsModel->getAll();
+$users = $usersModel->getAll();
+$orders = $ordersModel->getAll();
+
+// Calculate current stats from real data
 $stats = [
-    'total_products' => count($data['products'] ?? []),
-    'total_categories' => count($data['categories'] ?? []),
-    'total_news' => count($data['news'] ?? []),
-    'total_events' => count($data['events'] ?? []),
-    'active_products' => count(array_filter($data['products'] ?? [], function($p) { return $p['status'] === 'active'; })),
-    'published_news' => count(array_filter($data['news'] ?? [], function($n) { return $n['status'] === 'published'; })),
-    'upcoming_events' => count(array_filter($data['events'] ?? [], function($e) { return $e['status'] === 'upcoming'; }))
+    'total_products' => count($products),
+    'total_categories' => count($categories),
+    'total_news' => count($news),
+    'total_users' => count($users),
+    'total_orders' => count($orders),
+    'active_products' => count(array_filter($products, function($p) { return $p['status'] === 'active'; })),
+    'published_news' => count(array_filter($news, function($n) { return $n['status'] === 'published'; })),
+    'active_users' => count(array_filter($users, function($u) { return $u['status'] === 'active'; })),
+    'upcoming_events' => 0 // Will be calculated when EventsModel is available
 ];
 
-// Calculate trends (mock data - in real app, compare with previous period)
+// Calculate total revenue from products
+$totalRevenue = array_sum(array_map(function($p) { 
+    return $p['status'] === 'active' ? ($p['price'] ?? 0) : 0; 
+}, $products));
+
+$stats['total_revenue'] = $totalRevenue;
+
+// Calculate trends based on real data (simplified calculation)
 $trends = [
-    'products' => ['value' => 12, 'direction' => 'up'],
-    'sales' => ['value' => 15, 'direction' => 'up'],
-    'users' => ['value' => 8, 'direction' => 'up'],
-    'revenue' => ['value' => 22, 'direction' => 'up']
+    'products' => ['value' => max(0, count($products) - 10), 'direction' => count($products) > 10 ? 'up' : 'down'],
+    'sales' => ['value' => count($orders), 'direction' => count($orders) > 0 ? 'up' : 'down'],
+    'users' => ['value' => count($users), 'direction' => count($users) > 0 ? 'up' : 'down'],
+    'revenue' => ['value' => number_format($totalRevenue, 0), 'direction' => $totalRevenue > 0 ? 'up' : 'down']
 ];
 
 // Alerts - things that need attention
 $alerts = [];
-$lowStockProducts = array_filter($data['products'] ?? [], function($p) {
+$lowStockProducts = array_filter($products, function($p) {
     return isset($p['stock']) && $p['stock'] < 5 && $p['stock'] > 0;
 });
 if (count($lowStockProducts) > 0) {
@@ -42,7 +62,7 @@ if (count($lowStockProducts) > 0) {
     ];
 }
 
-$draftNews = array_filter($data['news'] ?? [], function($n) { return $n['status'] === 'draft'; });
+$draftNews = array_filter($news, function($n) { return $n['status'] === 'draft'; });
 if (count($draftNews) > 0) {
     $alerts[] = [
         'type' => 'info',
@@ -52,28 +72,35 @@ if (count($draftNews) > 0) {
     ];
 }
 
-// Top products (mock - in real app, based on sales data)
-$topProducts = array_slice($data['products'] ?? [], 0, 5);
-
-// Recent activities with meaningful context
-$recentActivities = [];
-foreach (array_slice(array_reverse($data['products'] ?? []), 0, 3) as $product) {
-    $recentActivities[] = [
-        'type' => 'product',
-        'title' => 'Sản phẩm mới: ' . $product['name'],
-        'date' => $product['created_at'],
-        'icon' => 'fas fa-box',
-        'status' => $product['status']
+// Top products (based on real data) - ensure proper structure
+$topProducts = [];
+foreach (array_slice($products, 0, 5) as $product) {
+    $topProducts[] = [
+        'name' => $product['name'] ?? $product['title'] ?? 'Sản phẩm không tên',
+        'price' => $product['price'] ?? 0,
+        'status' => $product['status'] ?? 'active'
     ];
 }
 
-foreach (array_slice(array_reverse($data['news'] ?? []), 0, 2) as $news) {
+// Recent activities with real data
+$recentActivities = [];
+foreach (array_slice(array_reverse($products), 0, 3) as $product) {
+    $recentActivities[] = [
+        'type' => 'product',
+        'title' => 'Sản phẩm mới: ' . $product['name'],
+        'date' => $product['created_at'] ?? date('Y-m-d H:i:s'),
+        'icon' => 'fas fa-box',
+        'status' => $product['status'] ?? 'active'
+    ];
+}
+
+foreach (array_slice(array_reverse($news), 0, 2) as $newsItem) {
     $recentActivities[] = [
         'type' => 'news',
-        'title' => 'Tin tức: ' . $news['title'],
-        'date' => $news['created_at'],
+        'title' => 'Tin tức: ' . $newsItem['title'],
+        'date' => $newsItem['created_at'] ?? date('Y-m-d H:i:s'),
         'icon' => 'fas fa-newspaper',
-        'status' => $news['status']
+        'status' => $newsItem['status'] ?? 'published'
     ];
 }
 
@@ -81,11 +108,6 @@ usort($recentActivities, function($a, $b) {
     return strtotime($b['date']) - strtotime($a['date']);
 });
 $recentActivities = array_slice($recentActivities, 0, 5);
-
-// Calculate revenue
-$totalRevenue = array_sum(array_map(function($p) { 
-    return $p['status'] === 'active' ? $p['price'] : 0; 
-}, $data['products'] ?? []));
 ?>
 
 <div class="admin-dashboard">

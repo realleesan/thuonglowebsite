@@ -1,19 +1,14 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$users = $fake_data['users'];
+// Load Users Model
+require_once __DIR__ . '/../../../models/UsersModel.php';
+
+$usersModel = new UsersModel();
 
 // Get user ID from URL
 $user_id = (int)($_GET['id'] ?? 0);
 
 // Find user
-$user = null;
-foreach ($users as $u) {
-    if ($u['id'] == $user_id) {
-        $user = $u;
-        break;
-    }
-}
+$user = $usersModel->find($user_id);
 
 // Redirect if user not found
 if (!$user) {
@@ -21,7 +16,7 @@ if (!$user) {
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 

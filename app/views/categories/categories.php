@@ -1,3 +1,39 @@
+<?php
+// Load Categories Model
+require_once __DIR__ . '/../../models/CategoriesModel.php';
+
+$categoriesModel = new CategoriesModel();
+
+// Get all categories from database
+$categories = $categoriesModel->getAll();
+
+// Calculate total count for display
+$totalCategories = count($categories);
+$displayedCount = min(12, $totalCategories); // Show max 12 per page
+
+// Handle sorting
+$orderBy = $_GET['order_by'] ?? 'name';
+switch ($orderBy) {
+    case 'name_desc':
+        usort($categories, function($a, $b) { return strcmp($b['name'], $a['name']); });
+        break;
+    case 'course_count':
+        usort($categories, function($a, $b) { return ($b['product_count'] ?? 0) - ($a['product_count'] ?? 0); });
+        break;
+    case 'course_count_desc':
+        usort($categories, function($a, $b) { return ($a['product_count'] ?? 0) - ($b['product_count'] ?? 0); });
+        break;
+    case 'popular':
+        usort($categories, function($a, $b) { return ($b['view_count'] ?? 0) - ($a['view_count'] ?? 0); });
+        break;
+    default: // name
+        usort($categories, function($a, $b) { return strcmp($a['name'], $b['name']); });
+        break;
+}
+
+// Limit to displayed categories
+$displayedCategories = array_slice($categories, 0, 12);
+?>
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
     <div class="content-pusher">
@@ -31,16 +67,16 @@
                                 <!-- Top Bar with Results and Sort -->
                                 <div class="categories-topbar">
                                     <div class="results-count">
-                                        <span>Hiển thị 1-12 trong 15 danh mục</span>
+                                        <span>Hiển thị 1-<?php echo $displayedCount; ?> trong <?php echo $totalCategories; ?> danh mục</span>
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">
-                                            <select name="order_by" class="sort-select">
-                                                <option value="name" selected>Tên A-Z</option>
-                                                <option value="name_desc">Tên Z-A</option>
-                                                <option value="course_count">Nhiều sản phẩm nhất</option>
-                                                <option value="course_count_desc">Ít sản phẩm nhất</option>
-                                                <option value="popular">Phổ biến nhất</option>
+                                            <select name="order_by" class="sort-select" onchange="this.form.submit()">
+                                                <option value="name" <?php echo $orderBy === 'name' ? 'selected' : ''; ?>>Tên A-Z</option>
+                                                <option value="name_desc" <?php echo $orderBy === 'name_desc' ? 'selected' : ''; ?>>Tên Z-A</option>
+                                                <option value="course_count" <?php echo $orderBy === 'course_count' ? 'selected' : ''; ?>>Nhiều sản phẩm nhất</option>
+                                                <option value="course_count_desc" <?php echo $orderBy === 'course_count_desc' ? 'selected' : ''; ?>>Ít sản phẩm nhất</option>
+                                                <option value="popular" <?php echo $orderBy === 'popular' ? 'selected' : ''; ?>>Phổ biến nhất</option>
                                             </select>
                                         </form>
                                     </div>
@@ -48,353 +84,42 @@
 
                                 <!-- Categories Grid -->
                                 <div class="categories-grid">
-                                    <!-- Category Item 1 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Phổ biến</a>
+                                    <?php if (empty($displayedCategories)): ?>
+                                        <div class="no-categories">
+                                            <p>Chưa có danh mục nào được tạo.</p>
                                         </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Gói Data Nguồn Hàng" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Gói Data Nguồn Hàng</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Cơ sở dữ liệu nhà cung cấp uy tín với hàng triệu sản phẩm chất lượng cao từ Trung Quốc và các nước châu Á.
+                                    <?php else: ?>
+                                        <?php foreach ($displayedCategories as $category): ?>
+                                        <!-- Category Item -->
+                                        <div class="category-item">
+                                            <div class="category-tag-wrapper">
+                                                <a href="#" class="category-tag"><?php echo htmlspecialchars($category['status'] ?? 'Phổ biến'); ?></a>
                                             </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>24 Gói dữ liệu</span>
+                                            <div class="category-image">
+                                                <a href="?page=products&category=<?php echo $category['id']; ?>">
+                                                    <img src="<?php echo !empty($category['image']) ? htmlspecialchars($category['image']) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png'; ?>" 
+                                                         alt="<?php echo htmlspecialchars($category['name']); ?>" loading="lazy">
+                                                </a>
+                                            </div>
+                                            <div class="category-content">
+                                                <h3 class="category-title">
+                                                    <a href="?page=products&category=<?php echo $category['id']; ?>"><?php echo htmlspecialchars($category['name']); ?></a>
+                                                </h3>
+                                                <div class="category-description">
+                                                    <?php echo htmlspecialchars($category['description'] ?? 'Mô tả danh mục sẽ được cập nhật sớm.'); ?>
+                                                </div>
+                                                <div class="category-meta">
+                                                    <div class="course-count">
+                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
+                                                        </svg>
+                                                        <span><?php echo ($category['product_count'] ?? 0); ?> Sản phẩm</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <!-- Category Item 2 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Xu hướng</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Vận Chuyển Chính Ngạch" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Vận Chuyển Chính Ngạch</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ vận chuyển hàng hóa từ Trung Quốc về Việt Nam qua đường chính ngạch, đảm bảo an toàn và hợp pháp.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>18 Dịch vụ</span>
-                                                </div>                                             
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 3 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Mới</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Mua Hàng Trọn Gói" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Mua Hàng Trọn Gói</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ mua hàng trọn gói từ A-Z: Tìm nguồn → Đặt hàng → Thanh toán NCC → Vận chuyển → Giao hàng tận nơi.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>15 Gói dịch vụ</span>
-                                                </div>                                             
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 4 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Phổ biến</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Thanh Toán Quốc Tế" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Thanh Toán Quốc Tế</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ thanh toán quốc tế an toàn, nhanh chóng với tỷ giá ưu đãi cho các giao dịch thương mại.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>21 Phương thức</span>
-                                                </div>                                                
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 5 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Hot</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Dịch Vụ Đánh Hàng" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Dịch Vụ Đánh Hàng</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ đánh hàng chuyên nghiệp bao gồm: Phiên dịch, hỗ trợ đi lại, ăn ở tại Trung Quốc.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>32 Dịch vụ</span>
-                                                </div>                                             
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 6 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Phổ biến</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Phiên Dịch Thương Mại" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Phiên Dịch Thương Mại</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ phiên dịch chuyên nghiệp cho các cuộc đàm phán thương mại, hội nghị và giao dịch kinh doanh.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>12 Dịch vụ</span>
-                                                </div>                                                
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 7 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Phát triển</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Hỗ Trợ Đi Lại" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Hỗ Trợ Đi Lại</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ hỗ trợ đi lại, đưa đón sân bay, di chuyển trong thành phố và các chuyến công tác tại Trung Quốc.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>16 Dịch vụ</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 8 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Hot</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Dịch Vụ Ăn Ở" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Dịch Vụ Ăn Ở</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Hỗ trợ đặt khách sạn, nhà hàng và các dịch vụ ăn ở chất lượng cao trong các chuyến công tác.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>28 Dịch vụ</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 9 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Phổ biến</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Tư Vấn Kinh Doanh" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Tư Vấn Kinh Doanh</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ tư vấn chiến lược kinh doanh, phát triển thị trường và mở rộng hoạt động thương mại.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>19 Dịch vụ</span>
-                                                </div>                                            
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 10 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Phát triển</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Kho Bãi & Logistics" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Kho Bãi & Logistics</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ kho bãi, lưu trữ hàng hóa và quản lý chuỗi cung ứng chuyên nghiệp tại Trung Quốc.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>14 Dịch vụ</span>
-                                                </div>                                          
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 11 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Hot</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Kiểm Định Chất Lượng" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Kiểm Định Chất Lượng</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Dịch vụ kiểm định chất lượng sản phẩm, giám sát sản xuất và đảm bảo tiêu chuẩn xuất khẩu.al finance, investment strategies, and wealth building techniques from experts.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>22 Dịch vụ</span>
-                                                </div>                                              
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Category Item 12 -->
-                                    <div class="category-item">
-                                        <div class="category-tag-wrapper">
-                                            <a href="#" class="category-tag">Phổ biến</a>
-                                        </div>
-                                        <div class="category-image">
-                                            <a href="?page=products">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png" 
-                                                     alt="Hỗ Trợ Pháp Lý" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="category-content">
-                                            <h3 class="category-title">
-                                                <a href="?page=products">Hỗ Trợ Pháp Lý</a>
-                                            </h3>
-                                            <div class="category-description">
-                                                Tư vấn pháp lý thương mại, hỗ trợ thủ tục xuất nhập khẩu và giải quyết các vấn đề pháp lý.
-                                            </div>
-                                            <div class="category-meta">
-                                                <div class="course-count">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
-                                                    </svg>
-                                                    <span>26 Dịch vụ</span>
-                                                </div>                                              
-                                            </div>
-                                        </div>
-                                    </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
 
                                 <!-- Pagination -->

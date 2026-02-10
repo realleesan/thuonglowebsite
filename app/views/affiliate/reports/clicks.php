@@ -4,16 +4,19 @@
  * Analytics về clicks, nguồn traffic
  */
 
-// Load data
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$reportsData = $dataLoader->getData('reports');
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
 
-$clicksData = $reportsData['clicks'];
-$totalClicks = $clicksData['total'];
-$uniqueClicks = $clicksData['unique'];
-$clicksByDate = $clicksData['by_date'];
-$clicksBySource = $clicksData['by_source'];
+$affiliateModel = new AffiliateModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1;
+
+// Demo clicks data (in real app, get from database)
+$totalClicks = rand(1000, 5000);
+$uniqueClicks = rand(500, 2000);
+$clicksByDate = []; // Demo - generate from database
+$clicksBySource = []; // Demo - generate from database
 
 // Page title
 $page_title = 'Báo Cáo Clicks';

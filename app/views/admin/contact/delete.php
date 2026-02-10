@@ -1,19 +1,14 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$contacts = $fake_data['contacts'];
+// Load Models
+require_once __DIR__ . '/../../models/ContactsModel.php';
+
+$contactsModel = new ContactsModel();
 
 // Get contact ID from URL
 $contact_id = (int)($_GET['id'] ?? 0);
 
-// Find contact
-$contact = null;
-foreach ($contacts as $c) {
-    if ($c['id'] == $contact_id) {
-        $contact = $c;
-        break;
-    }
-}
+// Get contact from database
+$contact = $contactsModel->getById($contact_id);
 
 // Redirect if contact not found
 if (!$contact) {
@@ -29,11 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm = $_POST['confirm'] ?? '';
     
     if ($confirm === 'yes') {
-        // Demo success message
-        $success_message = 'Xóa liên hệ thành công!';
-        // In real app, would redirect after deletion
-        // header('Location: ?page=admin&module=contact&deleted=1');
-        // exit;
+        // Delete from database
+        if ($contactsModel->delete($contact_id)) {
+            $success_message = 'Xóa liên hệ thành công!';
+            header('Location: ?page=admin&module=contact&deleted=1');
+            exit;
+        } else {
+            $error_message = 'Có lỗi xảy ra khi xóa liên hệ';
+        }
     } else {
         $error_message = 'Vui lòng xác nhận để xóa liên hệ.';
     }

@@ -1,8 +1,57 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$affiliates = $fake_data['affiliates'];
-$users = $fake_data['users'];
+// Load Models
+require_once __DIR__ . '/../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../models/UsersModel.php';
+
+$affiliateModel = new AffiliateModel();
+$usersModel = new UsersModel();
+
+// Search and filter parameters
+$search = $_GET['search'] ?? '';
+$status_filter = $_GET['status'] ?? '';
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = 10;
+
+// Build query conditions
+$conditions = [];
+$bindings = [];
+
+if (!empty($search)) {
+    $conditions[] = "(u.name LIKE ? OR u.email LIKE ? OR a.code LIKE ?)";
+    $searchTerm = "%{$search}%";
+    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+}
+
+if (!empty($status_filter)) {
+    $conditions[] = "a.status = ?";
+    $bindings[] = $status_filter;
+}
+
+// Get total count for pagination
+$countSql = "SELECT COUNT(*) as total FROM affiliates a LEFT JOIN users u ON a.user_id = u.id";
+if (!empty($conditions)) {
+    $countSql .= " WHERE " . implode(' AND ', $conditions);
+}
+$totalResult = $affiliateModel->db->query($countSql, $bindings);
+$total_affiliates = $totalResult[0]['total'] ?? 0;
+
+// Calculate pagination
+$total_pages = ceil($total_affiliates / $per_page);
+$current_page = max(1, min($total_pages, $current_page));
+$offset = ($current_page - 1) * $per_page;
+
+// Get affiliates with user info
+$sql = "
+    SELECT a.*, u.name as user_name, u.email as user_email
+    FROM affiliates a
+    LEFT JOIN users u ON a.user_id = u.id
+";
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+$sql .= " ORDER BY a.created_at DESC LIMIT {$per_page} OFFSET {$offset}";
+
+$affiliates = $affiliateModel->db->query($sql, $bindings);
 
 // Create user lookup
 $user_lookup = [];

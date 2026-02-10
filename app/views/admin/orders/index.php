@@ -1,33 +1,77 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$orders = $fake_data['orders'];
-$users = $fake_data['users'];
-$products = $fake_data['products'];
+// Load Models
+require_once __DIR__ . '/../../../models/OrdersModel.php';
+require_once __DIR__ . '/../../../models/UsersModel.php';
 
-// Create lookup arrays
-$user_lookup = [];
-foreach ($users as $user) {
-    $user_lookup[$user['id']] = $user;
-}
+$ordersModel = new OrdersModel();
+$usersModel = new UsersModel();
 
-$product_lookup = [];
-foreach ($products as $product) {
-    $product_lookup[$product['id']] = $product;
-}
-
-// Search and filter
+// Search and filter parameters
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 $payment_filter = $_GET['payment'] ?? '';
 $date_from = $_GET['date_from'] ?? '';
 $date_to = $_GET['date_to'] ?? '';
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = 10;
 
-// Filter orders
-$filtered_orders = $orders;
+// Build query conditions
+$conditions = [];
+$bindings = [];
 
 if (!empty($search)) {
-    $filtered_orders = array_filter($filtered_orders, function($order) use ($search, $user_lookup, $product_lookup) {
+    $conditions[] = "(o.order_number LIKE ? OR u.name LIKE ? OR u.email LIKE ?)";
+    $searchTerm = "%{$search}%";
+    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+}
+
+if (!empty($status_filter)) {
+    $conditions[] = "o.status = ?";
+    $bindings[] = $status_filter;
+}
+
+if (!empty($payment_filter)) {
+    $conditions[] = "o.payment_status = ?";
+    $bindings[] = $payment_filter;
+}
+
+if (!empty($date_from)) {
+    $conditions[] = "DATE(o.created_at) >= ?";
+    $bindings[] = $date_from;
+}
+
+if (!empty($date_to)) {
+    $conditions[] = "DATE(o.created_at) <= ?";
+    $bindings[] = $date_to;
+}
+
+// Get total count for pagination
+$countSql = "SELECT COUNT(*) as total FROM orders o LEFT JOIN users u ON o.user_id = u.id";
+if (!empty($conditions)) {
+    $countSql .= " WHERE " . implode(' AND ', $conditions);
+}
+$totalResult = $ordersModel->db->query($countSql, $bindings);
+$total_orders = $totalResult[0]['total'] ?? 0;
+
+// Calculate pagination
+$total_pages = ceil($total_orders / $per_page);
+$current_page = max(1, min($total_pages, $current_page));
+$offset = ($current_page - 1) * $per_page;
+
+// Get orders with user info
+$sql = "
+    SELECT o.*, u.name as user_name, u.email as user_email,
+           COUNT(oi.id) as items_count
+    FROM orders o
+    LEFT JOIN users u ON o.user_id = u.id
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+";
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+$sql .= " GROUP BY o.id ORDER BY o.created_at DESC LIMIT {$per_page} OFFSET {$offset}";
+
+$filtered_orders = $ordersModel->db->query($sql, $bindings);
         $user_name = $user_lookup[$order['user_id']]['name'] ?? '';
         $product_name = $product_lookup[$order['product_id']]['name'] ?? '';
         return stripos($user_name, $search) !== false || 

@@ -4,16 +4,20 @@
  * Chính sách hoa hồng trọn đời (Lifetime Commission)
  */
 
-// Load data từ AffiliateDataLoader
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-require_once __DIR__ . '/../../../../core/AffiliateErrorHandler.php';
+// Load Models
+require_once __DIR__ . '/../../../../models/SettingsModel.php';
+
+$settingsModel = new SettingsModel();
 
 try {
-    $loader = new AffiliateDataLoader();
-    $commissionsData = $loader->getCommissionsData();
-    $policy = $commissionsData['policy'] ?? [];
+    // Get commission policy from settings
+    $policy = [
+        'commission_rate' => $settingsModel->get('commission_rate', 10),
+        'min_withdrawal' => $settingsModel->get('min_withdrawal', 100000),
+        'payment_schedule' => 'monthly'
+    ];
 } catch (Exception $e) {
-    AffiliateErrorHandler::handleError($e, 'commissions_policy');
+    error_log("Commission Policy Error: " . $e->getMessage());
     exit;
 }
 

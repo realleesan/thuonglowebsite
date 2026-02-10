@@ -4,14 +4,46 @@
  * Hiển thị số dư, lịch sử giao dịch
  */
 
-// Load data
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$financeData = $dataLoader->getData('finance');
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../../models/OrdersModel.php';
 
-$wallet = $financeData['wallet'];
-$transactions = $financeData['transactions'];
-$withdrawalSettings = $financeData['withdrawal_settings'];
+$affiliateModel = new AffiliateModel();
+$ordersModel = new OrdersModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1; // Default for demo
+
+// Get affiliate data from database
+$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
+if (!$affiliateInfo) {
+    $affiliateInfo = [
+        'total_commission' => 0,
+        'paid_commission' => 0,
+        'pending_commission' => 0
+    ];
+}
+
+// Wallet data from affiliate info
+$wallet = [
+    'balance' => $affiliateInfo['pending_commission'],
+    'total_earned' => $affiliateInfo['total_commission'],
+    'total_withdrawn' => $affiliateInfo['paid_commission'],
+    'pending' => $affiliateInfo['pending_commission']
+];
+
+// Demo transactions (in real app, get from database)
+$transactions = [
+    ['id' => 1, 'type' => 'commission', 'amount' => 50000, 'date' => date('Y-m-d H:i:s', strtotime('-1 day')), 'status' => 'completed'],
+    ['id' => 2, 'type' => 'withdrawal', 'amount' => -100000, 'date' => date('Y-m-d H:i:s', strtotime('-3 days')), 'status' => 'completed'],
+    ['id' => 3, 'type' => 'commission', 'amount' => 75000, 'date' => date('Y-m-d H:i:s', strtotime('-5 days')), 'status' => 'completed']
+];
+
+$withdrawalSettings = [
+    'min_amount' => 100000,
+    'max_amount' => 10000000,
+    'fee_percentage' => 2
+];
 
 // Page title
 $page_title = 'Ví của tôi';

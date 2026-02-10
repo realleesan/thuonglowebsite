@@ -1,7 +1,9 @@
 <?php
-// Load fake data for categories
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$categories = $fake_data['categories'];
+// Load Categories Model
+require_once __DIR__ . '/../../../models/CategoriesModel.php';
+
+$categoriesModel = new CategoriesModel();
+$categories = $categoriesModel->getActive();
 
 // Handle form submission (demo)
 $errors = [];

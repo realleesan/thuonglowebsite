@@ -1,11 +1,25 @@
 <?php
+// Load Models
+require_once __DIR__ . '/../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../models/UsersModel.php';
+
+$affiliateModel = new AffiliateModel();
+$usersModel = new UsersModel();
+
 // Get affiliate ID from URL
 $affiliate_id = (int)($_GET['id'] ?? 0);
 
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$affiliates = $fake_data['affiliates'];
-$users = $fake_data['users'];
+// Find affiliate
+$affiliate = $affiliateModel->find($affiliate_id);
+
+// Redirect if affiliate not found
+if (!$affiliate) {
+    header('Location: ?page=admin&module=affiliates&error=not_found');
+    exit;
+}
+
+// Get users for dropdown
+$users = $usersModel->all();
 
 // Find affiliate
 $affiliate = null;

@@ -419,7 +419,9 @@ function initializeAnalyticsChart() {
         ctx.lineWidth = 2;
         ctx.fillStyle = gradient;
         
-        const data = [2, 5, 3, 8, 6, 12, 10, 15, 8, 5];
+        // Get data from data attributes or use empty array
+        const chartElement = document.querySelector('[data-chart-data]');
+        const data = chartElement ? JSON.parse(chartElement.dataset.chartData || '[]') : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         const width = 300;
         const height = 150;
         const padding = 20;

@@ -1,7 +1,20 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$news = $fake_data['news'];
+// Load Models
+require_once __DIR__ . '/../../../models/NewsModel.php';
+
+$newsModel = new NewsModel();
+
+// Get news ID from URL
+$news_id = (int)($_GET['id'] ?? 0);
+
+// Find news
+$news = $newsModel->find($news_id);
+
+// Redirect if news not found
+if (!$news) {
+    header('Location: ?page=admin&module=news&error=not_found');
+    exit;
+}
 
 // Get news ID
 $news_id = (int)($_GET['id'] ?? 0);

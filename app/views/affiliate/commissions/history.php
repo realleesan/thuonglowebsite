@@ -4,17 +4,23 @@
  * Lịch sử hoa hồng với phân biệt Subscription vs Logistics
  */
 
-// Load data từ AffiliateDataLoader
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-require_once __DIR__ . '/../../../../core/AffiliateErrorHandler.php';
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../../models/OrdersModel.php';
+
+$affiliateModel = new AffiliateModel();
+$ordersModel = new OrdersModel();
 
 try {
-    $loader = new AffiliateDataLoader();
-    $commissionsData = $loader->getCommissionsData();
-    $history = $commissionsData['history'] ?? [];
+    // Get current affiliate ID from session
+    $affiliateId = $_SESSION['user_id'] ?? 1;
+    
+    // Get commission history from database
+    $dashboardData = $affiliateModel->getDashboardData($affiliateId);
+    $history = $dashboardData['recent_orders'] ?? [];
     $overview = $commissionsData['overview'] ?? [];
 } catch (Exception $e) {
-    AffiliateErrorHandler::handleError($e, 'commissions_history');
+    error_log("Commission History Error: " . $e->getMessage());
     exit;
 }
 

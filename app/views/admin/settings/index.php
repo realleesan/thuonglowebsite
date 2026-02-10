@@ -1,7 +1,11 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$settings = $fake_data['settings'];
+// Load Models
+require_once __DIR__ . '/../../../models/SettingsModel.php';
+
+$settingsModel = new SettingsModel();
+
+// Get all settings
+$settings = $settingsModel->all();
 
 // Search and filter
 $search = $_GET['search'] ?? '';
