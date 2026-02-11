@@ -1,7 +1,7 @@
 ## Giai đoạn 0: Nền tảng & Công cụ (Shared)
 
-* [ ] Tạo file `core/view_init.php` (Chuẩn hóa nạp Service)
-* [ ] Cập nhật
+* [X] Tạo file `core/view_init.php` (Chuẩn hóa nạp Service)
+* [X] Cập nhật
 
   core/functions.php (Bọc an toàn cho toàn bộ helper)
 

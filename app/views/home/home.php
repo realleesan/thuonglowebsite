@@ -1,16 +1,11 @@
 ﻿<?php
 /**
  * Home Page - Dynamic Version
- * Full Version with Fixed PHP Logic
+ * Full Version with Standard View Initialization
  */
 
-// 1. Chỉ nạp Service nếu chưa có (Tránh lỗi khởi tạo lại gây trắng trang)
-if (!isset($viewDataService)) {
-    require_once __DIR__ . '/../../services/ViewDataService.php';
-    require_once __DIR__ . '/../../services/ErrorHandler.php';
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-}
+// 1. Khởi tạo View an toàn (Service, ErrorHandler, Functions)
+require_once __DIR__ . '/../../../core/view_init.php';
 
 // 2. Khởi tạo biến dữ liệu
 $homeData = [];
@@ -22,7 +17,7 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Lấy dữ liệu từ Service
+    // Lấy dữ liệu từ Service đã được view_init khởi tạo
     $homeData = $viewDataService->getHomePageData();
     
     $featuredProducts = $homeData['featured_products'] ?? [];
@@ -35,31 +30,6 @@ try {
         $result = $errorHandler->handleViewError($e, 'home', []);
         $showErrorMessage = true;
         $errorMessage = $result['message'];
-    }
-}
-
-// 3. Helper functions - BỌC TRONG function_exists để tránh TRẮNG TRANG
-if (!function_exists('getProductImage')) {
-    function getProductImage($product) {
-        if (!empty($product['image']) && $product['image'] !== '/assets/images/default-product.jpg') {
-            return $product['image'];
-        }
-        return img_url('home/home-banner-top.png'); 
-    }
-}
-
-if (!function_exists('getCategoryImage')) {
-    function getCategoryImage($category) {
-        if (!empty($category['image']) && $category['image'] !== '/assets/images/default-category.jpg') {
-            return $category['image'];
-        }
-        return img_url('home/cta-final.png');
-    }
-}
-
-if (!function_exists('img_url')) {
-    function img_url($path) {
-        return '/assets/images/' . $path;
     }
 }
 ?>
