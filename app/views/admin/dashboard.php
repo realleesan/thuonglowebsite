@@ -1,113 +1,57 @@
 <?php
-// Enhanced Dashboard with Real Metrics
-// Load Models
-require_once __DIR__ . '/../../models/ProductsModel.php';
-require_once __DIR__ . '/../../models/CategoriesModel.php';
-require_once __DIR__ . '/../../models/NewsModel.php';
-require_once __DIR__ . '/../../models/UsersModel.php';
-require_once __DIR__ . '/../../models/OrdersModel.php';
+/**
+ * Admin Dashboard - Dynamic Version
+ * Converted from direct model usage to ViewDataService
+ */
 
-$productsModel = new ProductsModel();
-$categoriesModel = new CategoriesModel();
-$newsModel = new NewsModel();
-$usersModel = new UsersModel();
-$ordersModel = new OrdersModel();
+// Load required services and models
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-// Get actual data from database
-$products = $productsModel->getAll();
-$categories = $categoriesModel->getAll();
-$news = $newsModel->getAll();
-$users = $usersModel->getAll();
-$orders = $ordersModel->getAll();
+// Initialize services
+$viewDataService = new ViewDataService();
+$errorHandler = new ErrorHandler();
 
-// Calculate current stats from real data
-$stats = [
-    'total_products' => count($products),
-    'total_categories' => count($categories),
-    'total_news' => count($news),
-    'total_users' => count($users),
-    'total_orders' => count($orders),
-    'active_products' => count(array_filter($products, function($p) { return $p['status'] === 'active'; })),
-    'published_news' => count(array_filter($news, function($n) { return $n['status'] === 'published'; })),
-    'active_users' => count(array_filter($users, function($u) { return $u['status'] === 'active'; })),
-    'upcoming_events' => 0 // Will be calculated when EventsModel is available
-];
-
-// Calculate total revenue from products
-$totalRevenue = array_sum(array_map(function($p) { 
-    return $p['status'] === 'active' ? ($p['price'] ?? 0) : 0; 
-}, $products));
-
-$stats['total_revenue'] = $totalRevenue;
-
-// Calculate trends based on real data (simplified calculation)
-$trends = [
-    'products' => ['value' => max(0, count($products) - 10), 'direction' => count($products) > 10 ? 'up' : 'down'],
-    'sales' => ['value' => count($orders), 'direction' => count($orders) > 0 ? 'up' : 'down'],
-    'users' => ['value' => count($users), 'direction' => count($users) > 0 ? 'up' : 'down'],
-    'revenue' => ['value' => number_format($totalRevenue, 0), 'direction' => $totalRevenue > 0 ? 'up' : 'down']
-];
-
-// Alerts - things that need attention
+// Initialize data variables
+$stats = [];
+$trends = [];
 $alerts = [];
-$lowStockProducts = array_filter($products, function($p) {
-    return isset($p['stock']) && $p['stock'] < 5 && $p['stock'] > 0;
-});
-if (count($lowStockProducts) > 0) {
-    $alerts[] = [
-        'type' => 'warning',
-        'icon' => 'fas fa-exclamation-triangle',
-        'message' => count($lowStockProducts) . ' sản phẩm sắp hết hàng',
-        'link' => '?page=admin&module=products&filter=low_stock'
-    ];
-}
-
-$draftNews = array_filter($news, function($n) { return $n['status'] === 'draft'; });
-if (count($draftNews) > 0) {
-    $alerts[] = [
-        'type' => 'info',
-        'icon' => 'fas fa-file-alt',
-        'message' => count($draftNews) . ' tin tức đang chờ xuất bản',
-        'link' => '?page=admin&module=news&filter=draft'
-    ];
-}
-
-// Top products (based on real data) - ensure proper structure
 $topProducts = [];
-foreach (array_slice($products, 0, 5) as $product) {
-    $topProducts[] = [
-        'name' => $product['name'] ?? $product['title'] ?? 'Sản phẩm không tên',
-        'price' => $product['price'] ?? 0,
-        'status' => $product['status'] ?? 'active'
-    ];
-}
-
-// Recent activities with real data
 $recentActivities = [];
-foreach (array_slice(array_reverse($products), 0, 3) as $product) {
-    $recentActivities[] = [
-        'type' => 'product',
-        'title' => 'Sản phẩm mới: ' . $product['name'],
-        'date' => $product['created_at'] ?? date('Y-m-d H:i:s'),
-        'icon' => 'fas fa-box',
-        'status' => $product['status'] ?? 'active'
-    ];
+$chartsData = [];
+$showErrorMessage = false;
+$errorMessage = '';
+
+try {
+    // Get admin dashboard data
+    $dashboardData = $viewDataService->getAdminDashboardData();
+    
+    // Extract data
+    $stats = $dashboardData['stats'] ?? [];
+    $trends = $dashboardData['trends'] ?? [];
+    $alerts = $dashboardData['alerts'] ?? [];
+    $topProducts = $dashboardData['top_products'] ?? [];
+    $recentActivities = $dashboardData['recent_activities'] ?? [];
+    $chartsData = $dashboardData['charts_data'] ?? [];
+    
+} catch (Exception $e) {
+    // Handle errors gracefully
+    $result = $errorHandler->handleViewError($e, 'admin_dashboard', []);
+    $showErrorMessage = true;
+    $errorMessage = $result['message'];
+    
+    // Use empty state data
+    $emptyState = $viewDataService->handleEmptyState('admin_dashboard');
+    $stats = $emptyState['product_stats'] ?? [];
+    $trends = [];
+    $alerts = [];
+    $topProducts = [];
+    $recentActivities = [];
+    $chartsData = [];
 }
 
-foreach (array_slice(array_reverse($news), 0, 2) as $newsItem) {
-    $recentActivities[] = [
-        'type' => 'news',
-        'title' => 'Tin tức: ' . $newsItem['title'],
-        'date' => $newsItem['created_at'] ?? date('Y-m-d H:i:s'),
-        'icon' => 'fas fa-newspaper',
-        'status' => $newsItem['status'] ?? 'published'
-    ];
-}
-
-usort($recentActivities, function($a, $b) {
-    return strtotime($b['date']) - strtotime($a['date']);
-});
-$recentActivities = array_slice($recentActivities, 0, 5);
+// Calculate derived values for display
+$totalRevenue = $stats['total_revenue'] ?? 0;
 ?>
 
 <div class="admin-dashboard">
@@ -128,6 +72,15 @@ $recentActivities = array_slice($recentActivities, 0, 5);
     </div>
 
     <!-- Alerts Section -->
+    <?php if ($showErrorMessage): ?>
+    <div class="dashboard-alerts">
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <span><?php echo htmlspecialchars($errorMessage); ?></span>
+        </div>
+    </div>
+    <?php endif; ?>
+    
     <?php if (!empty($alerts)): ?>
     <div class="dashboard-alerts">
         <?php foreach ($alerts as $alert): ?>
@@ -147,11 +100,11 @@ $recentActivities = array_slice($recentActivities, 0, 5);
                 <i class="fas fa-box"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo $stats['total_products']; ?></h3>
+                <h3><?php echo $stats['total_products'] ?? 0; ?></h3>
                 <p>Tổng sản phẩm</p>
-                <div class="stat-trend trend-up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span><?php echo $trends['products']['value']; ?>% so với tuần trước</span>
+                <div class="stat-trend trend-<?php echo ($trends['products']['direction'] ?? 'up'); ?>">
+                    <i class="fas fa-arrow-<?php echo ($trends['products']['direction'] ?? 'up'); ?>"></i>
+                    <span><?php echo ($trends['products']['value'] ?? 0); ?>% so với tuần trước</span>
                 </div>
             </div>
         </div>
@@ -161,11 +114,11 @@ $recentActivities = array_slice($recentActivities, 0, 5);
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo number_format($totalRevenue / 1000000, 1); ?>M</h3>
+                <h3><?php echo number_format(($totalRevenue / 1000000), 1); ?>M</h3>
                 <p>Doanh thu (VNĐ)</p>
-                <div class="stat-trend trend-up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span><?php echo $trends['revenue']['value']; ?>% so với tuần trước</span>
+                <div class="stat-trend trend-<?php echo ($trends['revenue']['direction'] ?? 'up'); ?>">
+                    <i class="fas fa-arrow-<?php echo ($trends['revenue']['direction'] ?? 'up'); ?>"></i>
+                    <span><?php echo ($trends['revenue']['value'] ?? 0); ?>% so với tuần trước</span>
                 </div>
             </div>
         </div>
@@ -175,11 +128,11 @@ $recentActivities = array_slice($recentActivities, 0, 5);
                 <i class="fas fa-newspaper"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo $stats['published_news']; ?></h3>
+                <h3><?php echo $stats['published_news'] ?? 0; ?></h3>
                 <p>Tin tức đã xuất bản</p>
-                <div class="stat-trend trend-up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span><?php echo $trends['sales']['value']; ?>% so với tuần trước</span>
+                <div class="stat-trend trend-<?php echo ($trends['sales']['direction'] ?? 'up'); ?>">
+                    <i class="fas fa-arrow-<?php echo ($trends['sales']['direction'] ?? 'up'); ?>"></i>
+                    <span><?php echo ($trends['sales']['value'] ?? 0); ?>% so với tuần trước</span>
                 </div>
             </div>
         </div>
@@ -189,11 +142,11 @@ $recentActivities = array_slice($recentActivities, 0, 5);
                 <i class="fas fa-calendar"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo $stats['upcoming_events']; ?></h3>
+                <h3><?php echo $stats['upcoming_events'] ?? 0; ?></h3>
                 <p>Sự kiện sắp tới</p>
-                <div class="stat-trend trend-up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span><?php echo $trends['users']['value']; ?>% so với tuần trước</span>
+                <div class="stat-trend trend-<?php echo ($trends['users']['direction'] ?? 'up'); ?>">
+                    <i class="fas fa-arrow-<?php echo ($trends['users']['direction'] ?? 'up'); ?>"></i>
+                    <span><?php echo ($trends['users']['value'] ?? 0); ?>% so với tuần trước</span>
                 </div>
             </div>
         </div>

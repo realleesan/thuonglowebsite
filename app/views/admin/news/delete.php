@@ -1,18 +1,32 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/NewsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$newsModel = new NewsModel();
-
-// Get news ID
-$news_id = (int)($_GET['id'] ?? 0);
-
-// Get news from database
-$current_news = $newsModel->getById($news_id);
-
-// Redirect if news not found
-if (!$current_news) {
-    header('Location: ?page=admin&module=news');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get news ID
+    $news_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$news_id) {
+        header('Location: ?page=admin&module=news');
+        exit;
+    }
+    
+    // Get news data from service
+    $newsData = $viewDataService->getAdminNewsDetailsData($news_id);
+    $current_news = $newsData['news'];
+    
+    // Redirect if news not found
+    if (!$current_news) {
+        header('Location: ?page=admin&module=news');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin News Delete Error', $e);
+    header('Location: ?page=admin&module=news&error=1');
     exit;
 }
 

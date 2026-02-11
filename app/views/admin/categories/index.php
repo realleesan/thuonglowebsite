@@ -1,49 +1,38 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/CategoriesModel.php';
-require_once __DIR__ . '/../../../models/ProductsModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$categoriesModel = new CategoriesModel();
-$productsModel = new ProductsModel();
-
-// Get categories with product count
-$categories = $categoriesModel->getWithProductCount();
-
-// Count products per category
-$product_count = [];
-foreach ($products as $product) {
-    $category_id = $product['category_id'];
-    $product_count[$category_id] = ($product_count[$category_id] ?? 0) + 1;
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Search and filter parameters
+    $search = $_GET['search'] ?? '';
+    $status_filter = $_GET['status'] ?? '';
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    // Prepare filters for ViewDataService
+    $filters = [
+        'search' => $search,
+        'status' => $status_filter
+    ];
+    
+    // Get categories data using ViewDataService
+    $categoriesData = $viewDataService->getAdminCategoriesData($current_page, $per_page, $filters);
+    
+    $paged_categories = $categoriesData['categories'];
+    $total_categories = $categoriesData['total'];
+    $pagination = $categoriesData['pagination'];
+    $total_pages = $pagination['last_page'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Categories Index', $e->getMessage());
+    $paged_categories = [];
+    $total_categories = 0;
+    $total_pages = 1;
+    $current_page = 1;
 }
-
-// Search and filter
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-
-// Filter categories
-$filtered_categories = $categories;
-
-if (!empty($search)) {
-    $filtered_categories = array_filter($filtered_categories, function($category) use ($search) {
-        return stripos($category['name'], $search) !== false || 
-               stripos($category['description'], $search) !== false ||
-               stripos($category['slug'], $search) !== false;
-    });
-}
-
-if (!empty($status_filter)) {
-    $filtered_categories = array_filter($filtered_categories, function($category) use ($status_filter) {
-        return $category['status'] == $status_filter;
-    });
-}
-
-// Pagination
-$per_page = 10;
-$total_categories = count($filtered_categories);
-$total_pages = ceil($total_categories / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
-$offset = ($current_page - 1) * $per_page;
-$paged_categories = array_slice($filtered_categories, $offset, $per_page);
 
 // Format date function
 function formatDate($date) {
@@ -174,7 +163,7 @@ function formatDate($date) {
                             </td>
                             <td>
                                 <span class="product-count-badge">
-                                    <?= $product_count[$category['id']] ?? 0 ?> sản phẩm
+                                    <?= $category['products_count'] ?? 0 ?> sản phẩm
                                 </span>
                             </td>
                             <td>

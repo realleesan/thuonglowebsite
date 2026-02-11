@@ -1,18 +1,27 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/SettingsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$settingsModel = new SettingsModel();
-
-// Get setting key from URL
-$setting_key = $_GET['key'] ?? '';
-
-// Find setting
-$setting = $settingsModel->findBy('key', $setting_key);
-
-// Redirect if setting not found
-if (!$setting) {
-    header('Location: ?page=admin&module=settings&error=not_found');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get setting key from URL
+    $setting_key = $_GET['key'] ?? '';
+    
+    // Get setting details using ViewDataService
+    $settingData = $viewDataService->getAdminSettingDetailsData($setting_key);
+    $setting = $settingData['setting'];
+    
+    // Redirect if setting not found
+    if (!$setting) {
+        header('Location: ?page=admin&module=settings&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Settings Edit Error', $e);
+    header('Location: ?page=admin&module=settings&error=system_error');
     exit;
 }
 

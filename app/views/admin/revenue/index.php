@@ -1,105 +1,63 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/OrdersModel.php';
-require_once __DIR__ . '/../../models/ProductsModel.php';
-require_once __DIR__ . '/../../models/UsersModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$ordersModel = new OrdersModel();
-$productsModel = new ProductsModel();
-$usersModel = new UsersModel();
-
-// Date filter
-$date_from = $_GET['date_from'] ?? date('Y-m-01'); // First day of current month
-$date_to = $_GET['date_to'] ?? date('Y-m-d'); // Today
-$period = $_GET['period'] ?? 'month'; // month, quarter, year
-
-// Get filtered orders from database
-$filters = [
-    'date_from' => $date_from,
-    'date_to' => $date_to
-];
-$filtered_orders = $ordersModel->getByDateRange($date_from, $date_to);
-
-// Get all products and users for lookups
-$products = $productsModel->getAll();
-$users = $usersModel->getAll();
-
-// Create lookups
-$product_lookup = [];
-foreach ($products as $product) {
-    $product_lookup[$product['id']] = $product;
-}
-
-$user_lookup = [];
-foreach ($users as $user) {
-    $user_lookup[$user['id']] = $user;
-}
-
-// Calculate revenue statistics
-$total_revenue = 0;
-$completed_revenue = 0;
-$pending_revenue = 0;
-$total_orders = count($filtered_orders);
-$completed_orders = 0;
-$pending_orders = 0;
-$processing_orders = 0;
-$cancelled_orders = 0;
-
-$revenue_by_product = [];
-$revenue_by_date = [];
-$revenue_by_status = [
-    'completed' => 0,
-    'processing' => 0,
-    'pending' => 0,
-    'cancelled' => 0
-];
-
-foreach ($filtered_orders as $order) {
-    $total_revenue += $order['total'];
-    $revenue_by_status[$order['status']] += $order['total'];
+try {
+    $viewDataService = new ViewDataService();
     
-    // Count orders by status
-    switch ($order['status']) {
-        case 'completed':
-            $completed_orders++;
-            $completed_revenue += $order['total'];
-            break;
-        case 'processing':
-            $processing_orders++;
-            break;
-        case 'pending':
-            $pending_orders++;
-            $pending_revenue += $order['total'];
-            break;
-        case 'cancelled':
-            $cancelled_orders++;
-            break;
-    }
+    // Date filter
+    $date_from = $_GET['date_from'] ?? date('Y-m-01'); // First day of current month
+    $date_to = $_GET['date_to'] ?? date('Y-m-d'); // Today
+    $period = $_GET['period'] ?? 'month'; // month, quarter, year
     
-    // Revenue by product
-    $product_id = $order['product_id'];
-    if (!isset($revenue_by_product[$product_id])) {
-        $revenue_by_product[$product_id] = [
-            'product' => $product_lookup[$product_id] ?? null,
-            'revenue' => 0,
-            'orders' => 0
-        ];
-    }
-    $revenue_by_product[$product_id]['revenue'] += $order['total'];
-    $revenue_by_product[$product_id]['orders']++;
+    $filters = [
+        'date_from' => $date_from,
+        'date_to' => $date_to,
+        'period' => $period
+    ];
     
-    // Revenue by date
-    $date = date('Y-m-d', strtotime($order['created_at']));
-    if (!isset($revenue_by_date[$date])) {
-        $revenue_by_date[$date] = 0;
-    }
-    $revenue_by_date[$date] += $order['total'];
+    // Get revenue data from service
+    $revenueData = $viewDataService->getAdminRevenueData($filters);
+    $filtered_orders = $revenueData['orders'];
+    $products = $revenueData['products'];
+    $users = $revenueData['users'];
+    $product_lookup = $revenueData['products'];
+    $user_lookup = $revenueData['users'];
+    $revenue_by_product = $revenueData['revenue_by_product'];
+    $revenue_by_date = $revenueData['revenue_by_date'];
+    
+    // Extract statistics
+    $stats = $revenueData['stats'];
+    $total_revenue = $stats['total_revenue'];
+    $completed_revenue = $stats['completed_revenue'];
+    $pending_revenue = $stats['pending_revenue'];
+    $total_orders = $stats['total_orders'];
+    $completed_orders = $stats['completed_orders'];
+    $pending_orders = $stats['pending_orders'];
+    $processing_orders = $stats['processing_orders'];
+    $cancelled_orders = $stats['cancelled_orders'];
+    $revenue_by_status = $stats['revenue_by_status'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Revenue Error', $e);
+    $filtered_orders = [];
+    $products = [];
+    $users = [];
+    $product_lookup = [];
+    $user_lookup = [];
+    $revenue_by_product = [];
+    $revenue_by_date = [];
+    $total_revenue = 0;
+    $completed_revenue = 0;
+    $pending_revenue = 0;
+    $total_orders = 0;
+    $completed_orders = 0;
+    $pending_orders = 0;
+    $processing_orders = 0;
+    $cancelled_orders = 0;
+    $revenue_by_status = ['completed' => 0, 'processing' => 0, 'pending' => 0, 'cancelled' => 0];
 }
-
-// Sort revenue by product (descending)
-uasort($revenue_by_product, function($a, $b) {
-    return $b['revenue'] - $a['revenue'];
-});
 
 // Generate chart data for revenue by date
 $chart_dates = [];

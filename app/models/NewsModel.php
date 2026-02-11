@@ -193,6 +193,33 @@ class NewsModel extends BaseModel {
     }
     
     /**
+     * Get latest news for home page
+     */
+    public function getLatestForHome($limit = 8) {
+        return $this->getWithAuthor($limit);
+    }
+    
+    /**
+     * Get news with categories
+     */
+    public function getWithCategories($limit = null) {
+        $sql = "
+            SELECT n.*, u.name as author_name, c.name as category_name
+            FROM {$this->table} n
+            LEFT JOIN users u ON n.author_id = u.id
+            LEFT JOIN categories c ON n.category_id = c.id
+            WHERE n.status = 'published'
+            ORDER BY n.published_at DESC
+        ";
+        
+        if ($limit) {
+            $sql .= " LIMIT {$limit}";
+        }
+        
+        return $this->db->query($sql);
+    }
+    
+    /**
      * Get popular news (by views)
      */
     public function getPopular($limit = 10) {

@@ -1,93 +1,45 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$affiliateModel = new AffiliateModel();
-$usersModel = new UsersModel();
-
-// Search and filter parameters
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-$current_page = max(1, (int)($_GET['page'] ?? 1));
-$per_page = 10;
-
-// Build query conditions
-$conditions = [];
-$bindings = [];
-
-if (!empty($search)) {
-    $conditions[] = "(u.name LIKE ? OR u.email LIKE ? OR a.code LIKE ?)";
-    $searchTerm = "%{$search}%";
-    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get filter parameters
+    $filters = [
+        'search' => $_GET['search'] ?? '',
+        'status' => $_GET['status'] ?? ''
+    ];
+    
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    // Get affiliates data using ViewDataService
+    $affiliatesData = $viewDataService->getAdminAffiliatesData($current_page, $per_page, $filters);
+    $affiliates = $affiliatesData['affiliates'];
+    $pagination = $affiliatesData['pagination'];
+    $total_affiliates = $affiliatesData['total'];
+    $stats = $affiliatesData['stats'];
+    
+    // Calculate pagination variables for template
+    $total_pages = $pagination['last_page'];
+    $paged_affiliates = $affiliates;
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Affiliates Index View Error', $e);
+    $affiliates = [];
+    $paged_affiliates = [];
+    $total_affiliates = 0;
+    $total_pages = 1;
+    $current_page = 1;
+    $filters = ['search' => '', 'status' => ''];
 }
 
-if (!empty($status_filter)) {
-    $conditions[] = "a.status = ?";
-    $bindings[] = $status_filter;
-}
-
-// Get total count for pagination
-$countSql = "SELECT COUNT(*) as total FROM affiliates a LEFT JOIN users u ON a.user_id = u.id";
-if (!empty($conditions)) {
-    $countSql .= " WHERE " . implode(' AND ', $conditions);
-}
-$totalResult = $affiliateModel->db->query($countSql, $bindings);
-$total_affiliates = $totalResult[0]['total'] ?? 0;
-
-// Calculate pagination
-$total_pages = ceil($total_affiliates / $per_page);
-$current_page = max(1, min($total_pages, $current_page));
-$offset = ($current_page - 1) * $per_page;
-
-// Get affiliates with user info
-$sql = "
-    SELECT a.*, u.name as user_name, u.email as user_email
-    FROM affiliates a
-    LEFT JOIN users u ON a.user_id = u.id
-";
-if (!empty($conditions)) {
-    $sql .= " WHERE " . implode(' AND ', $conditions);
-}
-$sql .= " ORDER BY a.created_at DESC LIMIT {$per_page} OFFSET {$offset}";
-
-$affiliates = $affiliateModel->db->query($sql, $bindings);
-
-// Create user lookup
-$user_lookup = [];
-foreach ($users as $user) {
-    $user_lookup[$user['id']] = $user;
-}
-
-// Search and filter
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-
-// Filter affiliates
-$filtered_affiliates = $affiliates;
-
-if (!empty($search)) {
-    $filtered_affiliates = array_filter($filtered_affiliates, function($affiliate) use ($search, $user_lookup) {
-        $user = $user_lookup[$affiliate['user_id']] ?? null;
-        return ($user && (stripos($user['name'], $search) !== false || 
-                         stripos($user['email'], $search) !== false)) ||
-               stripos($affiliate['referral_code'], $search) !== false;
-    });
-}
-
-if (!empty($status_filter)) {
-    $filtered_affiliates = array_filter($filtered_affiliates, function($affiliate) use ($status_filter) {
-        return $affiliate['status'] == $status_filter;
-    });
-}
-
-// Pagination
-$per_page = 10;
-$total_affiliates = count($filtered_affiliates);
-$total_pages = ceil($total_affiliates / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
-$offset = ($current_page - 1) * $per_page;
-$paged_affiliates = array_slice($filtered_affiliates, $offset, $per_page);
+// Extract filter values for template
+$search = $filters['search'];
+$status_filter = $filters['status'];
 
 // Format price function
 function formatPrice($price) {
@@ -205,7 +157,6 @@ function formatDate($date) {
                     </tr>
                 <?php else: ?>
                     <?php foreach ($paged_affiliates as $affiliate): ?>
-                        <?php $user = $user_lookup[$affiliate['user_id']] ?? null; ?>
                         <tr>
                             <td>
                                 <input type="checkbox" class="affiliate-checkbox" value="<?= $affiliate['id'] ?>">
@@ -213,11 +164,11 @@ function formatDate($date) {
                             <td><?= $affiliate['id'] ?></td>
                             <td>
                                 <div class="affiliate-info">
-                                    <h4 class="affiliate-name"><?= htmlspecialchars($user['name'] ?? 'N/A') ?></h4>
-                                    <p class="affiliate-phone"><?= htmlspecialchars($user['phone'] ?? '') ?></p>
+                                    <h4 class="affiliate-name"><?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?></h4>
+                                    <p class="affiliate-phone"><?= htmlspecialchars($affiliate['user_phone'] ?? '') ?></p>
                                 </div>
                             </td>
-                            <td><?= htmlspecialchars($user['email'] ?? 'N/A') ?></td>
+                            <td><?= htmlspecialchars($affiliate['user_email'] ?? 'N/A') ?></td>
                             <td>
                                 <span class="referral-code">
                                     <?= htmlspecialchars($affiliate['referral_code']) ?>
@@ -258,7 +209,7 @@ function formatDate($date) {
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button type="button" class="btn btn-sm btn-danger delete-btn" 
-                                            data-id="<?= $affiliate['id'] ?>" data-name="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>" 
+                                            data-id="<?= $affiliate['id'] ?>" data-name="<?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?>" 
                                             title="Xóa">
                                         <i class="fas fa-trash"></i>
                                     </button>

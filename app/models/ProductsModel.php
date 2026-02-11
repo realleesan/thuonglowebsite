@@ -188,6 +188,38 @@ class ProductsModel extends BaseModel {
     }
     
     /**
+     * Get featured products for home page
+     */
+    public function getFeaturedForHome($limit = 8) {
+        return $this->getFeatured($limit);
+    }
+    
+    /**
+     * Get latest products for home page
+     */
+    public function getLatestForHome($limit = 8) {
+        return $this->getWithCategory($limit);
+    }
+    
+    /**
+     * Get products by category with pagination
+     */
+    public function getByCategoryPaginated($categoryId, $page = 1, $limit = 12) {
+        $offset = ($page - 1) * $limit;
+        
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.category_id = ? AND p.status = 'active'
+            ORDER BY p.created_at DESC
+            LIMIT {$limit} OFFSET {$offset}
+        ";
+        
+        return $this->db->query($sql, [$categoryId]);
+    }
+    
+    /**
      * Get product statistics
      */
     public function getStats() {
@@ -224,6 +256,13 @@ class ProductsModel extends BaseModel {
         $stats['sales'] = $salesData[0] ?? [];
         
         return $stats;
+    }
+    
+    /**
+     * Get product statistics for admin views (alias for getStats)
+     */
+    public function getProductStats() {
+        return $this->getStats();
     }
     
     /**

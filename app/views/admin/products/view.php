@@ -1,33 +1,64 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/ProductsModel.php';
-require_once __DIR__ . '/../../../models/CategoriesModel.php';
+/**
+ * Admin Products View - Dynamic Version
+ * Converted from direct model usage to ViewDataService
+ */
 
-$productsModel = new ProductsModel();
-$categoriesModel = new CategoriesModel();
+// Load required services
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
+
+// Initialize services
+$viewDataService = new ViewDataService();
+$errorHandler = new ErrorHandler();
 
 // Get product ID from URL
 $product_id = (int)($_GET['id'] ?? 0);
 
-// Find product with category info
-$product = $productsModel->getBySlug($product_id) ?: $productsModel->find($product_id);
+// Initialize data variables
+$product = null;
+$categories = [];
+$showErrorMessage = false;
+$errorMessage = '';
 
-// Redirect if product not found
-if (!$product) {
-    header('Location: ?page=admin&module=products&error=not_found');
-    exit;
+try {
+    if (!$product_id) {
+        throw new Exception('ID sản phẩm không hợp lệ');
+    }
+    
+    // Get admin product details data
+    $productData = $viewDataService->getAdminProductDetailsData($product_id);
+    
+    // Extract data
+    $product = $productData['product'] ?? null;
+    $categories = $productData['categories'] ?? [];
+    
+    if (!$product) {
+        throw new Exception('Không tìm thấy sản phẩm');
+    }
+    
+} catch (Exception $e) {
+    // Handle errors gracefully
+    $result = $errorHandler->handleViewError($e, 'admin_product_details', []);
+    $showErrorMessage = true;
+    $errorMessage = $result['message'];
+    
+    // Redirect if product not found
+    if (strpos($e->getMessage(), 'không tìm thấy') !== false) {
+        header('Location: ?page=admin&module=products&error=not_found');
+        exit;
+    }
 }
 
-// Get categories for dropdown
-$categories = $categoriesModel->getActive();
+// Helper functions
+function formatPrice($price) {
+    return number_format($price, 0, ',', '.') . ' VNĐ';
+}
 
-// Get product ID
-$product_id = (int)($_GET['id'] ?? 0);
-
-// Find product from database
-$product = $productsModel->getById($product_id);
-
-// If product not found, redirect
+function formatDate($date) {
+    return date('d/m/Y H:i', strtotime($date));
+}
+?>
 if (!$product) {
     header('Location: ?page=admin&module=products&error=not_found');
     exit;

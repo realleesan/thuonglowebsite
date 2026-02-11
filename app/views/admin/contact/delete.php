@@ -1,18 +1,27 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/ContactsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$contactsModel = new ContactsModel();
-
-// Get contact ID from URL
-$contact_id = (int)($_GET['id'] ?? 0);
-
-// Get contact from database
-$contact = $contactsModel->getById($contact_id);
-
-// Redirect if contact not found
-if (!$contact) {
-    header('Location: ?page=admin&module=contact');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get contact ID from URL
+    $contact_id = (int)($_GET['id'] ?? 0);
+    
+    // Get contact details using ViewDataService
+    $contactData = $viewDataService->getAdminContactDetailsData($contact_id);
+    $contact = $contactData['contact'];
+    
+    // Redirect if contact not found
+    if (!$contact) {
+        header('Location: ?page=admin&module=contact&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Contact Delete Error', $e);
+    header('Location: ?page=admin&module=contact&error=system_error');
     exit;
 }
 

@@ -1,36 +1,27 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/ContactsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$contactsModel = new ContactsModel();
-
-// Get contact ID from URL
-$contact_id = (int)($_GET['id'] ?? 0);
-
-// Find contact
-$contact = $contactsModel->find($contact_id);
-
-// Redirect if contact not found
-if (!$contact) {
-    header('Location: ?page=admin&module=contact&error=not_found');
-    exit;
-}
-
-// Get contact ID from URL
-$contact_id = (int)($_GET['id'] ?? 0);
-
-// Find contact
-$contact = null;
-foreach ($contacts as $c) {
-    if ($c['id'] == $contact_id) {
-        $contact = $c;
-        break;
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get contact ID from URL
+    $contact_id = (int)($_GET['id'] ?? 0);
+    
+    // Get contact details using ViewDataService
+    $contactData = $viewDataService->getAdminContactDetailsData($contact_id);
+    $contact = $contactData['contact'];
+    
+    // Redirect if contact not found
+    if (!$contact) {
+        header('Location: ?page=admin&module=contact&error=not_found');
+        exit;
     }
-}
-
-// Redirect if contact not found
-if (!$contact) {
-    header('Location: ?page=admin&module=contact');
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Contact Edit Error', $e);
+    header('Location: ?page=admin&module=contact&error=system_error');
     exit;
 }
 

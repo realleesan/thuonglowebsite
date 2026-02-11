@@ -1,31 +1,43 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/EventsModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$eventsModel = new EventsModel();
-
-// Search and filter
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-
-// Build filters array
-$filters = [];
-if (!empty($search)) {
-    $filters['search'] = $search;
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get filter parameters
+    $filters = [
+        'search' => $_GET['search'] ?? '',
+        'status' => $_GET['status'] ?? ''
+    ];
+    
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    // Get events data using ViewDataService
+    $eventsData = $viewDataService->getAdminEventsData($current_page, $per_page, $filters);
+    $events = $eventsData['events'];
+    $pagination = $eventsData['pagination'];
+    $total_events = $eventsData['total'];
+    $stats = $eventsData['stats'];
+    
+    // Calculate pagination variables for template
+    $total_pages = $pagination['last_page'];
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Events Index View Error', $e);
+    $events = [];
+    $total_events = 0;
+    $total_pages = 1;
+    $current_page = 1;
+    $filters = ['search' => '', 'status' => ''];
 }
-if (!empty($status_filter)) {
-    $filters['status'] = $status_filter;
-}
 
-// Pagination
-$per_page = 10;
-$current_page = max(1, (int)($_GET['page'] ?? 1));
-$offset = ($current_page - 1) * $per_page;
-
-// Get events from database
-$events = $eventsModel->getAll($per_page, $offset, $filters);
-$total_events = count($eventsModel->getAll(null, 0, $filters)); // Get total count
-$total_pages = ceil($total_events / $per_page);
+// Extract filter values for template
+$search = $filters['search'];
+$status_filter = $filters['status'];
 
 // Format date function
 function formatDate($date) {
@@ -153,7 +165,7 @@ function formatPrice($price) {
                             <td>
                                 <div class="event-image">
                                     <img src="<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>" 
-                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
+                                         onerror="this.src='/assets/images/placeholder.jpg'">
                                 </div>
                             </td>
                             <td>

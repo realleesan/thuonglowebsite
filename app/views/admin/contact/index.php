@@ -1,82 +1,35 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/ContactsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$contactsModel = new ContactsModel();
-
-// Search and filter parameters
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-$current_page = max(1, (int)($_GET['page'] ?? 1));
-$per_page = 10;
-
-// Build query conditions
-$conditions = [];
-$bindings = [];
-
-if (!empty($search)) {
-    $conditions[] = "(name LIKE ? OR email LIKE ? OR subject LIKE ?)";
-    $searchTerm = "%{$search}%";
-    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get filters
+    $search = $_GET['search'] ?? '';
+    $status_filter = $_GET['status'] ?? '';
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    $filters = [
+        'search' => $search,
+        'status' => $status_filter
+    ];
+    
+    // Get contacts data from service
+    $contactsData = $viewDataService->getAdminContactsData($current_page, $per_page, $filters);
+    $paged_contacts = $contactsData['contacts'];
+    $total_contacts = $contactsData['total'];
+    $total_pages = $contactsData['pagination']['last_page'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Contacts Error', $e);
+    $paged_contacts = [];
+    $total_contacts = 0;
+    $total_pages = 1;
+    $current_page = 1;
 }
-
-if (!empty($status_filter)) {
-    $conditions[] = "status = ?";
-    $bindings[] = $status_filter;
-}
-
-// Get total count for pagination
-$countSql = "SELECT COUNT(*) as total FROM contacts";
-if (!empty($conditions)) {
-    $countSql .= " WHERE " . implode(' AND ', $conditions);
-}
-$totalResult = $contactsModel->db->query($countSql, $bindings);
-$total_contacts = $totalResult[0]['total'] ?? 0;
-
-// Calculate pagination
-$total_pages = ceil($total_contacts / $per_page);
-$current_page = max(1, min($total_pages, $current_page));
-$offset = ($current_page - 1) * $per_page;
-
-// Get contacts
-$sql = "SELECT * FROM contacts";
-if (!empty($conditions)) {
-    $sql .= " WHERE " . implode(' AND ', $conditions);
-}
-$sql .= " ORDER BY created_at DESC LIMIT {$per_page} OFFSET {$offset}";
-
-$contacts = $contactsModel->db->query($sql, $bindings);
-
-// Search and filter
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-
-// Filter contacts
-$filtered_contacts = $contacts;
-
-if (!empty($search)) {
-    $filtered_contacts = array_filter($filtered_contacts, function($contact) use ($search) {
-        return stripos($contact['name'], $search) !== false || 
-               stripos($contact['email'], $search) !== false ||
-               stripos($contact['phone'], $search) !== false ||
-               stripos($contact['subject'], $search) !== false ||
-               stripos($contact['message'], $search) !== false;
-    });
-}
-
-if (!empty($status_filter)) {
-    $filtered_contacts = array_filter($filtered_contacts, function($contact) use ($status_filter) {
-        return $contact['status'] == $status_filter;
-    });
-}
-
-// Pagination
-$per_page = 10;
-$total_contacts = count($filtered_contacts);
-$total_pages = ceil($total_contacts / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
-$offset = ($current_page - 1) * $per_page;
-$paged_contacts = array_slice($filtered_contacts, $offset, $per_page);
 
 // Format date function
 function formatDate($date) {

@@ -1,18 +1,32 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/EventsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$eventsModel = new EventsModel();
-
-// Get event ID
-$event_id = (int)($_GET['id'] ?? 0);
-
-// Get event from database
-$current_event = $eventsModel->getById($event_id);
-
-// Redirect if event not found
-if (!$current_event) {
-    header('Location: ?page=admin&module=events');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get event ID
+    $event_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$event_id) {
+        header('Location: ?page=admin&module=events');
+        exit;
+    }
+    
+    // Get event data from service
+    $eventData = $viewDataService->getAdminEventDetailsData($event_id);
+    $current_event = $eventData['event'];
+    
+    // Redirect if event not found
+    if (!$current_event) {
+        header('Location: ?page=admin&module=events');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Events Edit Error', $e);
+    header('Location: ?page=admin&module=events&error=1');
     exit;
 }
 

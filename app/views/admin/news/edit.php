@@ -1,36 +1,34 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/NewsModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$newsModel = new NewsModel();
-
-// Get news ID from URL
-$news_id = (int)($_GET['id'] ?? 0);
-
-// Find news
-$news = $newsModel->find($news_id);
-
-// Redirect if news not found
-if (!$news) {
-    header('Location: ?page=admin&module=news&error=not_found');
-    exit;
-}
-
-// Get news ID
-$news_id = (int)($_GET['id'] ?? 0);
-
-// Find news by ID
-$current_news = null;
-foreach ($news as $article) {
-    if ($article['id'] == $news_id) {
-        $current_news = $article;
-        break;
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get news ID from URL
+    $news_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$news_id) {
+        header('Location: ?page=admin&module=news&error=invalid_id');
+        exit;
     }
-}
-
-// Redirect if news not found
-if (!$current_news) {
-    header('Location: ?page=admin&module=news');
+    
+    // Get news data using ViewDataService
+    $newsData = $viewDataService->getAdminNewsDetailsData($news_id);
+    $current_news = $newsData['news'];
+    $author = $newsData['author'];
+    
+    // Redirect if news not found
+    if (!$current_news) {
+        header('Location: ?page=admin&module=news&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin News Edit View Error', $e);
+    header('Location: ?page=admin&module=news&error=system_error');
     exit;
 }
 
@@ -300,7 +298,7 @@ function formatDate($date) {
                             <div class="revision-item">
                                 <div class="revision-date"><?= formatDate($current_news['created_at']) ?></div>
                                 <div class="revision-action">Tạo bài viết</div>
-                                <div class="revision-author">bởi <?= htmlspecialchars($current_news['author']) ?></div>
+                                <div class="revision-author">bởi <?= htmlspecialchars($author['name'] ?? $current_news['author_name'] ?? 'N/A') ?></div>
                             </div>
                             <div class="revision-item current">
                                 <div class="revision-date"><?= date('d/m/Y H:i') ?></div>

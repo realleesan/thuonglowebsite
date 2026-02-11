@@ -1,28 +1,39 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/CategoriesModel.php';
-require_once __DIR__ . '/../../models/ProductsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$categoriesModel = new CategoriesModel();
-$productsModel = new ProductsModel();
-
-// Get category ID from URL
-$category_id = (int)($_GET['id'] ?? 0);
-
-// Get category from database
-$category = $categoriesModel->getById($category_id);
-
-// Redirect if category not found
-if (!$category) {
-    header('Location: ?page=admin&module=categories&error=not_found');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get category ID from URL
+    $category_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$category_id) {
+        header('Location: ?page=admin&module=categories&error=not_found');
+        exit;
+    }
+    
+    // Get category data from service
+    $categoryData = $viewDataService->getAdminCategoryDetailsData($category_id);
+    $category = $categoryData['category'];
+    $category_products = $categoryData['products'];
+    
+    // Redirect if category not found
+    if (!$category) {
+        header('Location: ?page=admin&module=categories&error=not_found');
+        exit;
+    }
+    
+    // Get all categories for move modal
+    $allCategoriesData = $viewDataService->getActiveCategoriesForDropdown();
+    $allCategories = $allCategoriesData['categories'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Categories Delete Error', $e);
+    header('Location: ?page=admin&module=categories&error=1');
     exit;
 }
-
-// Check if category has products
-$category_products = $productsModel->getByCategory($category_id);
-
-// Get all categories for move modal
-$allCategories = $categoriesModel->getAll();
 
 $has_products = !empty($category_products);
 $errors = [];

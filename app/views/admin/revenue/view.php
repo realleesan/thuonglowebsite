@@ -1,33 +1,36 @@
 <?php
-// Load models
-require_once __DIR__ . '/../../../models/OrdersModel.php';
-require_once __DIR__ . '/../../../models/ProductsModel.php';
-require_once __DIR__ . '/../../../models/UsersModel.php';
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$ordersModel = new OrdersModel();
-$productsModel = new ProductsModel();
-$usersModel = new UsersModel();
-$affiliateModel = new AffiliateModel();
-
-// Get data from database
-$orders = $ordersModel->getAll();
-$products = $productsModel->getAll();
-$users = $usersModel->getAll();
-$affiliates = $affiliateModel->getAll();
-
-// Create lookups
-$product_lookup = [];
-foreach ($products as $product) {
-    $product_lookup[$product['id']] = $product;
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get filters from URL
+    $filters = [
+        'date_from' => $_GET['date_from'] ?? '',
+        'date_to' => $_GET['date_to'] ?? '',
+        'product_id' => $_GET['product_id'] ?? '',
+        'user_id' => $_GET['user_id'] ?? '',
+        'affiliate_id' => $_GET['affiliate_id'] ?? ''
+    ];
+    
+    // Get revenue data using ViewDataService
+    $revenueData = $viewDataService->getAdminRevenueData($filters);
+    $filtered_orders = $revenueData['orders'];
+    $products = $revenueData['products'];
+    $users = $revenueData['users'];
+    $affiliates = $revenueData['affiliates'];
+    $revenue_stats = $revenueData['stats'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Revenue View Error', $e);
+    $filtered_orders = [];
+    $products = [];
+    $users = [];
+    $affiliates = [];
+    $revenue_stats = ['total_revenue' => 0, 'total_orders' => 0, 'avg_order_value' => 0];
 }
-
-$user_lookup = [];
-foreach ($users as $user) {
-    $user_lookup[$user['id']] = $user;
-}
-
-$affiliate_lookup = [];
 foreach ($affiliates as $affiliate) {
     $affiliate_lookup[$affiliate['user_id']] = $affiliate;
 }

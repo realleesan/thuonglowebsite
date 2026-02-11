@@ -1,48 +1,34 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$affiliateModel = new AffiliateModel();
-$usersModel = new UsersModel();
-
-// Get affiliate ID from URL
-$affiliate_id = (int)($_GET['id'] ?? 0);
-
-// Find affiliate
-$affiliate = $affiliateModel->find($affiliate_id);
-
-// Redirect if affiliate not found
-if (!$affiliate) {
-    header('Location: ?page=admin&module=affiliates&error=not_found');
-    exit;
-}
-
-// Get users for dropdown
-$users = $usersModel->all();
-
-// Find affiliate
-$affiliate = null;
-foreach ($affiliates as $item) {
-    if ($item['id'] == $affiliate_id) {
-        $affiliate = $item;
-        break;
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get affiliate ID from URL
+    $affiliate_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$affiliate_id) {
+        header('Location: ?page=admin&module=affiliates&error=invalid_id');
+        exit;
     }
-}
-
-// If affiliate not found, redirect
-if (!$affiliate) {
-    header('Location: ?page=admin&module=affiliates&error=not_found');
-    exit;
-}
-
-// Find user info
-$user = null;
-foreach ($users as $item) {
-    if ($item['id'] == $affiliate['user_id']) {
-        $user = $item;
-        break;
+    
+    // Get affiliate data using ViewDataService
+    $affiliateData = $viewDataService->getAdminAffiliateDetailsData($affiliate_id);
+    $affiliate = $affiliateData['affiliate'];
+    
+    // Redirect if affiliate not found
+    if (!$affiliate) {
+        header('Location: ?page=admin&module=affiliates&error=not_found');
+        exit;
     }
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Affiliates Edit View Error', $e);
+    header('Location: ?page=admin&module=affiliates&error=system_error');
+    exit;
 }
 
 // Handle form submission (demo)
@@ -99,7 +85,7 @@ function formatPrice($price) {
                 <i class="fas fa-edit"></i>
                 Chỉnh Sửa Đại Lý
             </h1>
-            <p class="page-description">Chỉnh sửa thông tin đại lý: <?= htmlspecialchars($user['name'] ?? 'N/A') ?></p>
+                            <p class="page-description">Chỉnh sửa thông tin đại lý: <?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?></p>
         </div>
         <div class="page-header-right">
             <a href="?page=admin&module=affiliates&action=view&id=<?= $affiliate_id ?>" class="btn btn-info">
@@ -148,9 +134,9 @@ function formatPrice($price) {
                                     <i class="fas fa-user-circle"></i>
                                 </div>
                                 <div class="user-details">
-                                    <h4><?= htmlspecialchars($user['name'] ?? 'N/A') ?></h4>
-                                    <p><?= htmlspecialchars($user['email'] ?? 'N/A') ?></p>
-                                    <p><?= htmlspecialchars($user['phone'] ?? 'N/A') ?></p>
+                                    <h4><?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?></h4>
+                                    <p><?= htmlspecialchars($affiliate['user_email'] ?? 'N/A') ?></p>
+                                    <p><?= htmlspecialchars($affiliate['user_phone'] ?? 'N/A') ?></p>
                                 </div>
                             </div>
                             <small>Không thể thay đổi người dùng sau khi tạo đại lý</small>

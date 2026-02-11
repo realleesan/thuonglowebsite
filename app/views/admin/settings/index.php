@@ -1,44 +1,37 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/SettingsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$settingsModel = new SettingsModel();
-
-// Get all settings
-$settings = $settingsModel->all();
-
-// Search and filter
-$search = $_GET['search'] ?? '';
-$type_filter = $_GET['type'] ?? '';
-
-// Filter settings
-$filtered_settings = $settings;
-
-if (!empty($search)) {
-    $filtered_settings = array_filter($filtered_settings, function($setting) use ($search) {
-        return stripos($setting['key'], $search) !== false || 
-               stripos($setting['description'], $search) !== false ||
-               stripos($setting['value'], $search) !== false;
-    });
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get filters
+    $search = $_GET['search'] ?? '';
+    $type_filter = $_GET['type'] ?? '';
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    $filters = [
+        'search' => $search,
+        'type' => $type_filter
+    ];
+    
+    // Get settings data from service
+    $settingsData = $viewDataService->getAdminSettingsData($current_page, $per_page, $filters);
+    $paged_settings = $settingsData['settings'];
+    $setting_types = $settingsData['types'];
+    $total_settings = $settingsData['total'];
+    $total_pages = $settingsData['pagination']['last_page'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Settings Error', $e);
+    $paged_settings = [];
+    $setting_types = [];
+    $total_settings = 0;
+    $total_pages = 1;
+    $current_page = 1;
 }
-
-if (!empty($type_filter)) {
-    $filtered_settings = array_filter($filtered_settings, function($setting) use ($type_filter) {
-        return $setting['type'] == $type_filter;
-    });
-}
-
-// Pagination
-$per_page = 10;
-$total_settings = count($filtered_settings);
-$total_pages = ceil($total_settings / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
-$offset = ($current_page - 1) * $per_page;
-$paged_settings = array_slice($filtered_settings, $offset, $per_page);
-
-// Get unique types for filter
-$setting_types = array_unique(array_column($settings, 'type'));
-sort($setting_types);
 
 // Format setting type display
 function formatSettingType($type) {

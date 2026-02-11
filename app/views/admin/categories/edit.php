@@ -1,36 +1,33 @@
 <?php
-// Load Categories Model
-require_once __DIR__ . '/../../../models/CategoriesModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$categoriesModel = new CategoriesModel();
-
-// Get category ID from URL
-$category_id = (int)($_GET['id'] ?? 0);
-
-// Find category
-$category = $categoriesModel->find($category_id);
-
-// Redirect if category not found
-if (!$category) {
-    header('Location: ?page=admin&module=categories&error=not_found');
-    exit;
-}
-
-// Get category ID from URL
-$category_id = (int)($_GET['id'] ?? 0);
-
-// Find category
-$category = null;
-foreach ($categories as $cat) {
-    if ($cat['id'] == $category_id) {
-        $category = $cat;
-        break;
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get category ID from URL
+    $category_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$category_id) {
+        header('Location: ?page=admin&module=categories&error=invalid_id');
+        exit;
     }
-}
-
-// Redirect if category not found
-if (!$category) {
-    header('Location: ?page=admin&module=categories&error=not_found');
+    
+    // Get category data using ViewDataService
+    $categoryData = $viewDataService->getAdminCategoryDetailsData($category_id);
+    $category = $categoryData['category'];
+    
+    // Redirect if category not found
+    if (!$category) {
+        header('Location: ?page=admin&module=categories&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Categories Edit View Error', $e);
+    header('Location: ?page=admin&module=categories&error=system_error');
     exit;
 }
 

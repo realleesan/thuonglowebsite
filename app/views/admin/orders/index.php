@@ -1,122 +1,51 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/OrdersModel.php';
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$ordersModel = new OrdersModel();
-$usersModel = new UsersModel();
-
-// Search and filter parameters
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-$payment_filter = $_GET['payment'] ?? '';
-$date_from = $_GET['date_from'] ?? '';
-$date_to = $_GET['date_to'] ?? '';
-$current_page = max(1, (int)($_GET['page'] ?? 1));
-$per_page = 10;
-
-// Build query conditions
-$conditions = [];
-$bindings = [];
-
-if (!empty($search)) {
-    $conditions[] = "(o.order_number LIKE ? OR u.name LIKE ? OR u.email LIKE ?)";
-    $searchTerm = "%{$search}%";
-    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get filter parameters
+    $filters = [
+        'search' => $_GET['search'] ?? '',
+        'status' => $_GET['status'] ?? '',
+        'payment_method' => $_GET['payment'] ?? '',
+        'date_from' => $_GET['date_from'] ?? '',
+        'date_to' => $_GET['date_to'] ?? ''
+    ];
+    
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    // Get orders data using ViewDataService
+    $ordersData = $viewDataService->getAdminOrdersData($current_page, $per_page, $filters);
+    $orders = $ordersData['orders'];
+    $pagination = $ordersData['pagination'];
+    $stats = $ordersData['stats'];
+    $total_orders = $ordersData['total'];
+    
+    // Extract filter values for form
+    $search = $filters['search'];
+    $status_filter = $filters['status'];
+    $payment_filter = $filters['payment_method'];
+    $date_from = $filters['date_from'];
+    $date_to = $filters['date_to'];
+    
+    // Pagination values
+    $total_pages = $pagination['last_page'];
+    $current_page = $pagination['current_page'];
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Orders Index View Error', $e);
+    $orders = [];
+    $stats = ['total' => 0, 'pending' => 0];
+    $total_orders = 0;
+    $total_pages = 1;
+    $current_page = 1;
+    $pagination = ['current_page' => 1, 'total' => 0];
 }
-
-if (!empty($status_filter)) {
-    $conditions[] = "o.status = ?";
-    $bindings[] = $status_filter;
-}
-
-if (!empty($payment_filter)) {
-    $conditions[] = "o.payment_status = ?";
-    $bindings[] = $payment_filter;
-}
-
-if (!empty($date_from)) {
-    $conditions[] = "DATE(o.created_at) >= ?";
-    $bindings[] = $date_from;
-}
-
-if (!empty($date_to)) {
-    $conditions[] = "DATE(o.created_at) <= ?";
-    $bindings[] = $date_to;
-}
-
-// Get total count for pagination
-$countSql = "SELECT COUNT(*) as total FROM orders o LEFT JOIN users u ON o.user_id = u.id";
-if (!empty($conditions)) {
-    $countSql .= " WHERE " . implode(' AND ', $conditions);
-}
-$totalResult = $ordersModel->db->query($countSql, $bindings);
-$total_orders = $totalResult[0]['total'] ?? 0;
-
-// Calculate pagination
-$total_pages = ceil($total_orders / $per_page);
-$current_page = max(1, min($total_pages, $current_page));
-$offset = ($current_page - 1) * $per_page;
-
-// Get orders with user info
-$sql = "
-    SELECT o.*, u.name as user_name, u.email as user_email,
-           COUNT(oi.id) as items_count
-    FROM orders o
-    LEFT JOIN users u ON o.user_id = u.id
-    LEFT JOIN order_items oi ON o.id = oi.order_id
-";
-if (!empty($conditions)) {
-    $sql .= " WHERE " . implode(' AND ', $conditions);
-}
-$sql .= " GROUP BY o.id ORDER BY o.created_at DESC LIMIT {$per_page} OFFSET {$offset}";
-
-$filtered_orders = $ordersModel->db->query($sql, $bindings);
-        $user_name = $user_lookup[$order['user_id']]['name'] ?? '';
-        $product_name = $product_lookup[$order['product_id']]['name'] ?? '';
-        return stripos($user_name, $search) !== false || 
-               stripos($product_name, $search) !== false ||
-               stripos($order['shipping_address'], $search) !== false ||
-               stripos((string)$order['id'], $search) !== false;
-    });
-}
-
-if (!empty($status_filter)) {
-    $filtered_orders = array_filter($filtered_orders, function($order) use ($status_filter) {
-        return $order['status'] == $status_filter;
-    });
-}
-
-if (!empty($payment_filter)) {
-    $filtered_orders = array_filter($filtered_orders, function($order) use ($payment_filter) {
-        return $order['payment_method'] == $payment_filter;
-    });
-}
-
-if (!empty($date_from)) {
-    $filtered_orders = array_filter($filtered_orders, function($order) use ($date_from) {
-        return strtotime($order['created_at']) >= strtotime($date_from);
-    });
-}
-
-if (!empty($date_to)) {
-    $filtered_orders = array_filter($filtered_orders, function($order) use ($date_to) {
-        return strtotime($order['created_at']) <= strtotime($date_to . ' 23:59:59');
-    });
-}
-
-// Sort by created_at desc
-usort($filtered_orders, function($a, $b) {
-    return strtotime($b['created_at']) - strtotime($a['created_at']);
-});
-
-// Pagination
-$per_page = 10;
-$total_orders = count($filtered_orders);
-$total_pages = ceil($total_orders / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
-$offset = ($current_page - 1) * $per_page;
-$paged_orders = array_slice($filtered_orders, $offset, $per_page);
 
 // Format price function
 function formatPrice($price) {
@@ -165,11 +94,11 @@ function getPaymentMethodLabel($method) {
             <div class="header-stats">
                 <div class="stat-item">
                     <span class="stat-label">Tổng đơn hàng:</span>
-                    <span class="stat-value"><?= count($orders) ?></span>
+                    <span class="stat-value"><?= $stats['total'] ?></span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-label">Chờ xử lý:</span>
-                    <span class="stat-value pending"><?= count(array_filter($orders, fn($o) => $o['status'] == 'pending')) ?></span>
+                    <span class="stat-value pending"><?= $stats['pending'] ?></span>
                 </div>
             </div>
         </div>
@@ -237,7 +166,7 @@ function getPaymentMethodLabel($method) {
     <!-- Results Info -->
     <div class="results-info">
         <span class="results-count">
-            Hiển thị <?= count($paged_orders) ?> trong tổng số <?= $total_orders ?> đơn hàng
+            Hiển thị <?= count($orders) ?> trong tổng số <?= $total_orders ?> đơn hàng
         </span>
         
         <!-- Quick Actions -->
@@ -273,7 +202,7 @@ function getPaymentMethodLabel($method) {
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($paged_orders)): ?>
+                <?php if (empty($orders)): ?>
                     <tr>
                         <td colspan="10" class="no-data">
                             <i class="fas fa-inbox"></i>
@@ -281,11 +210,7 @@ function getPaymentMethodLabel($method) {
                         </td>
                     </tr>
                 <?php else: ?>
-                    <?php foreach ($paged_orders as $order): ?>
-                        <?php 
-                        $user = $user_lookup[$order['user_id']] ?? null;
-                        $product = $product_lookup[$order['product_id']] ?? null;
-                        ?>
+                    <?php foreach ($orders as $order): ?>
                         <tr>
                             <td>
                                 <input type="checkbox" class="order-checkbox" value="<?= $order['id'] ?>">
@@ -295,14 +220,14 @@ function getPaymentMethodLabel($method) {
                             </td>
                             <td>
                                 <div class="customer-info">
-                                    <h4 class="customer-name"><?= htmlspecialchars($user['name'] ?? 'N/A') ?></h4>
-                                    <p class="customer-email"><?= htmlspecialchars($user['email'] ?? 'N/A') ?></p>
+                                    <h4 class="customer-name"><?= htmlspecialchars($order['user_name'] ?? 'N/A') ?></h4>
+                                    <p class="customer-email"><?= htmlspecialchars($order['user_email'] ?? 'N/A') ?></p>
                                 </div>
                             </td>
                             <td>
                                 <div class="product-info">
-                                    <h4 class="product-name"><?= htmlspecialchars($product['name'] ?? 'Sản phẩm đã xóa') ?></h4>
-                                    <p class="product-price"><?= formatPrice($product['price'] ?? 0) ?></p>
+                                    <h4 class="product-name"><?= htmlspecialchars($order['product_name'] ?? 'Sản phẩm đã xóa') ?></h4>
+                                    <p class="product-price"><?= formatPrice($order['product_price'] ?? 0) ?></p>
                                 </div>
                             </td>
                             <td class="quantity-cell">
@@ -333,7 +258,7 @@ function getPaymentMethodLabel($method) {
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button type="button" class="btn btn-sm btn-danger delete-btn" 
-                                            data-id="<?= $order['id'] ?>" data-customer="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>" 
+                                            data-id="<?= $order['id'] ?>" data-customer="<?= htmlspecialchars($order['user_name'] ?? 'N/A') ?>" 
                                             title="Xóa">
                                         <i class="fas fa-trash"></i>
                                     </button>

@@ -1,41 +1,37 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$affiliateModel = new AffiliateModel();
-$usersModel = new UsersModel();
-
-// Get affiliate ID from URL
-$affiliate_id = (int)($_GET['id'] ?? 0);
-
-// Find affiliate with user info
-$sql = "
-    SELECT a.*, u.name as user_name, u.email as user_email
-    FROM affiliates a
-    LEFT JOIN users u ON a.user_id = u.id
-    WHERE a.id = ?
-";
-$result = $affiliateModel->db->query($sql, [$affiliate_id]);
-$affiliate = $result ? $result[0] : null;
-
-// Redirect if affiliate not found
-if (!$affiliate) {
-    header('Location: ?page=admin&module=affiliates&error=not_found');
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get affiliate ID from URL
+    $affiliate_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$affiliate_id) {
+        header('Location: ?page=admin&module=affiliates&error=invalid_id');
+        exit;
+    }
+    
+    // Get affiliate data using ViewDataService
+    $affiliateData = $viewDataService->getAdminAffiliateDetailsData($affiliate_id);
+    $affiliate = $affiliateData['affiliate'];
+    $affiliate_orders = $affiliateData['orders'];
+    $performance_data = $affiliateData['performance_data'];
+    
+    // Redirect if affiliate not found
+    if (!$affiliate) {
+        header('Location: ?page=admin&module=affiliates&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Affiliates View Error', $e);
+    header('Location: ?page=admin&module=affiliates&error=system_error');
     exit;
 }
-
-// Get orders for this affiliate
-$orders = $affiliateModel->db->query("
-    SELECT * FROM orders WHERE affiliate_id = ? ORDER BY created_at DESC
-", [$affiliate_id]);
-}
-
-// Get affiliate orders (demo data)
-$affiliate_orders = array_filter($orders, function($order) use ($affiliate) {
-    // In real app, this would check referral tracking
-    return rand(0, 1); // Random for demo
-});
 
 // Format price function
 function formatPrice($price) {
@@ -76,7 +72,7 @@ $performance_data = [
                 Chỉnh sửa
             </a>
             <button type="button" class="btn btn-danger delete-btn" 
-                    data-id="<?= $affiliate_id ?>" data-name="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>">
+                    data-id="<?= $affiliate_id ?>" data-name="<?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?>">>
                 <i class="fas fa-trash"></i>
                 Xóa
             </button>
@@ -109,10 +105,10 @@ $performance_data = [
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="user-details">
-                        <h4><?= htmlspecialchars($user['name'] ?? 'N/A') ?></h4>
-                        <p><i class="fas fa-envelope"></i> <?= htmlspecialchars($user['email'] ?? 'N/A') ?></p>
-                        <p><i class="fas fa-phone"></i> <?= htmlspecialchars($user['phone'] ?? 'N/A') ?></p>
-                        <p><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($user['address'] ?? 'N/A') ?></p>
+                        <h4><?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?></h4>
+                        <p><i class="fas fa-envelope"></i> <?= htmlspecialchars($affiliate['user_email'] ?? 'N/A') ?></p>
+                        <p><i class="fas fa-phone"></i> <?= htmlspecialchars($affiliate['user_phone'] ?? 'N/A') ?></p>
+                        <p><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($affiliate['user_address'] ?? 'N/A') ?></p>
                     </div>
                 </div>
                 
@@ -245,19 +241,8 @@ $performance_data = [
                         <?php foreach (array_slice($affiliate_orders, 0, 5) as $order): ?>
                             <tr>
                                 <td>#<?= $order['id'] ?></td>
-                                <td>
-                                    <?php
-                                    $customer = null;
-                                    foreach ($users as $u) {
-                                        if ($u['id'] == $order['user_id']) {
-                                            $customer = $u;
-                                            break;
-                                        }
-                                    }
-                                    echo htmlspecialchars($customer['name'] ?? 'N/A');
-                                    ?>
-                                </td>
-                                <td>Sản phẩm #<?= $order['product_id'] ?></td>
+                                <td><?= htmlspecialchars($order['customer_name'] ?? 'N/A') ?></td>
+                                <td>Sản phẩm #<?= $order['product_id'] ?? 'N/A' ?></td>
                                 <td><?= formatPrice($order['total']) ?></td>
                                 <td><?= formatPrice($order['total'] * $affiliate['commission_rate'] / 100) ?></td>
                                 <td>

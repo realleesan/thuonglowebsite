@@ -1,24 +1,20 @@
 <?php
-// Load Users Model for dropdown
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$usersModel = new UsersModel();
-
-// Get users for dropdown (only users without affiliate accounts)
-$sql = "
-    SELECT u.* FROM users u
-    LEFT JOIN affiliates a ON u.id = a.user_id
-    WHERE a.id IS NULL AND u.role IN ('user', 'agent')
-    ORDER BY u.name
-";
-$users = $usersModel->db->query($sql);
-
-// Filter users that are not already affiliates
-$affiliates = $affiliateModel->getAll();
-$affiliate_user_ids = array_column($affiliates, 'user_id');
-$available_users = array_filter($users, function($user) use ($affiliate_user_ids) {
-    return !in_array($user['id'], $affiliate_user_ids) && $user['role'] !== 'admin';
-});
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get available users for dropdown (users without affiliate accounts)
+    $usersData = $viewDataService->getAvailableUsersForAffiliate();
+    $available_users = $usersData['users'] ?? [];
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Affiliates Add View Error', $e);
+    $available_users = [];
+}
 
 // Handle form submission (demo)
 $errors = [];

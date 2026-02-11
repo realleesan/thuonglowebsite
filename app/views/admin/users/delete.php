@@ -1,28 +1,38 @@
 <?php
-// Load models
-require_once __DIR__ . '/../../../models/UsersModel.php';
-require_once __DIR__ . '/../../../models/OrdersModel.php';
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$usersModel = new UsersModel();
-$ordersModel = new OrdersModel();
-$affiliateModel = new AffiliateModel();
-
-// Get user ID from URL
-$user_id = (int)($_GET['id'] ?? 0);
-
-// Find user from database
-$user = $usersModel->getById($user_id);
-
-// Redirect if user not found
-if (!$user) {
-    header('Location: ?page=admin&module=users&error=not_found');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get user ID from URL
+    $user_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$user_id) {
+        header('Location: ?page=admin&module=users&error=not_found');
+        exit;
+    }
+    
+    // Get user data from service
+    $userData = $viewDataService->getAdminUserDetailsData($user_id);
+    $user = $userData['user'];
+    
+    // Redirect if user not found
+    if (!$user) {
+        header('Location: ?page=admin&module=users&error=not_found');
+        exit;
+    }
+    
+    // Get related data (demo - in real app would be in service)
+    $user_orders = []; // Would get from service
+    $user_affiliate = null; // Would get from service
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Users Delete Error', $e);
+    header('Location: ?page=admin&module=users&error=1');
     exit;
 }
-
-// Get related data from database
-$user_orders = $ordersModel->getByUserId($user_id);
-$user_affiliate = $affiliateModel->getByUserId($user_id);
 
 // Handle form submission (demo)
 $success = false;

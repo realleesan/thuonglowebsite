@@ -1,18 +1,27 @@
 <?php
-// Load Users Model
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$usersModel = new UsersModel();
-
-// Get user ID from URL
-$user_id = (int)($_GET['id'] ?? 0);
-
-// Find user
-$user = $usersModel->find($user_id);
-
-// Redirect if user not found
-if (!$user) {
-    header('Location: ?page=admin&module=users&error=not_found');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get user ID from URL
+    $user_id = (int)($_GET['id'] ?? 0);
+    
+    // Get user details using ViewDataService
+    $userData = $viewDataService->getAdminUserDetailsData($user_id);
+    $user = $userData['user'];
+    
+    // Redirect if user not found
+    if (!$user) {
+        header('Location: ?page=admin&module=users&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Users Edit', $e->getMessage());
+    header('Location: ?page=admin&module=users&error=system_error');
     exit;
 }
 

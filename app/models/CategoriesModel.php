@@ -193,6 +193,30 @@ class CategoriesModel extends BaseModel {
     }
     
     /**
+     * Get categories with product counts (alias for existing method)
+     */
+    public function getWithProductCounts() {
+        return $this->getWithProductCount();
+    }
+    
+    /**
+     * Get featured categories for home page
+     */
+    public function getFeaturedCategories($limit = 9) {
+        $sql = "
+            SELECT c.*, COUNT(p.id) as product_count
+            FROM {$this->table} c
+            LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
+            WHERE c.status = 'active' AND c.parent_id IS NULL
+            GROUP BY c.id
+            ORDER BY c.sort_order ASC
+            LIMIT {$limit}
+        ";
+        
+        return $this->db->query($sql);
+    }
+    
+    /**
      * Search categories
      */
     public function searchCategories($query) {

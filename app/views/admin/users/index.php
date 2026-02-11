@@ -1,57 +1,40 @@
 <?php
-// Load Users Model
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$usersModel = new UsersModel();
-
-// Search and filter parameters
-$search = $_GET['search'] ?? '';
-$role_filter = $_GET['role'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-$current_page = max(1, (int)($_GET['page'] ?? 1));
-$per_page = 10;
-
-// Build query conditions
-$conditions = [];
-$bindings = [];
-
-if (!empty($search)) {
-    $conditions[] = "(name LIKE ? OR email LIKE ? OR phone LIKE ?)";
-    $searchTerm = "%{$search}%";
-    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Search and filter parameters
+    $search = $_GET['search'] ?? '';
+    $role_filter = $_GET['role'] ?? '';
+    $status_filter = $_GET['status'] ?? '';
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    // Prepare filters for ViewDataService
+    $filters = [
+        'search' => $search,
+        'role' => $role_filter,
+        'status' => $status_filter
+    ];
+    
+    // Get users data using ViewDataService
+    $usersData = $viewDataService->getAdminUsersData($current_page, $per_page, $filters);
+    
+    $paged_users = $usersData['users'];
+    $total_users = $usersData['total'];
+    $pagination = $usersData['pagination'];
+    $total_pages = $pagination['last_page'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Users Index', $e->getMessage());
+    $paged_users = [];
+    $total_users = 0;
+    $total_pages = 1;
+    $current_page = 1;
 }
-
-if (!empty($role_filter)) {
-    $conditions[] = "role = ?";
-    $bindings[] = $role_filter;
-}
-
-if (!empty($status_filter)) {
-    $conditions[] = "status = ?";
-    $bindings[] = $status_filter;
-}
-
-// Get total count for pagination
-$countSql = "SELECT COUNT(*) as total FROM users";
-if (!empty($conditions)) {
-    $countSql .= " WHERE " . implode(' AND ', $conditions);
-}
-$totalResult = $usersModel->db->query($countSql, $bindings);
-$total_users = $totalResult[0]['total'] ?? 0;
-
-// Calculate pagination
-$total_pages = ceil($total_users / $per_page);
-$current_page = max(1, min($total_pages, $current_page));
-$offset = ($current_page - 1) * $per_page;
-
-// Get users with pagination
-$sql = "SELECT * FROM users";
-if (!empty($conditions)) {
-    $sql .= " WHERE " . implode(' AND ', $conditions);
-}
-$sql .= " ORDER BY created_at DESC LIMIT {$per_page} OFFSET {$offset}";
-
-$paged_users = $usersModel->db->query($sql, $bindings);
 
 // Format date function
 function formatDate($date) {

@@ -1,41 +1,34 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/ProductsModel.php';
-require_once __DIR__ . '/../../../models/CategoriesModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$productsModel = new ProductsModel();
-$categoriesModel = new CategoriesModel();
-
-// Get product ID from URL
-$product_id = (int)($_GET['id'] ?? 0);
-
-// Find product
-$product = $productsModel->find($product_id);
-
-// Redirect if product not found
-if (!$product) {
-    header('Location: ?page=admin&module=products&error=not_found');
-    exit;
-}
-
-// Get categories for dropdown
-$categories = $categoriesModel->getActive();
-
-// Get product ID
-$product_id = (int)($_GET['id'] ?? 0);
-
-// Find product
-$product = null;
-foreach ($products as $p) {
-    if ($p['id'] == $product_id) {
-        $product = $p;
-        break;
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get product ID from URL
+    $product_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$product_id) {
+        header('Location: ?page=admin&module=products&error=invalid_id');
+        exit;
     }
-}
-
-// If product not found, redirect
-if (!$product) {
-    header('Location: ?page=admin&module=products&error=not_found');
+    
+    // Get product data using ViewDataService
+    $productData = $viewDataService->getAdminProductDetailsData($product_id);
+    $product = $productData['product'];
+    $categories = $productData['categories'];
+    
+    // Redirect if product not found
+    if (!$product) {
+        header('Location: ?page=admin&module=products&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Products Edit View Error', $e);
+    header('Location: ?page=admin&module=products&error=system_error');
     exit;
 }
 

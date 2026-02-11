@@ -1,9 +1,20 @@
 <?php
-// Load Categories Model
-require_once __DIR__ . '/../../../models/CategoriesModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$categoriesModel = new CategoriesModel();
-$categories = $categoriesModel->getActive();
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get categories for dropdown using ViewDataService
+    $categoriesData = $viewDataService->getActiveCategoriesForDropdown();
+    $categories = $categoriesData['categories'] ?? [];
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Products Add View Error', $e);
+    $categories = [];
+}
 
 // Handle form submission (demo)
 $errors = [];

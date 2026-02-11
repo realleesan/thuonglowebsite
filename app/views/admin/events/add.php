@@ -1,4 +1,17 @@
 <?php
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
+
+try {
+    $viewDataService = new ViewDataService();
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Events Add Error', $e);
+    header('Location: ?page=admin&module=events&error=1');
+    exit;
+}
+
 // Initialize form data
 $form_data = [
     'title' => '',

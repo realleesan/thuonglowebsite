@@ -1,84 +1,45 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/NewsModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$newsModel = new NewsModel();
-
-// Search and filter parameters
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-$current_page = max(1, (int)($_GET['page'] ?? 1));
-$per_page = 10;
-
-// Build query conditions
-$conditions = [];
-$bindings = [];
-
-if (!empty($search)) {
-    $conditions[] = "(title LIKE ? OR content LIKE ?)";
-    $searchTerm = "%{$search}%";
-    $bindings = array_merge($bindings, [$searchTerm, $searchTerm]);
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get filter parameters
+    $filters = [
+        'search' => $_GET['search'] ?? '',
+        'status' => $_GET['status'] ?? ''
+    ];
+    
+    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $per_page = 10;
+    
+    // Get news data using ViewDataService
+    $newsData = $viewDataService->getAdminNewsData($current_page, $per_page, $filters);
+    $news = $newsData['news'];
+    $pagination = $newsData['pagination'];
+    $stats = $newsData['stats'];
+    $total_news = $newsData['total'];
+    
+    // Extract filter values for form
+    $search = $filters['search'];
+    $status_filter = $filters['status'];
+    
+    // Pagination values
+    $total_pages = $pagination['last_page'];
+    $current_page = $pagination['current_page'];
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin News Index View Error', $e);
+    $news = [];
+    $stats = ['total' => 0, 'published' => 0, 'draft' => 0, 'archived' => 0];
+    $total_news = 0;
+    $total_pages = 1;
+    $current_page = 1;
+    $pagination = ['current_page' => 1, 'total' => 0];
 }
-
-if (!empty($status_filter)) {
-    $conditions[] = "status = ?";
-    $bindings[] = $status_filter;
-}
-
-// Get total count for pagination
-$countSql = "SELECT COUNT(*) as total FROM news";
-if (!empty($conditions)) {
-    $countSql .= " WHERE " . implode(' AND ', $conditions);
-}
-$totalResult = $newsModel->db->query($countSql, $bindings);
-$total_news = $totalResult[0]['total'] ?? 0;
-
-// Calculate pagination
-$total_pages = ceil($total_news / $per_page);
-$current_page = max(1, min($total_pages, $current_page));
-$offset = ($current_page - 1) * $per_page;
-
-// Get news with author info
-$sql = "
-    SELECT n.*, u.name as author_name
-    FROM news n
-    LEFT JOIN users u ON n.author_id = u.id
-";
-if (!empty($conditions)) {
-    $sql .= " WHERE " . implode(' AND ', $conditions);
-}
-$sql .= " ORDER BY n.created_at DESC LIMIT {$per_page} OFFSET {$offset}";
-
-$news = $newsModel->db->query($sql, $bindings);
-
-// Search and filter
-$search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? '';
-
-// Filter news
-$filtered_news = $news;
-
-if (!empty($search)) {
-    $filtered_news = array_filter($filtered_news, function($article) use ($search) {
-        return stripos($article['title'], $search) !== false || 
-               stripos($article['content'], $search) !== false ||
-               stripos($article['excerpt'], $search) !== false;
-    });
-}
-
-if (!empty($status_filter)) {
-    $filtered_news = array_filter($filtered_news, function($article) use ($status_filter) {
-        return $article['status'] == $status_filter;
-    });
-}
-
-// Pagination
-$per_page = 10;
-$total_news = count($filtered_news);
-$total_pages = ceil($total_news / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
-$offset = ($current_page - 1) * $per_page;
-$paged_news = array_slice($filtered_news, $offset, $per_page);
 
 // Format date function
 function formatDate($date) {
@@ -144,7 +105,7 @@ function formatDate($date) {
     <!-- Results Info -->
     <div class="results-info">
         <span class="results-count">
-            Hiển thị <?= count($paged_news) ?> trong tổng số <?= $total_news ?> tin tức
+            Hiển thị <?= count($news) ?> trong tổng số <?= $total_news ?> tin tức
         </span>
         
         <!-- Bulk Actions -->
@@ -181,7 +142,7 @@ function formatDate($date) {
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($paged_news)): ?>
+                <?php if (empty($news)): ?>
                     <tr>
                         <td colspan="9" class="no-data">
                             <i class="fas fa-inbox"></i>
@@ -189,7 +150,7 @@ function formatDate($date) {
                         </td>
                     </tr>
                 <?php else: ?>
-                    <?php foreach ($paged_news as $article): ?>
+                    <?php foreach ($news as $article): ?>
                         <tr>
                             <td>
                                 <input type="checkbox" class="news-checkbox" value="<?= $article['id'] ?>">
@@ -198,7 +159,7 @@ function formatDate($date) {
                             <td>
                                 <div class="news-image">
                                     <img src="<?= $article['image'] ?>" alt="<?= htmlspecialchars($article['title']) ?>" 
-                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
+                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'">
                                 </div>
                             </td>
                             <td>
@@ -216,7 +177,7 @@ function formatDate($date) {
                             <td>
                                 <div class="author-info">
                                     <i class="fas fa-user"></i>
-                                    <?= htmlspecialchars($article['author']) ?>
+                                    <?= htmlspecialchars($article['author_name'] ?? 'N/A') ?>
                                 </div>
                             </td>
                             <td>

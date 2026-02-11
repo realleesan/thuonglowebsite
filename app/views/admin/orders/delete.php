@@ -1,28 +1,42 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/OrdersModel.php';
-require_once __DIR__ . '/../../models/UsersModel.php';
-require_once __DIR__ . '/../../models/ProductsModel.php';
+// Load ViewDataService
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-$ordersModel = new OrdersModel();
-$usersModel = new UsersModel();
-$productsModel = new ProductsModel();
-
-// Get order ID from URL
-$order_id = (int)($_GET['id'] ?? 0);
-
-// Get order from database
-$order = $ordersModel->getById($order_id);
-
-// Redirect if order not found
-if (!$order) {
-    header('Location: ?page=admin&module=orders');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get order ID from URL
+    $order_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$order_id) {
+        header('Location: ?page=admin&module=orders');
+        exit;
+    }
+    
+    // Get order data from service
+    $orderData = $viewDataService->getAdminOrderDetailsData($order_id);
+    $order = $orderData['order'];
+    $user = $orderData['user'];
+    $order_items = $orderData['order_items'];
+    
+    // Redirect if order not found
+    if (!$order) {
+        header('Location: ?page=admin&module=orders');
+        exit;
+    }
+    
+    // Get product from first order item (simplified)
+    $product = null;
+    if (!empty($order_items) && !empty($order_items[0]['product'])) {
+        $product = $order_items[0]['product'];
+    }
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Orders Delete Error', $e);
+    header('Location: ?page=admin&module=orders&error=1');
     exit;
 }
-
-// Get related data
-$user = $usersModel->getById($order['user_id']);
-$product = $productsModel->getById($order['product_id']);
 
 // Handle form submission
 $success_message = '';

@@ -1,4 +1,19 @@
 <?php
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
+
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+} catch (Exception $e) {
+    $errorHandler = new ErrorHandler();
+    $errorHandler->logError('Admin News Add View Error', $e);
+    header('Location: ?page=admin&module=news&error=system_error');
+    exit;
+}
+
 // Initialize form data
 $form_data = [
     'title' => '',

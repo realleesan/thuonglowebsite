@@ -1,30 +1,34 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/UsersModel.php';
-require_once __DIR__ . '/../../../models/OrdersModel.php';
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$usersModel = new UsersModel();
-$ordersModel = new OrdersModel();
-$affiliateModel = new AffiliateModel();
-
-// Get user ID from URL
-$user_id = (int)($_GET['id'] ?? 0);
-
-// Find user with orders count
-$user = $usersModel->getUserWithOrdersCount($user_id);
-
-// Redirect if user not found
-if (!$user) {
-    header('Location: ?page=admin&module=users&error=not_found');
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get user ID from URL
+    $user_id = (int)($_GET['id'] ?? 0);
+    
+    // Get user details using ViewDataService
+    $userData = $viewDataService->getAdminUserDetailsData($user_id);
+    $user = $userData['user'];
+    
+    // Redirect if user not found
+    if (!$user) {
+        header('Location: ?page=admin&module=users&error=not_found');
+        exit;
+    }
+    
+    // Get additional user data (orders and affiliate info) from ViewDataService
+    $additionalData = $viewDataService->getAdminUserAdditionalData($user_id);
+    $user_orders = $additionalData['orders'];
+    $user_affiliate = $additionalData['affiliate'];
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Users View', $e->getMessage());
+    header('Location: ?page=admin&module=users&error=system_error');
     exit;
 }
-
-// Get user orders
-$user_orders = $ordersModel->getByUser($user_id);
-
-// Get user affiliate info
-$user_affiliate = $affiliateModel->findBy('user_id', $user_id);
 
 // Calculate statistics
 $total_orders = count($user_orders);

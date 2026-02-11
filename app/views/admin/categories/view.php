@@ -1,48 +1,30 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../../models/CategoriesModel.php';
-require_once __DIR__ . '/../../../models/ProductsModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$categoriesModel = new CategoriesModel();
-$productsModel = new ProductsModel();
-
-// Get category ID from URL
-$category_id = (int)($_GET['id'] ?? 0);
-
-// Find category
-$category = $categoriesModel->find($category_id);
-
-// Redirect if category not found
-if (!$category) {
-    header('Location: ?page=admin&module=categories&error=not_found');
-    exit;
-}
-
-// Get products in this category
-$products = $productsModel->getByCategory($category_id);
-
-// Get category ID from URL
-$category_id = (int)($_GET['id'] ?? 0);
-
-// Find category
-$category = null;
-foreach ($categories as $cat) {
-    if ($cat['id'] == $category_id) {
-        $category = $cat;
-        break;
+try {
+    $viewDataService = new ViewDataService();
+    
+    // Get category ID from URL
+    $category_id = (int)($_GET['id'] ?? 0);
+    
+    // Get category details using ViewDataService
+    $categoryData = $viewDataService->getAdminCategoryDetailsData($category_id);
+    $category = $categoryData['category'];
+    $category_products = $categoryData['products'];
+    
+    // Redirect if category not found
+    if (!$category) {
+        header('Location: ?page=admin&module=categories&error=not_found');
+        exit;
     }
-}
-
-// Redirect if category not found
-if (!$category) {
-    header('Location: ?page=admin&module=categories&error=not_found');
+    
+} catch (Exception $e) {
+    ErrorHandler::logError('Admin Categories View', $e->getMessage());
+    header('Location: ?page=admin&module=categories&error=system_error');
     exit;
 }
-
-// Get products in this category
-$category_products = array_filter($products, function($product) use ($category_id) {
-    return $product['category_id'] == $category_id;
-});
 
 // Format date function
 function formatDate($date) {
@@ -122,7 +104,7 @@ function formatPrice($price) {
                             <label>Số sản phẩm:</label>
                             <span class="detail-value">
                                 <span class="product-count-badge">
-                                    <?= count($category_products) ?> sản phẩm
+                                    <?= $category['products_count'] ?? 0 ?> sản phẩm
                                 </span>
                             </span>
                         </div>

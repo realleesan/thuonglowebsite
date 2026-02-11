@@ -1,28 +1,37 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/OrdersModel.php';
-require_once __DIR__ . '/../../models/UsersModel.php';
-require_once __DIR__ . '/../../models/ProductsModel.php';
+// Load ViewDataService and ErrorHandler
+require_once __DIR__ . '/../../../services/ViewDataService.php';
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-$ordersModel = new OrdersModel();
-$usersModel = new UsersModel();
-$productsModel = new ProductsModel();
-
-// Get order ID from URL
-$order_id = (int)($_GET['id'] ?? 0);
-
-// Get order from database
-$order = $ordersModel->getById($order_id);
-
-// Redirect if order not found
-if (!$order) {
-    header('Location: ?page=admin&module=orders');
+try {
+    $viewDataService = new ViewDataService();
+    $errorHandler = new ErrorHandler();
+    
+    // Get order ID from URL
+    $order_id = (int)($_GET['id'] ?? 0);
+    
+    if (!$order_id) {
+        header('Location: ?page=admin&module=orders&error=invalid_id');
+        exit;
+    }
+    
+    // Get order data using ViewDataService
+    $orderData = $viewDataService->getAdminOrderDetailsData($order_id);
+    $order = $orderData['order'];
+    $user = $orderData['user'];
+    $orderItems = $orderData['order_items'];
+    
+    // Redirect if order not found
+    if (!$order) {
+        header('Location: ?page=admin&module=orders&error=not_found');
+        exit;
+    }
+    
+} catch (Exception $e) {
+    $errorHandler->logError('Admin Orders View Error', $e);
+    header('Location: ?page=admin&module=orders&error=system_error');
     exit;
 }
-
-// Get related data
-$user = $usersModel->getById($order['user_id']);
-$product = $productsModel->getById($order['product_id']);
 
 // Format price function
 function formatPrice($price) {
@@ -336,21 +345,11 @@ $timeline = generateOrderTimeline($order);
                         <div class="customer-stats">
                             <div class="stat-item">
                                 <span class="stat-label">Tổng đơn hàng:</span>
-                                <span class="stat-value">
-                                    <?php 
-                                    $userOrders = $ordersModel->getByUser($user['id']);
-                                    echo count($userOrders);
-                                    ?>
-                                </span>
+                                <span class="stat-value"><?= $user['orders_count'] ?? 0 ?></span>
                             </div>
                             <div class="stat-item">
                                 <span class="stat-label">Tổng chi tiêu:</span>
-                                <span class="stat-value">
-                                    <?php 
-                                    $totalSpent = array_sum(array_map(fn($o) => $o['total'], $userOrders));
-                                    echo formatPrice($totalSpent);
-                                    ?>
-                                </span>
+                                <span class="stat-value"><?= formatPrice($user['total_spent'] ?? 0) ?></span>
                             </div>
                             <div class="stat-item">
                                 <span class="stat-label">Ngày tham gia:</span>
@@ -398,57 +397,69 @@ $timeline = generateOrderTimeline($order);
 
             <!-- Product Tab -->
             <div class="tab-content" id="product-tab">
-                <?php if ($product): ?>
-                    <div class="product-details">
-                        <div class="product-overview-grid">
-                            <div class="product-image-section">
-                                <div class="product-image-main">
-                                    <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
-                                </div>
-                                <div class="product-image-info">
-                                    <small>Click để phóng to</small>
-                                </div>
+                <?php if (!empty($orderItems)): ?>
+                    <div class="order-items">
+                        <h4>Sản phẩm trong đơn hàng</h4>
+                        <?php foreach ($orderItems as $item): ?>
+                            <?php $product = $item['product'] ?? null; ?>
+                            <div class="order-item">
+                                <?php if ($product): ?>
+                                    <div class="product-details">
+                                        <div class="product-overview-grid">
+                                            <div class="product-image-section">
+                                                <div class="product-image-main">
+                                                    <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
+                                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="product-info-section">
+                                                <div class="product-header">
+                                                    <h3 class="product-name"><?= htmlspecialchars($product['name']) ?></h3>
+                                                    <span class="status-badge status-<?= $product['status'] ?>">
+                                                        <?= $product['status'] == 'active' ? 'Hoạt động' : 'Không hoạt động' ?>
+                                                    </span>
+                                                </div>
+                                                
+                                                <div class="product-meta">
+                                                    <div class="meta-item">
+                                                        <span class="meta-label">Giá:</span>
+                                                        <span class="meta-value price-highlight"><?= formatPrice($product['price']) ?></span>
+                                                    </div>
+                                                    <div class="meta-item">
+                                                        <span class="meta-label">Số lượng:</span>
+                                                        <span class="meta-value"><?= $item['quantity'] ?></span>
+                                                    </div>
+                                                    <div class="meta-item">
+                                                        <span class="meta-label">Thành tiền:</span>
+                                                        <span class="meta-value price-highlight"><?= formatPrice($item['price'] * $item['quantity']) ?></span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="product-description">
+                                                    <h4>Mô tả sản phẩm</h4>
+                                                    <p><?= htmlspecialchars($product['description']) ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="no-data">
+                                        <i class="fas fa-box-open"></i>
+                                        <p>Sản phẩm đã bị xóa hoặc không tồn tại</p>
+                                        <div class="item-info">
+                                            <p>Số lượng: <?= $item['quantity'] ?></p>
+                                            <p>Giá: <?= formatPrice($item['price']) ?></p>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            
-                            <div class="product-info-section">
-                                <div class="product-header">
-                                    <h3 class="product-name"><?= htmlspecialchars($product['name']) ?></h3>
-                                    <span class="status-badge status-<?= $product['status'] ?>">
-                                        <?= $product['status'] == 'active' ? 'Hoạt động' : 'Không hoạt động' ?>
-                                    </span>
-                                </div>
-                                
-                                <div class="product-meta">
-                                    <div class="meta-item">
-                                        <span class="meta-label">Giá:</span>
-                                        <span class="meta-value price-highlight"><?= formatPrice($product['price']) ?></span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Tồn kho:</span>
-                                        <span class="meta-value">
-                                            <span class="stock-badge <?= $product['stock'] < 10 ? 'low-stock' : '' ?>">
-                                                <?= $product['stock'] ?>
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Ngày tạo:</span>
-                                        <span class="meta-value"><?= formatDate($product['created_at']) ?></span>
-                                    </div>
-                                </div>
-                                
-                                <div class="product-description">
-                                    <h4>Mô tả sản phẩm</h4>
-                                    <p><?= htmlspecialchars($product['description']) ?></p>
-                                </div>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
                 <?php else: ?>
                     <div class="no-data">
                         <i class="fas fa-box-open"></i>
-                        <p>Sản phẩm đã bị xóa hoặc không tồn tại</p>
+                        <p>Không có sản phẩm trong đơn hàng</p>
                     </div>
                 <?php endif; ?>
             </div>

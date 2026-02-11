@@ -1,38 +1,61 @@
 <?php
-// Load Categories Model
-require_once __DIR__ . '/../../models/CategoriesModel.php';
+/**
+ * Categories Page - Dynamic Version
+ * Converted from hardcoded data to dynamic database data using ViewDataService
+ */
 
-$categoriesModel = new CategoriesModel();
+// Load required services and models
+require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/ErrorHandler.php';
 
-// Get all categories from database
-$categories = $categoriesModel->getAll();
+// Initialize services
+$viewDataService = new ViewDataService();
+$errorHandler = new ErrorHandler();
 
-// Calculate total count for display
-$totalCategories = count($categories);
-$displayedCount = min(12, $totalCategories); // Show max 12 per page
-
-// Handle sorting
+// Get pagination and sorting parameters
+$page = max(1, (int)($_GET['page'] ?? 1));
+$perPage = 12;
 $orderBy = $_GET['order_by'] ?? 'name';
-switch ($orderBy) {
-    case 'name_desc':
-        usort($categories, function($a, $b) { return strcmp($b['name'], $a['name']); });
-        break;
-    case 'course_count':
-        usort($categories, function($a, $b) { return ($b['product_count'] ?? 0) - ($a['product_count'] ?? 0); });
-        break;
-    case 'course_count_desc':
-        usort($categories, function($a, $b) { return ($a['product_count'] ?? 0) - ($b['product_count'] ?? 0); });
-        break;
-    case 'popular':
-        usort($categories, function($a, $b) { return ($b['view_count'] ?? 0) - ($a['view_count'] ?? 0); });
-        break;
-    default: // name
-        usort($categories, function($a, $b) { return strcmp($a['name'], $b['name']); });
-        break;
+
+// Initialize data variables
+$categories = [];
+$pagination = [];
+$categoryStats = [];
+$totalCategories = 0;
+$displayedCount = 0;
+$showErrorMessage = false;
+$errorMessage = '';
+
+try {
+    // Get categories page data
+    $categoriesData = $viewDataService->getCategoriesPageData($page, $perPage, $orderBy);
+    
+    // Extract data
+    $categories = $categoriesData['categories'] ?? [];
+    $pagination = $categoriesData['pagination'] ?? [];
+    $categoryStats = $categoriesData['stats'] ?? [];
+    $totalCategories = $categoriesData['total_categories'] ?? 0;
+    $displayedCount = $categoriesData['displayed_count'] ?? 0;
+    
+} catch (Exception $e) {
+    // Handle errors gracefully
+    $result = $errorHandler->handleViewError($e, 'categories', []);
+    $showErrorMessage = true;
+    $errorMessage = $result['message'];
+    
+    // Use empty state data
+    $emptyState = $viewDataService->handleEmptyState('categories');
+    $categories = $emptyState['categories'];
+    $pagination = $emptyState['pagination'];
+    $categoryStats = $emptyState['stats'];
+    $totalCategories = $emptyState['total_categories'];
+    $displayedCount = $emptyState['displayed_count'];
 }
 
-// Limit to displayed categories
-$displayedCategories = array_slice($categories, 0, 12);
+// Calculate pagination display values
+$offset = ($page - 1) * $perPage;
+$totalPages = $pagination['last_page'] ?? 1;
+$displayedCategories = $categories; // Already paginated by service
 ?>
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
@@ -67,10 +90,13 @@ $displayedCategories = array_slice($categories, 0, 12);
                                 <!-- Top Bar with Results and Sort -->
                                 <div class="categories-topbar">
                                     <div class="results-count">
-                                        <span>Hiển thị 1-<?php echo $displayedCount; ?> trong <?php echo $totalCategories; ?> danh mục</span>
+                                        <span>Hiển thị <?php echo ($pagination['from'] ?? 1); ?>-<?php echo ($pagination['to'] ?? $displayedCount); ?> trong <?php echo $totalCategories; ?> danh mục</span>
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">
+                                            <?php if (isset($_GET['page'])): ?>
+                                                <input type="hidden" name="page" value="<?php echo $page; ?>">
+                                            <?php endif; ?>
                                             <select name="order_by" class="sort-select" onchange="this.form.submit()">
                                                 <option value="name" <?php echo $orderBy === 'name' ? 'selected' : ''; ?>>Tên A-Z</option>
                                                 <option value="name_desc" <?php echo $orderBy === 'name_desc' ? 'selected' : ''; ?>>Tên Z-A</option>
@@ -84,6 +110,12 @@ $displayedCategories = array_slice($categories, 0, 12);
 
                                 <!-- Categories Grid -->
                                 <div class="categories-grid">
+                                    <?php if ($showErrorMessage): ?>
+                                        <div class="error-message">
+                                            <p><?php echo htmlspecialchars($errorMessage); ?></p>
+                                        </div>
+                                    <?php endif; ?>
+                                    
                                     <?php if (empty($displayedCategories)): ?>
                                         <div class="no-categories">
                                             <p>Chưa có danh mục nào được tạo.</p>
@@ -113,7 +145,7 @@ $displayedCategories = array_slice($categories, 0, 12);
                                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
                                                         </svg>
-                                                        <span><?php echo ($category['product_count'] ?? 0); ?> Sản phẩm</span>
+                                                        <span><?php echo ($category['products_count'] ?? 0); ?> Sản phẩm</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -123,22 +155,40 @@ $displayedCategories = array_slice($categories, 0, 12);
                                 </div>
 
                                 <!-- Pagination -->
+                                <?php if ($totalPages > 1): ?>
                                 <div class="pagination-wrapper">
                                     <nav class="pagination">
-                                        <a href="#" class="page-link prev">
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </a>
-                                        <a href="#" class="page-link active">1</a>
-                                        <a href="#" class="page-link">2</a>
-                                        <a href="#" class="page-link next">
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </a>
+                                        <?php if ($page > 1): ?>
+                                            <a href="?page=<?php echo $page - 1; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?>" class="page-link prev">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?>
+                                        
+                                        <?php
+                                        // Show page numbers
+                                        $startPage = max(1, $page - 2);
+                                        $endPage = min($totalPages, $page + 2);
+                                        
+                                        for ($i = $startPage; $i <= $endPage; $i++):
+                                        ?>
+                                            <a href="?page=<?php echo $i; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?>" 
+                                               class="page-link <?php echo $i === $page ? 'active' : ''; ?>">
+                                                <?php echo $i; ?>
+                                            </a>
+                                        <?php endfor; ?>
+                                        
+                                        <?php if ($page < $totalPages): ?>
+                                            <a href="?page=<?php echo $page + 1; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?>" class="page-link next">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?>
                                     </nav>
                                 </div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Right Column - Sidebar -->
@@ -155,18 +205,18 @@ $displayedCategories = array_slice($categories, 0, 12);
                                         <h3 class="filter-title">Loại Danh Mục</h3>
                                         <div class="filter-content">
                                             <ul class="category-type-list">
-                                                <li><a href="#">Tất Cả Danh Mục</a> <span class="count">(15)</span></li>
-                                                <li><a href="#">Phổ Biến Nhất</a> <span class="count">(8)</span></li>
-                                                <li><a href="#">Xu Hướng</a> <span class="count">(5)</span></li>
-                                                <li><a href="#">Danh Mục Mới</a> <span class="count">(3)</span></li>
-                                                <li><a href="#">Chủ Đề Hot</a> <span class="count">(4)</span></li>
+                                                <li><a href="?page=categories">Tất Cả Danh Mục</a> <span class="count">(<?php echo $categoryStats['total']; ?>)</span></li>
+                                                <li><a href="?page=categories&order_by=popular">Phổ Biến Nhất</a> <span class="count">(<?php echo $categoryStats['with_products']; ?>)</span></li>
+                                                <li><a href="?page=categories&order_by=course_count">Nhiều Sản Phẩm</a> <span class="count">(<?php echo $categoryStats['with_products']; ?>)</span></li>
+                                                <li><a href="?page=categories&status=active">Danh Mục Hoạt Động</a> <span class="count">(<?php echo $categoryStats['active']; ?>)</span></li>
+                                                <li><a href="?page=categories&parent_only=1">Danh Mục Chính</a> <span class="count">(<?php echo $categoryStats['parent_categories']; ?>)</span></li>
                                             </ul>
                                         </div>
                                     </div>
 
                                     <!-- Reset Button -->
                                     <div class="filter-section">
-                                        <button class="reset-filters-btn">Đặt Lại</button>
+                                        <a href="?page=categories" class="reset-filters-btn">Đặt Lại</a>
                                     </div>
 
                                     <!-- Course Count Filter -->
@@ -174,16 +224,31 @@ $displayedCategories = array_slice($categories, 0, 12);
                                         <h3 class="filter-title">Số Lượng Sản Phẩm</h3>
                                         <div class="filter-content">
                                             <ul class="course-count-list">
-                                                <li><a href="#">10+ Sản Phẩm</a></li>
-                                                <li><a href="#">20+ Sản Phẩm</a></li>
-                                                <li><a href="#">30+ Sản Phẩm</a></li>
+                                                <?php
+                                                // Count categories by product ranges using service data
+                                                $ranges = [
+                                                    '10+' => 0,
+                                                    '20+' => 0,
+                                                    '30+' => 0
+                                                ];
+                                                
+                                                foreach ($categories as $cat) {
+                                                    $count = $cat['products_count'] ?? 0;
+                                                    if ($count >= 30) $ranges['30+']++;
+                                                    if ($count >= 20) $ranges['20+']++;
+                                                    if ($count >= 10) $ranges['10+']++;
+                                                }
+                                                ?>
+                                                <li><a href="#">10+ Sản Phẩm</a> <span class="count">(<?php echo $ranges['10+']; ?>)</span></li>
+                                                <li><a href="#">20+ Sản Phẩm</a> <span class="count">(<?php echo $ranges['20+']; ?>)</span></li>
+                                                <li><a href="#">30+ Sản Phẩm</a> <span class="count">(<?php echo $ranges['30+']; ?>)</span></li>
                                             </ul>
                                         </div>
                                     </div>
 
                                     <!-- Apply Button -->
                                     <div class="filter-section">
-                                        <button class="apply-filters-btn">Áp Dụng</button>
+                                        <button class="apply-filters-btn" onclick="window.location.reload()">Áp Dụng</button>
                                     </div>
                                 </div>
                             </div>

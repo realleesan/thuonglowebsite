@@ -175,6 +175,27 @@ class AffiliateModel extends BaseModel {
     }
     
     /**
+     * Get commissions for affiliate
+     */
+    public function getCommissions($affiliateId, $limit = null) {
+        $sql = "
+            SELECT o.id as order_id, o.order_number, o.total as order_total,
+                   o.commission_amount as amount, o.status, o.created_at,
+                   u.name as customer_name
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.affiliate_id = ? AND o.commission_amount > 0
+            ORDER BY o.created_at DESC
+        ";
+        
+        if ($limit) {
+            $sql .= " LIMIT {$limit}";
+        }
+        
+        return $this->db->query($sql, [$affiliateId]);
+    }
+    
+    /**
      * Get affiliate dashboard data
      */
     public function getDashboardData($affiliateId) {

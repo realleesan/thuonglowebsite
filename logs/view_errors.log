@@ -1,0 +1,12 @@
+[2026-02-10 18:23:26] ERROR: Database error: Test database error Context: {"file":"D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php","line":139,"trace":"#0 D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php(26): InfrastructureTest->testErrorHandler()\n#1 D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php(174): InfrastructureTest->runTests()\n#2 {main}"}
+[2026-02-10 18:23:26] WARNING: Validation error: Name is required, Email is invalid
+[2026-02-10 18:23:26] INFO: Resource not found: product (ID: 123) Context: {"resource":"product","id":123,"url":"unknown"}
+[2026-02-10 18:23:26] WARNING: Permission denied for action: delete_user Context: {"action":"delete_user","user_id":1,"ip":"unknown"}
+[2026-02-10 18:26:26] ERROR: Database error: Test database error Context: {"file":"D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php","line":139,"trace":"#0 D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php(26): InfrastructureTest->testErrorHandler()\n#1 D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php(174): InfrastructureTest->runTests()\n#2 {main}"}
+[2026-02-10 18:26:26] WARNING: Validation error: Name is required, Email is invalid
+[2026-02-10 18:26:26] INFO: Resource not found: product (ID: 123) Context: {"resource":"product","id":123,"url":"unknown"}
+[2026-02-10 18:26:26] WARNING: Permission denied for action: delete_user Context: {"action":"delete_user","user_id":1,"ip":"unknown"}
+[2026-02-11 04:57:54] ERROR: Database error: Test database error Context: {"file":"D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php","line":139,"trace":"#0 D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php(26): InfrastructureTest->testErrorHandler()\n#1 D:\\xampp\\htdocs\\thuonglowebsite\\tests\\InfrastructureTest.php(174): InfrastructureTest->runTests()\n#2 {main}"}
+[2026-02-11 04:57:54] WARNING: Validation error: Name is required, Email is invalid
+[2026-02-11 04:57:54] INFO: Resource not found: product (ID: 123) Context: {"resource":"product","id":123,"url":"unknown"}
+[2026-02-11 04:57:54] WARNING: Permission denied for action: delete_user Context: {"action":"delete_user","user_id":1,"ip":"unknown"}

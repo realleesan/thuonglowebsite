@@ -1,4 +1,7 @@
 <?php
+// Load ErrorHandler for consistent error handling
+require_once __DIR__ . '/../../../services/ErrorHandler.php';
+
 // Handle form submission (demo)
 $errors = [];
 $success = false;
