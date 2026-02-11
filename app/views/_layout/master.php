@@ -87,7 +87,7 @@ mb_http_output('UTF-8');
     ?>
     
     <!-- Breadcrumb CSS - Load after page-specific CSS to ensure priority -->
-    <link rel="stylesheet" href="<?php echo versioned_css('breadcrumb.css'); ?>"
+    <link rel="stylesheet" href="<?php echo versioned_css('breadcrumb.css'); ?>">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
