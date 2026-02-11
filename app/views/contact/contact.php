@@ -1,25 +1,38 @@
 <?php
-// Load Settings Model for contact information
-require_once __DIR__ . '/../../models/SettingsModel.php';
+/**
+ * Contact Page
+ * Standardized with View Initialization System
+ */
 
-$settingsModel = new SettingsModel();
+// 1. Khởi tạo View an toàn
+require_once __DIR__ . '/../../../core/view_init.php';
 
-// Get contact settings from database
-$contactSettings = $settingsModel->getContactSettings();
+// 2. Khởi tạo biến dữ liệu
+$contactData = [];
+$contact = [];
+$showErrorMessage = false;
+$errorMessage = '';
 
-// Get default values from settings or use fallback
-$defaultContact = $contactSettings ?: [
-    'office_address' => 'Tầng 12, Tòa nhà ABC, 123 Đường Nguyễn Huệ<br>Quận 1, TP. Hồ Chí Minh',
-    'phone' => '(+84) 28 - 3825 - 6789',
-    'hotline' => '1900 - 1234',
-    'email' => 'contact@thuonglo.com',
-    'working_hours_weekday' => 'Thứ 2 - Thứ 6: 08:00 - 18:00',
-    'working_hours_weekend' => 'Thứ 7 & Chủ nhật: 09:00 - 17:00'
-];
-
-// Merge with database settings
-$contact = array_merge($defaultContact, $contactSettings);
+try {
+    // Lấy dữ liệu từ Service
+    $contactData = $viewDataService->getContactPageData();
+    $contact = $contactData['contact'] ?? [];
+    
+} catch (Exception $e) {
+    if (isset($errorHandler)) {
+        $result = $errorHandler->handleViewError($e, 'contact', []);
+        $showErrorMessage = true;
+        $errorMessage = $result['message'];
+    }
+}
 ?>
+<!-- Contact Page Content -->
+<?php if ($showErrorMessage): ?>
+<div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
+    <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
+</div>
+<?php endif; ?>
+
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
     <div class="content-pusher">

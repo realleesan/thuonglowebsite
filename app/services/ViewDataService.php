@@ -319,6 +319,36 @@ class ViewDataService {
             return $this->handleEmptyState('affiliate_dashboard');
         }
     }
+
+    /**
+     * Chuẩn bị data cho trang Liên hệ
+     */
+    public function getContactPageData(): array {
+        try {
+            $contactSettings = $this->getDataWithRetry(
+                [$this->settingsModel, 'getContactSettings'],
+                []
+            );
+
+            // Default fallback values
+            $defaultContact = [
+                'office_address' => 'Tầng 12, Tòa nhà ABC, 123 Đường Nguyễn Huệ<br>Quận 1, TP. Hồ Chí Minh',
+                'phone' => '(+84) 28 - 3825 - 6789',
+                'hotline' => '1900 - 1234',
+                'email' => 'contact@thuonglo.com',
+                'working_hours_weekday' => 'Thứ 2 - Thứ 6: 08:00 - 18:00',
+                'working_hours_weekend' => 'Thứ 7 & Chủ nhật: 09:00 - 17:00'
+            ];
+
+            return [
+                'contact' => array_merge($defaultContact, $contactSettings ?: [])
+            ];
+
+        } catch (Exception $e) {
+            error_log("ViewDataService::getContactPageData error: " . $e->getMessage());
+            return $this->handleEmptyState('contact');
+        }
+    }
     
     /**
      * Get categories with product counts for filtering
@@ -1578,6 +1608,17 @@ class ViewDataService {
                 'category' => null,
                 'related_products' => [],
                 'message' => 'Không tìm thấy sản phẩm'
+            ],
+            'contact' => [
+                'contact' => [
+                    'office_address' => 'Đang cập nhật',
+                    'phone' => 'Đang cập nhật',
+                    'hotline' => 'Đang cập nhật',
+                    'email' => 'Đang cập nhật',
+                    'working_hours_weekday' => 'Đang cập nhật',
+                    'working_hours_weekend' => 'Đang cập nhật'
+                ],
+                'message' => 'Không thể tải thông tin liên hệ'
             ]
         ];
         
