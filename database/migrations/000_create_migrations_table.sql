@@ -8,6 +8,3 @@ CREATE TABLE IF NOT EXISTS migrations (
     batch INT NOT NULL DEFAULT 1,
     executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Insert this migration record
-INSERT IGNORE INTO migrations (migration, batch) VALUES ('000_create_migrations_table', 1);

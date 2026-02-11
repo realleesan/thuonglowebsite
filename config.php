@@ -13,27 +13,29 @@ if (!defined('THUONGLO_INIT')) {
  * Environment Detection Function
  * Automatically detects local vs hosting environment
  */
-function detect_environment() {
-    // Check for hosting indicators
-    if (isset($_SERVER['HTTP_HOST'])) {
-        $host = $_SERVER['HTTP_HOST'];
-        
-        // Check for specific hosting domain
-        if (strpos($host, 'test1.web3b.com') !== false) {
-            return 'hosting';
+if (!function_exists('detect_environment')) {
+    function detect_environment() {
+        // Check for hosting indicators
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $host = $_SERVER['HTTP_HOST'];
+            
+            // Check for specific hosting domain
+            if (strpos($host, 'test1.web3b.com') !== false) {
+                return 'hosting';
+            }
+            
+            // Check for local development indicators
+            if (in_array($host, ['localhost', '127.0.0.1']) ||
+                strpos($host, '.local') !== false ||
+                strpos($host, '.test') !== false ||
+                strpos($host, 'localhost:') !== false) {
+                return 'local';
+            }
         }
         
-        // Check for local development indicators
-        if (in_array($host, ['localhost', '127.0.0.1']) ||
-            strpos($host, '.local') !== false ||
-            strpos($host, '.test') !== false ||
-            strpos($host, 'localhost:') !== false) {
-            return 'local';
-        }
+        // Default to hosting for safety
+        return 'hosting';
     }
-    
-    // Default to hosting for safety
-    return 'hosting';
 }
 
 // Detect current environment

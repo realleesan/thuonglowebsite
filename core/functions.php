@@ -315,6 +315,31 @@ function icon_url($file) {
 }
 
 /**
+ * Safely get product image URL with fallback
+ * @param array $product Product data
+ * @return string Image URL
+ */
+function getProductImage($product) {
+    if (!empty($product['image']) && $product['image'] !== '/assets/images/default-product.jpg' && $product['image'] !== '/assets/images/home/home-banner-top.png') {
+        return $product['image'];
+    }
+    return img_url('home/home-banner-top.png');
+}
+
+/**
+ * Safely get category image URL with fallback
+ * @param array $category Category data
+ * @return string Image URL
+ */
+function getCategoryImage($category) {
+    if (!empty($category['image']) && $category['image'] !== '/assets/images/default-category.jpg' && $category['image'] !== '/assets/images/home/cta-final.png') {
+        return $category['image'];
+    }
+    return img_url('home/cta-final.png');
+}
+
+
+/**
  * Get versioned asset URL (for cache busting)
  * @param string $path Asset path
  * @return string Versioned asset URL

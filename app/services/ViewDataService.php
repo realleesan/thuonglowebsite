@@ -26,6 +26,7 @@ class ViewDataService {
     private $transformer;
     
     public function __construct() {
+        echo "<!-- Debug: Initializing Models -->";
         $this->productsModel = new ProductsModel();
         $this->categoriesModel = new CategoriesModel();
         $this->newsModel = new NewsModel();
@@ -35,6 +36,7 @@ class ViewDataService {
         $this->contactsModel = new ContactsModel();
         $this->settingsModel = new SettingsModel();
         $this->transformer = new DataTransformer();
+        echo "<!-- Debug: Models Initialized -->";
     }
     
     /**

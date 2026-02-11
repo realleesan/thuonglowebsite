@@ -4,8 +4,12 @@
  * Runs all seeders to populate database with initial data
  */
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Include the Database class
-require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../core/database.php';
 
 // Include all seeder classes
 require_once __DIR__ . '/../database/seeders/BaseSeeder.php';
@@ -19,7 +23,14 @@ require_once __DIR__ . '/../database/seeders/ContactsSeeder.php';
 require_once __DIR__ . '/../database/seeders/SettingsSeeder.php';
 require_once __DIR__ . '/../database/seeders/AffiliatesSeeder.php';
 
-echo "=== Database Seeder Script ===\n\n";
+// Check if running in browser
+$isBrowser = isset($_SERVER['HTTP_HOST']);
+
+if ($isBrowser) {
+    echo "<h2>Database Seeder Script</h2>\n";
+} else {
+    echo "=== Database Seeder Script ===\n\n";
+}
 
 try {
     // Test database connection
@@ -28,7 +39,8 @@ try {
         throw new Exception("Database connection failed!");
     }
     
-    echo "✓ Database connection successful\n\n";
+    $msg = "✓ Database connection successful";
+    echo $isBrowser ? "<p>$msg</p>" : "$msg\n\n";
     
     // Check if tables exist
     $requiredTables = [
@@ -43,7 +55,8 @@ try {
         }
     }
     
-    echo "✓ All required tables exist\n\n";
+    $msg = "✓ All required tables exist";
+    echo $isBrowser ? "<p>$msg</p>" : "$msg\n\n";
     
     // Define seeder execution order (important for foreign key constraints)
     $seeders = [
@@ -61,19 +74,27 @@ try {
     $startTime = microtime(true);
     $totalSeeded = 0;
     
+    if ($isBrowser) {
+        echo "<h3>Seeding Progress</h3>";
+    }
+    
     // Run each seeder
     foreach ($seeders as $seederClass) {
-        echo "🚀 Running {$seederClass}...\n";
+        $msg = "🚀 Running {$seederClass}...";
+        echo $isBrowser ? "<p>$msg</p>" : "$msg\n";
         
         try {
             $seeder = new $seederClass();
             $seeder->run();
             $totalSeeded++;
-            echo "✅ {$seederClass} completed successfully\n\n";
+            $msg = "✅ {$seederClass} completed successfully";
+            echo $isBrowser ? "<p style='color: green;'>$msg</p>" : "$msg\n\n";
             
         } catch (Exception $e) {
-            echo "❌ {$seederClass} failed: " . $e->getMessage() . "\n";
-            echo "Stopping seeder execution.\n";
+            $msg = "❌ {$seederClass} failed: " . $e->getMessage();
+            echo $isBrowser ? "<p style='color: red;'>$msg</p>" : "$msg\n";
+            $msg = "Stopping seeder execution.";
+            echo $isBrowser ? "<p style='color: red;'>$msg</p>" : "$msg\n";
             exit(1);
         }
     }
@@ -81,31 +102,79 @@ try {
     $endTime = microtime(true);
     $executionTime = round($endTime - $startTime, 2);
     
-    echo "=== Seeding Summary ===\n";
-    echo "Total seeders run: {$totalSeeded}/" . count($seeders) . "\n";
-    echo "Execution time: {$executionTime} seconds\n";
-    echo "\n✅ All seeders completed successfully!\n";
+    if ($isBrowser) {
+        echo "<h3>Seeding Summary</h3>";
+    } else {
+        echo "=== Seeding Summary ===\n";
+    }
+    
+    $totalMsg = "Total seeders run: {$totalSeeded}/" . count($seeders);
+    $timeMsg = "Execution time: {$executionTime} seconds";
+    $successMsg = "✅ All seeders completed successfully!";
+    
+    if ($isBrowser) {
+        echo "<p>$totalMsg</p>";
+        echo "<p>$timeMsg</p>";
+        echo "<h3 style='color: green;'>$successMsg</h3>";
+    } else {
+        echo "$totalMsg\n";
+        echo "$timeMsg\n";
+        echo "\n$successMsg\n";
+    }
     
     // Show final statistics
-    echo "\n=== Database Statistics ===\n";
+    if ($isBrowser) {
+        echo "<h3>Database Statistics</h3>";
+        echo "<ul>";
+    } else {
+        echo "\n=== Database Statistics ===\n";
+    }
+    
     foreach ($requiredTables as $table) {
         try {
             $count = $db->query("SELECT COUNT(*) as count FROM {$table}");
             $recordCount = $count[0]['count'] ?? 0;
-            echo "- {$table}: {$recordCount} records\n";
+            if ($isBrowser) {
+                echo "<li>{$table}: {$recordCount} records</li>";
+            } else {
+                echo "- {$table}: {$recordCount} records\n";
+            }
         } catch (Exception $e) {
-            echo "- {$table}: Error counting records\n";
+            $msg = "{$table}: Error counting records";
+            if ($isBrowser) {
+                echo "<li style='color: orange;'>$msg</li>";
+            } else {
+                echo "- $msg\n";
+            }
         }
     }
     
-    echo "\n🎉 Database seeding completed! Your application is ready to use.\n";
+    if ($isBrowser) {
+        echo "</ul>";
+        echo "<h3 style='color: green;'>🎉 Database seeding completed! Your application is ready to use.</h3>";
+    } else {
+        echo "\n🎉 Database seeding completed! Your application is ready to use.\n";
+    }
     
 } catch (Exception $e) {
-    echo "❌ Seeding failed: " . $e->getMessage() . "\n";
-    echo "\nPlease check:\n";
-    echo "1. Database connection settings\n";
-    echo "2. All migrations have been run\n";
-    echo "3. JSON data files exist and are valid\n";
-    echo "4. Database permissions\n";
+    $errorMsg = "❌ Seeding failed: " . $e->getMessage();
+    
+    if ($isBrowser) {
+        echo "<h3 style='color: red;'>$errorMsg</h3>";
+        echo "<p>Please check:</p>";
+        echo "<ol>";
+        echo "<li>Database connection settings</li>";
+        echo "<li>All migrations have been run</li>";
+        echo "<li>JSON data files exist and are valid</li>";
+        echo "<li>Database permissions</li>";
+        echo "</ol>";
+    } else {
+        echo "$errorMsg\n";
+        echo "\nPlease check:\n";
+        echo "1. Database connection settings\n";
+        echo "2. All migrations have been run\n";
+        echo "3. JSON data files exist and are valid\n";
+        echo "4. Database permissions\n";
+    }
     exit(1);
 }

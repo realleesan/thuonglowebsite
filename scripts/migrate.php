@@ -4,10 +4,21 @@
  * Runs all pending migrations in order
  */
 
-// Include the Database class
-require_once __DIR__ . '/../core/Database.php';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-echo "=== Database Migration Script ===\n\n";
+// Include the Database class
+require_once __DIR__ . '/../core/database.php';
+
+// Check if running in browser
+$isBrowser = isset($_SERVER['HTTP_HOST']);
+
+if ($isBrowser) {
+    echo "<h2>Database Migration Script</h2>\n";
+} else {
+    echo "=== Database Migration Script ===\n\n";
+}
 
 try {
     // Get database instance
@@ -18,7 +29,11 @@ try {
         throw new Exception("Database connection failed!");
     }
     
-    echo "✓ Database connection successful\n\n";
+    if ($isBrowser) {
+        echo "<p>✓ Database connection successful</p>\n";
+    } else {
+        echo "✓ Database connection successful\n\n";
+    }
     
     // Get migrations directory
     $migrationsDir = __DIR__ . '/../database/migrations';
@@ -32,21 +47,52 @@ try {
     sort($migrationFiles);
     
     if (empty($migrationFiles)) {
-        echo "No migration files found.\n";
+        $msg = "No migration files found.";
+        echo $isBrowser ? "<p>$msg</p>" : "$msg\n";
         exit(0);
     }
     
-    echo "Found " . count($migrationFiles) . " migration files\n\n";
+    $msg = "Found " . count($migrationFiles) . " migration files";
+    echo $isBrowser ? "<p>$msg</p>" : "$msg\n\n";
     
     // Check if migrations table exists, if not create it first
     $tables = $db->query("SHOW TABLES LIKE 'migrations'");
     if (empty($tables)) {
-        echo "Creating migrations table...\n";
+        $msg = "Creating migrations table...";
+        echo $isBrowser ? "<p>$msg</p>" : "$msg\n";
+        
         // Run the first migration (000_create_migrations_table.sql) manually
         $firstMigration = file_get_contents($migrationsDir . '/000_create_migrations_table.sql');
         if ($firstMigration) {
-            $db->execute($firstMigration);
-            echo "✓ Migrations table created\n\n";
+            // Execute migration - handle multiple statements
+            $statements = array_filter(array_map('trim', explode(';', $firstMigration)));
+            
+            foreach ($statements as $statement) {
+                if (!empty($statement) && !preg_match('/^\s*--/', $statement)) {
+                    $db->execute($statement);
+                }
+            }
+            
+            // Wait a moment for table creation to complete
+            usleep(100000); // 0.1 second
+            
+            // Verify table was created before trying to insert
+            $checkTable = $db->query("SHOW TABLES LIKE 'migrations'");
+            if (!empty($checkTable)) {
+                // Record this migration as executed
+                try {
+                    $db->table('migrations')->insert([
+                        'migration' => '000_create_migrations_table',
+                        'batch' => 1
+                    ]);
+                } catch (Exception $e) {
+                    // If insert fails, try direct SQL
+                    $db->execute("INSERT INTO migrations (migration, batch) VALUES ('000_create_migrations_table', 1)");
+                }
+            }
+            
+            $msg = "✓ Migrations table created";
+            echo $isBrowser ? "<p>$msg</p>" : "$msg\n\n";
         }
     }
     
@@ -59,7 +105,8 @@ try {
         }
     } catch (Exception $e) {
         // Migrations table might not exist yet
-        echo "Warning: Could not read migrations table: " . $e->getMessage() . "\n";
+        $msg = "Warning: Could not read migrations table: " . $e->getMessage();
+        echo $isBrowser ? "<p style='color: orange;'>$msg</p>" : "$msg\n";
     }
     
     $newMigrations = 0;
@@ -75,28 +122,41 @@ try {
         // Use default batch 1
     }
     
+    if ($isBrowser) {
+        echo "<h3>Migration Progress</h3>";
+    }
+    
     // Process each migration file
     foreach ($migrationFiles as $file) {
         $filename = basename($file, '.sql');
         
         // Skip if already executed
         if (in_array($filename, $executedMigrations)) {
-            echo "⏭  Skipping (already executed): $filename\n";
+            $msg = "⏭  Skipping (already executed): $filename";
+            echo $isBrowser ? "<p>$msg</p>" : "$msg\n";
             continue;
         }
         
-        echo "🔄 Running migration: $filename\n";
+        $msg = "🔄 Running migration: $filename";
+        echo $isBrowser ? "<p>$msg</p>" : "$msg\n";
         
         // Read migration file
         $sql = file_get_contents($file);
         if (!$sql) {
-            echo "   ❌ Error: Could not read migration file\n";
+            $msg = "   ❌ Error: Could not read migration file";
+            echo $isBrowser ? "<p style='color: red;'>$msg</p>" : "$msg\n";
             continue;
         }
         
         try {
-            // Execute migration
-            $db->execute($sql);
+            // Execute migration - handle multiple statements
+            $statements = array_filter(array_map('trim', explode(';', $sql)));
+            
+            foreach ($statements as $statement) {
+                if (!empty($statement) && !preg_match('/^\s*--/', $statement)) {
+                    $db->execute($statement);
+                }
+            }
             
             // Record migration as executed (skip for 000_create_migrations_table as it records itself)
             if ($filename !== '000_create_migrations_table') {
@@ -106,41 +166,92 @@ try {
                 ]);
             }
             
-            echo "   ✅ Success: $filename\n";
+            $msg = "   ✅ Success: $filename";
+            echo $isBrowser ? "<p style='color: green;'>$msg</p>" : "$msg\n";
             $newMigrations++;
             
         } catch (Exception $e) {
-            echo "   ❌ Error: " . $e->getMessage() . "\n";
-            echo "   Migration failed, stopping execution.\n";
+            $msg = "   ❌ Error: " . $e->getMessage();
+            echo $isBrowser ? "<p style='color: red;'>$msg</p>" : "$msg\n";
+            $msg = "   Migration failed, stopping execution.";
+            echo $isBrowser ? "<p style='color: red;'>$msg</p>" : "$msg\n";
             exit(1);
         }
     }
     
-    echo "\n=== Migration Summary ===\n";
-    echo "Total migrations found: " . count($migrationFiles) . "\n";
-    echo "Already executed: " . count($executedMigrations) . "\n";
-    echo "New migrations run: $newMigrations\n";
+    if ($isBrowser) {
+        echo "<h3>Migration Summary</h3>";
+    } else {
+        echo "\n=== Migration Summary ===\n";
+    }
+    
+    $totalMsg = "Total migrations found: " . count($migrationFiles);
+    $executedMsg = "Already executed: " . count($executedMigrations);
+    $newMsg = "New migrations run: $newMigrations";
+    
+    if ($isBrowser) {
+        echo "<p>$totalMsg</p>";
+        echo "<p>$executedMsg</p>";
+        echo "<p>$newMsg</p>";
+    } else {
+        echo "$totalMsg\n";
+        echo "$executedMsg\n";
+        echo "$newMsg\n";
+    }
     
     if ($newMigrations > 0) {
-        echo "Current batch: $currentBatch\n";
-        echo "\n✅ All migrations completed successfully!\n";
+        $batchMsg = "Current batch: $currentBatch";
+        $successMsg = "✅ All migrations completed successfully!";
+        
+        if ($isBrowser) {
+            echo "<p>$batchMsg</p>";
+            echo "<h3 style='color: green;'>$successMsg</h3>";
+        } else {
+            echo "$batchMsg\n";
+            echo "\n$successMsg\n";
+        }
     } else {
-        echo "\n✅ Database is up to date!\n";
+        $upToDateMsg = "✅ Database is up to date!";
+        echo $isBrowser ? "<h3 style='color: green;'>$upToDateMsg</h3>" : "\n$upToDateMsg\n";
     }
     
     // Show final table list
-    echo "\n=== Database Tables ===\n";
+    if ($isBrowser) {
+        echo "<h3>Database Tables</h3>";
+        echo "<ul>";
+    } else {
+        echo "\n=== Database Tables ===\n";
+    }
+    
     $tables = $db->query("SHOW TABLES");
     foreach ($tables as $table) {
         $tableName = array_values($table)[0];
-        echo "- $tableName\n";
+        if ($isBrowser) {
+            echo "<li>$tableName</li>";
+        } else {
+            echo "- $tableName\n";
+        }
+    }
+    
+    if ($isBrowser) {
+        echo "</ul>";
     }
     
 } catch (Exception $e) {
-    echo "❌ Migration failed: " . $e->getMessage() . "\n";
-    echo "\nPlease check:\n";
-    echo "1. Database connection settings\n";
-    echo "2. Database permissions\n";
-    echo "3. Migration file syntax\n";
+    $errorMsg = "❌ Migration failed: " . $e->getMessage();
+    $checkMsg = "Please check:\n1. Database connection settings\n2. Database permissions\n3. Migration file syntax";
+    
+    if ($isBrowser) {
+        echo "<h3 style='color: red;'>$errorMsg</h3>";
+        echo "<p>Please check:</p>";
+        echo "<ol>";
+        echo "<li>Database connection settings</li>";
+        echo "<li>Database permissions</li>";
+        echo "<li>Migration file syntax</li>";
+        echo "</ol>";
+    } else {
+        echo "$errorMsg\n";
+        echo "\n$checkMsg\n";
+    }
     exit(1);
 }
