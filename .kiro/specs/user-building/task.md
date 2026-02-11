@@ -6,31 +6,31 @@ Xây dựng hệ thống trang tài khoản users với đầy đủ chức năn
 
 ## Các module chính
 
-### 1. Dashboard (Tổng quan)
+### 1. Dashboard (Tổng quan)  - Done
 
-* [x] Tạo layout chính với sidebar
+* [X] Tạo layout chính với sidebar
+* [X] Xây dựng dashboard với charts thống kê
+* [X] Hiển thị thông tin tổng quan user
+* [X] Tích hợp Chart.js cho biểu đồ
 
+### 2. Account (Tài khoản) - Done 
 
-
-
-
-* [ ] Xây dựng dashboard với charts thống kê
-* [ ] Hiển thị thông tin tổng quan user
-* [ ] Tích hợp Chart.js cho biểu đồ
-
-### 2. Account (Tài khoản)
-
-* [ ] index.php - Xem thông tin tài khoản
-* [ ] edit.php - Chỉnh sửa thông tin
-* [ ] view.php - Xem chi tiết profile
-* [ ] delete.php - Xóa tài khoản
+* [X] index.php - Xem thông tin tài khoản
+* [X] edit.php - Chỉnh sửa thông tin
+* [X] view.php - Xem chi tiết profile
+* [X] delete.php - Xóa tài khoản
 
 ### 3. Orders (Đơn hàng)
 
-* [ ] index.php - Danh sách đơn hàng
-* [ ] view.php - Chi tiết đơn hàng
-* [ ] edit.php - Chỉnh sửa đơn hàng
-* [ ] delete.php - Hủy đơn hàng
+* [x] index.php - Danh sách đơn hàng
+* [x] view.php - Chi tiết đơn hàng
+* [x] edit.php - Thông báo không thể chỉnh sửa đơn hàng
+* [x] delete.php - Hủy đơn hàng
+
+
+
+
+
 
 ### 4. Cart (Giỏ hàng)
 

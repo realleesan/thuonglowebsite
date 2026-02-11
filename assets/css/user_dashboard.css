@@ -133,7 +133,8 @@
 /* Charts Section */
 .dashboard-charts {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
     gap: 20px;
     margin-bottom: 32px;
 }
@@ -141,6 +142,7 @@
 @media (max-width: 1024px) {
     .dashboard-charts {
         grid-template-columns: 1fr;
+        grid-template-rows: auto;
     }
 }
 
@@ -152,12 +154,14 @@
 }
 
 .chart-widget-large {
-    grid-column: span 2;
+    grid-column: 1;
+    grid-row: 1;
 }
 
-/* Purchase Trend Chart - Full Width */
+/* Purchase Trend Chart - Position in bottom right */
 .chart-widget-purchase-trend {
-    grid-column: span 3;
+    grid-column: 2;
+    grid-row: 2;
 }
 
 @media (max-width: 1024px) {
@@ -208,13 +212,18 @@
 /* Dashboard Content Grid */
 .dashboard-content {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
-/* Quick Actions - Full Width */
-.quick-actions-widget {
+/* Recent Orders - Full Width */
+.recent-orders-widget {
     grid-column: span 2;
+}
+
+/* Quick Actions - Normal Width */
+.quick-actions-widget {
+    grid-column: span 1;
 }
 
 .quick-actions {
@@ -227,6 +236,10 @@
     .dashboard-content {
         grid-template-columns: 1fr;
         gap: 16px;
+    }
+    
+    .recent-orders-widget {
+        grid-column: span 1;
     }
     
     .quick-actions-widget {

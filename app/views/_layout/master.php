@@ -69,6 +69,8 @@ mb_http_output('UTF-8');
         case 'users':
             echo '<link rel="stylesheet" href="' . versioned_css('user_sidebar.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_dashboard.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_account.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_orders.css') . '">';
             break;
         case 'checkout':
         case 'payment':
@@ -172,6 +174,8 @@ mb_http_output('UTF-8');
             echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
             echo '<script src="' . versioned_js('user_sidebar.js') . '"></script>';
             echo '<script src="' . versioned_js('user_dashboard.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_account.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_orders.js') . '"></script>';
             break;
         default:
             echo '<script src="' . versioned_js('home.js') . '"></script>';

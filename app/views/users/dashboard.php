@@ -189,7 +189,7 @@ $quickActions = [
     <!-- Main Content Grid -->
     <div class="dashboard-content">
         <!-- Recent Orders -->
-        <div class="dashboard-widget">
+        <div class="dashboard-widget recent-orders-widget">
             <div class="widget-header">
                 <h3>Đơn hàng gần đây</h3>
                 <a href="?page=users&module=orders" class="widget-action">Xem tất cả →</a>

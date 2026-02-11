@@ -232,7 +232,7 @@
 /* Layout Integration - Contained within site width */
 .user-content-with-sidebar {
     max-width: 1320px;
-    margin: 32px auto 0 auto; /* Add top margin from breadcrumb */
+    margin: 32px auto 60px auto; /* Add bottom margin to separate from footer */
     padding: 0 20px;
     display: flex;
     gap: 24px;
@@ -248,11 +248,17 @@
     .user-content-with-sidebar {
         flex-direction: column;
         padding: 0 16px;
+        margin-bottom: 40px; /* Ensure bottom spacing on mobile */
     }
     
     .user-sidebar {
         width: 100%;
         position: static;
         order: -1;
+    }
+    
+    .user-dashboard {
+        padding-bottom: 40px; /* Reduce bottom padding on mobile */
+        margin-bottom: 20px; /* Reduce bottom margin on mobile */
     }
 }
