@@ -1,7 +1,55 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$news = $fake_data['news'];
+// Load Models
+require_once __DIR__ . '/../../../models/NewsModel.php';
+
+$newsModel = new NewsModel();
+
+// Search and filter parameters
+$search = $_GET['search'] ?? '';
+$status_filter = $_GET['status'] ?? '';
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = 10;
+
+// Build query conditions
+$conditions = [];
+$bindings = [];
+
+if (!empty($search)) {
+    $conditions[] = "(title LIKE ? OR content LIKE ?)";
+    $searchTerm = "%{$search}%";
+    $bindings = array_merge($bindings, [$searchTerm, $searchTerm]);
+}
+
+if (!empty($status_filter)) {
+    $conditions[] = "status = ?";
+    $bindings[] = $status_filter;
+}
+
+// Get total count for pagination
+$countSql = "SELECT COUNT(*) as total FROM news";
+if (!empty($conditions)) {
+    $countSql .= " WHERE " . implode(' AND ', $conditions);
+}
+$totalResult = $newsModel->db->query($countSql, $bindings);
+$total_news = $totalResult[0]['total'] ?? 0;
+
+// Calculate pagination
+$total_pages = ceil($total_news / $per_page);
+$current_page = max(1, min($total_pages, $current_page));
+$offset = ($current_page - 1) * $per_page;
+
+// Get news with author info
+$sql = "
+    SELECT n.*, u.name as author_name
+    FROM news n
+    LEFT JOIN users u ON n.author_id = u.id
+";
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+$sql .= " ORDER BY n.created_at DESC LIMIT {$per_page} OFFSET {$offset}";
+
+$news = $newsModel->db->query($sql, $bindings);
 
 // Search and filter
 $search = $_GET['search'] ?? '';
@@ -150,7 +198,7 @@ function formatDate($date) {
                             <td>
                                 <div class="news-image">
                                     <img src="<?= $article['image'] ?>" alt="<?= htmlspecialchars($article['title']) ?>" 
-                                         onerror="this.src='assets/images/placeholder.jpg'">
+                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                                 </div>
                             </td>
                             <td>

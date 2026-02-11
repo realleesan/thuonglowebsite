@@ -4,10 +4,19 @@
  * Design System: Giống Admin
  */
 
-// Load affiliate info from session or demo data
-require_once __DIR__ . '/../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$affiliateInfo = $dataLoader->getData('affiliate_info');
+// Load Models
+require_once __DIR__ . '/../../../models/AffiliateModel.php';
+
+$affiliateModel = new AffiliateModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1;
+
+// Get affiliate info from database
+$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
+if (!$affiliateInfo) {
+    $affiliateInfo = ['name' => 'Demo User', 'email' => 'demo@example.com'];
+}
 ?>
 
 <header class="affiliate-header">

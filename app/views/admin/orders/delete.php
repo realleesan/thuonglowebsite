@@ -1,21 +1,18 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$orders = $fake_data['orders'];
-$users = $fake_data['users'];
-$products = $fake_data['products'];
+// Load Models
+require_once __DIR__ . '/../../models/OrdersModel.php';
+require_once __DIR__ . '/../../models/UsersModel.php';
+require_once __DIR__ . '/../../models/ProductsModel.php';
+
+$ordersModel = new OrdersModel();
+$usersModel = new UsersModel();
+$productsModel = new ProductsModel();
 
 // Get order ID from URL
 $order_id = (int)($_GET['id'] ?? 0);
 
-// Find order
-$order = null;
-foreach ($orders as $o) {
-    if ($o['id'] == $order_id) {
-        $order = $o;
-        break;
-    }
-}
+// Get order from database
+$order = $ordersModel->getById($order_id);
 
 // Redirect if order not found
 if (!$order) {
@@ -23,22 +20,9 @@ if (!$order) {
     exit;
 }
 
-// Find related data
-$user = null;
-foreach ($users as $u) {
-    if ($u['id'] == $order['user_id']) {
-        $user = $u;
-        break;
-    }
-}
-
-$product = null;
-foreach ($products as $p) {
-    if ($p['id'] == $order['product_id']) {
-        $product = $p;
-        break;
-    }
-}
+// Get related data
+$user = $usersModel->getById($order['user_id']);
+$product = $productsModel->getById($order['product_id']);
 
 // Handle form submission
 $success_message = '';
@@ -53,12 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($delete_reason)) {
         $error_message = 'Vui lòng nhập lý do xóa đơn hàng';
     } else {
-        // In a real application, you would delete from database here
-        $success_message = 'Đơn hàng đã được xóa thành công!';
-        
-        // Simulate redirect after successful deletion
-        // header('Location: ?page=admin&module=orders&deleted=1');
-        // exit;
+        // Delete from database
+        if ($ordersModel->delete($order_id)) {
+            $success_message = 'Đơn hàng đã được xóa thành công!';
+            header('Location: ?page=admin&module=orders&deleted=1');
+            exit;
+        } else {
+            $error_message = 'Có lỗi xảy ra khi xóa đơn hàng';
+        }
     }
 }
 
@@ -157,7 +143,7 @@ if ($order['payment_method'] != 'cod' && $order['status'] != 'cancelled') {
             <div class="order-summary-image">
                 <?php if ($product && $product['image']): ?>
                     <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name'] ?? '') ?>" 
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 <?php else: ?>
                     <div class="no-image">
                         <i class="fas fa-box"></i>
@@ -297,11 +283,16 @@ if ($order['payment_method'] != 'cod' && $order['status'] != 'cancelled') {
                         <p><strong>Khách hàng:</strong> <?= htmlspecialchars($user['name']) ?></p>
                         <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
                         <p><strong>Tổng đơn hàng của khách:</strong> 
-                            <?= count(array_filter($orders, fn($o) => $o['user_id'] == $user['id'])) ?> đơn
+                            <?php 
+                            $userOrders = $ordersModel->getByUser($user['id']);
+                            echo count($userOrders);
+                            ?> đơn
                         </p>
                         <p><strong>Tổng chi tiêu:</strong> 
-                            <?= formatPrice(array_sum(array_map(fn($o) => $o['total'], 
-                                array_filter($orders, fn($o) => $o['user_id'] == $user['id'])))) ?>
+                            <?php 
+                            $totalSpent = array_sum(array_map(fn($o) => $o['total'], $userOrders));
+                            echo formatPrice($totalSpent);
+                            ?>
                         </p>
                         
                         <?php if ($order['status'] != 'cancelled'): ?>

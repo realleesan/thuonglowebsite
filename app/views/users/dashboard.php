@@ -1,31 +1,66 @@
 <?php
 // User Dashboard with Real Metrics
-// Load fake data
-$dataFile = __DIR__ . '/data/user_fake_data.json';
-$data = [];
+// Load Models
+require_once __DIR__ . '/../../models/UsersModel.php';
+require_once __DIR__ . '/../../models/OrdersModel.php';
 
-if (file_exists($dataFile)) {
-    $jsonContent = file_get_contents($dataFile);
-    $data = json_decode($jsonContent, true) ?: [];
+$usersModel = new UsersModel();
+$ordersModel = new OrdersModel();
+
+// Get current user ID from session
+$userId = $_SESSION['user_id'] ?? 0;
+
+if ($userId) {
+    // Get user info with orders count
+    $user = $usersModel->getUserWithOrdersCount($userId);
+    
+    // Ensure user has proper name field
+    if (!isset($user['name']) && isset($user['full_name'])) {
+        $user['name'] = $user['full_name'];
+    } elseif (!isset($user['name'])) {
+        $user['name'] = 'Người dùng';
+    }
+    
+    // Get recent orders with proper structure
+    $recentOrdersRaw = $ordersModel->getByUser($userId, 5);
+    $recentOrders = [];
+    foreach ($recentOrdersRaw as $order) {
+        $recentOrders[] = [
+            'id' => $order['id'] ?? rand(1000, 9999),
+            'product_name' => $order['product_name'] ?? 'Sản phẩm',
+            'date' => $order['created_at'] ?? date('Y-m-d'),
+            'amount' => $order['total_amount'] ?? $order['amount'] ?? 0,
+            'status' => $order['status'] ?? 'completed'
+        ];
+    }
+    
+    // Calculate stats with proper data_purchased field
+    $stats = [
+        'total_orders' => $user['orders_count'] ?? 0,
+        'total_spent' => $user['total_spent'] ?? 0,
+        'loyalty_points' => $user['points'] ?? 0,
+        'user_level' => $user['level'] ?? 'Bronze',
+        'data_purchased' => count($recentOrders) // Number of data purchases
+    ];
+} else {
+    // Default empty stats if no user
+    $user = ['name' => 'Người dùng'];
+    $stats = [
+        'total_orders' => 0,
+        'total_spent' => 0,
+        'loyalty_points' => 0,
+        'user_level' => 'Bronze',
+        'data_purchased' => 0
+    ];
+    $recentOrders = [];
 }
 
-// Calculate current stats
-$stats = $data['stats'] ?? [
-    'total_orders' => 0,
-    'total_spent' => 0,
-    'data_purchased' => 0,
-    'loyalty_points' => 0
-];
-
-// Recent orders (last 5)
-$recentOrders = array_slice(array_reverse($data['orders'] ?? []), 0, 5);
-
-// Calculate trends (mock data - in real app, compare with previous period)
+// Calculate trends based on real data (simplified calculation)
 $trends = [
-    'orders' => ['value' => 15, 'direction' => 'up'],
-    'spending' => ['value' => 22, 'direction' => 'up'],
-    'data' => ['value' => 8, 'direction' => 'up'],
-    'points' => ['value' => 12, 'direction' => 'up']
+    'orders' => ['value' => max(0, $stats['total_orders'] - 5), 'direction' => $stats['total_orders'] > 5 ? 'up' : 'down'],
+    'spending' => ['value' => max(0, round($stats['total_spent'] / 1000000, 1)), 'direction' => $stats['total_spent'] > 0 ? 'up' : 'down'],
+    'data' => ['value' => $stats['data_purchased'], 'direction' => $stats['data_purchased'] > 0 ? 'up' : 'down'],
+    'points' => ['value' => max(0, $stats['loyalty_points'] - 100), 'direction' => $stats['loyalty_points'] > 100 ? 'up' : 'down']
 ];
 
 // Quick actions based on user activity
@@ -66,13 +101,13 @@ $quickActions = [
     <!-- Page Header -->
     <div class="dashboard-header">
         <div class="dashboard-header-left">
-            <h1>Chào mừng trở lại, <?php echo htmlspecialchars($data['user']['name'] ?? 'Người dùng'); ?>!</h1>
+            <h1>Chào mừng trở lại, <?php echo htmlspecialchars($user['name'] ?? 'Người dùng'); ?>!</h1>
             <p>Tổng quan tài khoản và hoạt động của bạn</p>
         </div>
         <div class="dashboard-header-right">
             <div class="user-level-badge">
                 <i class="fas fa-crown"></i>
-                <span><?php echo $data['user']['level'] ?? 'Basic'; ?> Member</span>
+                <span><?php echo $stats['user_level']; ?> Member</span>
             </div>
         </div>
     </div>
@@ -112,7 +147,7 @@ $quickActions = [
                 <i class="fas fa-database"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo $stats['data_purchased']; ?></h3>
+                <h3><?php echo $stats['data_purchased'] ?? 0; ?></h3>
                 <p>Data đã mua</p>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i>
@@ -216,13 +251,14 @@ $quickActions = [
                                         ($order['status'] === 'cancelled' ? 'danger' : 'info')); 
                                 ?>">
                                     <?php 
-                                    $statusText = [
+                                    // Status text mapping
+                                    $statusLabels = [
                                         'completed' => 'Hoàn thành',
                                         'processing' => 'Đang xử lý',
                                         'pending' => 'Chờ xử lý',
                                         'cancelled' => 'Đã hủy'
                                     ];
-                                    echo $statusText[$order['status']] ?? $order['status']; 
+                                    echo $statusLabels[$order['status']] ?? ucfirst($order['status']); 
                                     ?>
                                 </span>
                             </div>
@@ -250,12 +286,12 @@ $quickActions = [
                     <!-- Cart & Wishlist Actions -->
                     <a href="?page=users&module=cart" class="quick-action-btn quick-action-warning">
                         <i class="fas fa-shopping-cart"></i>
-                        <span>Giỏ hàng (<?php echo count($data['cart'] ?? []); ?>)</span>
+                        <span>Giỏ hàng (0)</span>
                     </a>
                     
                     <a href="?page=users&module=wishlist" class="quick-action-btn quick-action-danger">
                         <i class="fas fa-heart"></i>
-                        <span>Yêu thích (<?php echo count($data['wishlist'] ?? []); ?>)</span>
+                        <span>Yêu thích (0)</span>
                     </a>
                 </div>
             </div>

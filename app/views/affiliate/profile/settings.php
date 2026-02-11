@@ -4,10 +4,21 @@
  * Quản lý thông tin cá nhân và tài khoản ngân hàng
  */
 
-// Load data
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$profileData = $dataLoader->getData('profile');
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../../models/UsersModel.php';
+
+$affiliateModel = new AffiliateModel();
+$usersModel = new UsersModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1;
+
+// Get profile data from database
+$profileData = $affiliateModel->getWithUser($affiliateId);
+if (!$profileData) {
+    $profileData = ['name' => 'Demo User', 'email' => 'demo@example.com'];
+}
 
 // Page title
 $page_title = 'Cài Đặt Hồ Sơ';

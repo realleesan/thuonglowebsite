@@ -1,43 +1,57 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$users = $fake_data['users'];
+// Load Users Model
+require_once __DIR__ . '/../../../models/UsersModel.php';
 
-// Search and filter
+$usersModel = new UsersModel();
+
+// Search and filter parameters
 $search = $_GET['search'] ?? '';
 $role_filter = $_GET['role'] ?? '';
 $status_filter = $_GET['status'] ?? '';
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = 10;
 
-// Filter users
-$filtered_users = $users;
+// Build query conditions
+$conditions = [];
+$bindings = [];
 
 if (!empty($search)) {
-    $filtered_users = array_filter($filtered_users, function($user) use ($search) {
-        return stripos($user['name'], $search) !== false || 
-               stripos($user['email'], $search) !== false ||
-               stripos($user['phone'], $search) !== false;
-    });
+    $conditions[] = "(name LIKE ? OR email LIKE ? OR phone LIKE ?)";
+    $searchTerm = "%{$search}%";
+    $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
 }
 
 if (!empty($role_filter)) {
-    $filtered_users = array_filter($filtered_users, function($user) use ($role_filter) {
-        return $user['role'] == $role_filter;
-    });
+    $conditions[] = "role = ?";
+    $bindings[] = $role_filter;
 }
 
 if (!empty($status_filter)) {
-    $filtered_users = array_filter($filtered_users, function($user) use ($status_filter) {
-        return $user['status'] == $status_filter;
-    });
+    $conditions[] = "status = ?";
+    $bindings[] = $status_filter;
 }
 
-// Pagination
-$per_page = 10;
-$total_users = count($filtered_users);
+// Get total count for pagination
+$countSql = "SELECT COUNT(*) as total FROM users";
+if (!empty($conditions)) {
+    $countSql .= " WHERE " . implode(' AND ', $conditions);
+}
+$totalResult = $usersModel->db->query($countSql, $bindings);
+$total_users = $totalResult[0]['total'] ?? 0;
+
+// Calculate pagination
 $total_pages = ceil($total_users / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
+$current_page = max(1, min($total_pages, $current_page));
 $offset = ($current_page - 1) * $per_page;
-$paged_users = array_slice($filtered_users, $offset, $per_page);
+
+// Get users with pagination
+$sql = "SELECT * FROM users";
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(' AND ', $conditions);
+}
+$sql .= " ORDER BY created_at DESC LIMIT {$per_page} OFFSET {$offset}";
+
+$paged_users = $usersModel->db->query($sql, $bindings);
 
 // Format date function
 function formatDate($date) {

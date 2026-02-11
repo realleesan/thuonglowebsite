@@ -1,32 +1,39 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$orders = $fake_data['orders'];
-$products = $fake_data['products'];
-$users = $fake_data['users'];
+// Load Models
+require_once __DIR__ . '/../../models/OrdersModel.php';
+require_once __DIR__ . '/../../models/ProductsModel.php';
+require_once __DIR__ . '/../../models/UsersModel.php';
 
-// Create product lookup
-$product_lookup = [];
-foreach ($products as $product) {
-    $product_lookup[$product['id']] = $product;
-}
-
-// Create user lookup
-$user_lookup = [];
-foreach ($users as $user) {
-    $user_lookup[$user['id']] = $user;
-}
+$ordersModel = new OrdersModel();
+$productsModel = new ProductsModel();
+$usersModel = new UsersModel();
 
 // Date filter
 $date_from = $_GET['date_from'] ?? date('Y-m-01'); // First day of current month
 $date_to = $_GET['date_to'] ?? date('Y-m-d'); // Today
 $period = $_GET['period'] ?? 'month'; // month, quarter, year
 
-// Filter orders by date
-$filtered_orders = array_filter($orders, function($order) use ($date_from, $date_to) {
-    $order_date = date('Y-m-d', strtotime($order['created_at']));
-    return $order_date >= $date_from && $order_date <= $date_to;
-});
+// Get filtered orders from database
+$filters = [
+    'date_from' => $date_from,
+    'date_to' => $date_to
+];
+$filtered_orders = $ordersModel->getByDateRange($date_from, $date_to);
+
+// Get all products and users for lookups
+$products = $productsModel->getAll();
+$users = $usersModel->getAll();
+
+// Create lookups
+$product_lookup = [];
+foreach ($products as $product) {
+    $product_lookup[$product['id']] = $product;
+}
+
+$user_lookup = [];
+foreach ($users as $user) {
+    $user_lookup[$user['id']] = $user;
+}
 
 // Calculate revenue statistics
 $total_revenue = 0;

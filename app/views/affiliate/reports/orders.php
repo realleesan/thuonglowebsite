@@ -4,18 +4,26 @@
  * Analytics về orders, revenue, products
  */
 
-// Load data
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$reportsData = $dataLoader->getData('reports');
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../../models/OrdersModel.php';
 
-$ordersData = $reportsData['orders'];
-$totalOrders = $ordersData['total'];
-$totalRevenue = $ordersData['total_revenue'];
-$totalCommission = $ordersData['total_commission'];
-$avgOrderValue = $ordersData['average_order_value'];
-$ordersByDate = $ordersData['by_date'];
-$ordersByProduct = $ordersData['by_product'];
+$affiliateModel = new AffiliateModel();
+$ordersModel = new OrdersModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1;
+
+// Get affiliate data from database
+$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
+$dashboardData = $affiliateModel->getDashboardData($affiliateId);
+
+$totalOrders = count($dashboardData['recent_orders']);
+$totalRevenue = $affiliateInfo['total_sales'] ?? 0;
+$totalCommission = $affiliateInfo['total_commission'] ?? 0;
+$avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+$ordersByDate = []; // Demo - generate from database
+$ordersByProduct = []; // Demo - generate from database
 
 // Page title
 $page_title = 'Báo Cáo Đơn Hàng';

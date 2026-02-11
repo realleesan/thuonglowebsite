@@ -1,10 +1,20 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$orders = $fake_data['orders'];
-$products = $fake_data['products'];
-$users = $fake_data['users'];
-$affiliates = $fake_data['affiliates'];
+// Load models
+require_once __DIR__ . '/../../../models/OrdersModel.php';
+require_once __DIR__ . '/../../../models/ProductsModel.php';
+require_once __DIR__ . '/../../../models/UsersModel.php';
+require_once __DIR__ . '/../../../models/AffiliateModel.php';
+
+$ordersModel = new OrdersModel();
+$productsModel = new ProductsModel();
+$usersModel = new UsersModel();
+$affiliateModel = new AffiliateModel();
+
+// Get data from database
+$orders = $ordersModel->getAll();
+$products = $productsModel->getAll();
+$users = $usersModel->getAll();
+$affiliates = $affiliateModel->getAll();
 
 // Create lookups
 $product_lookup = [];

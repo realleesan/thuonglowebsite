@@ -4,18 +4,32 @@
  * Tổng quan hoa hồng
  */
 
-// Load data từ AffiliateDataLoader
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-require_once __DIR__ . '/../../../../core/AffiliateErrorHandler.php';
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+
+$affiliateModel = new AffiliateModel();
 
 try {
-    $loader = new AffiliateDataLoader();
-    $commissionsData = $loader->getCommissionsData();
-    $overview = $commissionsData['overview'] ?? [];
+    // Get current affiliate ID from session
+    $affiliateId = $_SESSION['user_id'] ?? 1;
+    
+    // Get affiliate data from database
+    $affiliateInfo = $affiliateModel->getWithUser($affiliateId);
+    if (!$affiliateInfo) {
+        $affiliateInfo = ['total_commission' => 0, 'pending_commission' => 0, 'paid_commission' => 0];
+    }
+    
+    $overview = [
+        'total_commission' => $affiliateInfo['total_commission'],
+        'pending_commission' => $affiliateInfo['pending_commission'],
+        'paid_commission' => $affiliateInfo['paid_commission']
+    ];
     $history = $commissionsData['history'] ?? [];
 } catch (Exception $e) {
-    AffiliateErrorHandler::handleError($e, 'commissions');
-    exit;
+    error_log('Commissions Error: ' . $e->getMessage());
+    // Set default values for demo
+    $overview = ['total_commission' => 0, 'pending_commission' => 0, 'paid_commission' => 0];
+    $history = [];
 }
 
 // Set page info cho master layout

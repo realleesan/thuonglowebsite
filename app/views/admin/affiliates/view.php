@@ -1,35 +1,34 @@
 <?php
+// Load Models
+require_once __DIR__ . '/../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../models/UsersModel.php';
+
+$affiliateModel = new AffiliateModel();
+$usersModel = new UsersModel();
+
 // Get affiliate ID from URL
 $affiliate_id = (int)($_GET['id'] ?? 0);
 
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$affiliates = $fake_data['affiliates'];
-$users = $fake_data['users'];
-$orders = $fake_data['orders'];
+// Find affiliate with user info
+$sql = "
+    SELECT a.*, u.name as user_name, u.email as user_email
+    FROM affiliates a
+    LEFT JOIN users u ON a.user_id = u.id
+    WHERE a.id = ?
+";
+$result = $affiliateModel->db->query($sql, [$affiliate_id]);
+$affiliate = $result ? $result[0] : null;
 
-// Find affiliate
-$affiliate = null;
-foreach ($affiliates as $item) {
-    if ($item['id'] == $affiliate_id) {
-        $affiliate = $item;
-        break;
-    }
-}
-
-// If affiliate not found, redirect
+// Redirect if affiliate not found
 if (!$affiliate) {
     header('Location: ?page=admin&module=affiliates&error=not_found');
     exit;
 }
 
-// Find user info
-$user = null;
-foreach ($users as $item) {
-    if ($item['id'] == $affiliate['user_id']) {
-        $user = $item;
-        break;
-    }
+// Get orders for this affiliate
+$orders = $affiliateModel->db->query("
+    SELECT * FROM orders WHERE affiliate_id = ? ORDER BY created_at DESC
+", [$affiliate_id]);
 }
 
 // Get affiliate orders (demo data)

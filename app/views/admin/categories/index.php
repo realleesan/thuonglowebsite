@@ -1,8 +1,13 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$categories = $fake_data['categories'];
-$products = $fake_data['products'];
+// Load Models
+require_once __DIR__ . '/../../../models/CategoriesModel.php';
+require_once __DIR__ . '/../../../models/ProductsModel.php';
+
+$categoriesModel = new CategoriesModel();
+$productsModel = new ProductsModel();
+
+// Get categories with product count
+$categories = $categoriesModel->getWithProductCount();
 
 // Count products per category
 $product_count = [];

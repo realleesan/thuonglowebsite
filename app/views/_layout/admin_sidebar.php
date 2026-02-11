@@ -8,8 +8,8 @@ $current_action = $_GET['action'] ?? 'index';
 <div class="admin-sidebar" id="adminSidebar">
     <div class="sidebar-header">
         <div class="logo">
-            <img src="assets/icons/logo/logo.svg" alt="ThuongLo Admin" class="logo-img logo-full">
-            <img src="assets/icons/logo/logo_mini.svg" alt="ThuongLo Admin" class="logo-img logo-mini">
+            <img src="<?php echo icon_url('logo/logo.svg'); ?>" alt="ThuongLo Admin" class="logo-img logo-full">
+            <img src="<?php echo icon_url('logo/logo_mini.svg'); ?>" alt="ThuongLo Admin" class="logo-img logo-mini">
         </div>
     </div>
     

@@ -1,36 +1,31 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$events = $fake_data['events'];
+// Load Models
+require_once __DIR__ . '/../../models/EventsModel.php';
+
+$eventsModel = new EventsModel();
 
 // Search and filter
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 
-// Filter events
-$filtered_events = $events;
-
+// Build filters array
+$filters = [];
 if (!empty($search)) {
-    $filtered_events = array_filter($filtered_events, function($event) use ($search) {
-        return stripos($event['title'], $search) !== false || 
-               stripos($event['description'], $search) !== false ||
-               stripos($event['location'], $search) !== false;
-    });
+    $filters['search'] = $search;
 }
-
 if (!empty($status_filter)) {
-    $filtered_events = array_filter($filtered_events, function($event) use ($status_filter) {
-        return $event['status'] == $status_filter;
-    });
+    $filters['status'] = $status_filter;
 }
 
 // Pagination
 $per_page = 10;
-$total_events = count($filtered_events);
-$total_pages = ceil($total_events / $per_page);
-$current_page = max(1, min($total_pages, (int)($_GET['page'] ?? 1)));
+$current_page = max(1, (int)($_GET['page'] ?? 1));
 $offset = ($current_page - 1) * $per_page;
-$paged_events = array_slice($filtered_events, $offset, $per_page);
+
+// Get events from database
+$events = $eventsModel->getAll($per_page, $offset, $filters);
+$total_events = count($eventsModel->getAll(null, 0, $filters)); // Get total count
+$total_pages = ceil($total_events / $per_page);
 
 // Format date function
 function formatDate($date) {
@@ -102,7 +97,7 @@ function formatPrice($price) {
     <!-- Results Info -->
     <div class="results-info">
         <span class="results-count">
-            Hiển thị <?= count($paged_events) ?> trong tổng số <?= $total_events ?> sự kiện
+            Hiển thị <?= count($events) ?> trong tổng số <?= $total_events ?> sự kiện
         </span>
         
         <!-- Bulk Actions -->
@@ -141,7 +136,7 @@ function formatPrice($price) {
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($paged_events)): ?>
+                <?php if (empty($events)): ?>
                     <tr>
                         <td colspan="10" class="no-data">
                             <i class="fas fa-inbox"></i>
@@ -149,7 +144,7 @@ function formatPrice($price) {
                         </td>
                     </tr>
                 <?php else: ?>
-                    <?php foreach ($paged_events as $event): ?>
+                    <?php foreach ($events as $event): ?>
                         <tr>
                             <td>
                                 <input type="checkbox" class="event-checkbox" value="<?= $event['id'] ?>">
@@ -158,7 +153,7 @@ function formatPrice($price) {
                             <td>
                                 <div class="event-image">
                                     <img src="<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>" 
-                                         onerror="this.src='assets/images/placeholder.jpg'">
+                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                                 </div>
                             </td>
                             <td>

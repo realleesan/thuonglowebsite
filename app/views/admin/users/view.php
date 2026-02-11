@@ -1,21 +1,18 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$users = $fake_data['users'];
-$orders = $fake_data['orders'];
-$affiliates = $fake_data['affiliates'];
+// Load Models
+require_once __DIR__ . '/../../../models/UsersModel.php';
+require_once __DIR__ . '/../../../models/OrdersModel.php';
+require_once __DIR__ . '/../../../models/AffiliateModel.php';
+
+$usersModel = new UsersModel();
+$ordersModel = new OrdersModel();
+$affiliateModel = new AffiliateModel();
 
 // Get user ID from URL
 $user_id = (int)($_GET['id'] ?? 0);
 
-// Find user
-$user = null;
-foreach ($users as $u) {
-    if ($u['id'] == $user_id) {
-        $user = $u;
-        break;
-    }
-}
+// Find user with orders count
+$user = $usersModel->getUserWithOrdersCount($user_id);
 
 // Redirect if user not found
 if (!$user) {
@@ -24,22 +21,14 @@ if (!$user) {
 }
 
 // Get user orders
-$user_orders = array_filter($orders, function($order) use ($user_id) {
-    return $order['user_id'] == $user_id;
-});
+$user_orders = $ordersModel->getByUser($user_id);
 
 // Get user affiliate info
-$user_affiliate = null;
-foreach ($affiliates as $affiliate) {
-    if ($affiliate['user_id'] == $user_id) {
-        $user_affiliate = $affiliate;
-        break;
-    }
-}
+$user_affiliate = $affiliateModel->findBy('user_id', $user_id);
 
 // Calculate statistics
 $total_orders = count($user_orders);
-$total_spent = array_sum(array_column($user_orders, 'total'));
+$total_spent = $user['total_spent'] ?? 0;
 $completed_orders = count(array_filter($user_orders, function($order) {
     return $order['status'] == 'completed';
 }));

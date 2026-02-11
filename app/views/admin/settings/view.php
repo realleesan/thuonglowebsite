@@ -1,7 +1,20 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$settings = $fake_data['settings'];
+// Load Models
+require_once __DIR__ . '/../../../models/SettingsModel.php';
+
+$settingsModel = new SettingsModel();
+
+// Get setting key from URL
+$setting_key = $_GET['key'] ?? '';
+
+// Find setting
+$setting = $settingsModel->findBy('key', $setting_key);
+
+// Redirect if setting not found
+if (!$setting) {
+    header('Location: ?page=admin&module=settings&error=not_found');
+    exit;
+}
 
 // Get setting key from URL
 $setting_key = $_GET['key'] ?? '';

@@ -1,0 +1,46 @@
+-- Migration: Create products table
+-- Created: 2026-02-09
+-- Description: Main products table for all sellable items
+
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    category_id INT NOT NULL,
+    price DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    sale_price DECIMAL(15,2) NULL,
+    stock INT NOT NULL DEFAULT 0,
+    sku VARCHAR(100) NULL UNIQUE,
+    status ENUM('active', 'inactive', 'draft', 'out_of_stock') NOT NULL DEFAULT 'active',
+    type ENUM('data_nguon_hang', 'khoa_hoc', 'tool', 'dich_vu', 'van_chuyen') NOT NULL DEFAULT 'data_nguon_hang',
+    description TEXT NULL,
+    short_description TEXT NULL,
+    image VARCHAR(255) NULL,
+    gallery JSON NULL,
+    meta_title VARCHAR(255) NULL,
+    meta_description TEXT NULL,
+    featured BOOLEAN NOT NULL DEFAULT FALSE,
+    digital BOOLEAN NOT NULL DEFAULT TRUE,
+    downloadable BOOLEAN NOT NULL DEFAULT FALSE,
+    download_limit INT NULL,
+    download_expiry INT NULL,
+    weight DECIMAL(8,2) NULL,
+    dimensions VARCHAR(100) NULL,
+    views INT NOT NULL DEFAULT 0,
+    sales_count INT NOT NULL DEFAULT 0,
+    rating_average DECIMAL(3,2) NOT NULL DEFAULT 0.00,
+    rating_count INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
+    INDEX idx_slug (slug),
+    INDEX idx_category_id (category_id),
+    INDEX idx_status (status),
+    INDEX idx_type (type),
+    INDEX idx_featured (featured),
+    INDEX idx_price (price),
+    INDEX idx_created_at (created_at),
+    INDEX idx_sales_count (sales_count),
+    INDEX idx_rating (rating_average)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,21 +1,31 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$products = $fake_data['products'];
-$categories = $fake_data['categories'];
-$orders = $fake_data['orders'];
+// Load Models
+require_once __DIR__ . '/../../../models/ProductsModel.php';
+require_once __DIR__ . '/../../../models/CategoriesModel.php';
+
+$productsModel = new ProductsModel();
+$categoriesModel = new CategoriesModel();
+
+// Get product ID from URL
+$product_id = (int)($_GET['id'] ?? 0);
+
+// Find product with category info
+$product = $productsModel->getBySlug($product_id) ?: $productsModel->find($product_id);
+
+// Redirect if product not found
+if (!$product) {
+    header('Location: ?page=admin&module=products&error=not_found');
+    exit;
+}
+
+// Get categories for dropdown
+$categories = $categoriesModel->getActive();
 
 // Get product ID
 $product_id = (int)($_GET['id'] ?? 0);
 
-// Find product
-$product = null;
-foreach ($products as $p) {
-    if ($p['id'] == $product_id) {
-        $product = $p;
-        break;
-    }
-}
+// Find product from database
+$product = $productsModel->getById($product_id);
 
 // If product not found, redirect
 if (!$product) {
@@ -96,7 +106,7 @@ function getStatusBadge($status) {
             <div class="product-image-section">
                 <div class="product-image-main">
                     <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 </div>
                 <div class="product-image-info">
                     <p><strong>Hình ảnh:</strong> <?= basename($product['image']) ?></p>

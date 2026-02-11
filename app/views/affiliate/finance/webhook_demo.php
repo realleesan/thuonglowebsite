@@ -4,13 +4,22 @@
  * Trang mô phỏng Webhook SePay
  */
 
-// Load data
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-$dataLoader = new AffiliateDataLoader();
-$financeData = $dataLoader->getData('finance');
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
 
-$wallet = $financeData['wallet'];
-$withdrawals = $financeData['withdrawals'];
+$affiliateModel = new AffiliateModel();
+
+// Get current affiliate ID from session
+$affiliateId = $_SESSION['user_id'] ?? 1;
+
+// Get affiliate data from database
+$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
+if (!$affiliateInfo) {
+    $affiliateInfo = ['pending_commission' => 0];
+}
+
+$wallet = ['balance' => $affiliateInfo['pending_commission']];
+$withdrawals = []; // Demo - in real app get from database
 
 // Page title
 $page_title = 'Webhook Demo - Mô phỏng';

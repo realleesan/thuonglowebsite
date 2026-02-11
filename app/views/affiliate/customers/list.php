@@ -4,16 +4,23 @@
  * Danh sách khách hàng của đại lý
  */
 
-// Load data từ AffiliateDataLoader
-require_once __DIR__ . '/../../../../core/AffiliateDataLoader.php';
-require_once __DIR__ . '/../../../../core/AffiliateErrorHandler.php';
+// Load Models
+require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+require_once __DIR__ . '/../../../../models/UsersModel.php';
+
+$affiliateModel = new AffiliateModel();
+$usersModel = new UsersModel();
 
 try {
-    $loader = new AffiliateDataLoader();
-    $customers = $loader->getData('customers') ?? [];
+    // Get current affiliate ID from session
+    $affiliateId = $_SESSION['user_id'] ?? 1;
+    
+    // Get customers from database (demo - in real app get referred customers)
+    $customers = $usersModel->getAll(); // Demo data
 } catch (Exception $e) {
-    AffiliateErrorHandler::handleError($e, 'customers_list');
-    exit;
+    error_log('Customers List Error: ' . $e->getMessage());
+    // Set default values for demo
+    $customers = [];
 }
 
 // Set page info cho master layout

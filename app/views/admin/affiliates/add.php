@@ -1,10 +1,20 @@
 <?php
-// Load fake data for users
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$users = $fake_data['users'];
+// Load Users Model for dropdown
+require_once __DIR__ . '/../../../models/UsersModel.php';
+
+$usersModel = new UsersModel();
+
+// Get users for dropdown (only users without affiliate accounts)
+$sql = "
+    SELECT u.* FROM users u
+    LEFT JOIN affiliates a ON u.id = a.user_id
+    WHERE a.id IS NULL AND u.role IN ('user', 'agent')
+    ORDER BY u.name
+";
+$users = $usersModel->db->query($sql);
 
 // Filter users that are not already affiliates
-$affiliates = $fake_data['affiliates'];
+$affiliates = $affiliateModel->getAll();
 $affiliate_user_ids = array_column($affiliates, 'user_id');
 $available_users = array_filter($users, function($user) use ($affiliate_user_ids) {
     return !in_array($user['id'], $affiliate_user_ids) && $user['role'] !== 'admin';

@@ -1,3 +1,58 @@
+<?php
+// Load Products and Categories Models
+require_once __DIR__ . '/../../models/ProductsModel.php';
+require_once __DIR__ . '/../../models/CategoriesModel.php';
+
+$productsModel = new ProductsModel();
+$categoriesModel = new CategoriesModel();
+
+// Get all products from database
+$products = $productsModel->getAll();
+
+// Handle filtering by category
+$categoryFilter = $_GET['category'] ?? null;
+if ($categoryFilter) {
+    $products = array_filter($products, function($product) use ($categoryFilter) {
+        return $product['category_id'] == $categoryFilter;
+    });
+}
+
+// Calculate total count for display
+$totalProducts = count($products);
+$displayedCount = min(12, $totalProducts); // Show max 12 per page
+
+// Handle sorting
+$orderBy = $_GET['order_by'] ?? 'post_date';
+switch ($orderBy) {
+    case 'post_title':
+        usort($products, function($a, $b) { return strcmp($a['name'], $b['name']); });
+        break;
+    case 'post_title_desc':
+        usort($products, function($a, $b) { return strcmp($b['name'], $a['name']); });
+        break;
+    case 'price':
+        usort($products, function($a, $b) { return ($b['price'] ?? 0) - ($a['price'] ?? 0); });
+        break;
+    case 'price_low':
+        usort($products, function($a, $b) { return ($a['price'] ?? 0) - ($b['price'] ?? 0); });
+        break;
+    case 'popular':
+        usort($products, function($a, $b) { return ($b['view_count'] ?? 0) - ($a['view_count'] ?? 0); });
+        break;
+    case 'rating':
+        usort($products, function($a, $b) { return ($b['rating'] ?? 0) - ($a['rating'] ?? 0); });
+        break;
+    default: // post_date
+        usort($products, function($a, $b) { return strtotime($b['created_at'] ?? '0') - strtotime($a['created_at'] ?? '0'); });
+        break;
+}
+
+// Limit to displayed products
+$displayedProducts = array_slice($products, 0, 12);
+
+// Get categories for filtering
+$categories = $categoriesModel->getAll();
+?>
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
     <div class="content-pusher">
@@ -27,18 +82,21 @@
                                 <!-- Top Bar with Results and Sort -->
                                 <div class="products-topbar">
                                     <div class="results-count">
-                                        <span>Hiển thị 1-12 trong tổng số 20 kết quả</span>
+                                        <span>Hiển thị 1-<?php echo $displayedCount; ?> trong tổng số <?php echo $totalProducts; ?> kết quả</span>
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">
-                                            <select name="order_by" class="sort-select">
-                                                <option value="post_date" selected>Mới nhất</option>
-                                                <option value="post_title">Tên A-Z</option>
-                                                <option value="post_title_desc">Tên Z-A</option>
-                                                <option value="price">Giá cao đến thấp</option>
-                                                <option value="price_low">Giá thấp đến cao</option>
-                                                <option value="popular">Phổ biến</option>
-                                                <option value="rating">Đánh giá trung bình</option>
+                                            <?php if ($categoryFilter): ?>
+                                                <input type="hidden" name="category" value="<?php echo htmlspecialchars($categoryFilter); ?>">
+                                            <?php endif; ?>
+                                            <select name="order_by" class="sort-select" onchange="this.form.submit()">
+                                                <option value="post_date" <?php echo $orderBy === 'post_date' ? 'selected' : ''; ?>>Mới nhất</option>
+                                                <option value="post_title" <?php echo $orderBy === 'post_title' ? 'selected' : ''; ?>>Tên A-Z</option>
+                                                <option value="post_title_desc" <?php echo $orderBy === 'post_title_desc' ? 'selected' : ''; ?>>Tên Z-A</option>
+                                                <option value="price" <?php echo $orderBy === 'price' ? 'selected' : ''; ?>>Giá cao đến thấp</option>
+                                                <option value="price_low" <?php echo $orderBy === 'price_low' ? 'selected' : ''; ?>>Giá thấp đến cao</option>
+                                                <option value="popular" <?php echo $orderBy === 'popular' ? 'selected' : ''; ?>>Phổ biến</option>
+                                                <option value="rating" <?php echo $orderBy === 'rating' ? 'selected' : ''; ?>>Đánh giá trung bình</option>
                                             </select>
                                         </form>
                                     </div>
@@ -46,81 +104,52 @@
 
                                 <!-- Products Grid -->
                                 <div class="products-grid">
-                                    <!-- Course Item 1 -->
-                                    <div class="course-item">
-                                        <div class="course-category">
-                                            <a href="#" class="category-tag">Data nguồn hàng</a>
+                                    <?php if (empty($displayedProducts)): ?>
+                                        <div class="no-products">
+                                            <p>Không tìm thấy sản phẩm nào.</p>
                                         </div>
-                                        <div class="course-image">
-                                            <a href="?page=details">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="course-content">
-                                            <h4 class="course-title">
-                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
-                                            </h4>
-                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
-                                            <div class="course-instructor">
-                                                <a href="#" class="instructor-name">ThuongLo.com</a>
+                                    <?php else: ?>
+                                        <?php foreach ($displayedProducts as $product): ?>
+                                        <!-- Product Item -->
+                                        <div class="course-item">
+                                            <div class="course-category">
+                                                <a href="#" class="category-tag"><?php echo htmlspecialchars($product['category_name'] ?? 'Sản phẩm'); ?></a>
                                             </div>
-                                            <div class="course-meta">
-                                                <div class="course-lessons">
-                                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                    <span>1000+ Nhà cung cấp</span>
-                                                </div>
-                                            </div>
-                                            <div class="course-price">
-                                                <span class="price">2.500.000đ</span>
-                                            </div>
-                                            <div class="course-button">
-                                                <a href="?page=details" class="btn-start-learning">
-                                                    <i class="fas fa-play"></i>
-                                                    <span>Xem chi tiết</span>
+                                            <div class="course-image">
+                                                <a href="?page=products&module=details&id=<?php echo $product['id']; ?>">
+                                                    <img src="<?php echo !empty($product['image']) ? htmlspecialchars($product['image']) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg'; ?>" 
+                                                         alt="<?php echo htmlspecialchars($product['name']); ?>" loading="lazy">
                                                 </a>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Course Item 2 -->
-                                    <div class="course-item">
-                                        <div class="course-category">
-                                            <a href="#" class="category-tag">Data nguồn hàng</a>
-                                        </div>
-                                        <div class="course-image">
-                                            <a href="?page=details">
-                                                <img src="https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg" alt="Data nguồn hàng chất lượng" loading="lazy">
-                                            </a>
-                                        </div>
-                                        <div class="course-content">
-                                            <h4 class="course-title">
-                                                <a href="?page=details">Data nguồn hàng chất lượng cao</a>
-                                            </h4>
-                                            <div class="course-excerpt">Cung cấp database nhà cung cấp uy tín, thông tin sản phẩm chi tiết và giá cả cạnh tranh từ các thị trường lớn như Trung Quốc, Thái Lan, Malaysia...</div>
-                                            <div class="course-instructor">
-                                                <a href="#" class="instructor-name">ThuongLo.com</a>
-                                            </div>
-                                            <div class="course-meta">
-                                                <div class="course-lessons">
-                                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                    <span>1000+ Nhà cung cấp</span>
+                                            <div class="course-content">
+                                                <h4 class="course-title">
+                                                    <a href="?page=products&module=details&id=<?php echo $product['id']; ?>"><?php echo htmlspecialchars($product['name']); ?></a>
+                                                </h4>
+                                                <div class="course-excerpt"><?php echo htmlspecialchars($product['description'] ?? 'Mô tả sản phẩm sẽ được cập nhật sớm.'); ?></div>
+                                                <div class="course-instructor">
+                                                    <a href="#" class="instructor-name">ThuongLo.com</a>
+                                                </div>
+                                                <div class="course-meta">
+                                                    <div class="course-lessons">
+                                                        <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                        <span><?php echo ($product['stock'] ?? 0); ?> Có sẵn</span>
+                                                    </div>
+                                                </div>
+                                                <div class="course-price">
+                                                    <span class="price"><?php echo number_format($product['price'] ?? 0, 0, ',', '.'); ?>đ</span>
+                                                </div>
+                                                <div class="course-button">
+                                                    <a href="?page=products&module=details&id=<?php echo $product['id']; ?>" class="btn-start-learning">
+                                                        <i class="fas fa-play"></i>
+                                                        <span>Xem chi tiết</span>
+                                                    </a>
                                                 </div>
                                             </div>
-                                            <div class="course-price">
-                                                <span class="price">2.500.000đ</span>
-                                            </div>
-                                            <div class="course-button">
-                                                <a href="?page=details" class="btn-start-learning">
-                                                    <i class="fas fa-play"></i>
-                                                    <span>Xem chi tiết</span>
-                                                </a>
-                                            </div>
                                         </div>
-                                    </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
 
                                     <!-- Course Item 3 -->
                                     <div class="course-item">

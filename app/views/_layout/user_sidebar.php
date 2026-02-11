@@ -7,7 +7,7 @@ $current_module = $_GET['module'] ?? 'dashboard';
     <!-- User Profile Section -->
     <div class="user-profile-section">
         <div class="user-avatar">
-            <img src="assets/images/home/home-banner-final.png" alt="User Avatar" id="userAvatarImg">
+            <img src="<?php echo img_url('home/home-banner-final.png'); ?>" alt="User Avatar" id="userAvatarImg">
         </div>
         <div class="user-info">
             <h4 class="user-name" id="userName">Nguyễn Văn An</h4>

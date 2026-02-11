@@ -79,10 +79,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Load user data from JSON and update UI
+    // Load user data from API and update UI
     async function loadUserData() {
         try {
-            const response = await fetch('app/views/users/data/user_fake_data.json');
+            const response = await fetch('api.php?action=getUserData');
             const data = await response.json();
             
             // Update user info in sidebar

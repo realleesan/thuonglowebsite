@@ -1,20 +1,16 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$products = $fake_data['products'];
-$orders = $fake_data['orders'];
+// Load Models
+require_once __DIR__ . '/../../models/ProductsModel.php';
+require_once __DIR__ . '/../../models/OrdersModel.php';
+
+$productsModel = new ProductsModel();
+$ordersModel = new OrdersModel();
 
 // Get product ID
 $product_id = (int)($_GET['id'] ?? 0);
 
-// Find product
-$product = null;
-foreach ($products as $p) {
-    if ($p['id'] == $product_id) {
-        $product = $p;
-        break;
-    }
-}
+// Get product from database
+$product = $productsModel->getById($product_id);
 
 // If product not found, redirect
 if (!$product) {
@@ -23,9 +19,7 @@ if (!$product) {
 }
 
 // Check if product has orders
-$product_orders = array_filter($orders, function($order) use ($product_id) {
-    return $order['product_id'] == $product_id;
-});
+$product_orders = $ordersModel->getByProduct($product_id);
 
 $has_orders = !empty($product_orders);
 $can_delete = !$has_orders; // In real app, you might allow deletion with cascade
@@ -38,11 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
     if (!$can_delete) {
         $error = 'Không thể xóa sản phẩm này vì đã có đơn hàng liên quan.';
     } else {
-        // Demo: simulate deletion
-        $success = true;
-        // In real app: delete from database
-        // header('Location: ?page=admin&module=products&success=deleted');
-        // exit;
+        // Delete from database
+        if ($productsModel->delete($product_id)) {
+            $success = true;
+            header('Location: ?page=admin&module=products&success=deleted');
+            exit;
+        } else {
+            $error = 'Có lỗi xảy ra khi xóa sản phẩm';
+        }
     }
 }
 
@@ -83,7 +80,7 @@ function formatDate($date) {
             <i class="fas fa-check-circle"></i>
             <div>
                 <h4>Xóa sản phẩm thành công!</h4>
-                <p>Sản phẩm "<?= htmlspecialchars($product['name']) ?>" đã được xóa khỏi hệ thống. (Demo - dữ liệu không được xóa thật)</p>
+                <p>Sản phẩm "<?= htmlspecialchars($product['name']) ?>" đã được xóa khỏi hệ thống.</p>
                 <div class="alert-actions">
                     <a href="?page=admin&module=products" class="btn btn-primary">
                         <i class="fas fa-list"></i>
@@ -106,7 +103,7 @@ function formatDate($date) {
             <div class="product-summary">
                 <div class="product-summary-image">
                     <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
-                         onerror="this.src='assets/images/placeholder.jpg'">
+                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 </div>
                 <div class="product-summary-info">
                     <h3><?= htmlspecialchars($product['name']) ?></h3>

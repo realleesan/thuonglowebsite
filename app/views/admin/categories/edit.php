@@ -1,7 +1,20 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$categories = $fake_data['categories'];
+// Load Categories Model
+require_once __DIR__ . '/../../../models/CategoriesModel.php';
+
+$categoriesModel = new CategoriesModel();
+
+// Get category ID from URL
+$category_id = (int)($_GET['id'] ?? 0);
+
+// Find category
+$category = $categoriesModel->find($category_id);
+
+// Redirect if category not found
+if (!$category) {
+    header('Location: ?page=admin&module=categories&error=not_found');
+    exit;
+}
 
 // Get category ID from URL
 $category_id = (int)($_GET['id'] ?? 0);

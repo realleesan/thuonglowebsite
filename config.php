@@ -67,12 +67,16 @@ $config = [
     ],
     
     'database' => [
-        // Database configuration will be added later
         'host' => 'localhost',
-        'name' => 'thuonglo_db',
-        'username' => '',
-        'password' => '',
+        'name' => 'test1_thuonglowebsite',
+        'username' => 'test1_thuonglowebsite',
+        'password' => '21042005nhat',
         'charset' => 'utf8mb4',
+        'options' => [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ],
     ],
     
     'security' => [

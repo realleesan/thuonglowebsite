@@ -1,8 +1,25 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$categories = $fake_data['categories'];
-$products = $fake_data['products'];
+// Load Models
+require_once __DIR__ . '/../../../models/CategoriesModel.php';
+require_once __DIR__ . '/../../../models/ProductsModel.php';
+
+$categoriesModel = new CategoriesModel();
+$productsModel = new ProductsModel();
+
+// Get category ID from URL
+$category_id = (int)($_GET['id'] ?? 0);
+
+// Find category
+$category = $categoriesModel->find($category_id);
+
+// Redirect if category not found
+if (!$category) {
+    header('Location: ?page=admin&module=categories&error=not_found');
+    exit;
+}
+
+// Get products in this category
+$products = $productsModel->getByCategory($category_id);
 
 // Get category ID from URL
 $category_id = (int)($_GET['id'] ?? 0);
@@ -265,7 +282,7 @@ function formatPrice($price) {
                     <div class="product-card">
                         <div class="product-image">
                             <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>"
-                                 onerror="this.src='assets/images/placeholder.jpg'">
+                                 onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                         </div>
                         <div class="product-info">
                             <h4 class="product-name"><?= htmlspecialchars($product['name']) ?></h4>

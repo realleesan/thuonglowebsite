@@ -1,19 +1,14 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$news = $fake_data['news'];
+// Load Models
+require_once __DIR__ . '/../../models/NewsModel.php';
+
+$newsModel = new NewsModel();
 
 // Get news ID
 $news_id = (int)($_GET['id'] ?? 0);
 
-// Find news by ID
-$current_news = null;
-foreach ($news as $article) {
-    if ($article['id'] == $news_id) {
-        $current_news = $article;
-        break;
-    }
-}
+// Get news from database
+$current_news = $newsModel->getById($news_id);
 
 // Redirect if news not found
 if (!$current_news) {
@@ -39,12 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        $success = true;
-        // Trong thực tế sẽ xóa khỏi database
-        // Redirect sau khi xóa thành công
-        if ($success) {
+        // Delete from database
+        if ($newsModel->delete($news_id)) {
+            $success = true;
             header('Location: ?page=admin&module=news&deleted=1');
             exit;
+        } else {
+            $errors[] = 'Có lỗi xảy ra khi xóa tin tức';
         }
     }
 }

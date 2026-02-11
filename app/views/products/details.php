@@ -1,3 +1,86 @@
+<?php
+// Load Models
+require_once __DIR__ . '/../../models/ProductsModel.php';
+require_once __DIR__ . '/../../models/CategoriesModel.php';
+
+$productsModel = new ProductsModel();
+$categoriesModel = new CategoriesModel();
+
+// Get product ID from URL
+$productId = $_GET['id'] ?? null;
+$product = null;
+$category = null;
+
+if ($productId) {
+    $product = $productsModel->getById($productId);
+    if ($product && isset($product['category_id'])) {
+        $category = $categoriesModel->getById($product['category_id']);
+    }
+}
+
+// Fallback demo data if no product found
+if (!$product) {
+    $product = [
+        'id' => 1,
+        'name' => 'Data nguồn hàng chất lượng cao',
+        'title' => 'Data nguồn hàng chất lượng cao',
+        'description' => 'Cơ sở dữ liệu 10,000+ sản phẩm hot trend từ Trung Quốc với thông tin chi tiết nhà cung cấp uy tín và giá gốc.',
+        'price' => 2500000,
+        'image' => 'home/home-banner-top.png',
+        'status' => 'active',
+        'created_at' => date('Y-m-d H:i:s'),
+        'category_id' => 1
+    ];
+    $category = [
+        'id' => 1,
+        'name' => 'Data nguồn hàng',
+        'description' => 'Dữ liệu sản phẩm và nhà cung cấp'
+    ];
+}
+
+// Product features/objectives
+$productFeatures = [
+    'Cơ sở dữ liệu 10,000+ sản phẩm hot trend từ Trung Quốc',
+    'Thông tin chi tiết nhà cung cấp uy tín và giá gốc',
+    'Hướng dẫn tìm kiếm và đánh giá sản phẩm tiềm năng',
+    'Công cụ phân tích thị trường và xu hướng tiêu dùng',
+    'Hỗ trợ kết nối trực tiếp với nhà cung cấp',
+    'Tư vấn chiến lược kinh doanh và marketing',
+    'Dịch vụ thanh toán quốc tế an toàn và nhanh chóng',
+    'Cập nhật dữ liệu thường xuyên theo thời gian thực'
+];
+
+// Package contents
+$packageContents = [
+    [
+        'title' => 'Database sản phẩm hot trend',
+        'items' => ['10,000+ sản phẩm được cập nhật hàng tuần', 'Phân loại theo danh mục và độ hot', 'Thông tin giá gốc và margin lợi nhuận']
+    ],
+    [
+        'title' => 'Thông tin nhà cung cấp',
+        'items' => ['Danh sách 500+ nhà cung cấp uy tín', 'Thông tin liên hệ và đánh giá', 'Hướng dẫn đàm phán và đặt hàng']
+    ],
+    [
+        'title' => 'Công cụ phân tích',
+        'items' => ['Tool phân tích xu hướng thị trường', 'Báo cáo doanh số và lợi nhuận', 'Dự đoán sản phẩm tiềm năng']
+    ],
+    [
+        'title' => 'Hỗ trợ và tư vấn',
+        'items' => ['Tư vấn 1-1 với chuyên gia', 'Group hỗ trợ 24/7', 'Khóa học marketing online']
+    ]
+];
+
+// Provider info
+$providerInfo = [
+    'name' => 'ThuongLo.com',
+    'description' => 'Chuyên gia hàng đầu về thương mại điện tử và nhập khẩu từ Trung Quốc',
+    'experience' => '5+ năm kinh nghiệm',
+    'customers' => '10,000+ khách hàng tin tưởng',
+    'rating' => 4.8,
+    'specialties' => ['Nguồn hàng Trung Quốc', 'Thương mại điện tử', 'Marketing online', 'Logistics quốc tế']
+];
+?>
+
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
     <div class="content-pusher">
@@ -10,10 +93,10 @@
                         <div class="course-details-main">
                             <!-- Course Header -->
                             <div class="course-header">
-                                <h1 class="course-title">Data nguồn hàng chất lượng cao</h1>
+                                <h1 class="course-title"><?php echo htmlspecialchars($product['name'] ?? $product['title']); ?></h1>
                                 <div class="course-instructor">
                                     <span class="instructor-label">Được cung cấp bởi</span>
-                                    <a href="#" class="instructor-name">ThuongLo.com</a>
+                                    <a href="#" class="instructor-name"><?php echo htmlspecialchars($providerInfo['name']); ?></a>
                                 </div>
                                 <div class="course-meta">
                                     <div class="meta-item">
@@ -21,7 +104,7 @@
                                             <path d="M8 1V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
                                         </svg>
-                                        <span>Cập nhật 02/2025</span>
+                                        <span>Cập nhật <?php echo date('m/Y', strtotime($product['created_at'])); ?></span>
                                     </div>
                                     <div class="meta-item">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,51 +136,14 @@
                                             <h4>Bạn sẽ nhận được gì</h4>
                                             <div class="learning-objectives">
                                                 <div class="objectives-grid">
+                                                    <?php foreach ($productFeatures as $feature): ?>
                                                     <div class="objective-item">
                                                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span>Cơ sở dữ liệu 10,000+ sản phẩm hot trend từ Trung Quốc</span>
+                                                        <span><?php echo htmlspecialchars($feature); ?></span>
                                                     </div>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span>Thông tin chi tiết nhà cung cấp uy tín và giá gốc</span>
-                                                    </div>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span>Hướng dẫn tìm kiếm và đánh giá sản phẩm tiềm năng</span>
-                                                    </div>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span>Công cụ phân tích thị trường và xu hướng tiêu dùng</span>
-                                                    </div>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span>Hỗ trợ kết nối trực tiếp với nhà cung cấp</span>
-                                                    </div>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span>Tư vấn chiến lược kinh doanh và marketing</span>
-                                                    </div>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span>Dịch vụ thanh toán quốc tế an toàn và nhanh chóng</span>
-                                                    </div>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <?php endforeach; ?>
                                                         </svg>
                                                         <span>Hệ thống quản lý đơn hàng và theo dõi vận chuyển</span>
                                                     </div>

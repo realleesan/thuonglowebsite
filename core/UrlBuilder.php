@@ -27,11 +27,18 @@ class UrlBuilder {
         // Determine protocol
         $protocol = 'http';
         
+        // Check multiple conditions for HTTPS
         if ($this->config['url']['force_https']) {
             $protocol = 'https';
         } elseif (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
             $protocol = 'https';
         } elseif (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) {
+            $protocol = 'https';
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            // Check for proxy/load balancer forwarded protocol
+            $protocol = 'https';
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') {
+            // Alternative proxy header
             $protocol = 'https';
         }
         

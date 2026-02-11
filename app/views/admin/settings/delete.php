@@ -1,19 +1,14 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$settings = $fake_data['settings'];
+// Load models
+require_once __DIR__ . '/../../../models/SettingsModel.php';
+
+$settingsModel = new SettingsModel();
 
 // Get setting key from URL
 $setting_key = $_GET['key'] ?? '';
 
-// Find the setting
-$setting = null;
-foreach ($settings as $s) {
-    if ($s['key'] === $setting_key) {
-        $setting = $s;
-        break;
-    }
-}
+// Find the setting from database
+$setting = $settingsModel->getByKey($setting_key);
 
 // If setting not found, redirect
 if (!$setting) {

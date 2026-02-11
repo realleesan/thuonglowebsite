@@ -4,6 +4,7 @@ session_start();
 
 // Include các file cần thiết
 $config = require_once 'config.php';
+require_once 'core/security.php'; // Load security first
 require_once 'core/functions.php';
 
 // Initialize URL Builder

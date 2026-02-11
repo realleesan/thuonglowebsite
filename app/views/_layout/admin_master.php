@@ -5,22 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Admin ThuongLo</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url('logo/logo_mini.svg'); ?>">
+    
     <!-- CSS Files -->
-    <link rel="stylesheet" href="assets/css/admin_sidebar.css">
-    <link rel="stylesheet" href="assets/css/admin_header.css">
-    <link rel="stylesheet" href="assets/css/admin_footer.css">
-    <link rel="stylesheet" href="assets/css/admin_dashboard.css">
-    <link rel="stylesheet" href="assets/css/admin_pages.css">
-    <link rel="stylesheet" href="assets/css/admin_products.css">
-    <link rel="stylesheet" href="assets/css/admin_categories.css">
-    <link rel="stylesheet" href="assets/css/admin_news.css">
-    <link rel="stylesheet" href="assets/css/admin_events.css">
-    <link rel="stylesheet" href="assets/css/admin_orders.css">
-    <link rel="stylesheet" href="assets/css/admin_users.css">
-    <link rel="stylesheet" href="assets/css/admin_affiliates.css">
-    <link rel="stylesheet" href="assets/css/admin_contact.css">
-    <link rel="stylesheet" href="assets/css/admin_revenue.css">
-    <link rel="stylesheet" href="assets/css/admin_settings.css">
+    <link rel="stylesheet" href="<?php echo css_url('admin_sidebar.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_header.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_footer.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_dashboard.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_pages.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_products.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_categories.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_news.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_events.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_orders.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_users.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_affiliates.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_contact.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_revenue.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_settings.css'); ?>">
     
     <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -56,21 +59,21 @@
     </div>
     
     <!-- JavaScript Files -->
-    <script src="assets/js/admin_sidebar.js"></script>
-    <script src="assets/js/admin_header.js"></script>
-    <script src="assets/js/admin_footer.js"></script>
-    <script src="assets/js/admin_pages.js"></script>
-    <script src="assets/js/admin_dashboard.js"></script>
-    <script src="assets/js/admin_products.js"></script>
-    <script src="assets/js/admin_categories.js"></script>
-    <script src="assets/js/admin_news.js"></script>
-    <script src="assets/js/admin_events.js"></script>
-    <script src="assets/js/admin_orders.js"></script>
-    <script src="assets/js/admin_users.js"></script>
-    <script src="assets/js/admin_affiliates.js"></script>
-    <script src="assets/js/admin_contact.js"></script>
-    <script src="assets/js/admin_revenue.js"></script>
-    <script src="assets/js/admin_settings.js"></script>
+    <script src="<?php echo js_url('admin_sidebar.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_header.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_footer.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_pages.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_dashboard.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_products.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_categories.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_news.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_events.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_orders.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_users.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_affiliates.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_contact.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_revenue.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_settings.js'); ?>"></script>
     
 </body>
 </html>

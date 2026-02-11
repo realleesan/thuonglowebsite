@@ -1,7 +1,20 @@
 <?php
-// Load fake data
-$fake_data = json_decode(file_get_contents(__DIR__ . '/../data/fake_data.json'), true);
-$contacts = $fake_data['contacts'];
+// Load Models
+require_once __DIR__ . '/../../../models/ContactsModel.php';
+
+$contactsModel = new ContactsModel();
+
+// Get contact ID from URL
+$contact_id = (int)($_GET['id'] ?? 0);
+
+// Find contact
+$contact = $contactsModel->find($contact_id);
+
+// Redirect if contact not found
+if (!$contact) {
+    header('Location: ?page=admin&module=contact&error=not_found');
+    exit;
+}
 
 // Get contact ID from URL
 $contact_id = (int)($_GET['id'] ?? 0);

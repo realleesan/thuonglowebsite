@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function loadUserDataAndCharts() {
         try {
-            const response = await fetch('app/views/users/data/user_fake_data.json');
+            const response = await fetch('api.php?action=getUserDashboardData');
             const userData = await response.json();
             
             // Initialize all charts with user data
