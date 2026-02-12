@@ -18,6 +18,7 @@ if ($config['app']['debug']) {
 // Include core files
 require_once $base_dir . '/core/security.php';
 require_once $base_dir . '/core/functions.php';
+require_once $base_dir . '/core/view_init.php'; // Khởi tạo ServiceManager & services
 
 // Initialize URL Builder
 init_url_builder();
@@ -30,6 +31,9 @@ if (ob_get_level() === 0) {
 // Lấy trang hiện tại từ URL
 $page = $_GET['page'] ?? 'home';
 
+// Mặc định: dùng PublicService cho các trang public
+$currentService = $publicService ?? null;
+
 // Thiết lập thông tin cho từng trang
 switch($page) {
     case 'home':
@@ -38,6 +42,8 @@ switch($page) {
         $showPageHeader = false;
         $showCTA = true;
         $showBreadcrumb = false; // Trang chủ không cần breadcrumb
+        // Public pages dùng PublicService
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'about':
@@ -49,6 +55,7 @@ switch($page) {
         $breadcrumbs = generate_breadcrumb('about');
         $additionalCSS = ['assets/css/about.css?v=' . time()];
         $additionalJS = ['assets/js/about.js?v=' . time()];
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'products':
@@ -58,6 +65,7 @@ switch($page) {
         $showCTA = false;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('products');
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'categories':
@@ -67,6 +75,7 @@ switch($page) {
         $showCTA = false;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('categories');
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'details':
@@ -89,6 +98,7 @@ switch($page) {
                 ['title' => $product_name]
             ];
         }
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'news':
@@ -98,6 +108,7 @@ switch($page) {
         $showCTA = false;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('news');
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'news-details':
@@ -116,6 +127,7 @@ switch($page) {
             $news_title = $_GET['title'] ?? 'Chi tiết tin tức';
             $breadcrumbs = generate_news_breadcrumb($news_category, $news_title);
         }
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'contact':
@@ -125,6 +137,7 @@ switch($page) {
         $showCTA = false;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('contact');
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'login':
@@ -134,6 +147,7 @@ switch($page) {
         $showCTA = false;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('auth');
+        $currentService = $publicService ?? $currentService;
         break;
         
     case 'register':
@@ -143,6 +157,7 @@ switch($page) {
         $showCTA = false;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('register');
+        $currentService = $publicService ?? $currentService;
         break;
 
     case 'forgot':
@@ -156,6 +171,7 @@ switch($page) {
             ['title' => 'Đăng nhập', 'url' => '?page=login'],
             ['title' => 'Quên mật khẩu']
         ];
+        $currentService = $publicService ?? $currentService;
         break;
 
     case 'checkout':
@@ -207,6 +223,7 @@ switch($page) {
         // Set admin page variables
         $title = 'Admin Panel - Thuong Lo';
         $useAdminLayout = true; // Flag to use admin layout
+        $currentService = $adminService ?? $currentService;
         
         // Route to specific admin modules
         switch($module) {
@@ -554,6 +571,7 @@ switch($page) {
                 ];
                 break;
         }
+        $currentService = $userService ?? $currentService;
         break;
         
     case 'affiliate':
@@ -570,6 +588,7 @@ switch($page) {
         
         // Set flag to use affiliate layout
         $useAffiliateLayout = true;
+        $currentService = $affiliateService ?? $currentService;
         
         // Route to specific affiliate modules
         switch($module) {

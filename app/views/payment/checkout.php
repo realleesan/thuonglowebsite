@@ -3,8 +3,11 @@
  * Checkout Page - Dynamic Version
  */
 
-// 1. Khởi tạo View an toàn
+// 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
+
+// Chọn service phù hợp cho checkout (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // 2. Khởi tạo biến dữ liệu
 $checkoutData = [];
@@ -14,9 +17,13 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Get checkout data from ViewDataService
+    // Get checkout data từ PublicService
     $productId = $_GET['product_id'] ?? null;
-    $checkoutData = $viewDataService->getCheckoutData($productId);
+    if ($service && method_exists($service, 'getCheckoutData')) {
+        $checkoutData = $service->getCheckoutData($productId);
+    } else {
+        $checkoutData = [];
+    }
     
     $cartItems = $checkoutData['cart_items'] ?? [];
     $totalAmount = $checkoutData['total_amount'] ?? 0;

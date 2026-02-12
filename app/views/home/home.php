@@ -1,18 +1,24 @@
-﻿<?php
+<?php
 /**
  * Home Page - Dynamic Version
  */
 
-// 1. Khởi tạo View an toàn
+// 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
-// 2. Khởi tạo biến dữ liệu
+// 2. Chọn service phù hợp (ưu tiên biến được inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? $viewDataService);
+
+// 3. Khởi tạo biến dữ liệu
 $homeData = [];
 $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    $homeData = $viewDataService->getHomePageData();
+    // Sử dụng PublicService thông qua entry-point getHomePageData()
+    $homeData = method_exists($service, 'getHomePageData')
+        ? $service->getHomePageData()
+        : [];
     
     $featuredProducts = $homeData['featured_products'] ?? [];
     $latestProducts = $homeData['latest_products'] ?? [];

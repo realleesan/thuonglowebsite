@@ -3,8 +3,11 @@
  * Payment Success Page - Dynamic Version
  */
 
-// 1. Khởi tạo View an toàn
+// 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
+
+// Chọn service phù hợp cho payment success (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // 2. Khởi tạo biến dữ liệu
 $successData = [];
@@ -15,9 +18,13 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Get order information
+    // Get order information từ PublicService
     $orderId = $_GET['order_id'] ?? null;
-    $successData = $viewDataService->getPaymentSuccessData($orderId);
+    if ($service && method_exists($service, 'getPaymentSuccessData')) {
+        $successData = $service->getPaymentSuccessData($orderId);
+    } else {
+        $successData = [];
+    }
     
     $order = $successData['order'] ?? null;
     $orderItems = $successData['order_items'] ?? [];

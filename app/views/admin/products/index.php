@@ -1,16 +1,18 @@
 <?php
 /**
  * Admin Products Index - Dynamic Version
- * Converted from direct model usage to ViewDataService
+ * Sử dụng AdminService thông qua ServiceManager
  */
 
-// Load required services
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+// Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-// Initialize services
-$viewDataService = new ViewDataService();
-$errorHandler = new ErrorHandler();
+// Chọn service admin (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+if (!$service) {
+    throw new Exception('AdminService is not available');
+}
 
 // Get parameters
 $search = $_GET['search'] ?? '';
@@ -40,8 +42,8 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Get admin products data
-    $productsData = $viewDataService->getAdminProductsData($current_page, $per_page, $filters);
+    // Get admin products data từ AdminService
+    $productsData = $service->getProductsData($current_page, $per_page, $filters);
     
     // Extract data
     $products = $productsData['products'] ?? [];

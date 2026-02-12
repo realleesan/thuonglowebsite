@@ -4,8 +4,11 @@
  * Standardized with View Initialization System
  */
 
-// 1. Khởi tạo View an toàn
+// 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
+
+// Chọn service phù hợp cho contact (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // 2. Khởi tạo biến dữ liệu
 $contactData = [];
@@ -15,7 +18,11 @@ $errorMessage = '';
 
 try {
     // Lấy dữ liệu từ Service
-    $contactData = $viewDataService->getContactPageData();
+    if ($service && method_exists($service, 'getContactPageData')) {
+        $contactData = $service->getContactPageData();
+    } else {
+        $contactData = [];
+    }
     $contact = $contactData['contact'] ?? [];
     
 } catch (Exception $e) {

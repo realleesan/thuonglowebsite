@@ -3,8 +3,11 @@
  * Categories Page - Dynamic Version
  */
 
-// 1. Khởi tạo View an toàn
+// 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
+
+// Chọn service phù hợp cho categories (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Get pagination and sorting parameters
 $page = max(1, (int)($_GET['page'] ?? 1));
@@ -21,16 +24,12 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Debug: Before calling getCategoriesPageData
-    echo "<!-- Debug: About to call getCategoriesPageData -->";
-    error_log("Categories page: About to call getCategoriesPageData");
-    
     // Get categories page data
-    $categoriesData = $viewDataService->getCategoriesPageData($page, $perPage, $orderBy);
-    
-    // Debug: After calling getCategoriesPageData
-    echo "<!-- Debug: getCategoriesPageData returned " . count($categoriesData) . " keys -->";
-    error_log("Categories page: getCategoriesPageData returned " . count($categoriesData) . " keys");
+    if ($service && method_exists($service, 'getCategoriesPageData')) {
+        $categoriesData = $service->getCategoriesPageData($page, $perPage, $orderBy);
+    } else {
+        $categoriesData = [];
+    }
     
     // Extract data
     $categories = $categoriesData['categories'] ?? [];
@@ -44,19 +43,17 @@ try {
     error_log("Categories page: Extracted " . count($categories) . " categories, total: $totalCategories");
     
 } catch (Exception $e) {
-    error_log("Categories page FATAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine());
     // Handle errors gracefully
     $result = $errorHandler->handleViewError($e, 'categories', []);
     $showErrorMessage = true;
     $errorMessage = $result['message'];
     
-    // Use empty state data
-    $emptyState = $viewDataService->handleEmptyState('categories');
-    $categories = $emptyState['categories'];
-    $pagination = $emptyState['pagination'];
-    $categoryStats = $emptyState['stats'];
-    $totalCategories = $emptyState['total_categories'];
-    $displayedCount = $emptyState['displayed_count'];
+    // Use empty state data an toàn
+    $categories = [];
+    $pagination = ['current_page' => 1, 'total' => 0, 'last_page' => 1, 'from' => 0, 'to' => 0];
+    $categoryStats = ['total' => 0, 'active' => 0, 'parent_categories' => 0, 'with_products' => 0];
+    $totalCategories = 0;
+    $displayedCount = 0;
 }
 
 // Calculate pagination display values

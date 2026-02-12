@@ -1,67 +1,36 @@
 <?php
-// User Dashboard with Real Metrics
-// Load Models
-require_once __DIR__ . '/../../models/UsersModel.php';
-require_once __DIR__ . '/../../models/OrdersModel.php';
+// User Dashboard với UserService
+require_once __DIR__ . '/../../../core/view_init.php';
 
-$usersModel = new UsersModel();
-$ordersModel = new OrdersModel();
+// Chọn service user (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($userService ?? null);
 
-// Get current user ID from session
-$userId = $_SESSION['user_id'] ?? 0;
-
-if ($userId) {
-    // Get user info with orders count
-    $user = $usersModel->getUserWithOrdersCount($userId);
-    
-    // Ensure user has proper name field
-    if (!isset($user['name']) && isset($user['full_name'])) {
-        $user['name'] = $user['full_name'];
-    } elseif (!isset($user['name'])) {
-        $user['name'] = 'Người dùng';
-    }
-    
-    // Get recent orders with proper structure
-    $recentOrdersRaw = $ordersModel->getByUser($userId, 5);
-    $recentOrders = [];
-    foreach ($recentOrdersRaw as $order) {
-        $recentOrders[] = [
-            'id' => $order['id'] ?? rand(1000, 9999),
-            'product_name' => $order['product_name'] ?? 'Sản phẩm',
-            'date' => $order['created_at'] ?? date('Y-m-d'),
-            'amount' => $order['total_amount'] ?? $order['amount'] ?? 0,
-            'status' => $order['status'] ?? 'completed'
-        ];
-    }
-    
-    // Calculate stats with proper data_purchased field
-    $stats = [
-        'total_orders' => $user['orders_count'] ?? 0,
-        'total_spent' => $user['total_spent'] ?? 0,
-        'loyalty_points' => $user['points'] ?? 0,
-        'user_level' => $user['level'] ?? 'Bronze',
-        'data_purchased' => count($recentOrders) // Number of data purchases
-    ];
-} else {
-    // Default empty stats if no user
-    $user = ['name' => 'Người dùng'];
-    $stats = [
-        'total_orders' => 0,
-        'total_spent' => 0,
-        'loyalty_points' => 0,
-        'user_level' => 'Bronze',
-        'data_purchased' => 0
-    ];
-    $recentOrders = [];
-}
-
-// Calculate trends based on real data (simplified calculation)
-$trends = [
-    'orders' => ['value' => max(0, $stats['total_orders'] - 5), 'direction' => $stats['total_orders'] > 5 ? 'up' : 'down'],
-    'spending' => ['value' => max(0, round($stats['total_spent'] / 1000000, 1)), 'direction' => $stats['total_spent'] > 0 ? 'up' : 'down'],
-    'data' => ['value' => $stats['data_purchased'], 'direction' => $stats['data_purchased'] > 0 ? 'up' : 'down'],
-    'points' => ['value' => max(0, $stats['loyalty_points'] - 100), 'direction' => $stats['loyalty_points'] > 100 ? 'up' : 'down']
+$user = ['name' => 'Người dùng'];
+$stats = [
+    'total_orders' => 0,
+    'total_spent' => 0,
+    'loyalty_points' => 0,
+    'user_level' => 'Bronze',
+    'data_purchased' => 0,
 ];
+$recentOrders = [];
+$trends = [
+    'orders' => ['value' => 0, 'direction' => 'down'],
+    'spending' => ['value' => 0, 'direction' => 'down'],
+    'data' => ['value' => 0, 'direction' => 'down'],
+    'points' => ['value' => 0, 'direction' => 'down'],
+];
+
+if ($service) {
+    $userId = $_SESSION['user_id'] ?? 0;
+    if ($userId) {
+        $data = $service->getDashboardData((int) $userId);
+        $user = $data['user'] ?? $user;
+        $stats = $data['stats'] ?? $stats;
+        $recentOrders = $data['recent_orders'] ?? $recentOrders;
+        $trends = $data['trends'] ?? $trends;
+    }
+}
 
 // Quick actions based on user activity
 $quickActions = [

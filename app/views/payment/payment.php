@@ -3,8 +3,11 @@
  * Payment Processing Page - Dynamic Version
  */
 
-// 1. Khởi tạo View an toàn
+// 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
+
+// Chọn service phù hợp cho payment (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // 2. Khởi tạo biến dữ liệu
 $paymentData = [];
@@ -14,8 +17,12 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Get payment processing data
-    $paymentData = $viewDataService->getPaymentProcessingData();
+    // Get payment processing data từ PublicService
+    if ($service && method_exists($service, 'getPaymentProcessingData')) {
+        $paymentData = $service->getPaymentProcessingData();
+    } else {
+        $paymentData = [];
+    }
     
     $orderId = $paymentData['order_id'] ?? $orderId;
     $amount = $paymentData['amount'] ?? $amount;

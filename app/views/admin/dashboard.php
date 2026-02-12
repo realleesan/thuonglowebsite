@@ -1,16 +1,19 @@
 <?php
 /**
  * Admin Dashboard - Dynamic Version
- * Converted from direct model usage to ViewDataService
+ * Sử dụng AdminService thông qua ServiceManager
  */
 
-// Load required services and models
-require_once __DIR__ . '/../../services/ViewDataService.php';
-require_once __DIR__ . '/../../services/ErrorHandler.php';
+// Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../core/view_init.php';
 
-// Initialize services
-$viewDataService = new ViewDataService();
-$errorHandler = new ErrorHandler();
+// Chọn service admin (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+// Nếu vì lý do nào đó không có AdminService, dừng sớm để tránh lỗi khó đoán
+if (!$service) {
+    throw new Exception('AdminService is not available');
+}
 
 // Initialize data variables
 $stats = [];
@@ -23,8 +26,8 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Get admin dashboard data
-    $dashboardData = $viewDataService->getAdminDashboardData();
+    // Get admin dashboard data từ AdminService
+    $dashboardData = $service->getDashboardData();
     
     // Extract data
     $stats = $dashboardData['stats'] ?? [];

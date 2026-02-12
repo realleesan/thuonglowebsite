@@ -3,8 +3,11 @@
  * Products Page - Dynamic Version
  */
 
-// 1. Khởi tạo View an toàn
+// 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
+
+// 2. Chọn service phù hợp (ưu tiên biến được inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? $viewDataService);
 
 // Get pagination parameters
 $page = (int) ($_GET['page'] ?? 1);
@@ -22,7 +25,7 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Prepare filters for ViewDataService
+    // Prepare filters for PublicService
     $filters = [
         'page' => $page,
         'limit' => $limit,
@@ -31,14 +34,18 @@ try {
         'search' => $search
     ];
     
-    // Get product listing data
-    $productData = $viewDataService->getProductListingData($filters);
+    // Get product listing data từ PublicService
+    $productData = method_exists($service, 'getProductListingData')
+        ? $service->getProductListingData($filters)
+        : [];
     $products = $productData['products'] ?? [];
     $pagination = $productData['pagination'] ?? [];
     $totalProducts = $pagination['total'] ?? 0;
     
     // Get categories for sidebar
-    $categoriesData = $viewDataService->getCategoriesWithProductCounts();
+    $categoriesData = method_exists($service, 'getCategoriesWithProductCounts')
+        ? $service->getCategoriesWithProductCounts()
+        : [];
     $categories = $categoriesData['categories'] ?? [];
     
 } catch (Exception $e) {
@@ -47,10 +54,9 @@ try {
     $showErrorMessage = true;
     $errorMessage = $result['message'];
     
-    // Use empty state data
-    $emptyState = $viewDataService->handleEmptyState('products');
-    $products = $emptyState['products'];
-    $pagination = $emptyState['pagination'];
+    // Use empty state data an toàn
+    $products = [];
+    $pagination = ['current_page' => 1, 'total' => 0, 'last_page' => 1];
 }
 
 // Helper function to get product image

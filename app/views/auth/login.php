@@ -1,10 +1,9 @@
 <?php
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/../../core/view_init.php';
 
-// Initialize ViewDataService (should already be available from view_init.php)
-if (!isset($viewDataService)) {
-    require_once __DIR__ . '/../../core/view_init.php';
-}
+// Chọn service public cho auth (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Xử lý đăng nhập
 $error = '';
@@ -65,8 +64,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get view data
-$viewData = $viewDataService->getAuthLoginData();
+// Get view data từ PublicService
+$viewData = $service && method_exists($service, 'getAuthLoginData')
+    ? $service->getAuthLoginData()
+    : [
+        'page_title' => 'Đăng nhập',
+        'form_action' => form_url(),
+        'remembered_phone' => '',
+        'remembered_role' => 'user',
+    ];
 $rememberedPhone = $viewData['remembered_phone'];
 $rememberedRole = $viewData['remembered_role'];
 ?>

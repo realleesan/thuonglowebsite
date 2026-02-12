@@ -1,10 +1,9 @@
 <?php
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/../../core/view_init.php';
 
-// Initialize ViewDataService (should already be available from view_init.php)
-if (!isset($viewDataService)) {
-    require_once __DIR__ . '/../../core/view_init.php';
-}
+// Chọn service public cho auth (ưu tiên inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Xử lý đăng ký
 $error = '';
@@ -43,8 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get view data
-$viewData = $viewDataService->getAuthRegisterData();
+// Get view data từ PublicService
+$viewData = $service && method_exists($service, 'getAuthRegisterData')
+    ? $service->getAuthRegisterData()
+    : [
+        'page_title' => 'Đăng ký',
+        'form_action' => form_url(),
+        'login_url' => page_url('login'),
+        'ref_code_from_url' => '',
+    ];
 $refCodeFromUrl = $viewData['ref_code_from_url'];
 ?>
 
