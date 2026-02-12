@@ -18,8 +18,8 @@ require_once __DIR__ . '/functions.php';
 // 3. Initialize core services only if not already present
 // This ensures safety when included via index.php OR called directly
 if (!isset($viewDataService)) {
-    require_once __DIR__ . '/../app/services/ViewDataService.php';
-    $viewDataService = new ViewDataService();
+    require_once __DIR__ . '/../app/services/SimpleViewDataService.php';
+    $viewDataService = new SimpleViewDataService();
 }
 
 if (!isset($errorHandler)) {
@@ -28,11 +28,11 @@ if (!isset($errorHandler)) {
 }
 
 // 4. Set common error reporting for views
-if ($config['debug']) {
+if (is_array($config) && isset($config['app']['debug']) && $config['app']['debug']) {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 } else {
-    error_reporting(0);
-    ini_set('display_errors', 0);
+    // Keep environment defaults from config.php if array is not available
+    // or if debug is false
 }
 ?>

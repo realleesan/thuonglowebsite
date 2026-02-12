@@ -119,8 +119,15 @@ mb_http_output('UTF-8');
         // Include the specific page content
         if (isset($content) && $content) {
             if (file_exists($content)) {
+                echo "<!-- Debug: Loading content $content -->\n";
                 include $content;
+            } else {
+                echo "<!-- Debug: Content file not found: $content -->\n";
+                echo "<div class='error'>Không tìm thấy nội dung trang.</div>";
             }
+        } else {
+            echo "<!-- Debug: No content variable set -->\n";
+            echo "<div class='error'>Không có nội dung để hiển thị.</div>";
         }
         ?>
     </main>

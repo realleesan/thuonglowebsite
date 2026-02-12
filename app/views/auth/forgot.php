@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/auth.php'; 
 
+// Initialize ViewDataService (should already be available from view_init.php)
+if (!isset($viewDataService)) {
+    require_once __DIR__ . '/../../core/view_init.php';
+}
+
 if (!function_exists('forgot_redirect')) {
     function forgot_redirect(string $url): void {
         if (!headers_sent()) {
@@ -32,15 +37,21 @@ $step = $_SESSION['forgot_step'] ?? 'input';
 $error = $_SESSION['flash_error'] ?? '';
 $success = $_SESSION['flash_success'] ?? '';
 
-// Xóa thông báo sau khi đã lấy ra (để F5 không hiện lại)F
+// Xóa thông báo sau khi đã lấy ra (để F5 không hiện lại)
 unset($_SESSION['flash_error'], $_SESSION['flash_success']);
 
-// --- HÀM GIẢ LẬP (Giữ nguyên) ---
+// --- HÀM XỬ LÝ THỰC TẾ ---
 if (!function_exists('sendResetEmail')) {
-    function sendResetEmail($email, $code) { return true; }
+    function sendResetEmail($email, $code) { 
+        // TODO: Implement real email sending
+        return true; 
+    }
 }
 if (!function_exists('sendResetSMS')) {
-    function sendResetSMS($phone, $code) { return true; }
+    function sendResetSMS($phone, $code) { 
+        // TODO: Implement real SMS sending
+        return true; 
+    }
 }
 
 // --- 2. XỬ LÝ POST REQUEST ---
@@ -58,15 +69,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($contact)) {
             $_SESSION['flash_error'] = 'Vui lòng nhập thông tin.';
         } else {
-            // Giả lập gửi mã
-            $code = rand(100000, 999999);
-            $_SESSION['reset_code'] = $code;
-            $_SESSION['reset_contact'] = $contact;
-            $_SESSION['reset_expires'] = time() + 600;
-            
-            // Chuyển sang bước 2 (Lưu vào session)
-            $_SESSION['forgot_step'] = 'verify';
-            $_SESSION['flash_success'] = "Gửi thành công! Mã test của bạn là: <b>$code</b>";
+            try {
+                // Gửi mã xác thực thực tế
+                $code = sendResetCode($contact);
+                $_SESSION['forgot_step'] = 'verify';
+                $_SESSION['flash_success'] = "Mã xác thực đã được gửi đến {$contact}";
+            } catch (Exception $e) {
+                $_SESSION['flash_error'] = $e->getMessage();
+            }
         }
     } 
     elseif ($action === 'verify_code') {
@@ -86,19 +96,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif ($action === 'reset_password') {
         $p1 = $_POST['new_password'] ?? '';
         $p2 = $_POST['confirm_password'] ?? '';
+        $contact = $_SESSION['reset_contact'] ?? '';
+        $code = $_SESSION['reset_code'] ?? '';
         
         if (strlen($p1) < 6) {
              $_SESSION['flash_error'] = 'Mật khẩu phải từ 6 ký tự trở lên!';
         } elseif ($p1 !== $p2) {
              $_SESSION['flash_error'] = 'Mật khẩu không khớp!';
         } else {
-            // Thành công -> Xóa session rác
-            unset($_SESSION['reset_code'], $_SESSION['forgot_step'], $_SESSION['reset_contact']);
-            $_SESSION['flash_success'] = 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.';
-            
-            // Lưu session và Chuyển hướng về trang Login
-            session_write_close(); 
-            forgot_redirect(page_url('login'));
+            try {
+                // Reset mật khẩu thực tế
+                resetPassword($contact, $p1, $code);
+                $_SESSION['flash_success'] = 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.';
+                
+                // Lưu session và Chuyển hướng về trang Login
+                session_write_close(); 
+                forgot_redirect(page_url('login'));
+            } catch (Exception $e) {
+                $_SESSION['flash_error'] = $e->getMessage();
+            }
         }
     }
     
@@ -106,6 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     session_write_close(); // Đảm bảo Session được lưu trước khi chuyển trang
     forgot_redirect(page_url('forgot'));
 }
+
+// Get view data
+$viewData = $viewDataService->getAuthForgotData();
 ?>
 
 <!-- Main Content -->
@@ -117,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <section class="forgot-form-section">
                     <div class="container">
                         <div class="auth-panel forgot-panel">
-                            <h2 class="auth-heading">Khôi phục tài khoản</h2>
+                            <h2 class="auth-heading"><?php echo $viewData['page_title']; ?></h2>
 
                             <div class="step-indicator">
                                 <div class="step <?php echo $step === 'input' ? 'active' : 'completed'; ?>">
@@ -145,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif; ?>
 
                             <?php if ($step === 'input'): ?>
-                                <form method="POST" action="<?php echo form_url('forgot'); ?>" class="auth-form">
+                                <form method="POST" action="<?php echo $viewData['form_action']; ?>" class="auth-form">
                                     <input type="hidden" name="action" value="send_code">
                                     <div class="form-group">
                                         <label for="contact">Email hoặc Số điện thoại</label>
@@ -159,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
 
                             <?php elseif ($step === 'verify'): ?>
-                                <form method="POST" action="<?php echo form_url('forgot'); ?>" class="auth-form">
+                                <form method="POST" action="<?php echo $viewData['form_action']; ?>" class="auth-form">
                                     <div class="form-group">
                                         <label for="verification_code">Nhập mã xác thực</label>
                                         <input type="text" id="verification_code" name="verification_code" class="form-control code-input"
@@ -175,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </form>
 
                             <?php elseif ($step === 'reset'): ?>
-                                <form method="POST" action="<?php echo form_url('forgot'); ?>" class="auth-form">
+                                <form method="POST" action="<?php echo $viewData['form_action']; ?>" class="auth-form">
                                     <input type="hidden" name="action" value="reset_password">
 
                                     <div class="form-group">
@@ -207,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif; ?>
 
                             <div class="register-link">
-                                <a href="<?php echo page_url('login'); ?>">← Quay lại đăng nhập</a>
+                                <a href="<?php echo $viewData['login_url']; ?>">← Quay lại đăng nhập</a>
                             </div>
                         </div>
                     </div>

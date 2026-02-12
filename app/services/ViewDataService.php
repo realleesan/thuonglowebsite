@@ -26,7 +26,6 @@ class ViewDataService {
     private $transformer;
     
     public function __construct() {
-        echo "<!-- Debug: Initializing Models -->";
         $this->productsModel = new ProductsModel();
         $this->categoriesModel = new CategoriesModel();
         $this->newsModel = new NewsModel();
@@ -36,7 +35,6 @@ class ViewDataService {
         $this->contactsModel = new ContactsModel();
         $this->settingsModel = new SettingsModel();
         $this->transformer = new DataTransformer();
-        echo "<!-- Debug: Models Initialized -->";
     }
     
     public function getHomePageData(): array {
@@ -1310,6 +1308,75 @@ class ViewDataService {
     }
 
     /**
+     * Get auth login page data
+     */
+    public function getAuthLoginData(): array {
+        try {
+            // Get remembered credentials from session/cookie
+            $rememberedPhone = $_SESSION['remember_phone'] ?? ($_COOKIE['remember_phone'] ?? '');
+            $rememberedRole = $_SESSION['remember_role'] ?? ($_COOKIE['remember_role'] ?? 'user');
+            
+            return [
+                'remembered_phone' => $rememberedPhone,
+                'remembered_role' => $rememberedRole,
+                'page_title' => 'Đăng nhập',
+                'form_action' => form_url()
+            ];
+            
+        } catch (Exception $e) {
+            error_log("ViewDataService::getAuthLoginData error: " . $e->getMessage());
+            return $this->handleEmptyState('auth_login');
+        }
+    }
+    
+    /**
+     * Get auth register page data
+     */
+    public function getAuthRegisterData(): array {
+        try {
+            // Get referral code from URL only (not from cookie)
+            $refCodeFromUrl = '';
+            if (isset($_GET['ref']) && !empty($_GET['ref'])) {
+                $refCodeFromUrl = sanitize($_GET['ref']);
+            }
+            
+            return [
+                'ref_code_from_url' => $refCodeFromUrl,
+                'page_title' => 'Đăng ký',
+                'form_action' => form_url(),
+                'login_url' => page_url('login')
+            ];
+            
+        } catch (Exception $e) {
+            error_log("ViewDataService::getAuthRegisterData error: " . $e->getMessage());
+            return $this->handleEmptyState('auth_register');
+        }
+    }
+    
+    /**
+     * Get auth forgot password page data
+     */
+    public function getAuthForgotData(): array {
+        try {
+            // Get current step from session
+            $step = $_SESSION['forgot_step'] ?? 'input';
+            $resetContact = $_SESSION['reset_contact'] ?? '';
+            
+            return [
+                'step' => $step,
+                'reset_contact' => $resetContact,
+                'page_title' => 'Khôi phục tài khoản',
+                'form_action' => form_url('forgot'),
+                'login_url' => page_url('login')
+            ];
+            
+        } catch (Exception $e) {
+            error_log("ViewDataService::getAuthForgotData error: " . $e->getMessage());
+            return $this->handleEmptyState('auth_forgot');
+        }
+    }
+
+    /**
      * Get admin orders page data with pagination and filtering
      */
     public function getAdminOrdersData($page = 1, $perPage = 10, $filters = []): array {
@@ -1616,6 +1683,28 @@ class ViewDataService {
                     'working_hours_weekend' => 'Đang cập nhật'
                 ],
                 'message' => 'Không thể tải thông tin liên hệ'
+            ],
+            'auth_login' => [
+                'remembered_phone' => '',
+                'remembered_role' => 'user',
+                'page_title' => 'Đăng nhập',
+                'form_action' => '#',
+                'message' => 'Không thể tải trang đăng nhập'
+            ],
+            'auth_register' => [
+                'ref_code_from_url' => '',
+                'page_title' => 'Đăng ký',
+                'form_action' => '#',
+                'login_url' => '#',
+                'message' => 'Không thể tải trang đăng ký'
+            ],
+            'auth_forgot' => [
+                'step' => 'input',
+                'reset_contact' => '',
+                'page_title' => 'Khôi phục tài khoản',
+                'form_action' => '#',
+                'login_url' => '#',
+                'message' => 'Không thể tải trang khôi phục mật khẩu'
             ]
         ];
         
@@ -2064,6 +2153,223 @@ class ViewDataService {
             'last_page' => ceil($total / $perPage),
             'from' => ($currentPage - 1) * $perPage + 1,
             'to' => min($currentPage * $perPage, $total)
+        ];
+    }
+
+    // ==================== AUTH METHODS ====================
+    
+    /**
+     * Authenticate user login
+     */
+    public function authenticateUser($login, $password) {
+        try {
+            $user = $this->usersModel->authenticate($login, $password);
+            
+            if ($user) {
+                return [
+                    'success' => true,
+                    'user' => $user
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'message' => 'Tên đăng nhập hoặc mật khẩu không đúng'
+            ];
+        } catch (Exception $e) {
+            error_log("ViewDataService::authenticateUser error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Đã xảy ra lỗi trong quá trình đăng nhập'
+            ];
+        }
+    }
+    
+    /**
+     * Register new user
+     */
+    public function registerUser($userData) {
+        try {
+            // Kiểm tra referral code nếu có
+            $referralInfo = null;
+            if (!empty($userData['ref_code'])) {
+                $affiliate = $this->affiliateModel->getByReferralCode($userData['ref_code']);
+                if ($affiliate) {
+                    $referralInfo = [
+                        'referred_by' => $affiliate['user_id'],
+                        'referral_code' => $userData['ref_code']
+                    ];
+                }
+            }
+            
+            // Tạo user mới
+            $user = $this->usersModel->register([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'phone' => $userData['phone'],
+                'password' => $userData['password'],
+                'role' => 'user',
+                'status' => 'active'
+            ]);
+            
+            if ($user) {
+                return [
+                    'success' => true,
+                    'user' => $user,
+                    'referral_info' => $referralInfo
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'message' => 'Không thể tạo tài khoản'
+            ];
+        } catch (Exception $e) {
+            error_log("ViewDataService::registerUser error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Update user password
+     */
+    public function updateUserPassword($userId, $currentPassword, $newPassword) {
+        try {
+            $user = $this->usersModel->find($userId);
+            
+            if (!$user) {
+                throw new Exception('Người dùng không tồn tại');
+            }
+            
+            // Verify current password
+            if (!password_verify($currentPassword, $user['password'])) {
+                throw new Exception('Mật khẩu hiện tại không đúng');
+            }
+            
+            $result = $this->usersModel->updatePassword($userId, $newPassword);
+            
+            return [
+                'success' => $result,
+                'message' => $result ? 'Cập nhật mật khẩu thành công' : 'Không thể cập nhật mật khẩu'
+            ];
+        } catch (Exception $e) {
+            error_log("ViewDataService::updateUserPassword error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Reset user password
+     */
+    public function resetUserPassword($contact, $newPassword) {
+        try {
+            // Tìm user theo email hoặc phone
+            $user = $this->usersModel->db->table('users')
+                                        ->where('email', $contact)
+                                        ->orWhere('phone', $contact)
+                                        ->first();
+            
+            if (!$user) {
+                throw new Exception('Không tìm thấy tài khoản với thông tin này');
+            }
+            
+            $result = $this->usersModel->updatePassword($user['id'], $newPassword);
+            
+            return [
+                'success' => $result,
+                'message' => $result ? 'Đặt lại mật khẩu thành công' : 'Không thể đặt lại mật khẩu'
+            ];
+        } catch (Exception $e) {
+            error_log("ViewDataService::resetUserPassword error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Send password reset code
+     */
+    public function sendPasswordResetCode($contact) {
+        try {
+            // Kiểm tra user tồn tại
+            $user = $this->usersModel->db->table('users')
+                                        ->where('email', $contact)
+                                        ->orWhere('phone', $contact)
+                                        ->first();
+            
+            if (!$user) {
+                throw new Exception('Không tìm thấy tài khoản với thông tin này');
+            }
+            
+            // Tạo mã xác thực
+            $code = rand(100000, 999999);
+            
+            // TODO: Gửi email/SMS thực tế
+            // Hiện tại chỉ log để test
+            error_log("Reset code for {$contact}: {$code}");
+            
+            return [
+                'success' => true,
+                'code' => $code,
+                'message' => 'Mã xác thực đã được gửi'
+            ];
+        } catch (Exception $e) {
+            error_log("ViewDataService::sendPasswordResetCode error: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    // ==================== AUTH VIEW DATA METHODS ====================
+    
+    /**
+     * Get auth login page data
+     */
+    public function getAuthLoginData() {
+        return [
+            'page_title' => 'Đăng nhập - ThuongLo.com',
+            'form_action' => '?page=login',
+            'remembered_phone' => $_COOKIE['remember_phone'] ?? '',
+            'remembered_role' => $_COOKIE['remember_role'] ?? 'user'
+        ];
+    }
+    
+    /**
+     * Get auth register page data
+     */
+    public function getAuthRegisterData() {
+        // Get referral code from URL directly (don't depend on auth.php functions)
+        $refCodeFromUrl = '';
+        if (isset($_GET['ref']) && !empty($_GET['ref'])) {
+            $refCodeFromUrl = htmlspecialchars(strip_tags(trim($_GET['ref'])));
+        }
+        
+        return [
+            'page_title' => 'Đăng ký - ThuongLo.com',
+            'form_action' => '?page=register',
+            'login_url' => '?page=login',
+            'ref_code_from_url' => $refCodeFromUrl
+        ];
+    }
+    
+    /**
+     * Get auth forgot password page data
+     */
+    public function getAuthForgotData() {
+        return [
+            'page_title' => 'Quên mật khẩu',
+            'form_action' => '?page=forgot',
+            'login_url' => '?page=login'
         ];
     }
 }

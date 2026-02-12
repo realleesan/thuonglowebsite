@@ -11,7 +11,7 @@
 
 * [X] app/views/home/home.php (Đã xong mẫu)
 * [X] app/views/products/products.php
-* [ ] app/views/products/details.php
+* [X] app/views/products/details.php
 * [X] app/views/categories/categories.php
 * [X] `app/views/payment/` (checkout.php, success.php, cancel.php)
 

@@ -1,5 +1,10 @@
 <?php
-require_once 'auth.php';
+require_once __DIR__ . '/auth.php';
+
+// Initialize ViewDataService (should already be available from view_init.php)
+if (!isset($viewDataService)) {
+    require_once __DIR__ . '/../../core/view_init.php';
+}
 
 // Xử lý đăng ký
 $error = '';
@@ -16,29 +21,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validation
     if (empty($fullName) || empty($email) || empty($phone) || empty($password)) {
         $error = 'Vui lòng nhập đầy đủ thông tin bắt buộc';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Email không hợp lệ';
     } elseif ($password !== $confirmPassword) {
         $error = 'Mật khẩu xác nhận không khớp';
     } elseif (strlen($password) < 6) {
         $error = 'Mật khẩu phải có ít nhất 6 ký tự';
     } else {
-        // Mô phỏng đăng ký - luôn thành công
-        if (mockRegister($fullName, $email, $phone, $password, $refCode)) {
-            $success = 'Đăng ký thành công! Đang chuyển hướng...';
-        } else {
-            $error = 'Đăng ký thất bại';
+        try {
+            // Đăng ký người dùng thực tế
+            $user = registerUser($fullName, $email, $phone, $password, $refCode);
+            
+            if ($user) {
+                $success = 'Đăng ký thành công! Đang chuyển hướng...';
+            } else {
+                $error = 'Đăng ký thất bại, vui lòng thử lại';
+            }
+        } catch (Exception $e) {
+            $error = $e->getMessage();
         }
     }
 }
 
-// Lấy mã giới thiệu chỉ từ URL (không từ Cookie)
-$refCodeFromUrl = getRefCodeFromUrl();
-$debugInfo = getDebugInfo();
+// Get view data
+$viewData = $viewDataService->getAuthRegisterData();
+$refCodeFromUrl = $viewData['ref_code_from_url'];
 ?>
 
 <main class="page-content">
     <section class="auth-section register-page">
         <div class="container">
-            <h1 class="page-title-main">Account</h1>
+            <h1 class="page-title-main"><?php echo $viewData['page_title']; ?></h1>
 
             <div class="auth-panel register-panel">
                 <h2 class="auth-heading">Đăng ký</h2>
@@ -57,7 +70,7 @@ $debugInfo = getDebugInfo();
                     </script>
                 <?php endif; ?>
 
-                <form method="POST" action="<?php echo form_url(); ?>" id="registerForm" class="auth-form">
+                <form method="POST" action="<?php echo $viewData['form_action']; ?>" id="registerForm" class="auth-form">
                     <div class="form-group">
                         <label for="full_name">Họ và tên <span class="required">*</span></label>
                         <input type="text" id="full_name" name="full_name" class="form-control"
@@ -90,7 +103,6 @@ $debugInfo = getDebugInfo();
                                 <button type="button" class="password-toggle" onclick="toggleAuthPassword('password')"
                                         aria-label="Hiển thị mật khẩu" aria-pressed="false" data-label-show="Hiển thị mật khẩu"
                                         data-label-hide="Ẩn mật khẩu">
-
                                     <span class="password-toggle-icon" id="password-icon" aria-hidden="true"></span>
                                 </button>
                             </div>
@@ -105,7 +117,6 @@ $debugInfo = getDebugInfo();
                                 <button type="button" class="password-toggle" onclick="toggleAuthPassword('confirm_password')"
                                         aria-label="Hiển thị lại mật khẩu" aria-pressed="false" data-label-show="Hiển thị lại mật khẩu"
                                         data-label-hide="Ẩn mật khẩu">
-
                                     <span class="password-toggle-icon" id="confirm-password-icon" aria-hidden="true"></span>
                                 </button>
                             </div>
@@ -140,7 +151,7 @@ $debugInfo = getDebugInfo();
                 </form>
 
                 <div class="register-link">
-                    Đã có tài khoản? <a href="<?php echo page_url('login'); ?>">Đăng nhập ngay</a>
+                    Đã có tài khoản? <a href="<?php echo $viewData['login_url']; ?>">Đăng nhập ngay</a>
                 </div>
             </div>
         </div>
