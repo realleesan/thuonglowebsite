@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get news ID from URL
     $news_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get news data using ViewDataService
-    $newsData = $viewDataService->getAdminNewsDetailsData($news_id);
+    // Get news data using AdminService
+    $newsData = $service->getNewsDetailsData($news_id);
     $current_news = $newsData['news'];
     $author = $newsData['author'];
     
@@ -46,7 +41,7 @@ $form_data = array_merge([
     'keywords' => ''
 ], $current_news);
 
-// Handle form submission (demo - không lưu thật)
+// Handle form submission
 $errors = [];
 $success = false;
 

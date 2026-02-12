@@ -7,7 +7,7 @@
 require_once __DIR__ . '/../../../core/view_init.php';
 
 // 2. Chọn service phù hợp (ưu tiên biến được inject từ routing)
-$service = isset($currentService) ? $currentService : ($publicService ?? $viewDataService);
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Get pagination parameters
 $page = (int) ($_GET['page'] ?? 1);

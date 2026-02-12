@@ -101,12 +101,6 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
                             <span class="submenu-text">Rút tiền</span>
                         </a>
                     </li>
-                    <li class="submenu-item <?php echo ($active_menu === 'finance' && $current_action === 'webhook_demo') ? 'active' : ''; ?>">
-                        <a href="<?php echo base_url(); ?>?page=affiliate&module=finance&action=webhook_demo" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
-                            <span class="submenu-text">Demo Webhook</span>
-                        </a>
-                    </li>
                 </ul>
             </li>
 

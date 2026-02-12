@@ -1,12 +1,5 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
-
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
 } catch (Exception $e) {
     $errorHandler = new ErrorHandler();
     $errorHandler->logError('Admin News Add View Error', $e);
@@ -25,7 +18,7 @@ $form_data = [
     'author' => 'Admin ThuongLo'
 ];
 
-// Handle form submission (demo - không lưu thật)
+// Handle form submission
 $errors = [];
 $success = false;
 

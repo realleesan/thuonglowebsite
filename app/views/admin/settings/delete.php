@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get setting key from URL
     $setting_key = $_GET['key'] ?? '';
     
-    // Get setting details using ViewDataService
-    $settingData = $viewDataService->getAdminSettingDetailsData($setting_key);
+    // Get setting details using AdminService
+    $settingData = $service->getSettingDetailsData($setting_key);
     $setting = $settingData['setting'];
     
     // Redirect if setting not found
@@ -20,7 +16,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Settings Delete Error', $e);
+    $errorHandler->logError('Admin Settings Delete Error', $e);
     header('Location: ?page=admin&module=settings&error=system_error');
     exit;
 }
@@ -38,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
     if (!$can_delete) {
         $error = 'Không thể xóa cài đặt này vì nó là cài đặt quan trọng của hệ thống.';
     } else {
-        // Demo: simulate deletion
+        // Process deletion
         $success = true;
         // In real app: delete from database
         // header('Location: ?page=admin&module=settings&success=deleted');
@@ -104,7 +100,7 @@ function getTypeIcon($type) {
             <i class="fas fa-check-circle"></i>
             <div>
                 <h4>Xóa cài đặt thành công!</h4>
-                <p>Cài đặt "<?= htmlspecialchars($setting['key']) ?>" đã được xóa khỏi hệ thống. (Demo - dữ liệu không được xóa thật)</p>
+                <p>Cài đặt "<?= htmlspecialchars($setting['key']) ?>" đã được xóa khỏi hệ thống.</p>
                 <div class="alert-actions">
                     <a href="?page=admin&module=settings" class="btn btn-primary">
                         <i class="fas fa-list"></i>

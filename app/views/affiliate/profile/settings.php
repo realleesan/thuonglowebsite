@@ -4,20 +4,37 @@
  * Quản lý thông tin cá nhân và tài khoản ngân hàng
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../../models/UsersModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
-$usersModel = new UsersModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
-// Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 1;
+// Initialize data variables
+$profileData = [
+    'name' => '',
+    'email' => '',
+    'affiliate_link' => '',
+    'referral_code' => ''
+];
 
-// Get profile data from database
-$profileData = $affiliateModel->getWithUser($affiliateId);
-if (!$profileData) {
-    $profileData = ['name' => 'Demo User', 'email' => 'demo@example.com'];
+try {
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        $profileData = $dashboardData['affiliate'] ?? $profileData;
+    }
+} catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_profile', []);
+    error_log('Profile Settings Error: ' . $e->getMessage());
 }
 
 // Page title

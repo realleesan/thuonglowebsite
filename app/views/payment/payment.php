@@ -11,8 +11,8 @@ $service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // 2. Khởi tạo biến dữ liệu
 $paymentData = [];
-$orderId = "DEMO_" . rand(1000, 9999);
-$amount = 250000;
+$orderId = "ORD_" . bin2hex(random_bytes(4));
+$amount = 0;
 $showErrorMessage = false;
 $errorMessage = '';
 

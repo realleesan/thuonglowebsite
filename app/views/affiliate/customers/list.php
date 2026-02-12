@@ -4,23 +4,34 @@
  * Danh sách khách hàng của đại lý
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../../models/UsersModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
-$usersModel = new UsersModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
+
+// Initialize data variables
+$customers = [];
 
 try {
-    // Get current affiliate ID from session
-    $affiliateId = $_SESSION['user_id'] ?? 1;
-    
-    // Get customers from database (demo - in real app get referred customers)
-    $customers = $usersModel->getAll(); // Demo data
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        // Get customers data từ AffiliateService
+        $customersData = $service->getCustomersData($affiliateId);
+        $customers = $customersData['customers'] ?? [];
+    }
 } catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_customers_list', []);
     error_log('Customers List Error: ' . $e->getMessage());
-    // Set default values for demo
-    $customers = [];
 }
 
 // Set page info cho master layout

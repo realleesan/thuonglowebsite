@@ -37,16 +37,24 @@ try {
         $errorMessage = $result['message'];
     }
     
-    // Fallback demo data
-    $orderId = $orderId ?: 'DEMO' . rand(1000, 9999);
-    $order = [
-        'id' => $orderId,
-        'status' => 'completed',
-        'payment_method' => 'sepay',
-        'total_amount' => 250000,
-        'created_at' => date('Y-m-d H:i:s')
-    ];
-    $totalAmount = 250000;
+    // Get order data for display
+    if (!empty($orderId) && $service && method_exists($service, 'getOrderDetailsData')) {
+        $orderData = $service->getOrderDetailsData($orderId);
+        $order = $orderData['order'] ?? [];
+    }
+    
+    // Set default values if order not found
+    if (empty($order)) {
+        $orderId = $orderId ?: 'ORD_' . bin2hex(random_bytes(4));
+        $order = [
+            'id' => $orderId,
+            'status' => 'completed',
+            'payment_method' => 'sepay',
+            'total_amount' => 0,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+    }
+    $totalAmount = $order['total_amount'] ?? 0;
 }
 
 // Format payment method

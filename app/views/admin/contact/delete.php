@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get contact ID from URL
     $contact_id = (int)($_GET['id'] ?? 0);
     
-    // Get contact details using ViewDataService
-    $contactData = $viewDataService->getAdminContactDetailsData($contact_id);
+    // Get contact details using AdminService
+    $contactData = $service->getContactDetailsData($contact_id);
     $contact = $contactData['contact'];
     
     // Redirect if contact not found
@@ -20,13 +16,14 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Contact Delete Error', $e);
+    $errorHandler->logError('Admin Contact Delete Error', $e);
     header('Location: ?page=admin&module=contact&error=system_error');
     exit;
 }
 
-// Handle deletion (demo - không xóa thật)
+// Handle deletion
 $success_message = '';
+$error_message = '';
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

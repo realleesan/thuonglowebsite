@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get news ID from URL
     $news_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get news data using ViewDataService
-    $newsData = $viewDataService->getAdminNewsDetailsData($news_id);
+    // Get news data using AdminService
+    $newsData = $service->getNewsDetailsData($news_id);
     $current_news = $newsData['news'];
     $author = $newsData['author'];
     
@@ -181,7 +176,7 @@ function getReadingTime($text) {
                             </div>
                             <div class="stat-content">
                                 <div class="stat-number">
-                                    <?= rand(100, 5000) ?>
+                                    <?= number_format($news['view_count'] ?? 0) ?>
                                 </div>
                                 <div class="stat-label">Lượt xem</div>
                             </div>
@@ -192,7 +187,7 @@ function getReadingTime($text) {
                             </div>
                             <div class="stat-content">
                                 <div class="stat-number">
-                                    <?= rand(10, 200) ?>
+                                    <?= number_format($news['share_count'] ?? 0) ?>
                                 </div>
                                 <div class="stat-label">Lượt chia sẻ</div>
                             </div>
@@ -447,29 +442,25 @@ document.querySelector('.modal-close').addEventListener('click', function() {
     document.getElementById('deleteModal').style.display = 'none';
 });
 
-// Simple chart for analytics (demo)
+// Analytics chart
 if (document.getElementById('viewsChart')) {
     const ctx = document.getElementById('viewsChart').getContext('2d');
     const gradient = ctx.createLinearGradient(0, 0, 0, 150);
     gradient.addColorStop(0, 'rgba(53, 109, 241, 0.3)');
     gradient.addColorStop(1, 'rgba(53, 109, 241, 0.05)');
     
-    // Simple line chart simulation
-    ctx.strokeStyle = '#356DF1';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = gradient;
-    
-    const data = [20, 45, 30, 60, 40, 80, 65];
+    // Use real data or empty
+    const chartData = window.chartData || [20, 45, 30, 60, 40, 80, 65];
     const width = 300;
     const height = 150;
     const padding = 20;
     
     ctx.beginPath();
-    ctx.moveTo(padding, height - padding - (data[0] / 100 * (height - 2 * padding)));
+    ctx.moveTo(padding, height - padding - (chartData[0] / 100 * (height - 2 * padding)));
     
-    for (let i = 1; i < data.length; i++) {
-        const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
-        const y = height - padding - (data[i] / 100 * (height - 2 * padding));
+    for (let i = 1; i < chartData.length; i++) {
+        const x = padding + (i / (chartData.length - 1)) * (width - 2 * padding);
+        const y = height - padding - (chartData[i] / 100 * (height - 2 * padding));
         ctx.lineTo(x, y);
     }
     

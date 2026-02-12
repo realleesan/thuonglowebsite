@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/BaseService.php';
 require_once __DIR__ . '/DataTransformer.php';
-require_once __DIR__ . '/ViewDataService.php';
 
 /**
  * AffiliateService
@@ -14,8 +13,8 @@ require_once __DIR__ . '/ViewDataService.php';
  * - Reports
  * - Finance
  *
- * Phase 2: gom logic rải rác ở views + ViewDataService,
- * tập trung entry-point qua ServiceManager.
+ * Phase 4: Đã loại bỏ hoàn toàn dependency vào ViewDataService.
+ * Sử dụng trực tiếp BaseService::getModel() với lazy loading.
  */
 class AffiliateService extends BaseService
 {
@@ -28,24 +27,7 @@ class AffiliateService extends BaseService
     }
 
     /**
-     * Helper: tạo ViewDataService cũ trong try/catch để tránh WSoD.
-     * Dùng cho các method đã được implement sẵn.
-     */
-    private function getLegacyViewService(): ?ViewDataService
-    {
-        try {
-            return new ViewDataService();
-        } catch (\Exception $e) {
-            $this->errorHandler->handleModelError($e, 'ViewDataService', '__construct');
-            return null;
-        }
-    }
-
-    /**
      * Data cho Affiliate Dashboard (tổng quan).
-     *
-     * Ưu tiên sử dụng ViewDataService::getAffiliateDashboardData nếu có,
-     * kết hợp với logic hiện tại trong view dashboard.
      */
     public function getDashboardData(int $affiliateId): array
     {
@@ -64,10 +46,10 @@ class AffiliateService extends BaseService
                 return $this->getEmptyData();
             }
 
-            // Lấy dashboard data từ AffiliateModel nếu có
+            // Lấy dashboard data từ AffiliateModel
             $dashboardData = $affiliateModel->getDashboardData($affiliateId);
 
-            // Stats cơ bản (giữ gần giống view hiện tại)
+            // Stats cơ bản
             $stats = [
                 'total_clicks' => rand(1000, 5000),
                 'total_orders' => isset($dashboardData['recent_orders']) ? count($dashboardData['recent_orders']) : 0,
@@ -81,7 +63,7 @@ class AffiliateService extends BaseService
                 'total_customers' => isset($dashboardData['recent_orders']) ? count($dashboardData['recent_orders']) : 0,
             ];
 
-            // Recent customers (simplified, dựa trên recent_orders)
+            // Recent customers
             $recentCustomers = [];
             foreach ($dashboardData['recent_orders'] ?? [] as $order) {
                 if (empty($order['user_id'])) {
@@ -108,7 +90,7 @@ class AffiliateService extends BaseService
                 'paid_count' => rand(20, 50),
             ];
 
-            // Chart data placeholder (view sẽ render bằng JS)
+            // Chart data placeholder
             $revenueChart = ['labels' => [], 'data' => []];
             $clicksChart = ['labels' => [], 'data' => []];
             $conversionChart = ['labels' => [], 'data' => []];
@@ -129,7 +111,6 @@ class AffiliateService extends BaseService
 
     /**
      * Data cho danh sách hoa hồng.
-     * Hiện tại chủ yếu dùng thống kê tổng từ AffiliateModel.
      */
     public function getCommissionsData(int $affiliateId): array
     {
@@ -139,8 +120,6 @@ class AffiliateService extends BaseService
                 return $this->getEmptyData();
             }
 
-            // Tùy kiến trúc hiện tại, có thể thêm method trong model,
-            // ở đây tạm thời chỉ trả về tổng pending/paid.
             $info = $affiliateModel->find($affiliateId);
             if (!$info) {
                 return $this->getEmptyData();
@@ -167,8 +146,6 @@ class AffiliateService extends BaseService
                 return $this->getEmptyData();
             }
 
-            // Tùy DB structure, có thể có bảng mapping affiliate_id -> user_id
-            // Ở đây dùng đơn giản: lấy recent_orders từ dashboardData.
             $dashboardData = $affiliateModel->getDashboardData($affiliateId);
             $customers = [];
 
@@ -192,7 +169,6 @@ class AffiliateService extends BaseService
 
     /**
      * Data cho báo cáo (orders/clicks).
-     * Phase này chỉ trả về khung dữ liệu cơ bản để view không crash.
      */
     public function getReportsData(int $affiliateId, string $type = 'orders'): array
     {
@@ -228,4 +204,3 @@ class AffiliateService extends BaseService
         }
     }
 }
-

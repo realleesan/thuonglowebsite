@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get filters
     $search = $_GET['search'] ?? '';
     $type_filter = $_GET['type'] ?? '';
@@ -18,14 +17,14 @@ try {
     ];
     
     // Get settings data from service
-    $settingsData = $viewDataService->getAdminSettingsData($current_page, $per_page, $filters);
+    $settingsData = $service->getSettingsData($current_page, $per_page, $filters);
     $paged_settings = $settingsData['settings'];
     $setting_types = $settingsData['types'];
     $total_settings = $settingsData['total'];
     $total_pages = $settingsData['pagination']['last_page'];
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Settings Error', $e);
+    $errorHandler->logError('Admin Settings Error', $e);
     $paged_settings = [];
     $setting_types = [];
     $total_settings = 0;

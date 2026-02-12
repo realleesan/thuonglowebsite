@@ -1,14 +1,9 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get available users for dropdown (users without affiliate accounts)
-    $usersData = $viewDataService->getAvailableUsersForAffiliate();
+    $usersData = $service->getAvailableUsersForAffiliate();
     $available_users = $usersData['users'] ?? [];
     
 } catch (Exception $e) {
@@ -16,7 +11,7 @@ try {
     $available_users = [];
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -41,28 +36,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Mã giới thiệu phải có ít nhất 3 ký tự';
     } elseif (!preg_match('/^[A-Z0-9]+$/', $referral_code)) {
         $errors[] = 'Mã giới thiệu chỉ được chứa chữ cái in hoa và số';
+    } elseif ($service->checkReferralCodeExists($referral_code)) {
+        $errors[] = 'Mã giới thiệu đã tồn tại';
     }
     
-    // Check if referral code already exists
-    foreach ($affiliates as $affiliate) {
-        if (strtoupper($affiliate['referral_code']) === strtoupper($referral_code)) {
-            $errors[] = 'Mã giới thiệu đã tồn tại';
-            break;
+    // If no errors, save to database
+    if (empty($errors)) {
+        $affiliateData = [
+            'user_id' => $user_id,
+            'commission_rate' => $commission_rate,
+            'referral_code' => strtoupper($referral_code),
+            'status' => $status
+        ];
+        $created = $service->createAffiliate($affiliateData);
+        if ($created) {
+            header('Location: ?page=admin&module=affiliates&success=added');
+            exit;
+        } else {
+            $errors[] = 'Không thể tạo đại lý';
         }
     }
-    
-    // If no errors, simulate save (demo)
-    if (empty($errors)) {
-        $success = true;
-        // In real app: save to database
-        // header('Location: ?page=admin&module=affiliates&success=added');
-        // exit;
-    }
-}
-
-// Generate random referral code
-function generateReferralCode() {
-    return 'AGENT' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
 }
 ?>
 
@@ -88,7 +81,7 @@ function generateReferralCode() {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Thêm đại lý thành công! (Demo - dữ liệu không được lưu thật)
+            Thêm đại lý thành công!
         </div>
     <?php endif; ?>
 
@@ -130,7 +123,7 @@ function generateReferralCode() {
                             <label for="referral_code" class="required">Mã giới thiệu</label>
                             <div class="input-group">
                                 <input type="text" id="referral_code" name="referral_code" 
-                                       value="<?= htmlspecialchars($_POST['referral_code'] ?? generateReferralCode()) ?>" 
+                                       value="<?= htmlspecialchars($_POST['referral_code'] ?? 'AGENT' . strtoupper(bin2hex(random_bytes(3)))) ?>"
                                        placeholder="AGENT001" required maxlength="20" style="text-transform: uppercase;">
                                 <button type="button" class="btn btn-outline" onclick="generateNewCode()">
                                     <i class="fas fa-sync"></i>
@@ -250,7 +243,7 @@ function generateReferralCode() {
                             <div class="link-item">
                                 <label>Link giới thiệu:</label>
                                 <div class="link-preview">
-                                    <code id="referral_link">https://thuonglo.com/?ref=<span id="ref_code_display"><?= htmlspecialchars($_POST['referral_code'] ?? generateReferralCode()) ?></span></code>
+                                    <code id="referral_link">https://thuonglo.com/?ref=<span id="ref_code_display"><?= htmlspecialchars($_POST['referral_code'] ?? 'AGENT' . strtoupper(bin2hex(random_bytes(3)))) ?></span></code>
                                     <button type="button" class="btn btn-sm btn-outline" onclick="copyLink()">
                                         <i class="fas fa-copy"></i>
                                     </button>

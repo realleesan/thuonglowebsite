@@ -364,4 +364,41 @@ class DataTransformer {
         
         return array_map([$this, 'transformSetting'], $settings);
     }
+
+    /**
+     * Transform single event data
+     */
+    public function transformEvent($event): array {
+        if (!$event) {
+            return [];
+        }
+        
+        return [
+            'id' => (int) ($event['id'] ?? 0),
+            'title' => $this->security->escapeHtml($event['title'] ?? ''),
+            'description' => $this->security->escapeHtml($event['description'] ?? ''),
+            'location' => $this->security->escapeHtml($event['location'] ?? ''),
+            'start_date' => $event['start_date'] ?? null,
+            'end_date' => $event['end_date'] ?? null,
+            'status' => $event['status'] ?? 'upcoming',
+            'max_participants' => (int) ($event['max_participants'] ?? 0),
+            'current_participants' => (int) ($event['current_participants'] ?? 0),
+            'image' => $event['image'] ?? '',
+            'created_at' => $event['created_at'] ?? null,
+            'updated_at' => $event['updated_at'] ?? null,
+            'formatted_start_date' => isset($event['start_date']) ? $this->formatDateForDisplay($event['start_date']) : '',
+            'formatted_end_date' => isset($event['end_date']) ? $this->formatDateForDisplay($event['end_date']) : '',
+        ];
+    }
+
+    /**
+     * Transform multiple events
+     */
+    public function transformEvents($events): array {
+        if (!is_array($events)) {
+            return [];
+        }
+        
+        return array_map([$this, 'transformEvent'], $events);
+    }
 }

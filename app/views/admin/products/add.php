@@ -1,14 +1,14 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+/**
+ * Admin Products Add - Dynamic Version
+ */
+require_once __DIR__ . '/../../../core/view_init.php';
+
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
-    // Get categories for dropdown using ViewDataService
-    $categoriesData = $viewDataService->getActiveCategoriesForDropdown();
+    // Get categories for dropdown using AdminService
+    $categoriesData = $service->getActiveCategoriesForDropdown();
     $categories = $categoriesData['categories'] ?? [];
     
 } catch (Exception $e) {
@@ -16,7 +16,7 @@ try {
     $categories = [];
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -49,12 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Mô tả sản phẩm không được để trống';
     }
     
-    // If no errors, simulate save (demo)
+    // If no errors, save to database
     if (empty($errors)) {
-        $success = true;
-        // In real app: save to database
-        // header('Location: ?page=admin&module=products&success=added');
-        // exit;
+        $saved = $service->createProduct($_POST);
+        if ($saved) {
+            header('Location: ?page=admin&module=products&success=added');
+            exit;
+        } else {
+            $errors[] = 'Không thể lưu sản phẩm';
+        }
     }
 }
 ?>
@@ -81,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Thêm sản phẩm thành công! (Demo - dữ liệu không được lưu thật)
+            Thêm sản phẩm thành công!
         </div>
     <?php endif; ?>
 

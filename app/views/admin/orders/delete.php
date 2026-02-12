@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get order ID from URL
     $order_id = (int)($_GET['id'] ?? 0);
     
@@ -15,7 +14,7 @@ try {
     }
     
     // Get order data from service
-    $orderData = $viewDataService->getAdminOrderDetailsData($order_id);
+    $orderData = $service->getOrderDetailsData($order_id);
     $order = $orderData['order'];
     $user = $orderData['user'];
     $order_items = $orderData['order_items'];
@@ -33,7 +32,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Orders Delete Error', $e);
+    $errorHandler->logError('Admin Orders Delete Error', $e);
     header('Location: ?page=admin&module=orders&error=1');
     exit;
 }

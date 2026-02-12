@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get affiliate ID from URL
     $affiliate_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get affiliate data using ViewDataService
-    $affiliateData = $viewDataService->getAdminAffiliateDetailsData($affiliate_id);
+    // Get affiliate data using AdminService
+    $affiliateData = $service->getAffiliateDetailsData($affiliate_id);
     $affiliate = $affiliateData['affiliate'];
     $affiliate_orders = $affiliateData['orders'];
     $performance_data = $affiliateData['performance_data'];
@@ -45,9 +40,9 @@ function formatDate($date) {
 
 // Calculate stats
 $total_orders = count($affiliate_orders);
-$monthly_orders = 0; // Demo
-$monthly_sales = 0; // Demo
-$monthly_commission = 0; // Demo
+$monthly_orders = 0;
+$monthly_sales = 0;
+$monthly_commission = 0;
 
 // Generate sample performance data for charts
 $performance_data = [
@@ -428,9 +423,8 @@ document.querySelector('.delete-btn').addEventListener('click', function() {
     document.getElementById('deleteModal').style.display = 'block';
     
     document.getElementById('confirmDelete').onclick = function() {
-        // In real app: send delete request
-        alert('Đã xóa đại lý: ' + name + ' (Demo)');
-        window.location.href = '?page=admin&module=affiliates';
+        // Send delete request via form submission
+        document.getElementById('deleteForm').submit();
     };
 });
 

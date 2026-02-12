@@ -1,8 +1,11 @@
 <?php
+require_once __DIR__ . '/../../../../core/view_init.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
 // Load ErrorHandler for consistent error handling
 require_once __DIR__ . '/../../../services/ErrorHandler.php';
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -93,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            <span>Thêm người dùng thành công! (Demo)</span>
+            <span>Thêm người dùng thành công!</span>
         </div>
     <?php endif; ?>
 

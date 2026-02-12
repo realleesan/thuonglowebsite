@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get setting key from URL
     $setting_key = $_GET['key'] ?? '';
     
-    // Get setting details using ViewDataService
-    $settingData = $viewDataService->getAdminSettingDetailsData($setting_key);
+    // Get setting details using AdminService
+    $settingData = $service->getSettingDetailsData($setting_key);
     $setting = $settingData['setting'];
     
     // Redirect if setting not found
@@ -20,7 +16,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Settings View Error', $e);
+    $errorHandler->logError('Admin Settings View Error', $e);
     header('Location: ?page=admin&module=settings&error=system_error');
     exit;
 }
@@ -75,9 +71,9 @@ function getTypeIcon($type) {
     return $icons[$type] ?? 'fas fa-cog';
 }
 
-// Demo usage data
-$usage_count = rand(50, 500);
-$last_modified = date('Y-m-d H:i:s', strtotime('-' . rand(1, 30) . ' days'));
+// Usage data - should be fetched from service in real implementation
+$usage_count = 0;
+$last_modified = date('Y-m-d H:i:s');
 ?>
 
 <div class="settings-page settings-view-page">
@@ -179,7 +175,7 @@ $last_modified = date('Y-m-d H:i:s', strtotime('-' . rand(1, 30) . ' days'));
                                 <i class="fas fa-edit"></i>
                             </div>
                             <div class="stat-content">
-                                <div class="stat-number"><?= rand(1, 10) ?></div>
+                                <div class="stat-number"><?= $setting['edit_count'] ?? 0 ?></div>
                                 <div class="stat-label">Lần chỉnh sửa</div>
                             </div>
                         </div>
@@ -188,7 +184,7 @@ $last_modified = date('Y-m-d H:i:s', strtotime('-' . rand(1, 30) . ' days'));
                                 <i class="fas fa-calendar"></i>
                             </div>
                             <div class="stat-content">
-                                <div class="stat-number"><?= rand(1, 365) ?></div>
+                                <div class="stat-number"><?= $setting['days_active'] ?? 0 ?></div>
                                 <div class="stat-label">Ngày hoạt động</div>
                             </div>
                         </div>
@@ -329,7 +325,7 @@ console.log(value); // "<?= htmlspecialchars($setting['value']) ?>"
                         <div class="usage-chart">
                             <div class="chart-placeholder">
                                 <i class="fas fa-chart-line"></i>
-                                <p>Biểu đồ sử dụng theo thời gian (Demo)</p>
+                                <p>Biểu đồ sử dụng theo thời gian</p>
                             </div>
                         </div>
                     </div>
@@ -446,7 +442,7 @@ console.log(value); // "<?= htmlspecialchars($setting['value']) ?>"
                             </div>
                         </div>
                         
-                        <?php if (rand(0, 1)): ?>
+                        <?php if ($timeline): ?>
                         <div class="timeline-item">
                             <div class="timeline-marker"></div>
                             <div class="timeline-content">
@@ -541,11 +537,8 @@ document.addEventListener('DOMContentLoaded', function() {
     cancelBtn.addEventListener('click', () => modal.style.display = 'none');
     
     confirmBtn.addEventListener('click', function() {
-        // Demo delete action
-        alert('Demo: Cài đặt đã được xóa (không thực sự xóa)');
-        modal.style.display = 'none';
-        // In real app: redirect to settings list
-        // window.location.href = '?page=admin&module=settings&success=deleted';
+        // Submit the delete form
+        document.getElementById('deleteForm').submit();
     });
     
     // Close modal when clicking outside

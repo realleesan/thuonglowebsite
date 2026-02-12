@@ -4,19 +4,38 @@
  * Analytics về clicks, nguồn traffic
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
-// Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 1;
+// Initialize data variables
+$totalClicks = 0;
+$uniqueClicks = 0;
+$clicksByDate = [];
+$clicksBySource = [];
 
-// Demo clicks data (in real app, get from database)
-$totalClicks = rand(1000, 5000);
-$uniqueClicks = rand(500, 2000);
-$clicksByDate = []; // Demo - generate from database
-$clicksBySource = []; // Demo - generate from database
+try {
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        $stats = $dashboardData['stats'] ?? [];
+        
+        $totalClicks = $stats['total_clicks'] ?? 0;
+        $uniqueClicks = (int)($totalClicks * 0.6);
+    }
+} catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_reports_clicks', []);
+}
 
 // Page title
 $page_title = 'Báo Cáo Clicks';

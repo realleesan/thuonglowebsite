@@ -35,15 +35,14 @@ try {
         $errorMessage = $result['message'];
     }
     
-    // Fallback demo data
-    $cartItems = [[
-        'id' => 1,
-        'name' => 'Khóa học: Lập trình Web Fullstack (Demo)',
-        'price' => 250000,
-        'image' => 'home/home-banner-top.png',
-        'quantity' => 1
-    ]];
-    $totalAmount = 250000;
+    // Get cart data for checkout
+    if ($service && method_exists($service, 'getCartData')) {
+        $cartData = $service->getCartData();
+        $cartItems = $cartData['items'] ?? [];
+    } else {
+        $cartItems = [];
+    }
+    $totalAmount = array_sum(array_column($cartItems, 'price'));
 }
 ?>
 

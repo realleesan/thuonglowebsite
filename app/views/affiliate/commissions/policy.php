@@ -4,21 +4,44 @@
  * Chính sách hoa hồng trọn đời (Lifetime Commission)
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/SettingsModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$settingsModel = new SettingsModel();
+// 2. Chọn service (ưu tiên biến được inject từ routing)
+$service = isset($currentService) ? $currentService : ($adminService ?? $publicService ?? null);
+
+// Initialize data variables
+$policy = [
+    'commission_rate' => 10,
+    'min_withdrawal' => 100000,
+    'payment_schedule' => 'monthly'
+];
 
 try {
-    // Get commission policy from settings
-    $policy = [
-        'commission_rate' => $settingsModel->get('commission_rate', 10),
-        'min_withdrawal' => $settingsModel->get('min_withdrawal', 100000),
-        'payment_schedule' => 'monthly'
-    ];
+    // Get current affiliate ID from session
+    $affiliateId = $_SESSION['user_id'] ?? 1;
+    
+    // Get dashboard data FIRST for affiliate info (needed by header)
+    if ($service && method_exists($service, 'getDashboardData')) {
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+    }
+    
+    if ($service && method_exists($service, 'getSettings')) {
+        // Get commission policy từ AdminService
+        $settings = $service->getSettings();
+        $policy = [
+            'commission_rate' => $settings['commission_rate'] ?? 10,
+            'min_withdrawal' => $settings['min_withdrawal'] ?? 100000,
+            'payment_schedule' => $settings['payment_schedule'] ?? 'monthly'
+        ];
+    }
 } catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_commissions_policy', []);
     error_log("Commission Policy Error: " . $e->getMessage());
-    exit;
 }
 
 // Set page info cho master layout
@@ -28,6 +51,7 @@ $page_action = 'policy';
 
 // Include master layout
 ob_start();
+?>
 ?>
 
 <!-- Page Header -->

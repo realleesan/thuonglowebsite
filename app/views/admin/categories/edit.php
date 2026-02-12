@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get category ID from URL
     $category_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get category data using ViewDataService
-    $categoryData = $viewDataService->getAdminCategoryDetailsData($category_id);
+    // Get category data using AdminService
+    $categoryData = $service->getCategoryDetailsData($category_id);
     $category = $categoryData['category'];
     
     // Redirect if category not found
@@ -31,7 +26,7 @@ try {
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -56,12 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Mô tả danh mục không được để trống';
     }
     
-    // If no errors, simulate save (demo)
+    // If no errors, update database
     if (empty($errors)) {
-        $success = true;
-        // In real app: update database
-        // header('Location: ?page=admin&module=categories&success=updated');
-        // exit;
+        $updated = $service->updateCategory($category_id, $_POST);
+        if ($updated) {
+            header('Location: ?page=admin&module=categories&action=view&id=' . $category_id . '&success=updated');
+            exit;
+        } else {
+            $errors[] = 'Không thể cập nhật danh mục';
+        }
     }
 } else {
     // Pre-fill form with existing data
@@ -106,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Cập nhật danh mục thành công! (Demo - dữ liệu không được lưu thật)
+            Cập nhật danh mục thành công!
         </div>
     <?php endif; ?>
 

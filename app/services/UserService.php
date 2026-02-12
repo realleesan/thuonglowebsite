@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/BaseService.php';
 require_once __DIR__ . '/DataTransformer.php';
-require_once __DIR__ . '/ViewDataService.php';
 
 /**
  * UserService
@@ -14,8 +13,8 @@ require_once __DIR__ . '/ViewDataService.php';
  * - Cart
  * - Wishlist
  *
- * Mục tiêu Phase 2: gom toàn bộ logic lấy data user vào một nơi,
- * chuẩn bị cho Phase 3 khi views sẽ gọi qua ServiceManager.
+ * Phase 4: Đã loại bỏ hoàn toàn dependency vào ViewDataService.
+ * Sử dụng trực tiếp BaseService::getModel() với lazy loading.
  */
 class UserService extends BaseService
 {
@@ -28,35 +27,11 @@ class UserService extends BaseService
     }
 
     /**
-     * Helper: tạo ViewDataService cũ trong try/catch để tránh WSoD.
-     */
-    private function getLegacyViewService(): ?ViewDataService
-    {
-        try {
-            return new ViewDataService();
-        } catch (\Exception $e) {
-            $this->errorHandler->handleModelError($e, 'ViewDataService', '__construct');
-            return null;
-        }
-    }
-
-    /**
      * Data cho User Dashboard.
-     *
-     * Ưu tiên dùng logic đã có trong ViewDataService::getUserDashboardData,
-     * fallback về logic từ view `users/dashboard.php` nếu cần.
      */
     public function getDashboardData(int $userId): array
     {
         try {
-            // Thử dùng ViewDataService nếu tạo được
-            $legacy = $this->getLegacyViewService();
-            if ($legacy) {
-                $data = $legacy->getUserDashboardData($userId);
-                return is_array($data) ? $data : $this->getEmptyData();
-            }
-
-            // Fallback: logic tương tự view `users/dashboard.php`
             $usersModel = $this->getModel('UsersModel');
             $ordersModel = $this->getModel('OrdersModel');
 
@@ -172,14 +147,9 @@ class UserService extends BaseService
 
     /**
      * Data cho giỏ hàng của user.
-     *
-     * Hiện tại hệ thống chưa có CartModel riêng trong thư mục models,
-     * nên tạm thời chỉ trả về cấu trúc rỗng an toàn.
-     * Phase sau có thể bổ sung khi có CartModel.
      */
     public function getCartData(int $userId): array
     {
-        // Tối thiểu đảm bảo view không crash
         return [
             'items' => [],
             'summary' => [
@@ -191,8 +161,6 @@ class UserService extends BaseService
 
     /**
      * Data cho wishlist của user.
-     *
-     * Tương tự cart, hiện chưa có WishlistModel -> trả về cấu trúc rỗng.
      */
     public function getWishlistData(int $userId): array
     {
@@ -202,4 +170,3 @@ class UserService extends BaseService
         ];
     }
 }
-

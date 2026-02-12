@@ -28,15 +28,15 @@ function getRefCodeFromUrl() {
  * Đăng nhập người dùng thực tế
  */
 function authenticateUser($login, $password) {
-    global $viewDataService;
+    global $publicService;
     
-    // Ensure ViewDataService is available
-    if (!isset($viewDataService)) {
+    // Ensure PublicService is available
+    if (!isset($publicService)) {
         require_once __DIR__ . '/../../../core/view_init.php';
     }
     
     try {
-        $result = $viewDataService->authenticateUser($login, $password);
+        $result = $publicService->authenticateUser($login, $password);
         
         if ($result && $result['success']) {
             $user = $result['user'];
@@ -80,10 +80,10 @@ function authenticateUser($login, $password) {
  * Đăng ký người dùng mới
  */
 function registerUser($fullName, $email, $phone, $password, $refCode = '') {
-    global $viewDataService;
+    global $publicService;
     
-    // Ensure ViewDataService is available
-    if (!isset($viewDataService)) {
+    // Ensure PublicService is available
+    if (!isset($publicService)) {
         require_once __DIR__ . '/../../../core/view_init.php';
     }
     
@@ -96,7 +96,7 @@ function registerUser($fullName, $email, $phone, $password, $refCode = '') {
             'ref_code' => $refCode
         ];
         
-        $result = $viewDataService->registerUser($userData);
+        $result = $publicService->registerUser($userData);
         
         if ($result && $result['success']) {
             $user = $result['user'];
@@ -124,10 +124,10 @@ function registerUser($fullName, $email, $phone, $password, $refCode = '') {
 }
 
 /**
- * Tạo Device ID ngẫu nhiên
+ * Tạo Device ID
  */
 function generateDeviceId() {
-    return 'DEV_' . uniqid() . '_' . rand(1000, 9999);
+    return 'DEV_' . bin2hex(random_bytes(8));
 }
 
 /**
@@ -198,15 +198,15 @@ function getCurrentUser() {
  * Cập nhật mật khẩu người dùng
  */
 function updateUserPassword($userId, $currentPassword, $newPassword) {
-    global $viewDataService;
+    global $publicService;
     
-    // Ensure ViewDataService is available
-    if (!isset($viewDataService)) {
+    // Ensure PublicService is available
+    if (!isset($publicService)) {
         require_once __DIR__ . '/../../../core/view_init.php';
     }
     
     try {
-        $result = $viewDataService->updateUserPassword($userId, $currentPassword, $newPassword);
+        $result = $publicService->updateUserPassword($userId, $currentPassword, $newPassword);
         return $result['success'] ?? false;
     } catch (Exception $e) {
         error_log("Password update error: " . $e->getMessage());
@@ -218,10 +218,10 @@ function updateUserPassword($userId, $currentPassword, $newPassword) {
  * Reset mật khẩu qua email/phone
  */
 function resetPassword($contact, $newPassword, $verificationCode) {
-    global $viewDataService;
+    global $publicService;
     
-    // Ensure ViewDataService is available
-    if (!isset($viewDataService)) {
+    // Ensure PublicService is available
+    if (!isset($publicService)) {
         require_once __DIR__ . '/../../../core/view_init.php';
     }
     
@@ -239,7 +239,7 @@ function resetPassword($contact, $newPassword, $verificationCode) {
             throw new Exception('Mã xác thực đã hết hạn');
         }
         
-        $result = $viewDataService->resetUserPassword($contact, $newPassword);
+        $result = $publicService->resetUserPassword($contact, $newPassword);
         
         if ($result['success']) {
             // Xóa session reset
@@ -258,15 +258,15 @@ function resetPassword($contact, $newPassword, $verificationCode) {
  * Gửi mã xác thực reset password
  */
 function sendResetCode($contact) {
-    global $viewDataService;
+    global $publicService;
     
-    // Ensure ViewDataService is available
-    if (!isset($viewDataService)) {
+    // Ensure PublicService is available
+    if (!isset($publicService)) {
         require_once __DIR__ . '/../../../core/view_init.php';
     }
     
     try {
-        $result = $viewDataService->sendPasswordResetCode($contact);
+        $result = $publicService->sendPasswordResetCode($contact);
         
         if ($result['success']) {
             // Lưu vào session

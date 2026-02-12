@@ -4,30 +4,48 @@
  * Lịch sử hoa hồng với phân biệt Subscription vs Logistics
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../../models/OrdersModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
-$ordersModel = new OrdersModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
+
+// Initialize data variables
+$history = [];
+$overview = [];
 
 try {
-    // Get current affiliate ID from session
-    $affiliateId = $_SESSION['user_id'] ?? 1;
-    
-    // Get commission history from database
-    $dashboardData = $affiliateModel->getDashboardData($affiliateId);
-    $history = $dashboardData['recent_orders'] ?? [];
-    $overview = $commissionsData['overview'] ?? [];
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        $history = $dashboardData['recent_customers'] ?? [];
+        $overview = [
+            'total_commission' => $dashboardData['stats']['total_commission'] ?? 0,
+            'pending_commission' => $dashboardData['stats']['pending_commission'] ?? 0,
+            'paid_commission' => $dashboardData['stats']['paid_commission'] ?? 0
+        ];
+    }
 } catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_commissions_history', []);
     error_log("Commission History Error: " . $e->getMessage());
-    exit;
 }
 
 // Set page info cho master layout
 $page_title = 'Lịch sử hoa hồng';
 $page_module = 'commissions';
 $page_action = 'history';
+
+// Include master layout
+ob_start();
+?>
 
 // Include master layout
 ob_start();

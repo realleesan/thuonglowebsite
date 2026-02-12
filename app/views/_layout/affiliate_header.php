@@ -2,21 +2,10 @@
 /**
  * Affiliate Header
  * Design System: Giống Admin
+ * 
+ * Note: $affiliateInfo is already available from dashboard.php via $service->getDashboardData()
+ * No need to initialize or call service here
  */
-
-// Load Models
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
-
-$affiliateModel = new AffiliateModel();
-
-// Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 1;
-
-// Get affiliate info from database
-$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
-if (!$affiliateInfo) {
-    $affiliateInfo = ['name' => 'Demo User', 'email' => 'demo@example.com'];
-}
 ?>
 
 <header class="affiliate-header">

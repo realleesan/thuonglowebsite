@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get filters
     $search = $_GET['search'] ?? '';
     $status_filter = $_GET['status'] ?? '';
@@ -18,13 +17,13 @@ try {
     ];
     
     // Get contacts data from service
-    $contactsData = $viewDataService->getAdminContactsData($current_page, $per_page, $filters);
+    $contactsData = $service->getContactsData($current_page, $per_page, $filters);
     $paged_contacts = $contactsData['contacts'];
     $total_contacts = $contactsData['total'];
     $total_pages = $contactsData['pagination']['last_page'];
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Contacts Error', $e);
+    $errorHandler->logError('Admin Contacts Error', $e);
     $paged_contacts = [];
     $total_contacts = 0;
     $total_pages = 1;

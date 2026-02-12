@@ -1,13 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Events Add Error', $e);
+    $errorHandler->logError('Admin Events Add Error', $e);
     header('Location: ?page=admin&module=events&error=1');
     exit;
 }
@@ -26,7 +23,7 @@ $form_data = [
     'image' => ''
 ];
 
-// Handle form submission (demo - không lưu thật)
+// Handle form submission
 $errors = [];
 $success = false;
 

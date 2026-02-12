@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get affiliate ID from URL
     $affiliate_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get affiliate data using ViewDataService
-    $affiliateData = $viewDataService->getAdminAffiliateDetailsData($affiliate_id);
+    // Get affiliate data using AdminService
+    $affiliateData = $service->getAffiliateDetailsData($affiliate_id);
     $affiliate = $affiliateData['affiliate'];
     
     // Redirect if affiliate not found
@@ -31,7 +26,7 @@ try {
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -51,24 +46,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Mã giới thiệu phải có ít nhất 3 ký tự';
     } elseif (!preg_match('/^[A-Z0-9]+$/', $referral_code)) {
         $errors[] = 'Mã giới thiệu chỉ được chứa chữ cái in hoa và số';
+    } elseif ($service->checkReferralCodeExists($referral_code, $affiliate_id)) {
+        $errors[] = 'Mã giới thiệu đã tồn tại';
     }
     
-    // Check if referral code already exists (except current)
-    foreach ($affiliates as $item) {
-        if ($item['id'] != $affiliate_id && strtoupper($item['referral_code']) === strtoupper($referral_code)) {
-            $errors[] = 'Mã giới thiệu đã tồn tại';
-            break;
-        }
-    }
-    
-    // If no errors, simulate save (demo)
+    // If no errors, update database
     if (empty($errors)) {
-        $success = true;
-        // Update affiliate data for display
-        $affiliate['commission_rate'] = $commission_rate;
-        $affiliate['referral_code'] = strtoupper($referral_code);
-        $affiliate['status'] = $status;
-        // In real app: save to database
+        $affiliateData = [
+            'commission_rate' => $commission_rate,
+            'referral_code' => strtoupper($referral_code),
+            'status' => $status
+        ];
+        $updated = $service->updateAffiliate($affiliate_id, $affiliateData);
+        if ($updated) {
+            header('Location: ?page=admin&module=affiliates&action=view&id=' . $affiliate_id . '&success=updated');
+            exit;
+        } else {
+            $errors[] = 'Không thể cập nhật đại lý';
+        }
     }
 }
 
@@ -103,7 +98,7 @@ function formatPrice($price) {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Cập nhật thông tin đại lý thành công! (Demo - dữ liệu không được lưu thật)
+            Cập nhật thông tin đại lý thành công!
         </div>
     <?php endif; ?>
 

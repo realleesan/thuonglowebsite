@@ -4,29 +4,45 @@
  * Affiliate links, QR code, Banners, Social share
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
-// Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 1; // Default for demo
+// Initialize data variables
+$affiliateInfo = [
+    'referral_code' => '',
+    'name' => ''
+];
+$campaigns = [];
 
-// Get affiliate data from database
-$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
-if (!$affiliateInfo) {
-    $affiliateInfo = ['referral_code' => 'DEMO001', 'name' => 'Demo User'];
+try {
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        if ($affiliateId > 0) {
+            // Get dashboard data từ AffiliateService
+            $dashboardData = $service->getDashboardData($affiliateId);
+            $affiliateInfo = $dashboardData['affiliate'] ?? $affiliateInfo;
+        }
+    }
+    
+    // Generate marketing data
+    $referralCode = $affiliateInfo['referral_code'] ?? '';
+    $affiliateLink = !empty($referralCode) ? base_url() . '?ref=' . urlencode($referralCode) : '';
+    $qrCodeUrl = !empty($affiliateLink) ? "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($affiliateLink) : '';
+    
+} catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_marketing', []);
+    $affiliateLink = '';
+    $qrCodeUrl = '';
 }
 
-// Generate marketing data
-$affiliateLink = "https://thuonglo.com/?ref=" . $affiliateInfo['referral_code'];
-$qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($affiliateLink);
-
-// Demo campaigns and banners
-$campaigns = [
-    ['id' => 1, 'name' => 'Summer Sale 2024', 'status' => 'active', 'clicks' => rand(100, 500)],
-    ['id' => 2, 'name' => 'New Product Launch', 'status' => 'paused', 'clicks' => rand(50, 200)]
-];
+// Include master layout
+ob_start();
+?>
 
 $banners = [
     ['id' => 1, 'name' => 'Banner 728x90', 'size' => '728x90', 'url' => 'assets/images/banners/728x90.jpg'],

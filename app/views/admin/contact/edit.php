@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get contact ID from URL
     $contact_id = (int)($_GET['id'] ?? 0);
     
-    // Get contact details using ViewDataService
-    $contactData = $viewDataService->getAdminContactDetailsData($contact_id);
+    // Get contact details using AdminService
+    $contactData = $service->getContactDetailsData($contact_id);
     $contact = $contactData['contact'];
     
     // Redirect if contact not found
@@ -20,12 +16,12 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Contact Edit Error', $e);
+    $errorHandler->logError('Admin Contact Edit Error', $e);
     header('Location: ?page=admin&module=contact&error=system_error');
     exit;
 }
 
-// Handle form submission (demo - không lưu thật)
+// Handle form submission
 $success_message = '';
 $error_message = '';
 
@@ -37,9 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($new_status)) {
         $error_message = 'Vui lòng chọn trạng thái.';
     } else {
-        // Demo success message
-        $success_message = 'Cập nhật trạng thái liên hệ thành công!';
-        $contact['status'] = $new_status; // Update for display
+        // Update contact status in database
+        $updated = $service->updateContactStatus($contact_id, $new_status, $admin_notes);
+        if ($updated) {
+            $success_message = 'Cập nhật trạng thái liên hệ thành công!';
+            $contact['status'] = $new_status;
+        } else {
+            $error_message = 'Không thể cập nhật trạng thái';
+        }
     }
 }
 

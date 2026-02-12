@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get filter parameters
     $filters = [
         'search' => $_GET['search'] ?? '',
@@ -16,8 +11,8 @@ try {
     $current_page = max(1, (int)($_GET['page'] ?? 1));
     $per_page = 10;
     
-    // Get news data using ViewDataService
-    $newsData = $viewDataService->getAdminNewsData($current_page, $per_page, $filters);
+    // Get news data using AdminService
+    $newsData = $service->getNewsData($current_page, $per_page, $filters);
     $news = $newsData['news'];
     $pagination = $newsData['pagination'];
     $stats = $newsData['stats'];

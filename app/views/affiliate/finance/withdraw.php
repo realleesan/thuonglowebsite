@@ -4,30 +4,50 @@
  * Form rút tiền với validation
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
-// Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 1;
-
-// Get affiliate data from database
-$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
-if (!$affiliateInfo) {
-    $affiliateInfo = ['pending_commission' => 0, 'paid_commission' => 0];
-}
-
+// Initialize data variables
 $wallet = [
-    'balance' => $affiliateInfo['pending_commission'],
-    'total_withdrawn' => $affiliateInfo['paid_commission']
+    'balance' => 0,
+    'total_withdrawn' => 0
 ];
-
-$bankAccounts = []; // Demo - in real app get from database
+$bankAccounts = [];
 $withdrawalSettings = ['min_amount' => 100000, 'fee_percentage' => 2];
 
-// Generate unique withdrawal code
-$withdrawalCode = 'WD-' . date('Ymd') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+try {
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        // Get finance data từ AffiliateService
+        $financeData = $service->getFinanceData($affiliateId);
+        
+        $wallet = [
+            'balance' => $financeData['balance'] ?? 0,
+            'total_withdrawn' => $financeData['paid_commission'] ?? 0
+        ];
+    }
+} catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_withdraw', []);
+}
+
+// Generate withdrawal reference code
+$withdrawalCode = 'WD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
+
+// Include master layout
+ob_start();
+?>
 
 // Page title
 $page_title = 'Yêu cầu rút tiền';

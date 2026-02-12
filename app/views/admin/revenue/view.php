@@ -1,11 +1,7 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get filters from URL
     $filters = [
         'date_from' => $_GET['date_from'] ?? '',
@@ -15,8 +11,8 @@ try {
         'affiliate_id' => $_GET['affiliate_id'] ?? ''
     ];
     
-    // Get revenue data using ViewDataService
-    $revenueData = $viewDataService->getAdminRevenueData($filters);
+    // Get revenue data using AdminService
+    $revenueData = $service->getRevenueData($filters);
     $filtered_orders = $revenueData['orders'];
     $products = $revenueData['products'];
     $users = $revenueData['users'];
@@ -24,7 +20,7 @@ try {
     $revenue_stats = $revenueData['stats'];
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Revenue View Error', $e);
+    $errorHandler->logError('Admin Revenue View Error', $e);
     $filtered_orders = [];
     $products = [];
     $users = [];

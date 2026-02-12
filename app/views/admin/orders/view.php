@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get order ID from URL
     $order_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get order data using ViewDataService
-    $orderData = $viewDataService->getAdminOrderDetailsData($order_id);
+    // Get order data using AdminService
+    $orderData = $service->getOrderDetailsData($order_id);
     $order = $orderData['order'];
     $user = $orderData['user'];
     $orderItems = $orderData['order_items'];

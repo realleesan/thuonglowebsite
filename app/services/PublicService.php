@@ -587,6 +587,217 @@ class PublicService extends BaseService
         return $categories;
     }
 
+    // ==================== AUTH ACTION METHODS ====================
+
+    /**
+     * Authenticate user login.
+     */
+    public function authenticateUser($login, $password)
+    {
+        try {
+            $usersModel = $this->getModel('UsersModel');
+            if (!$usersModel) {
+                return ['success' => false, 'message' => 'Đã xảy ra lỗi trong quá trình đăng nhập'];
+            }
+
+            $user = $usersModel->authenticate($login, $password);
+
+            if ($user) {
+                return ['success' => true, 'user' => $user];
+            }
+
+            return ['success' => false, 'message' => 'Tên đăng nhập hoặc mật khẩu không đúng'];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('PublicService::authenticateUser error: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Đã xảy ra lỗi trong quá trình đăng nhập'];
+        }
+    }
+
+    /**
+     * Register new user.
+     */
+    public function registerUser($userData)
+    {
+        try {
+            $usersModel = $this->getModel('UsersModel');
+            $affiliateModel = $this->getModel('AffiliateModel');
+
+            if (!$usersModel) {
+                return ['success' => false, 'message' => 'Không thể tạo tài khoản'];
+            }
+
+            // Kiểm tra referral code nếu có
+            $referralInfo = null;
+            if (!empty($userData['ref_code']) && $affiliateModel) {
+                $affiliate = $affiliateModel->getByReferralCode($userData['ref_code']);
+                if ($affiliate) {
+                    $referralInfo = [
+                        'referred_by' => $affiliate['user_id'],
+                        'referral_code' => $userData['ref_code'],
+                    ];
+                }
+            }
+
+            $user = $usersModel->register([
+                'name' => $userData['name'],
+                'email' => $userData['email'],
+                'phone' => $userData['phone'],
+                'password' => $userData['password'],
+                'role' => 'user',
+                'status' => 'active',
+            ]);
+
+            if ($user) {
+                return ['success' => true, 'user' => $user, 'referral_info' => $referralInfo];
+            }
+
+            return ['success' => false, 'message' => 'Không thể tạo tài khoản'];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('PublicService::registerUser error: ' . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Update user password.
+     */
+    public function updateUserPassword($userId, $currentPassword, $newPassword)
+    {
+        try {
+            $usersModel = $this->getModel('UsersModel');
+            if (!$usersModel) {
+                return ['success' => false, 'message' => 'Không thể cập nhật mật khẩu'];
+            }
+
+            $user = $usersModel->find($userId);
+            if (!$user) {
+                return ['success' => false, 'message' => 'Người dùng không tồn tại'];
+            }
+
+            if (!password_verify($currentPassword, $user['password'])) {
+                return ['success' => false, 'message' => 'Mật khẩu hiện tại không đúng'];
+            }
+
+            $result = $usersModel->updatePassword($userId, $newPassword);
+
+            return [
+                'success' => $result,
+                'message' => $result ? 'Cập nhật mật khẩu thành công' : 'Không thể cập nhật mật khẩu',
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('PublicService::updateUserPassword error: ' . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Reset user password.
+     */
+    public function resetUserPassword($contact, $newPassword)
+    {
+        try {
+            $usersModel = $this->getModel('UsersModel');
+            if (!$usersModel) {
+                return ['success' => false, 'message' => 'Không thể đặt lại mật khẩu'];
+            }
+
+            $user = $usersModel->db->table('users')
+                ->where('email', $contact)
+                ->orWhere('phone', $contact)
+                ->first();
+
+            if (!$user) {
+                return ['success' => false, 'message' => 'Không tìm thấy tài khoản với thông tin này'];
+            }
+
+            $result = $usersModel->updatePassword($user['id'], $newPassword);
+
+            return [
+                'success' => $result,
+                'message' => $result ? 'Đặt lại mật khẩu thành công' : 'Không thể đặt lại mật khẩu',
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('PublicService::resetUserPassword error: ' . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Send password reset code.
+     */
+    public function sendPasswordResetCode($contact)
+    {
+        try {
+            $usersModel = $this->getModel('UsersModel');
+            if (!$usersModel) {
+                return ['success' => false, 'message' => 'Không thể gửi mã xác thực'];
+            }
+
+            $user = $usersModel->db->table('users')
+                ->where('email', $contact)
+                ->orWhere('phone', $contact)
+                ->first();
+
+            if (!$user) {
+                return ['success' => false, 'message' => 'Không tìm thấy tài khoản với thông tin này'];
+            }
+
+            $code = rand(100000, 999999);
+            error_log("Reset code for {$contact}: {$code}");
+
+            return ['success' => true, 'code' => $code, 'message' => 'Mã xác thực đã được gửi'];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('PublicService::sendPasswordResetCode error: ' . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Handle empty state data.
+     */
+    public function handleEmptyState(string $type): array
+    {
+        $emptyStates = [
+            'home' => [
+                'featured_products' => [], 'latest_products' => [],
+                'featured_categories' => [], 'latest_news' => [],
+                'message' => 'Đang cập nhật dữ liệu, vui lòng thử lại sau',
+            ],
+            'products' => [
+                'products' => [], 'pagination' => ['current_page' => 1, 'total' => 0],
+                'message' => 'Chưa có sản phẩm nào',
+            ],
+            'product_details' => [
+                'product' => null, 'category' => null, 'related_products' => [],
+                'message' => 'Không tìm thấy sản phẩm',
+            ],
+            'contact' => [
+                'contact' => [
+                    'office_address' => 'Đang cập nhật', 'phone' => 'Đang cập nhật',
+                    'hotline' => 'Đang cập nhật', 'email' => 'Đang cập nhật',
+                    'working_hours_weekday' => 'Đang cập nhật', 'working_hours_weekend' => 'Đang cập nhật',
+                ],
+                'message' => 'Không thể tải thông tin liên hệ',
+            ],
+            'auth_login' => [
+                'remembered_phone' => '', 'remembered_role' => 'user',
+                'page_title' => 'Đăng nhập', 'form_action' => '#',
+            ],
+            'auth_register' => [
+                'ref_code_from_url' => '', 'page_title' => 'Đăng ký',
+                'form_action' => '#', 'login_url' => '#',
+            ],
+            'auth_forgot' => [
+                'step' => 'input', 'reset_contact' => '',
+                'page_title' => 'Khôi phục tài khoản', 'form_action' => '#', 'login_url' => '#',
+            ],
+        ];
+
+        return $emptyStates[$type] ?? ['message' => 'Không có dữ liệu'];
+    }
+
+    // ==================== HELPERS ====================
+
     /**
      * Tính toán pagination giống ViewDataService.
      */

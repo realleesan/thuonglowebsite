@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get product ID from URL
     $product_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get product data using ViewDataService
-    $productData = $viewDataService->getAdminProductDetailsData($product_id);
+    // Get product data using AdminService
+    $productData = $service->getProductDetailsData($product_id);
     $product = $productData['product'];
     
     // Redirect if product not found
@@ -25,8 +20,9 @@ try {
         exit;
     }
     
-    // Check if product has orders (demo - in real app would use ViewDataService)
-    $has_orders = rand(0, 1); // Demo
+    // Check if product has orders using AdminService
+    $hasOrdersData = $service->checkProductHasOrders($product_id);
+    $has_orders = $hasOrdersData['has_orders'] ?? false;
     $can_delete = !$has_orders;
     
 } catch (Exception $e) {
@@ -43,10 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
     if (!$can_delete) {
         $error = 'Không thể xóa sản phẩm này vì đã có đơn hàng liên quan.';
     } else {
-        // In real app: use ViewDataService to delete
-        $success = true;
-        header('Location: ?page=admin&module=products&success=deleted');
-        exit;
+        // Delete product using AdminService
+        $deleted = $service->deleteProduct($product_id);
+        if ($deleted) {
+            header('Location: ?page=admin&module=products&success=deleted');
+            exit;
+        } else {
+            $error = 'Không thể xóa sản phẩm';
+        }
     }
 }
 

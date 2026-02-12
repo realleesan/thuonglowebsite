@@ -6,6 +6,9 @@
 // 1. Khởi tạo View an toàn
 require_once __DIR__ . '/../../../core/view_init.php';
 
+// 2. Chọn service phù hợp (ưu tiên biến được inject từ routing)
+$service = isset($currentService) ? $currentService : ($publicService ?? null);
+
 // Get product ID from URL
 $productId = $_GET['id'] ?? null;
 
@@ -22,7 +25,7 @@ try {
     }
     
     // Get product details
-    $productData = $viewDataService->getProductDetailsData($productId);
+    $productData = $service->getProductDetailsData($productId);
     $product = $productData['product'] ?? null;
     $category = $productData['category'] ?? null;
     $relatedProducts = $productData['related_products'] ?? [];

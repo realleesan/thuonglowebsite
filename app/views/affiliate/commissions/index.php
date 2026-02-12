@@ -4,32 +4,52 @@
  * Tổng quan hoa hồng
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
+
+// Initialize data variables
+$overview = [
+    'total_commission' => 0,
+    'pending_commission' => 0,
+    'paid_commission' => 0,
+    'total_earned' => 0,
+    'from_subscription' => 0,
+    'from_logistics' => 0,
+    'pending' => 0,
+    'paid' => 0
+];
+$history = [];
 
 try {
-    // Get current affiliate ID from session
-    $affiliateId = $_SESSION['user_id'] ?? 1;
-    
-    // Get affiliate data from database
-    $affiliateInfo = $affiliateModel->getWithUser($affiliateId);
-    if (!$affiliateInfo) {
-        $affiliateInfo = ['total_commission' => 0, 'pending_commission' => 0, 'paid_commission' => 0];
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        // Get commissions data từ AffiliateService
+        $commissionsData = $service->getCommissionsData($affiliateId);
+        
+        $overview['total_commission'] = $commissionsData['total_commission'] ?? 0;
+        $overview['pending_commission'] = $commissionsData['pending_commission'] ?? 0;
+        $overview['paid_commission'] = $commissionsData['paid_commission'] ?? 0;
+        $overview['total_earned'] = $overview['total_commission'];
+        $overview['from_subscription'] = $overview['total_commission'] * 0.7;
+        $overview['from_logistics'] = $overview['total_commission'] * 0.3;
+        $overview['pending'] = $overview['pending_commission'];
+        $overview['paid'] = $overview['paid_commission'];
     }
-    
-    $overview = [
-        'total_commission' => $affiliateInfo['total_commission'],
-        'pending_commission' => $affiliateInfo['pending_commission'],
-        'paid_commission' => $affiliateInfo['paid_commission']
-    ];
-    $history = $commissionsData['history'] ?? [];
 } catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_commissions', []);
     error_log('Commissions Error: ' . $e->getMessage());
-    // Set default values for demo
-    $overview = ['total_commission' => 0, 'pending_commission' => 0, 'paid_commission' => 0];
-    $history = [];
 }
 
 // Set page info cho master layout

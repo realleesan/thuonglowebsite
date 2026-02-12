@@ -4,46 +4,59 @@
  * Chi tiết khách hàng
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../../models/UsersModel.php';
-require_once __DIR__ . '/../../../../models/OrdersModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
-$usersModel = new UsersModel();
-$ordersModel = new OrdersModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
+
+// Initialize data variables
+$customer = [
+    'name' => '',
+    'email' => '',
+    'phone' => '',
+    'total_orders' => 0,
+    'total_spent' => 0,
+    'joined_date' => date('Y-m-d'),
+    'status' => 'active'
+];
+$customers = [$customer];
 
 try {
-    // Get customer ID from URL
-    $customerId = (int)($_GET['id'] ?? 0);
-    
-    // Get customer data from database
-    $customer = $usersModel->getById($customerId);
-    $customers = [$customer]; // For compatibility
-    
-    // Get customer ID from URL
-    $customerId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    
-    // Find customer by ID
-    $customer = null;
-    foreach ($customers as $c) {
-        if ($c['id'] === $customerId) {
-            $customer = $c;
-            break;
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        // Get customer ID from URL
+        $customerId = (int)($_GET['id'] ?? 0);
+        
+        if ($customerId > 0) {
+            // Get customers data từ AffiliateService
+            $customersData = $service->getCustomersData($affiliateId);
+            $customersList = $customersData['customers'] ?? [];
+            
+            // Find customer by ID
+            foreach ($customersList as $c) {
+                if ($c['id'] === $customerId) {
+                    $customer = $c;
+                    break;
+                }
+            }
+            $customers = [$customer];
         }
+    } else {
+        throw new Exception('AffiliateService not available');
     }
-    
-    // If customer not found, redirect to list
-    if (!$customer) {
-        header('Location: ?page=affiliate&module=customers&action=list');
-        exit;
-    }
-    
 } catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_customer_detail', []);
     error_log('Customer Detail Error: ' . $e->getMessage());
-    // Set default values for demo
-    $customer = ['name' => 'Demo Customer', 'email' => 'demo@example.com'];
-    $customers = [$customer];
 }
 
 // Set page info cho master layout

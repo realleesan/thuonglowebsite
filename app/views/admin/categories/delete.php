@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get category ID from URL
     $category_id = (int)($_GET['id'] ?? 0);
     
@@ -15,7 +14,7 @@ try {
     }
     
     // Get category data from service
-    $categoryData = $viewDataService->getAdminCategoryDetailsData($category_id);
+    $categoryData = $service->getCategoryDetailsData($category_id);
     $category = $categoryData['category'];
     $category_products = $categoryData['products'];
     
@@ -26,11 +25,11 @@ try {
     }
     
     // Get all categories for move modal
-    $allCategoriesData = $viewDataService->getActiveCategoriesForDropdown();
+    $allCategoriesData = $service->getActiveCategoriesForDropdown();
     $allCategories = $allCategoriesData['categories'];
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Categories Delete Error', $e);
+    $errorHandler->logError('Admin Categories Delete Error', $e);
     header('Location: ?page=admin&module=categories&error=1');
     exit;
 }
@@ -39,7 +38,7 @@ $has_products = !empty($category_products);
 $errors = [];
 $success = false;
 
-// Handle form submission (demo)
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm = $_POST['confirm'] ?? '';
     

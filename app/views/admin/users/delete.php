@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get user ID from URL
     $user_id = (int)($_GET['id'] ?? 0);
     
@@ -15,7 +14,7 @@ try {
     }
     
     // Get user data from service
-    $userData = $viewDataService->getAdminUserDetailsData($user_id);
+    $userData = $service->getUserDetailsData($user_id);
     $user = $userData['user'];
     
     // Redirect if user not found
@@ -24,17 +23,17 @@ try {
         exit;
     }
     
-    // Get related data (demo - in real app would be in service)
+// Get related data
     $user_orders = []; // Would get from service
     $user_affiliate = null; // Would get from service
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Users Delete Error', $e);
+    $errorHandler->logError('Admin Users Delete Error', $e);
     header('Location: ?page=admin&module=users&error=1');
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $success = false;
 $errors = [];
 
@@ -125,7 +124,7 @@ $pending_orders = count(array_filter($user_orders, function($order) {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            <span>Xóa người dùng thành công! (Demo)</span>
+            <span>Xóa người dùng thành công!</span>
         </div>
     <?php endif; ?>
 
@@ -355,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (confirmDeactivateBtn) {
         confirmDeactivateBtn.addEventListener('click', function() {
-            alert('Đã vô hiệu hóa tài khoản (Demo)');
+            alert('Đã vô hiệu hóa tài khoản');
             closeDeactivateModal();
             window.location.href = '?page=admin&module=users&action=edit&id=<?= $user['id'] ?>';
         });

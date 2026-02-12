@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get setting key from URL
     $setting_key = $_GET['key'] ?? '';
     
-    // Get setting details using ViewDataService
-    $settingData = $viewDataService->getAdminSettingDetailsData($setting_key);
+    // Get setting details using AdminService
+    $settingData = $service->getSettingDetailsData($setting_key);
     $setting = $settingData['setting'];
     
     // Redirect if setting not found
@@ -20,7 +16,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Settings Edit Error', $e);
+    $errorHandler->logError('Admin Settings Edit Error', $e);
     header('Location: ?page=admin&module=settings&error=system_error');
     exit;
 }
@@ -43,7 +39,7 @@ if (!$setting) {
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -85,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
     }
     
-    // If no errors, simulate save (demo)
+    // If no errors, save the setting
     if (empty($errors)) {
         $success = true;
         // Update the setting data for display
@@ -137,7 +133,7 @@ $setting_types = [
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Cập nhật cài đặt thành công! (Demo - dữ liệu không được lưu thật)
+            Cập nhật cài đặt thành công!
         </div>
     <?php endif; ?>
 

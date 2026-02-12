@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get event ID
     $event_id = (int)($_GET['id'] ?? 0);
     
@@ -15,7 +14,7 @@ try {
     }
     
     // Get event data from service
-    $eventData = $viewDataService->getAdminEventDetailsData($event_id);
+    $eventData = $service->getEventDetailsData($event_id);
     $current_event = $eventData['event'];
     
     // Redirect if event not found
@@ -25,7 +24,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Events View Error', $e);
+    $errorHandler->logError('Admin Events View Error', $e);
     header('Location: ?page=admin&module=events&error=1');
     exit;
 }
@@ -301,15 +300,15 @@ $status_info = getEventStatusInfo($current_event['status']);
                         <div class="registration-stats">
                             <div class="reg-stat">
                                 <span class="reg-label">Đăng ký hôm nay:</span>
-                                <span class="reg-value"><?= rand(0, 10) ?></span>
+                                <span class="reg-value"><?= $today_registrations ?? 0 ?></span>
                             </div>
                             <div class="reg-stat">
                                 <span class="reg-label">Đăng ký tuần này:</span>
-                                <span class="reg-value"><?= rand(5, 25) ?></span>
+                                <span class="reg-value"><?= $week_registrations ?? 0 ?></span>
                             </div>
                             <div class="reg-stat">
                                 <span class="reg-label">Tỷ lệ hủy:</span>
-                                <span class="reg-value"><?= rand(2, 8) ?>%</span>
+                                <span class="reg-value"><?= $cancellation_rate ?? 0 ?>%</span>
                             </div>
                         </div>
                     </div>
@@ -352,7 +351,7 @@ $status_info = getEventStatusInfo($current_event['status']);
                                         <td>Người tham gia <?= $i ?></td>
                                         <td>user<?= $i ?>@example.com</td>
                                         <td>090123456<?= $i ?></td>
-                                        <td><?= date('d/m/Y', strtotime('-' . rand(1, 30) . ' days')) ?></td>
+                                        <td><?= date('d/m/Y', strtotime('-5 days')) ?></td>
                                         <td>
                                             <span class="status-badge status-confirmed">Đã xác nhận</span>
                                         </td>

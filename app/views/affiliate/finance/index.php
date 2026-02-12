@@ -4,40 +4,47 @@
  * Hiển thị số dư, lịch sử giao dịch
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../../models/OrdersModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
-$ordersModel = new OrdersModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
-// Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 1; // Default for demo
-
-// Get affiliate data from database
-$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
-if (!$affiliateInfo) {
-    $affiliateInfo = [
-        'total_commission' => 0,
-        'paid_commission' => 0,
-        'pending_commission' => 0
-    ];
-}
-
-// Wallet data from affiliate info
+// Initialize data variables
 $wallet = [
-    'balance' => $affiliateInfo['pending_commission'],
-    'total_earned' => $affiliateInfo['total_commission'],
-    'total_withdrawn' => $affiliateInfo['paid_commission'],
-    'pending' => $affiliateInfo['pending_commission']
+    'balance' => 0,
+    'total_earned' => 0,
+    'total_withdrawn' => 0,
+    'pending' => 0
 ];
+$transactions = [];
 
-// Demo transactions (in real app, get from database)
-$transactions = [
-    ['id' => 1, 'type' => 'commission', 'amount' => 50000, 'date' => date('Y-m-d H:i:s', strtotime('-1 day')), 'status' => 'completed'],
-    ['id' => 2, 'type' => 'withdrawal', 'amount' => -100000, 'date' => date('Y-m-d H:i:s', strtotime('-3 days')), 'status' => 'completed'],
-    ['id' => 3, 'type' => 'commission', 'amount' => 75000, 'date' => date('Y-m-d H:i:s', strtotime('-5 days')), 'status' => 'completed']
-];
+try {
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        // Get finance data từ AffiliateService
+        $financeData = $service->getFinanceData($affiliateId);
+        
+        $wallet = [
+            'balance' => $financeData['balance'] ?? 0,
+            'total_earned' => $financeData['pending_commission'] + $financeData['paid_commission'],
+            'total_withdrawn' => $financeData['paid_commission'] ?? 0,
+            'pending' => $financeData['pending_commission'] ?? 0
+        ];
+    }
+} catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_finance', []);
+    error_log('Finance Error: ' . $e->getMessage());
+}
 
 $withdrawalSettings = [
     'min_amount' => 100000,
@@ -66,19 +73,6 @@ ob_start();
             <i class="fas fa-money-bill-wave"></i>
             <span>Rút tiền</span>
         </a>
-    </div>
-</div>
-
-<!-- Webhook Demo Info -->
-<div class="alert alert-info" style="margin-bottom: 24px;">
-    <i class="fas fa-flask"></i>
-    <div class="alert-content">
-        <strong>Chế độ Demo:</strong>
-        <p style="margin: 8px 0 0 0;">
-            Để test tính năng nhận hoa hồng tự động và duyệt lệnh rút tiền, 
-            hãy truy cập <a href="?page=affiliate&module=finance&action=webhook_demo" style="color: #356DF1; font-weight: 600;">
-            <i class="fas fa-external-link-alt"></i> Trang Webhook Demo</a>
-        </p>
     </div>
 </div>
 

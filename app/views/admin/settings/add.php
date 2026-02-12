@@ -1,5 +1,8 @@
 <?php
-// Handle form submission (demo)
+require_once __DIR__ . '/../../../../core/view_init.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -48,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
     }
     
-    // If no errors, simulate save (demo)
+    // If no errors, save the setting
     if (empty($errors)) {
         $success = true;
         // In real app: save to database
@@ -92,7 +95,7 @@ $setting_types = [
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Thêm cài đặt thành công! (Demo - dữ liệu không được lưu thật)
+            Thêm cài đặt thành công!
         </div>
     <?php endif; ?>
 

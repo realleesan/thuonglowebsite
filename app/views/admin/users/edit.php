@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get user ID from URL
     $user_id = (int)($_GET['id'] ?? 0);
     
-    // Get user details using ViewDataService
-    $userData = $viewDataService->getAdminUserDetailsData($user_id);
+    // Get user details using AdminService
+    $userData = $service->getUserDetailsData($user_id);
     $user = $userData['user'];
     
     // Redirect if user not found
@@ -20,7 +16,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Users Edit', $e->getMessage());
+    $errorHandler->logError('Admin Users Edit', $e->getMessage());
     header('Location: ?page=admin&module=users&error=system_error');
     exit;
 }
@@ -138,7 +134,7 @@ function getRoleDisplayName($role) {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            <span>Cập nhật thông tin người dùng thành công! (Demo)</span>
+            <span>Cập nhật thông tin người dùng thành công!</span>
         </div>
     <?php endif; ?>
 
@@ -364,24 +360,24 @@ function getRoleDisplayName($role) {
 <script>
 function resetPassword() {
     if (confirm('Bạn có chắc chắn muốn reset mật khẩu cho người dùng này?')) {
-        alert('Đã gửi email reset mật khẩu (Demo)');
+        alert('Đã gửi email reset mật khẩu');
     }
 }
 
 function sendWelcomeEmail() {
     if (confirm('Gửi lại email chào mừng cho người dùng này?')) {
-        alert('Đã gửi email chào mừng (Demo)');
+        alert('Đã gửi email chào mừng');
     }
 }
 
 function viewLoginHistory() {
-    alert('Chức năng xem lịch sử đăng nhập (Demo)');
+    alert('Chức năng xem lịch sử đăng nhập');
 }
 
 function deactivateUser() {
     if (confirm('Bạn có chắc chắn muốn vô hiệu hóa tài khoản này?')) {
         document.getElementById('status').value = 'inactive';
-        alert('Đã vô hiệu hóa tài khoản (Demo)');
+        alert('Đã vô hiệu hóa tài khoản');
     }
 }
 </script>

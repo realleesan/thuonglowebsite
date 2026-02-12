@@ -43,8 +43,8 @@ try {
     $showErrorMessage = true;
     $errorMessage = $result['message'];
     
-    // Use empty state data
-    $emptyState = $viewDataService->handleEmptyState('admin_dashboard');
+    // Use empty state data - use service's handleEmptyState method
+    $emptyState = $service->handleEmptyState('admin_dashboard');
     $stats = $emptyState['product_stats'] ?? [];
     $trends = [];
     $alerts = [];

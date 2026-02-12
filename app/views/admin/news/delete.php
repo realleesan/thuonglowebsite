@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get news ID
     $news_id = (int)($_GET['id'] ?? 0);
     
@@ -15,7 +14,7 @@ try {
     }
     
     // Get news data from service
-    $newsData = $viewDataService->getAdminNewsDetailsData($news_id);
+    $newsData = $service->getNewsDetailsData($news_id);
     $current_news = $newsData['news'];
     
     // Redirect if news not found
@@ -25,13 +24,14 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin News Delete Error', $e);
+    $errorHandler->logError('Admin News Delete Error', $e);
     header('Location: ?page=admin&module=news&error=1');
     exit;
 }
 
-// Handle form submission (demo - không xóa thật)
+// Handle form submission
 $errors = [];
+$success = false;
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -154,7 +154,7 @@ function getWordCount($text) {
             </div>
             <div class="info-item">
                 <label>Lượt xem:</label>
-                <span class="info-value"><?= rand(100, 5000) ?> lượt</span>
+                <span class="info-value"><?= number_format($current_news['view_count'] ?? 0) ?> lượt</span>
             </div>
         </div>
 

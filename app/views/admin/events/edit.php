@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get event ID
     $event_id = (int)($_GET['id'] ?? 0);
     
@@ -15,7 +14,7 @@ try {
     }
     
     // Get event data from service
-    $eventData = $viewDataService->getAdminEventDetailsData($event_id);
+    $eventData = $service->getEventDetailsData($event_id);
     $current_event = $eventData['event'];
     
     // Redirect if event not found
@@ -25,7 +24,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Events Edit Error', $e);
+    $errorHandler->logError('Admin Events Edit Error', $e);
     header('Location: ?page=admin&module=events&error=1');
     exit;
 }
@@ -48,7 +47,7 @@ $form_data = array_merge([
     'requirements' => ''
 ], $current_event);
 
-// Handle form submission (demo - không lưu thật)
+// Handle form submission
 $errors = [];
 $success = false;
 

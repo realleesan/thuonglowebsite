@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get affiliate ID from URL
     $affiliate_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get affiliate data using ViewDataService
-    $affiliateData = $viewDataService->getAdminAffiliateDetailsData($affiliate_id);
+    // Get affiliate data using AdminService
+    $affiliateData = $service->getAffiliateDetailsData($affiliate_id);
     $affiliate = $affiliateData['affiliate'];
     
     // Redirect if affiliate not found
@@ -31,15 +26,16 @@ try {
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $success = false;
+$error = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm = $_POST['confirm'] ?? '';
     
     if ($confirm === 'DELETE') {
-        // In real app: use ViewDataService to delete
+        // In real app: use AdminService to delete
         $success = true;
         header('Location: ?page=admin&module=affiliates&success=deleted');
         exit;

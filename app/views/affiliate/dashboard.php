@@ -4,100 +4,70 @@
  * Trang tổng quan hệ thống đại lý
  */
 
-// Load Models
-require_once __DIR__ . '/../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../models/OrdersModel.php';
-require_once __DIR__ . '/../../../models/UsersModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
-$ordersModel = new OrdersModel();
-$usersModel = new UsersModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
+
+// Nếu không có AffiliateService, dừng sớm để tránh lỗi
+if (!$service) {
+    throw new Exception('AffiliateService is not available');
+}
+
+// Initialize data variables
+$affiliateInfo = [
+    'name' => '',
+    'email' => '',
+    'affiliate_link' => '',
+    'referral_code' => ''
+];
+$stats = [
+    'total_clicks' => 0,
+    'total_orders' => 0,
+    'total_revenue' => 0,
+    'total_commission' => 0,
+    'weekly_revenue' => 0,
+    'monthly_revenue' => 0,
+    'pending_commission' => 0,
+    'paid_commission' => 0,
+    'conversion_rate' => 0,
+    'total_customers' => 0
+];
+$recentCustomers = [];
+$commissionStatus = [
+    'pending' => 0, 
+    'paid' => 0,
+    'pending_count' => 0,
+    'paid_count' => 0
+];
+$revenueChart = ['labels' => [], 'data' => []];
+$clicksChart = ['labels' => [], 'data' => []];
+$conversionChart = ['labels' => [], 'data' => []];
 
 try {
     // Get current affiliate ID from session
-    $affiliateId = $_SESSION['user_id'] ?? 1; // Default for demo
+$affiliateId = $_SESSION['user_id'] ?? 0;
     
-    // Get affiliate data from database
-    $affiliateInfo = $affiliateModel->getWithUser($affiliateId);
-    if (!$affiliateInfo) {
-        throw new Exception('Affiliate not found');
-    }
+    // Get dashboard data từ AffiliateService
+    $dashboardData = $service->getDashboardData($affiliateId);
     
-    // Get dashboard data from database
-    $dashboardData = $affiliateModel->getDashboardData($affiliateId);
-    $stats = [
-        'total_clicks' => rand(1000, 5000),
-        'total_orders' => count($dashboardData['recent_orders']),
-        'total_revenue' => $affiliateInfo['total_sales'],
-        'total_commission' => $affiliateInfo['total_commission'],
-        'weekly_revenue' => $affiliateInfo['total_sales'] * 0.2, // 20% of total for demo
-        'monthly_revenue' => $affiliateInfo['total_sales'] * 0.8, // 80% of total for demo
-        'pending_commission' => $affiliateInfo['pending_commission'] ?? 0,
-        'paid_commission' => $affiliateInfo['paid_commission'] ?? 0,
-        'conversion_rate' => rand(15, 35) / 10, // Random 1.5-3.5%
-        'total_customers' => count($dashboardData['recent_orders'])
-    ];
-    
-    // Get recent customers with proper structure
-    $recentCustomers = [];
-    foreach ($dashboardData['recent_orders'] as $order) {
-        $customer = $usersModel->getById($order['user_id']);
-        if ($customer) {
-            $recentCustomers[] = [
-                'name' => $customer['name'] ?? $customer['full_name'] ?? 'Khách hàng',
-                'email' => $customer['email'] ?? 'email@example.com',
-                'total_orders' => rand(1, 10),
-                'total_spent' => rand(500000, 5000000),
-                'joined_date' => $customer['created_at'] ?? date('Y-m-d')
-            ];
-        }
-    }
-    
-    // Limit to 5 customers
-    $recentCustomers = array_slice($recentCustomers, 0, 5);
-    $commissionStatus = [
-        'pending' => $stats['pending_commission'],
-        'paid' => $stats['paid_commission'],
-        'pending_count' => rand(5, 15),
-        'paid_count' => rand(20, 50)
-    ];
-    
-    // Generate chart data
-    $revenueChart = ['labels' => [], 'data' => []];
-    $clicksChart = ['labels' => [], 'data' => []];
-    $conversionChart = ['labels' => [], 'data' => []];
+    // Extract data
+    $affiliateInfo = $dashboardData['affiliate'] ?? $affiliateInfo;
+    $stats = $dashboardData['stats'] ?? $stats;
+    $recentCustomers = $dashboardData['recent_customers'] ?? [];
+    $commissionStatus = $dashboardData['commission_status'] ?? $commissionStatus;
+    $revenueChart = $dashboardData['revenue_chart'] ?? ['labels' => [], 'data' => []];
+    $clicksChart = $dashboardData['clicks_chart'] ?? ['labels' => [], 'data' => []];
+    $conversionChart = $dashboardData['conversion_chart'] ?? ['labels' => [], 'data' => []];
     
 } catch (Exception $e) {
+    // Handle errors gracefully
+    $result = $errorHandler->handleViewError($e, 'affiliate_dashboard', []);
     error_log('Affiliate Dashboard Error: ' . $e->getMessage());
-    // Set default values
-    $affiliateInfo = [
-        'name' => 'Demo User', 
-        'email' => 'demo@example.com',
-        'affiliate_link' => 'https://thuonglo.com/?ref=DEMO123',
-        'referral_code' => 'DEMO123'
-    ];
-    $stats = [
-        'total_clicks' => 0, 
-        'total_orders' => 0, 
-        'total_revenue' => 0, 
-        'total_commission' => 0,
-        'weekly_revenue' => 0,
-        'monthly_revenue' => 0,
-        'pending_commission' => 0,
-        'paid_commission' => 0,
-        'conversion_rate' => 0,
-        'total_customers' => 0
-    ];
-    $recentCustomers = [];
-    $commissionStatus = [
-        'pending' => 0, 
-        'paid' => 0,
-        'pending_count' => 0,
-        'paid_count' => 0
-    ];
-    $revenueChart = ['labels' => [], 'data' => []];
-    $clicksChart = ['labels' => [], 'data' => []];
-    $conversionChart = ['labels' => [], 'data' => []];
+    // Use empty state data
+    $emptyState = $service->handleEmptyState('affiliate_dashboard');
+    $stats = $emptyState['product_stats'] ?? $stats;
 }
 
 // Set page info cho master layout

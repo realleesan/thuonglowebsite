@@ -1,12 +1,7 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
     // Get product ID from URL
     $product_id = (int)($_GET['id'] ?? 0);
     
@@ -15,8 +10,8 @@ try {
         exit;
     }
     
-    // Get product data using ViewDataService
-    $productData = $viewDataService->getAdminProductDetailsData($product_id);
+    // Get product data using AdminService
+    $productData = $service->getProductDetailsData($product_id);
     $product = $productData['product'];
     $categories = $productData['categories'];
     
@@ -32,7 +27,7 @@ try {
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -65,12 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Mô tả sản phẩm không được để trống';
     }
     
-    // If no errors, simulate update (demo)
+    // If no errors, update database
     if (empty($errors)) {
-        $success = true;
-        // In real app: update database
-        // header('Location: ?page=admin&module=products&success=updated');
-        // exit;
+        $updated = $service->updateProduct($product_id, $_POST);
+        if ($updated) {
+            header('Location: ?page=admin&module=products&action=view&id=' . $product_id . '&success=updated');
+            exit;
+        } else {
+            $errors[] = 'Không thể cập nhật sản phẩm';
+        }
     }
 }
 
@@ -104,7 +102,7 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Cập nhật sản phẩm thành công! (Demo - dữ liệu không được lưu thật)
+            Cập nhật sản phẩm thành công!
         </div>
     <?php endif; ?>
 
@@ -204,7 +202,7 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
 
                         <div class="form-group">
                             <label>Lần cập nhật cuối</label>
-                            <input type="text" value="<?= date('d/m/Y H:i') ?> (Demo)" readonly class="readonly">
+                            <input type="text" value="<?= date('d/m/Y H:i', strtotime($product['updated_at'] ?? 'now')) ?>" readonly class="readonly">
                         </div>
                     </div>
                 </div>
@@ -313,19 +311,19 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                         <div class="stats-grid">
                             <div class="stat-item">
                                 <div class="stat-label">Lượt xem</div>
-                                <div class="stat-value"><?= rand(100, 5000) ?></div>
+                                <div class="stat-value"><?= number_format($product['view_count'] ?? 0) ?></div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">Đã bán</div>
-                                <div class="stat-value"><?= rand(0, 100) ?></div>
+                                <div class="stat-value"><?= number_format($product['sold_count'] ?? 0) ?></div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">Đánh giá</div>
-                                <div class="stat-value"><?= number_format(rand(35, 50) / 10, 1) ?>/5</div>
+                                <div class="stat-value"><?= number_format($product['avg_rating'] ?? 0, 1) ?>/5</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-label">Yêu thích</div>
-                                <div class="stat-value"><?= rand(10, 200) ?></div>
+                                <div class="stat-value"><?= number_format($product['wishlist_count'] ?? 0) ?></div>
                             </div>
                         </div>
                     </div>

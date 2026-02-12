@@ -1,17 +1,13 @@
 <?php
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
 /**
  * Admin Products View - Dynamic Version
- * Converted from direct model usage to ViewDataService
+ * Converted from direct model usage to AdminService
  */
 
 // Load required services
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
-
 // Initialize services
-$viewDataService = new ViewDataService();
-$errorHandler = new ErrorHandler();
-
 // Get product ID from URL
 $product_id = (int)($_GET['id'] ?? 0);
 
@@ -27,7 +23,7 @@ try {
     }
     
     // Get admin product details data
-    $productData = $viewDataService->getAdminProductDetailsData($product_id);
+    $productData = $service->getProductDetailsData($product_id);
     
     // Extract data
     $product = $productData['product'] ?? null;
@@ -58,6 +54,16 @@ function formatPrice($price) {
 function formatDate($date) {
     return date('d/m/Y H:i', strtotime($date));
 }
+
+function getStatusBadge($status) {
+    $badges = [
+        'active' => '<span class="status-badge status-active">Đang hoạt động</span>',
+        'inactive' => '<span class="status-badge status-inactive">Không hoạt động</span>',
+        'pending' => '<span class="status-badge status-pending">Chờ duyệt</span>',
+        'out_of_stock' => '<span class="status-badge status-out">Hết hàng</span>',
+    ];
+    return $badges[$status] ?? '<span class="status-badge">' . htmlspecialchars($status) . '</span>';
+}
 ?>
 if (!$product) {
     header('Location: ?page=admin&module=products&error=not_found');
@@ -81,8 +87,15 @@ $product_orders = array_filter($orders, function($order) use ($product_id) {
 // Calculate stats
 $total_sold = array_sum(array_column($product_orders, 'quantity'));
 $total_revenue = array_sum(array_column($product_orders, 'total'));
-$avg_rating = rand(35, 50) / 10; // Demo rating
-$total_reviews = rand(10, 100); // Demo reviews
+$avg_rating = 0;
+$total_reviews = 0;
+
+// Get real rating from service if available
+if ($service && method_exists($service, 'getProductRating')) {
+    $ratingData = $service->getProductRating($productId ?? 0);
+    $avg_rating = $ratingData['avg_rating'] ?? 0;
+    $total_reviews = $ratingData['total_reviews'] ?? 0;
+}
 
 // Format functions
 function formatPrice($price) {
@@ -141,7 +154,7 @@ function getStatusBadge($status) {
                 </div>
                 <div class="product-image-info">
                     <p><strong>Hình ảnh:</strong> <?= basename($product['image']) ?></p>
-                    <p><strong>Kích thước:</strong> Demo (800x600px)</p>
+                    <p><strong>Kích thước:</strong> <?= $product['width'] ?? 0 ?>x<?= $product['height'] ?? 0 ?>px</p>
                 </div>
             </div>
 
@@ -222,7 +235,7 @@ function getStatusBadge($status) {
                                 <i class="fas fa-eye"></i>
                             </div>
                             <div class="stat-content">
-                                <div class="stat-number" title="<?= number_format(rand(500, 5000), 0, ',', '.') ?> lượt xem"><?= number_format(rand(500, 5000), 0, ',', '.') ?></div>
+                                <div class="stat-number" title="<?= number_format($product['view_count'] ?? 0, 0, ',', '.') ?> lượt xem"><?= number_format($product['view_count'] ?? 0, 0, ',', '.') ?></div>
                                 <div class="stat-label">Lượt xem</div>
                             </div>
                         </div>
@@ -255,11 +268,11 @@ function getStatusBadge($status) {
                             </tr>
                             <tr>
                                 <td><strong>Trọng lượng:</strong></td>
-                                <td><?= rand(100, 2000) ?>g</td>
+                                <td><?= $product['weight'] ?? 0 ?>g</td>
                             </tr>
                             <tr>
                                 <td><strong>Kích thước:</strong></td>
-                                <td><?= rand(10, 50) ?> x <?= rand(10, 50) ?> x <?= rand(5, 20) ?> cm</td>
+                                <td><?= $product['width'] ?? 0 ?> x <?= $product['height'] ?? 0 ?> x <?= $product['depth'] ?? 0 ?> cm</td>
                             </tr>
                             <tr>
                                 <td><strong>Màu sắc:</strong></td>
@@ -370,25 +383,35 @@ function getStatusBadge($status) {
 
                     <h4>Đánh Giá Gần Đây</h4>
                     <div class="reviews-list">
-                        <?php for ($i = 0; $i < 3; $i++): ?>
+                        <?php
+                        // Get real reviews from service if available
+                        $reviews = [];
+                        if ($service && method_exists($service, 'getProductReviews')) {
+                            $reviews = $service->getProductReviews($productId ?? 0, 3);
+                        }
+                        foreach ($reviews as $review): ?>
                             <div class="review-item">
                                 <div class="review-header">
                                     <div class="reviewer-info">
-                                        <strong>Khách hàng #<?= rand(1, 100) ?></strong>
+                                        <strong><?= htmlspecialchars($review['customer_name'] ?? 'Khách hàng') ?></strong>
                                         <div class="review-stars">
-                                            <?php $rating = rand(3, 5); ?>
                                             <?php for ($j = 1; $j <= 5; $j++): ?>
-                                                <i class="fas fa-star <?= $j <= $rating ? 'active' : '' ?>"></i>
+                                                <i class="fas fa-star <?= $j <= ($review['rating'] ?? 0) ? 'active' : '' ?>"></i>
                                             <?php endfor; ?>
                                         </div>
                                     </div>
-                                    <div class="review-date"><?= date('d/m/Y', strtotime('-' . rand(1, 30) . ' days')) ?></div>
+                                    <div class="review-date"><?= date('d/m/Y', strtotime($review['created_at'] ?? 'now')) ?></div>
                                 </div>
                                 <div class="review-content">
-                                    <p><?= ['Sản phẩm rất tốt, đáng tiền!', 'Chất lượng ổn, giao hàng nhanh.', 'Hài lòng với sản phẩm này.'][rand(0, 2)] ?></p>
+                                    <p><?= htmlspecialchars($review['content'] ?? '') ?></p>
                                 </div>
                             </div>
-                        <?php endfor; ?>
+                        <?php endforeach; ?>
+                        <?php if (empty($reviews)): ?>
+                            <div class="empty-state">
+                                <p>Chưa có đánh giá nào.</p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

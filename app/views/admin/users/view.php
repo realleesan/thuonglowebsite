@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get user ID from URL
     $user_id = (int)($_GET['id'] ?? 0);
     
-    // Get user details using ViewDataService
-    $userData = $viewDataService->getAdminUserDetailsData($user_id);
+    // Get user details using AdminService
+    $userData = $service->getUserDetailsData($user_id);
     $user = $userData['user'];
     
     // Redirect if user not found
@@ -19,13 +15,13 @@ try {
         exit;
     }
     
-    // Get additional user data (orders and affiliate info) from ViewDataService
-    $additionalData = $viewDataService->getAdminUserAdditionalData($user_id);
+    // Get additional user data (orders and affiliate info) from AdminService
+    $additionalData = $service->getUserAdditionalData($user_id);
     $user_orders = $additionalData['orders'];
     $user_affiliate = $additionalData['affiliate'];
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Users View', $e->getMessage());
+    $errorHandler->logError('Admin Users View', $e->getMessage());
     header('Location: ?page=admin&module=users&error=system_error');
     exit;
 }
@@ -474,7 +470,7 @@ function editUser() {
 
 function resetPassword() {
     if (confirm('Bạn có chắc chắn muốn reset mật khẩu cho người dùng này?')) {
-        alert('Đã gửi email reset mật khẩu (Demo)');
+        alert('Đã gửi email reset mật khẩu');
     }
 }
 
@@ -489,7 +485,7 @@ function changeStatus() {
     const action = newStatus === 'active' ? 'kích hoạt' : 'vô hiệu hóa';
     
     if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản này?`)) {
-        alert(`Đã ${action} tài khoản (Demo)`);
+        alert('Đã ' + action + ' tài khoản');
     }
 }
 

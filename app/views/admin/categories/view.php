@@ -1,16 +1,12 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Get category ID from URL
     $category_id = (int)($_GET['id'] ?? 0);
     
-    // Get category details using ViewDataService
-    $categoryData = $viewDataService->getAdminCategoryDetailsData($category_id);
+    // Get category details using AdminService
+    $categoryData = $service->getCategoryDetailsData($category_id);
     $category = $categoryData['category'];
     $category_products = $categoryData['products'];
     
@@ -21,7 +17,7 @@ try {
     }
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Categories View', $e->getMessage());
+    $errorHandler->logError('Admin Categories View', $e->getMessage());
     header('Location: ?page=admin&module=categories&error=system_error');
     exit;
 }

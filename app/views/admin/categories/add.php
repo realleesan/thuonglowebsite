@@ -1,12 +1,5 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
-
 try {
-    $viewDataService = new ViewDataService();
-    $errorHandler = new ErrorHandler();
-    
 } catch (Exception $e) {
     $errorHandler = new ErrorHandler();
     $errorHandler->logError('Admin Categories Add View Error', $e);
@@ -14,7 +7,7 @@ try {
     exit;
 }
 
-// Handle form submission (demo)
+// Handle form submission
 $errors = [];
 $success = false;
 
@@ -39,12 +32,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Mô tả danh mục không được để trống';
     }
     
-    // If no errors, simulate save (demo)
+    // If no errors, save to database
     if (empty($errors)) {
-        $success = true;
-        // In real app: save to database
-        // header('Location: ?page=admin&module=categories&success=added');
-        // exit;
+        $saved = $service->createCategory($_POST);
+        if ($saved) {
+            header('Location: ?page=admin&module=categories&success=added');
+            exit;
+        } else {
+            $errors[] = 'Không thể lưu danh mục';
+        }
     }
 }
 
@@ -80,7 +76,7 @@ function generateSlug($name) {
     <?php if ($success): ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
-            Thêm danh mục thành công! (Demo - dữ liệu không được lưu thật)
+            Thêm danh mục thành công!
         </div>
     <?php endif; ?>
 

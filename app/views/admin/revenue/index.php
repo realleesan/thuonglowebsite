@@ -1,11 +1,10 @@
 <?php
-// Load ViewDataService
-require_once __DIR__ . '/../../services/ViewDataService.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
+require_once __DIR__ . '/../../services/AdminService.php';
 require_once __DIR__ . '/../../services/ErrorHandler.php';
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Date filter
     $date_from = $_GET['date_from'] ?? date('Y-m-01'); // First day of current month
     $date_to = $_GET['date_to'] ?? date('Y-m-d'); // Today
@@ -18,7 +17,7 @@ try {
     ];
     
     // Get revenue data from service
-    $revenueData = $viewDataService->getAdminRevenueData($filters);
+    $revenueData = $service->getRevenueData($filters);
     $filtered_orders = $revenueData['orders'];
     $products = $revenueData['products'];
     $users = $revenueData['users'];
@@ -40,7 +39,7 @@ try {
     $revenue_by_status = $stats['revenue_by_status'];
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Revenue Error', $e);
+    $errorHandler->logError('Admin Revenue Error', $e);
     $filtered_orders = [];
     $products = [];
     $users = [];

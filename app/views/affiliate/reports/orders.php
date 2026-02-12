@@ -4,30 +4,50 @@
  * Analytics về orders, revenue, products
  */
 
-// Load Models
-require_once __DIR__ . '/../../../../models/AffiliateModel.php';
-require_once __DIR__ . '/../../../../models/OrdersModel.php';
+// 1. Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
 
-$affiliateModel = new AffiliateModel();
-$ordersModel = new OrdersModel();
+// 2. Chọn service affiliate (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
-// Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 1;
+// Initialize data variables
+$totalOrders = 0;
+$totalRevenue = 0;
+$totalCommission = 0;
+$avgOrderValue = 0;
+$ordersByDate = [];
+$ordersByProduct = [];
 
-// Get affiliate data from database
-$affiliateInfo = $affiliateModel->getWithUser($affiliateId);
-$dashboardData = $affiliateModel->getDashboardData($affiliateId);
-
-$totalOrders = count($dashboardData['recent_orders']);
-$totalRevenue = $affiliateInfo['total_sales'] ?? 0;
-$totalCommission = $affiliateInfo['total_commission'] ?? 0;
-$avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
-$ordersByDate = []; // Demo - generate from database
-$ordersByProduct = []; // Demo - generate from database
+try {
+    if ($service) {
+        // Get current affiliate ID from session
+        $affiliateId = $_SESSION['user_id'] ?? 1;
+        
+        // Get dashboard data FIRST for affiliate info (needed by header)
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? [
+            'name' => '',
+            'email' => ''
+        ];
+        
+        $stats = $dashboardData['stats'] ?? [];
+        
+        $totalOrders = $stats['total_orders'] ?? 0;
+        $totalRevenue = $stats['total_revenue'] ?? 0;
+        $totalCommission = $stats['total_commission'] ?? 0;
+        $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+    }
+} catch (Exception $e) {
+    $errorHandler->handleViewError($e, 'affiliate_reports_orders', []);
+}
 
 // Page title
 $page_title = 'Báo Cáo Đơn Hàng';
 $load_chartjs = true;
+
+// Include master layout
+ob_start();
+?>
 
 // Include master layout
 ob_start();

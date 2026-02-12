@@ -1,25 +1,21 @@
 <?php
-// Load ViewDataService and ErrorHandler
-require_once __DIR__ . '/../../../services/ViewDataService.php';
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
-    $viewDataService = new ViewDataService();
-    
     // Search and filter parameters
     $search = $_GET['search'] ?? '';
     $status_filter = $_GET['status'] ?? '';
     $current_page = max(1, (int)($_GET['page'] ?? 1));
     $per_page = 10;
     
-    // Prepare filters for ViewDataService
+    // Prepare filters for AdminService
     $filters = [
         'search' => $search,
         'status' => $status_filter
     ];
     
-    // Get categories data using ViewDataService
-    $categoriesData = $viewDataService->getAdminCategoriesData($current_page, $per_page, $filters);
+    // Get categories data using AdminService
+    $categoriesData = $service->getCategoriesData($current_page, $per_page, $filters);
     
     $paged_categories = $categoriesData['categories'];
     $total_categories = $categoriesData['total'];
@@ -27,7 +23,7 @@ try {
     $total_pages = $pagination['last_page'];
     
 } catch (Exception $e) {
-    ErrorHandler::logError('Admin Categories Index', $e->getMessage());
+    $errorHandler->logError('Admin Categories Index', $e->getMessage());
     $paged_categories = [];
     $total_categories = 0;
     $total_pages = 1;
