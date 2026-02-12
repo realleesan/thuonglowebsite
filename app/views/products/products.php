@@ -1,16 +1,10 @@
 <?php
 /**
  * Products Page - Dynamic Version
- * Converted from hardcoded data to dynamic database data
  */
 
-// Load required services and models
-require_once __DIR__ . '/../../services/ViewDataService.php';
-require_once __DIR__ . '/../../services/ErrorHandler.php';
-
-// Initialize services
-$viewDataService = new ViewDataService();
-$errorHandler = new ErrorHandler();
+// 1. Khởi tạo View an toàn
+require_once __DIR__ . '/../../../core/view_init.php';
 
 // Get pagination parameters
 $page = (int) ($_GET['page'] ?? 1);
@@ -60,24 +54,28 @@ try {
 }
 
 // Helper function to get product image
-function getProductImage($product) {
-    if (!empty($product['image']) && $product['image'] !== '/assets/images/default-product.jpg') {
-        return $product['image'];
+if (!function_exists('getProductImage')) {
+    function getProductImage($product) {
+        if (!empty($product['image']) && $product['image'] !== '/assets/images/default-product.jpg') {
+            return $product['image'];
+        }
+        return 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg';
     }
-    return 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg';
 }
 
 // Helper function to get sort options
-function getSortOptions() {
-    return [
-        'post_date' => 'Mới nhất',
-        'post_title' => 'Tên A-Z',
-        'post_title_desc' => 'Tên Z-A',
-        'price' => 'Giá cao đến thấp',
-        'price_low' => 'Giá thấp đến cao',
-        'popular' => 'Phổ biến',
-        'rating' => 'Đánh giá trung bình'
-    ];
+if (!function_exists('getSortOptions')) {
+    function getSortOptions() {
+        return [
+            'post_date' => 'Mới nhất',
+            'post_title' => 'Tên A-Z',
+            'post_title_desc' => 'Tên Z-A',
+            'price' => 'Giá cao đến thấp',
+            'price_low' => 'Giá thấp đến cao',
+            'popular' => 'Phổ biến',
+            'rating' => 'Đánh giá trung bình'
+        ];
+    }
 }
 
 // Calculate display counts
@@ -259,24 +257,6 @@ $toCount = min($page * $limit, $totalProducts);
                                     </button>
                                 </div>
                                 <div class="sidebar-content">
-                                    <!-- Search Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Tìm kiếm</h3>
-                                        <div class="filter-content">
-                                            <form method="get">
-                                                <?php if ($categoryId): ?>
-                                                    <input type="hidden" name="category" value="<?php echo htmlspecialchars($categoryId); ?>">
-                                                <?php endif; ?>
-                                                <?php if ($orderBy !== 'post_date'): ?>
-                                                    <input type="hidden" name="order_by" value="<?php echo htmlspecialchars($orderBy); ?>">
-                                                <?php endif; ?>
-                                                <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
-                                                       placeholder="Tìm kiếm sản phẩm..." class="search-input">
-                                                <button type="submit" class="search-btn">Tìm kiếm</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    
                                     <!-- Categories Filter -->
                                     <div class="filter-section">
                                         <h3 class="filter-title">Danh mục</h3>
@@ -285,9 +265,9 @@ $toCount = min($page * $limit, $totalProducts);
                                                 <li>
                                                     <a href="?<?php echo http_build_query(array_merge($_GET, ['category' => null])); ?>" 
                                                        class="<?php echo !$categoryId ? 'active' : ''; ?>">
-                                                        Tất cả
+                                                        Tìm kiếm nhiều nhất
                                                     </a>
-                                                    <span class="count">(<?php echo $totalProducts; ?>)</span>
+                                                    <span class="count">(14)</span>
                                                 </li>
                                                 <?php if (!empty($categories)): ?>
                                                     <?php foreach ($categories as $category): ?>
@@ -300,13 +280,13 @@ $toCount = min($page * $limit, $totalProducts);
                                                         </li>
                                                     <?php endforeach; ?>
                                                 <?php else: ?>
-                                                    <!-- Fallback categories -->
-                                                    <li><a href="#">Data nguồn hàng</a> <span class="count">(8)</span></li>
-                                                    <li><a href="#">Vận chuyển</a> <span class="count">(6)</span></li>
-                                                    <li><a href="#">Mua hàng trọn gói</a> <span class="count">(4)</span></li>
-                                                    <li><a href="#">Thanh toán quốc tế</a> <span class="count">(3)</span></li>
-                                                    <li><a href="#">Dịch vụ đánh hàng</a> <span class="count">(2)</span></li>
-                                                    <li><a href="#">Sản phẩm khác</a> <span class="count">(5)</span></li>
+                                                    <!-- Fallback categories matching original design -->
+                                                    <li><a href="#">Gói Data Nguồn Hàng</a> <span class="count">(8)</span></li>
+                                                    <li><a href="#">Vận Chuyển</a> <span class="count">(6)</span></li>
+                                                    <li><a href="#">Mua Hàng Trọn Gói</a> <span class="count">(4)</span></li>
+                                                    <li><a href="#">Thanh Toán Quốc Tế</a> <span class="count">(3)</span></li>
+                                                    <li><a href="#">Đánh Hàng</a> <span class="count">(2)</span></li>
+                                                    <li><a href="#">Sản Phẩm Khác</a> <span class="count">(5)</span></li>
                                                 <?php endif; ?>
                                             </ul>
                                         </div>
@@ -314,7 +294,7 @@ $toCount = min($page * $limit, $totalProducts);
 
                                     <!-- Reset Button -->
                                     <div class="filter-section">
-                                        <a href="?page=products" class="reset-filters-btn">Đặt lại</a>
+                                        <button class="reset-filters-btn" onclick="window.location.href='?page=products'">Đặt lại</button>
                                     </div>
 
                                     <!-- Author Filter -->
@@ -336,6 +316,11 @@ $toCount = min($page * $limit, $totalProducts);
                                                 <li><a href="#">Có phí</a></li>
                                             </ul>
                                         </div>
+                                    </div>
+
+                                    <!-- Apply Button -->
+                                    <div class="filter-section">
+                                        <button class="apply-filters-btn">Áp dụng</button>
                                     </div>
                                 </div>
                             </div>

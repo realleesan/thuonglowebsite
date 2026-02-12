@@ -1,14 +1,46 @@
 <?php
-// Tạo dữ liệu giả lập để hiển thị
-$orderId = "DEMO_" . rand(1000, 9999); // Mã đơn hàng ngẫu nhiên
-$amount = 250000;
-$bankAcc = "0389654785"; // Số tài khoản của bạn (để hiện lên QR cho giống thật)
-$bankName = "MBBank";    // Tên ngân hàng
-$content = "THANHTOAN " . $orderId; 
+/**
+ * Payment Processing Page - Dynamic Version
+ */
 
-// Link tạo ảnh QR của SePay (Dùng để hiển thị cho đẹp, quét được thật nhưng ta không xử lý tiền)
+// 1. Khởi tạo View an toàn
+require_once __DIR__ . '/../../../core/view_init.php';
+
+// 2. Khởi tạo biến dữ liệu
+$paymentData = [];
+$orderId = "DEMO_" . rand(1000, 9999);
+$amount = 250000;
+$showErrorMessage = false;
+$errorMessage = '';
+
+try {
+    // Get payment processing data
+    $paymentData = $viewDataService->getPaymentProcessingData();
+    
+    $orderId = $paymentData['order_id'] ?? $orderId;
+    $amount = $paymentData['amount'] ?? $amount;
+    
+} catch (Exception $e) {
+    if (isset($errorHandler)) {
+        $result = $errorHandler->handleViewError($e, 'payment_processing', []);
+        $showErrorMessage = true;
+        $errorMessage = $result['message'];
+    }
+}
+
+// Payment configuration
+$bankAcc = "0389654785";
+$bankName = "MBBank";
+$content = "THANHTOAN " . $orderId;
 $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=compact&amount={$amount}&des={$content}";
 ?>
+
+<!-- Error Message -->
+<?php if ($showErrorMessage): ?>
+<div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
+    <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
+</div>
+<?php endif; ?>
 
 <section class="payment-section">
     <div class="container">

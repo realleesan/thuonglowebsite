@@ -1,61 +1,51 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/ProductsModel.php';
-require_once __DIR__ . '/../../models/OrdersModel.php';
+/**
+ * Checkout Page - Dynamic Version
+ */
 
-$productsModel = new ProductsModel();
-$ordersModel = new OrdersModel();
+// 1. Khởi tạo View an toàn
+require_once __DIR__ . '/../../../core/view_init.php';
 
-// Get cart items from session or URL parameters
+// 2. Khởi tạo biến dữ liệu
+$checkoutData = [];
 $cartItems = [];
 $totalAmount = 0;
+$showErrorMessage = false;
+$errorMessage = '';
 
-// Check if product_id is provided in URL
-if (isset($_GET['product_id'])) {
-    $productId = (int)$_GET['product_id'];
-    $product = $productsModel->getById($productId);
+try {
+    // Get checkout data from ViewDataService
+    $productId = $_GET['product_id'] ?? null;
+    $checkoutData = $viewDataService->getCheckoutData($productId);
     
-    if ($product) {
-        $cartItems[] = [
-            'id' => $product['id'],
-            'name' => $product['name'] ?? $product['title'] ?? 'Sản phẩm',
-            'price' => $product['price'] ?? 0,
-            'image' => $product['image'] ?? 'home/home-banner-top.png',
-            'quantity' => 1
-        ];
-        $totalAmount = $product['price'] ?? 0;
+    $cartItems = $checkoutData['cart_items'] ?? [];
+    $totalAmount = $checkoutData['total_amount'] ?? 0;
+    
+} catch (Exception $e) {
+    if (isset($errorHandler)) {
+        $result = $errorHandler->handleViewError($e, 'checkout', ['product_id' => $productId ?? null]);
+        $showErrorMessage = true;
+        $errorMessage = $result['message'];
     }
-} else {
-    // Get from session cart (if cart system exists)
-    if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
-        foreach ($_SESSION['cart'] as $item) {
-            $product = $productsModel->getById($item['product_id']);
-            if ($product) {
-                $cartItems[] = [
-                    'id' => $product['id'],
-                    'name' => $product['name'] ?? $product['title'] ?? 'Sản phẩm',
-                    'price' => $product['price'] ?? 0,
-                    'image' => $product['image'] ?? 'home/home-banner-top.png',
-                    'quantity' => $item['quantity'] ?? 1
-                ];
-                $totalAmount += ($product['price'] ?? 0) * ($item['quantity'] ?? 1);
-            }
-        }
-    }
-}
-
-// Fallback demo data if no items
-if (empty($cartItems)) {
-    $cartItems[] = [
+    
+    // Fallback demo data
+    $cartItems = [[
         'id' => 1,
         'name' => 'Khóa học: Lập trình Web Fullstack (Demo)',
         'price' => 250000,
         'image' => 'home/home-banner-top.png',
         'quantity' => 1
-    ];
+    ]];
     $totalAmount = 250000;
 }
 ?>
+
+<!-- Error Message -->
+<?php if ($showErrorMessage): ?>
+<div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
+    <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
+</div>
+<?php endif; ?>
 
 <section class="payment-section">
     <div class="container">

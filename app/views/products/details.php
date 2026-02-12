@@ -1,16 +1,10 @@
 <?php
 /**
- * Product Details Page - Dynamic Version
- * Converted from hardcoded data to dynamic database data
+ * Product Details Page - Real Data Only
  */
 
-// Load required services and models
-require_once __DIR__ . '/../../services/ViewDataService.php';
-require_once __DIR__ . '/../../services/ErrorHandler.php';
-
-// Initialize services
-$viewDataService = new ViewDataService();
-$errorHandler = new ErrorHandler();
+// 1. Khởi tạo View an toàn
+require_once __DIR__ . '/../../../core/view_init.php';
 
 // Get product ID from URL
 $productId = $_GET['id'] ?? null;
@@ -42,243 +36,147 @@ try {
     $result = $errorHandler->handleViewError($e, 'product_details', ['id' => $productId]);
     $showErrorMessage = true;
     $errorMessage = $result['message'];
-    
-    // Use fallback data
-    $product = [
-        'id' => $productId ?: 1,
-        'name' => 'Sản phẩm không tồn tại',
-        'description' => 'Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.',
-        'formatted_price' => '0₫',
-        'image' => '/assets/images/default-product.jpg',
-        'status' => 'inactive',
-        'created_at' => date('Y-m-d H:i:s'),
-        'category_name' => 'Không xác định'
-    ];
 }
 
 // Helper function to get product image
-function getProductImage($product) {
-    if (!empty($product['image']) && $product['image'] !== '/assets/images/default-product.jpg') {
-        return $product['image'];
+if (!function_exists('getProductImage')) {
+    function getProductImage($product) {
+        if (!empty($product['image']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $product['image'])) {
+            return $product['image'];
+        }
+        return '/assets/images/default-product.jpg';
     }
-    return 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg';
 }
-
-// Product features based on category or default
-$productFeatures = [
-    'Sản phẩm chất lượng cao được kiểm định',
-    'Thông tin chi tiết và đầy đủ về sản phẩm',
-    'Hỗ trợ tư vấn từ đội ngũ chuyên gia',
-    'Dịch vụ giao hàng nhanh chóng và an toàn',
-    'Chính sách bảo hành và đổi trả linh hoạt',
-    'Giá cả cạnh tranh trên thị trường',
-    'Hỗ trợ khách hàng 24/7',
-    'Cập nhật thông tin sản phẩm thường xuyên'
-];
-
-// Package contents - can be customized based on product type
-$packageContents = [
-    [
-        'title' => 'Thông tin sản phẩm',
-        'items' => ['Mô tả chi tiết sản phẩm', 'Hình ảnh chất lượng cao', 'Thông số kỹ thuật đầy đủ']
-    ],
-    [
-        'title' => 'Dịch vụ hỗ trợ',
-        'items' => ['Tư vấn trước khi mua', 'Hướng dẫn sử dụng', 'Hỗ trợ sau bán hàng']
-    ],
-    [
-        'title' => 'Chính sách',
-        'items' => ['Bảo hành chính hãng', 'Đổi trả trong 7 ngày', 'Giao hàng miễn phí']
-    ],
-    [
-        'title' => 'Ưu đãi đặc biệt',
-        'items' => ['Giảm giá cho khách hàng thân thiết', 'Tích điểm mỗi lần mua hàng', 'Quà tặng kèm theo']
-    ]
-];
-
-// Provider info
-$providerInfo = [
-    'name' => 'ThuongLo.com',
-    'description' => 'Chuyên gia hàng đầu về thương mại điện tử và cung cấp sản phẩm chất lượng',
-    'experience' => '5+ năm kinh nghiệm',
-    'customers' => '10,000+ khách hàng tin tưởng',
-    'rating' => 4.8,
-    'specialties' => ['Sản phẩm chất lượng', 'Thương mại điện tử', 'Dịch vụ khách hàng', 'Logistics chuyên nghiệp']
-];
 ?>
 
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
     <div class="content-pusher">
         <div id="main-content">
-            <!-- Error Message -->
-            <?php if ($showErrorMessage): ?>
-            <div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px;">
-                <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
-            </div>
-            <?php endif; ?>
             
-            <!-- Course Details Section -->
-            <section class="course-details-section">
+            <?php if ($showErrorMessage): ?>
+            <!-- Error Message -->
+            <section class="error-section">
                 <div class="container">
-                    <div class="course-details-layout">
-                        <!-- Left Column - Course Content -->
-                        <div class="course-details-main">
-                            <!-- Course Header -->
-                            <div class="course-header">
-                                <h1 class="course-title"><?php echo $product['name']; ?></h1>
-                                <div class="course-instructor">
-                                    <span class="instructor-label">Được cung cấp bởi</span>
-                                    <a href="#" class="instructor-name"><?php echo htmlspecialchars($providerInfo['name']); ?></a>
+                    <div class="error-content">
+                        <h1>Sản phẩm không tồn tại</h1>
+                        <p><?php echo htmlspecialchars($errorMessage); ?></p>
+                        <a href="?page=products" class="btn-back">← Quay lại danh sách sản phẩm</a>
+                    </div>
+                </div>
+            </section>
+            
+            <?php else: ?>
+            <!-- Product Details Section -->
+            <section class="product-details-section">
+                <div class="container">
+                    <div class="product-details-layout">
+                        <!-- Left Column - Product Content -->
+                        <div class="product-details-main">
+                            <!-- Product Header -->
+                            <div class="product-header">
+                                <h1 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h1>
+                                
+                                <?php if ($category): ?>
+                                <div class="product-category">
+                                    <span class="category-label">Danh mục:</span>
+                                    <a href="?page=products&category=<?php echo $category['id']; ?>" class="category-name">
+                                        <?php echo htmlspecialchars($category['name']); ?>
+                                    </a>
                                 </div>
-                                <div class="course-meta">
+                                <?php endif; ?>
+                                
+                                <div class="product-meta">
                                     <div class="meta-item">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M8 1V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
                                         </svg>
-                                        <span>Cập nhật <?php echo date('m/Y', strtotime($product['created_at'])); ?></span>
+                                        <span>Cập nhật <?php echo date('d/m/Y', strtotime($product['created_at'])); ?></span>
                                     </div>
+                                    
+                                    <?php if (!empty($product['sku'])): ?>
                                     <div class="meta-item">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span><?php echo $product['category_name'] ?: 'Sản phẩm'; ?></span>
+                                        <span>SKU: <?php echo htmlspecialchars($product['sku']); ?></span>
                                     </div>
+                                    <?php endif; ?>
+                                    
                                     <div class="meta-item">
                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M8 2L10.09 6.26L15 7L11 10.74L12.18 15.74L8 13.27L3.82 15.74L5 10.74L1 7L5.91 6.26L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <span><?php echo $product['in_stock'] ? 'Còn hàng' : 'Hết hàng'; ?></span>
+                                        <span><?php echo ($product['stock'] > 0) ? 'Còn hàng (' . $product['stock'] . ')' : 'Hết hàng'; ?></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Course Tabs -->
-                            <div class="course-tabs">
-                                <div class="tabs-nav">
-                                    <button class="tab-item active" data-tab="description">Mô tả</button>
-                                    <button class="tab-item" data-tab="curriculum">Chi tiết</button>
-                                    <button class="tab-item" data-tab="instructor">Nhà cung cấp</button>
+                            <!-- Product Description -->
+                            <div class="product-content">
+                                <?php if (!empty($product['description'])): ?>
+                                <div class="product-description">
+                                    <h4>Mô tả sản phẩm</h4>
+                                    <div class="description-content">
+                                        <?php echo nl2br(htmlspecialchars($product['description'])); ?>
+                                    </div>
                                 </div>
-
-                                <div class="tabs-content">
-                                    <!-- Description Tab -->
-                                    <div class="tab-panel active" id="description">
-                                        <div class="course-description">
-                                            <h4>Bạn sẽ nhận được gì</h4>
-                                            <div class="learning-objectives">
-                                                <div class="objectives-grid">
-                                                    <?php foreach ($productFeatures as $feature): ?>
-                                                    <div class="objective-item">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="#356DF1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span><?php echo htmlspecialchars($feature); ?></span>
-                                                    </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-
-                                            <div class="course-content-description">
-                                                <h4>Mô tả sản phẩm</h4>
-                                                <p><?php echo nl2br($product['description'] ?: 'Thông tin chi tiết về sản phẩm sẽ được cập nhật sớm.'); ?></p>
-                                                
-                                                <?php if ($product['short_description']): ?>
-                                                <p><?php echo nl2br($product['short_description']); ?></p>
-                                                <?php endif; ?>
-                                                
-                                                <h5>Yêu cầu</h5>
-                                                <ul>
-                                                    <li>Đọc kỹ thông tin sản phẩm trước khi đặt hàng</li>
-                                                    <li>Liên hệ tư vấn nếu có thắc mắc</li>
-                                                    <li>Kiểm tra chính sách đổi trả</li>
-                                                    <li>Cung cấp thông tin giao hàng chính xác</li>
-                                                </ul>
-                                            </div>
-                                        </div>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($product['short_description'])): ?>
+                                <div class="product-short-description">
+                                    <h4>Thông tin ngắn gọn</h4>
+                                    <div class="short-description-content">
+                                        <?php echo nl2br(htmlspecialchars($product['short_description'])); ?>
                                     </div>
-
-                                    <!-- Details Tab -->
-                                    <div class="tab-panel" id="curriculum">
-                                        <div class="course-curriculum">
-                                            <?php foreach ($packageContents as $index => $section): ?>
-                                            <div class="curriculum-section">
-                                                <div class="section-header">
-                                                    <h5>Phần <?php echo $index + 1; ?>: <?php echo htmlspecialchars($section['title']); ?></h5>
-                                                    <span class="section-info"><?php echo count($section['items']); ?> mục</span>
-                                                </div>
-                                                <div class="section-lessons">
-                                                    <?php foreach ($section['items'] as $item): ?>
-                                                    <div class="lesson-item">
-                                                        <div class="lesson-icon">
-                                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                                            </svg>
-                                                        </div>
-                                                        <span class="lesson-title"><?php echo htmlspecialchars($item); ?></span>
-                                                    </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-
-                                    <!-- Instructor Tab -->
-                                    <div class="tab-panel" id="instructor">
-                                        <div class="instructor-info">
-                                            <div class="instructor-header">
-                                                <div class="instructor-avatar">
-                                                    <img src="https://via.placeholder.com/80x80" alt="<?php echo htmlspecialchars($providerInfo['name']); ?>">
-                                                </div>
-                                                <div class="instructor-details">
-                                                    <h4><?php echo htmlspecialchars($providerInfo['name']); ?></h4>
-                                                    <p><?php echo htmlspecialchars($providerInfo['description']); ?></p>
-                                                    <div class="instructor-stats">
-                                                        <div class="stat-item">
-                                                            <span class="stat-value"><?php echo $providerInfo['rating']; ?></span>
-                                                            <span class="stat-label">Đánh giá</span>
-                                                        </div>
-                                                        <div class="stat-item">
-                                                            <span class="stat-value"><?php echo $providerInfo['customers']; ?></span>
-                                                            <span class="stat-label">Khách hàng</span>
-                                                        </div>
-                                                        <div class="stat-item">
-                                                            <span class="stat-value"><?php echo $providerInfo['experience']; ?></span>
-                                                            <span class="stat-label">Kinh nghiệm</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="instructor-specialties">
-                                                <h5>Chuyên môn</h5>
-                                                <div class="specialties-list">
-                                                    <?php foreach ($providerInfo['specialties'] as $specialty): ?>
-                                                        <span class="specialty-tag"><?php echo htmlspecialchars($specialty); ?></span>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <!-- Product Specifications -->
+                                <div class="product-specifications">
+                                    <h4>Thông số sản phẩm</h4>
+                                    <table class="specs-table">
+                                        <tr>
+                                            <td>Loại sản phẩm:</td>
+                                            <td><?php echo htmlspecialchars($product['type'] ?? 'Không xác định'); ?></td>
+                                        </tr>
+                                        <?php if (!empty($product['weight'])): ?>
+                                        <tr>
+                                            <td>Trọng lượng:</td>
+                                            <td><?php echo htmlspecialchars($product['weight']); ?></td>
+                                        </tr>
+                                        <?php endif; ?>
+                                        <?php if (!empty($product['dimensions'])): ?>
+                                        <tr>
+                                            <td>Kích thước:</td>
+                                            <td><?php echo htmlspecialchars($product['dimensions']); ?></td>
+                                        </tr>
+                                        <?php endif; ?>
+                                        <tr>
+                                            <td>Trạng thái:</td>
+                                            <td><?php echo ($product['status'] === 'active') ? 'Đang bán' : 'Ngừng bán'; ?></td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right Column - Course Sidebar -->
-                        <div class="course-sidebar">
-                            <div class="course-card">
-                                <div class="course-badge">
+                        <!-- Right Column - Product Sidebar -->
+                        <div class="product-sidebar">
+                            <div class="product-card">
+                                <div class="product-image">
                                     <img src="<?php echo getProductImage($product); ?>" 
-                                         alt="<?php echo $product['name']; ?>" 
-                                         class="course-thumbnail">
+                                         alt="<?php echo htmlspecialchars($product['name']); ?>" 
+                                         class="product-thumbnail">
                                 </div>
-                                <div class="course-card-content">
-                                    <div class="course-price">
-                                        <?php if ($product['sale_price']): ?>
+                                
+                                <div class="product-card-content">
+                                    <div class="product-price">
+                                        <?php if (!empty($product['sale_price']) && $product['sale_price'] < $product['price']): ?>
                                             <span class="price"><?php echo $product['formatted_sale_price']; ?></span>
                                             <span class="old-price"><?php echo $product['formatted_price']; ?></span>
-                                            <?php if ($product['discount_percent']): ?>
+                                            <?php if (!empty($product['discount_percent'])): ?>
                                                 <span class="discount">-<?php echo $product['discount_percent']; ?>%</span>
                                             <?php endif; ?>
                                         <?php else: ?>
@@ -286,15 +184,21 @@ $providerInfo = [
                                         <?php endif; ?>
                                     </div>
                                     
-                                    <?php if ($product['status'] === 'active' && $product['in_stock']): ?>
-                                        <button class="btn-enroll">Đặt hàng ngay</button>
-                                        <button class="btn-cart">Thêm vào giỏ hàng</button>
+                                    <?php if ($product['status'] === 'active' && $product['stock'] > 0): ?>
+                                        <button class="btn-order" onclick="addToCart(<?php echo $product['id']; ?>)">
+                                            Đặt hàng ngay
+                                        </button>
+                                        <button class="btn-cart" onclick="addToCart(<?php echo $product['id']; ?>)">
+                                            Thêm vào giỏ hàng
+                                        </button>
                                     <?php else: ?>
-                                        <button class="btn-enroll disabled" disabled>Hết hàng</button>
+                                        <button class="btn-order disabled" disabled>
+                                            <?php echo ($product['stock'] <= 0) ? 'Hết hàng' : 'Ngừng bán'; ?>
+                                        </button>
                                     <?php endif; ?>
                                     
-                                    <div class="course-includes">
-                                        <h5>Sản phẩm bao gồm:</h5>
+                                    <div class="product-info">
+                                        <h5>Thông tin sản phẩm:</h5>
                                         <ul>
                                             <li>
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -306,20 +210,22 @@ $providerInfo = [
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
-                                                Bảo hành chính hãng
+                                                Bảo hành theo quy định
                                             </li>
                                             <li>
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
-                                                Giao hàng miễn phí
+                                                Hỗ trợ khách hàng
                                             </li>
+                                            <?php if ($product['digital']): ?>
                                             <li>
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M3 8L6 11L13 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
-                                                Hỗ trợ 24/7
+                                                Sản phẩm số
                                             </li>
+                                            <?php endif; ?>
                                         </ul>
                                     </div>
                                 </div>
@@ -336,39 +242,35 @@ $providerInfo = [
                     <h3>Sản phẩm liên quan</h3>
                     <div class="products-grid">
                         <?php foreach ($relatedProducts as $relatedProduct): ?>
-                        <div class="course-item">
-                            <div class="course-category">
-                                <a href="?page=products&category=<?php echo $relatedProduct['category_id'] ?? ''; ?>" class="category-tag">
-                                    <?php echo $relatedProduct['category_name'] ?: 'Sản phẩm'; ?>
-                                </a>
-                            </div>
-                            <div class="course-image">
+                        <div class="product-item">
+                            <div class="product-image">
                                 <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>">
                                     <img src="<?php echo getProductImage($relatedProduct); ?>" 
-                                         alt="<?php echo $relatedProduct['name']; ?>" loading="lazy">
+                                         alt="<?php echo htmlspecialchars($relatedProduct['name']); ?>" loading="lazy">
                                 </a>
                             </div>
-                            <div class="course-content">
-                                <h4 class="course-title">
+                            <div class="product-content">
+                                <h4 class="product-title">
                                     <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>">
-                                        <?php echo $relatedProduct['name']; ?>
+                                        <?php echo htmlspecialchars($relatedProduct['name']); ?>
                                     </a>
                                 </h4>
-                                <div class="course-excerpt">
-                                    <?php echo $relatedProduct['short_description'] ?: 'Sản phẩm chất lượng cao từ ThuongLo.com'; ?>
+                                <?php if (!empty($relatedProduct['short_description'])): ?>
+                                <div class="product-excerpt">
+                                    <?php echo htmlspecialchars(substr($relatedProduct['short_description'], 0, 100)) . '...'; ?>
                                 </div>
-                                <div class="course-price">
-                                    <?php if ($relatedProduct['sale_price']): ?>
+                                <?php endif; ?>
+                                <div class="product-price">
+                                    <?php if (!empty($relatedProduct['sale_price']) && $relatedProduct['sale_price'] < $relatedProduct['price']): ?>
                                         <span class="price"><?php echo $relatedProduct['formatted_sale_price']; ?></span>
                                         <span class="old-price"><?php echo $relatedProduct['formatted_price']; ?></span>
                                     <?php else: ?>
                                         <span class="price"><?php echo $relatedProduct['formatted_price']; ?></span>
                                     <?php endif; ?>
                                 </div>
-                                <div class="course-button">
-                                    <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>" class="btn-start-learning">
-                                        <i class="fas fa-play"></i>
-                                        <span>Xem chi tiết</span>
+                                <div class="product-button">
+                                    <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>" class="btn-view-details">
+                                        Xem chi tiết
                                     </a>
                                 </div>
                             </div>
@@ -378,6 +280,15 @@ $providerInfo = [
                 </div>
             </section>
             <?php endif; ?>
+            
+            <?php endif; ?>
         </div>
     </div>
 </div>
+
+<script>
+function addToCart(productId) {
+    // Add to cart functionality
+    alert('Thêm sản phẩm vào giỏ hàng: ' + productId);
+}
+</script>

@@ -1,16 +1,10 @@
 <?php
 /**
  * Categories Page - Dynamic Version
- * Converted from hardcoded data to dynamic database data using ViewDataService
  */
 
-// Load required services and models
-require_once __DIR__ . '/../../services/ViewDataService.php';
-require_once __DIR__ . '/../../services/ErrorHandler.php';
-
-// Initialize services
-$viewDataService = new ViewDataService();
-$errorHandler = new ErrorHandler();
+// 1. Khởi tạo View an toàn
+require_once __DIR__ . '/../../../core/view_init.php';
 
 // Get pagination and sorting parameters
 $page = max(1, (int)($_GET['page'] ?? 1));
@@ -27,8 +21,16 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
+    // Debug: Before calling getCategoriesPageData
+    echo "<!-- Debug: About to call getCategoriesPageData -->";
+    error_log("Categories page: About to call getCategoriesPageData");
+    
     // Get categories page data
     $categoriesData = $viewDataService->getCategoriesPageData($page, $perPage, $orderBy);
+    
+    // Debug: After calling getCategoriesPageData
+    echo "<!-- Debug: getCategoriesPageData returned " . count($categoriesData) . " keys -->";
+    error_log("Categories page: getCategoriesPageData returned " . count($categoriesData) . " keys");
     
     // Extract data
     $categories = $categoriesData['categories'] ?? [];
@@ -37,7 +39,12 @@ try {
     $totalCategories = $categoriesData['total_categories'] ?? 0;
     $displayedCount = $categoriesData['displayed_count'] ?? 0;
     
+    // Debug: Data extracted
+    echo "<!-- Debug: Extracted " . count($categories) . " categories, total: $totalCategories -->";
+    error_log("Categories page: Extracted " . count($categories) . " categories, total: $totalCategories");
+    
 } catch (Exception $e) {
+    error_log("Categories page FATAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine());
     // Handle errors gracefully
     $result = $errorHandler->handleViewError($e, 'categories', []);
     $showErrorMessage = true;
@@ -216,7 +223,7 @@ $displayedCategories = $categories; // Already paginated by service
 
                                     <!-- Reset Button -->
                                     <div class="filter-section">
-                                        <a href="?page=categories" class="reset-filters-btn">Đặt Lại</a>
+                                        <button class="reset-filters-btn">Đặt Lại</button>
                                     </div>
 
                                     <!-- Course Count Filter -->
@@ -248,7 +255,7 @@ $displayedCategories = $categories; // Already paginated by service
 
                                     <!-- Apply Button -->
                                     <div class="filter-section">
-                                        <button class="apply-filters-btn" onclick="window.location.reload()">Áp Dụng</button>
+                                        <button class="apply-filters-btn">Áp Dụng</button>
                                     </div>
                                 </div>
                             </div>

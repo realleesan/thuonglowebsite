@@ -1,28 +1,36 @@
 <?php
-// Load Models
-require_once __DIR__ . '/../../models/OrdersModel.php';
-require_once __DIR__ . '/../../models/ProductsModel.php';
+/**
+ * Payment Success Page - Dynamic Version
+ */
 
-$ordersModel = new OrdersModel();
-$productsModel = new ProductsModel();
+// 1. Khởi tạo View an toàn
+require_once __DIR__ . '/../../../core/view_init.php';
 
-// Get order information
-$orderId = $_GET['order_id'] ?? null;
+// 2. Khởi tạo biến dữ liệu
+$successData = [];
 $order = null;
 $orderItems = [];
 $totalAmount = 0;
+$showErrorMessage = false;
+$errorMessage = '';
 
-if ($orderId) {
-    $order = $ordersModel->getById($orderId);
-    if ($order) {
-        // Get order items if available
-        $orderItems = $ordersModel->getOrderItems($orderId);
-        $totalAmount = $order['total_amount'] ?? 0;
+try {
+    // Get order information
+    $orderId = $_GET['order_id'] ?? null;
+    $successData = $viewDataService->getPaymentSuccessData($orderId);
+    
+    $order = $successData['order'] ?? null;
+    $orderItems = $successData['order_items'] ?? [];
+    $totalAmount = $successData['total_amount'] ?? 0;
+    
+} catch (Exception $e) {
+    if (isset($errorHandler)) {
+        $result = $errorHandler->handleViewError($e, 'payment_success', ['order_id' => $orderId ?? null]);
+        $showErrorMessage = true;
+        $errorMessage = $result['message'];
     }
-}
-
-// Fallback demo data if no order found
-if (!$order) {
+    
+    // Fallback demo data
     $orderId = $orderId ?: 'DEMO' . rand(1000, 9999);
     $order = [
         'id' => $orderId,
@@ -54,6 +62,13 @@ $statusLabel = $statusLabels[$order['status']] ?? 'Không xác định';
 $statusColor = $order['status'] === 'completed' ? '#28a745' : '#ffc107';
 $statusBg = $order['status'] === 'completed' ? '#d4edda' : '#fff3cd';
 ?>
+
+<!-- Error Message -->
+<?php if ($showErrorMessage): ?>
+<div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
+    <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
+</div>
+<?php endif; ?>
 
 <section class="payment-section">
     <div class="container">

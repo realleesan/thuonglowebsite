@@ -172,7 +172,7 @@ class ViewDataService {
         try {
             // Get product info
             $product = $this->getDataWithRetry(
-                [$this->productsModel, 'getById'], 
+                [$this->productsModel, 'find'], 
                 [$productId]
             );
             
@@ -767,7 +767,7 @@ class ViewDataService {
             // Transform data for view
             $transformedCategories = [];
             foreach ($categories as $category) {
-                $transformedCategories[] = $this->dataTransformer->transformCategory($category);
+                $transformedCategories[] = $this->transformer->transformCategory($category);
             }
             
             return [
@@ -868,7 +868,7 @@ class ViewDataService {
             // Transform products data
             $transformedProducts = [];
             foreach ($products as $product) {
-                $transformedProducts[] = $this->dataTransformer->transformProduct($product);
+                $transformedProducts[] = $this->transformer->transformProduct($product);
             }
             
             return [
@@ -967,7 +967,7 @@ class ViewDataService {
             // Transform users data
             $transformedUsers = [];
             foreach ($users as $user) {
-                $transformedUsers[] = $this->dataTransformer->transformUser($user);
+                $transformedUsers[] = $this->transformer->transformUser($user);
             }
             
             return [
@@ -1003,7 +1003,7 @@ class ViewDataService {
             }
             
             // Transform user data
-            $transformedUser = $this->dataTransformer->transformUser($user);
+            $transformedUser = $this->transformer->transformUser($user);
             
             return [
                 'user' => $transformedUser

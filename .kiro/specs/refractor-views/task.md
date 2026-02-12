@@ -9,27 +9,19 @@
 
 ### Thành viên 1: Module Sản phẩm & Bán hàng
 
-* [ ]
-
-  app/views/home/home.php (Đã xong mẫu)
-* [ ]
-
-  app/views/products/products.php
-* [ ]
-
-  app/views/products/details.php
-* [ ]
-
-  app/views/categories/categories.php
-* [ ] `app/views/payment/` (checkout.php, success.php, cancel.php)
+* [X] app/views/home/home.php (Đã xong mẫu)
+* [X] app/views/products/products.php
+* [ ] app/views/products/details.php
+* [X] app/views/categories/categories.php
+* [X] `app/views/payment/` (checkout.php, success.php, cancel.php)
 
 ### Thành viên 2: Module Tin tức & Giới thiệu
 
 * [ ] `app/views/news/news.php`
 * [ ] `app/views/news/news-details.php`
 * [ ] `app/views/events/` (list.php, detail.php)
-* [ ] `app/views/about/about.php`
-* [ ] `app/views/contact/contact.php`
+* [X] `app/views/about/about.php`
+* [X] `app/views/contact/contact.php`
 
 ## Giai đoạn 2: User & Affiliate (Member 1 & 2 làm song song)
 
