@@ -2,15 +2,27 @@
 // Khởi tạo session
 session_start();
 
-// Include các file cần thiết
-$config = require_once 'config.php';
-require_once 'core/security.php'; // Load security first
-require_once 'core/functions.php';
+// Load basic configuration
+$base_dir = __DIR__;
+$config = require_once $base_dir . '/config.php';
+
+// Set error reporting based on config
+if ($config['app']['debug']) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
+
+// Include core files
+require_once $base_dir . '/core/security.php';
+require_once $base_dir . '/core/functions.php';
 
 // Initialize URL Builder
 init_url_builder();
 
-// Bật output buffering để các trang con có thể sử dụng header() sau khi layout đã bắt đầu render
+// Enable output buffering
 if (ob_get_level() === 0) {
     ob_start();
 }

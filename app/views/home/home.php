@@ -1,23 +1,17 @@
 ﻿<?php
 /**
  * Home Page - Dynamic Version
- * Full Version with Standard View Initialization
  */
 
-// 1. Khởi tạo View an toàn (Service, ErrorHandler, Functions)
+// 1. Khởi tạo View an toàn
 require_once __DIR__ . '/../../../core/view_init.php';
 
 // 2. Khởi tạo biến dữ liệu
 $homeData = [];
-$featuredProducts = [];
-$latestProducts = [];
-$featuredCategories = [];
-$latestNews = [];
 $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Lấy dữ liệu từ Service đã được view_init khởi tạo
     $homeData = $viewDataService->getHomePageData();
     
     $featuredProducts = $homeData['featured_products'] ?? [];

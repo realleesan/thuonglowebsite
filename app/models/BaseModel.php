@@ -4,7 +4,7 @@
  * Provides common functionality for all models
  */
 
-require_once __DIR__ . '/../../core/Database.php';
+require_once __DIR__ . '/../../core/database.php';
 
 abstract class BaseModel {
     protected $db;

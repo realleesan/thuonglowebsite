@@ -74,6 +74,15 @@ class Database {
         $this->bindings[$placeholder] = $value;
         return $this;
     }
+
+    public function orderBy($column, $direction = 'ASC') {
+        if (strpos($this->query, 'ORDER BY') === false) {
+            $this->query .= " ORDER BY {$column} {$direction}";
+        } else {
+            $this->query .= ", {$column} {$direction}";
+        }
+        return $this;
+    }
     
     public function limit($limit, $offset = 0) {
         if ($offset > 0) {

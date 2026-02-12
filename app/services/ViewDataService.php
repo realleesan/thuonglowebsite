@@ -39,9 +39,6 @@ class ViewDataService {
         echo "<!-- Debug: Models Initialized -->";
     }
     
-    /**
-     * Chuẩn bị data cho home page
-     */
     public function getHomePageData(): array {
         try {
             $data = [];
