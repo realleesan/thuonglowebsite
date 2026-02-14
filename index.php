@@ -1,6 +1,6 @@
 <?php
-// Khởi tạo session
-session_start();
+// Define security constant for core files
+define('THUONGLO_INIT', true);
 
 // Load basic configuration
 $base_dir = __DIR__;
@@ -18,6 +18,7 @@ if ($config['app']['debug']) {
 // Include core files
 require_once $base_dir . '/core/security.php';
 require_once $base_dir . '/core/functions.php';
+require_once $base_dir . '/app/middleware/AuthMiddleware.php'; // Authentication middleware
 require_once $base_dir . '/core/view_init.php'; // Khởi tạo ServiceManager & services
 
 // Initialize URL Builder
@@ -141,37 +142,54 @@ switch($page) {
         break;
         
     case 'login':
-        $title = 'Đăng nhập - Thuong Lo';
-        $content = 'app/views/auth/login.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = true;
-        $breadcrumbs = generate_breadcrumb('auth');
-        $currentService = $publicService ?? $currentService;
+        $action = $_GET['action'] ?? '';
+        if ($action === 'process' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Process login
+            require_once 'app/controllers/AuthController.php';
+            $authController = new AuthController();
+            $authController->processLogin();
+            exit;
+        } else {
+            // Show login form
+            require_once 'app/controllers/AuthController.php';
+            $authController = new AuthController();
+            $authController->login();
+            exit;
+        }
         break;
         
     case 'register':
-        $title = 'Đăng ký - Thuong Lo';
-        $content = 'app/views/auth/register.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = true;
-        $breadcrumbs = generate_breadcrumb('register');
-        $currentService = $publicService ?? $currentService;
+        $action = $_GET['action'] ?? '';
+        if ($action === 'process' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Process registration
+            require_once 'app/controllers/AuthController.php';
+            $authController = new AuthController();
+            $authController->processRegister();
+            exit;
+        } else {
+            // Show registration form
+            require_once 'app/controllers/AuthController.php';
+            $authController = new AuthController();
+            $authController->register();
+            exit;
+        }
         break;
 
     case 'forgot':
-        $title = 'Quên mật khẩu - Thuong Lo';
-        $content = 'app/views/auth/forgot.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = true;
-        $breadcrumbs = [
-            ['title' => 'Trang chủ', 'url' => './'],
-            ['title' => 'Đăng nhập', 'url' => '?page=login'],
-            ['title' => 'Quên mật khẩu']
-        ];
-        $currentService = $publicService ?? $currentService;
+        $action = $_GET['action'] ?? '';
+        if ($action === 'process' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Process forgot password
+            require_once 'app/controllers/AuthController.php';
+            $authController = new AuthController();
+            $authController->processForgot();
+            exit;
+        } else {
+            // Show forgot password form
+            require_once 'app/controllers/AuthController.php';
+            $authController = new AuthController();
+            $authController->forgot();
+            exit;
+        }
         break;
 
     case 'checkout':
@@ -214,11 +232,6 @@ switch($page) {
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
         
-        // Check admin authentication (tạm thời bỏ qua để test)
-        // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-        //     header('Location: ?page=login');
-        //     exit;
-        // }
         
         // Set admin page variables
         $title = 'Admin Panel - Thuong Lo';
@@ -439,11 +452,6 @@ switch($page) {
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
         
-        // Check user authentication (tạm thời bỏ qua để test)
-        // if (!isset($_SESSION['role'])) {
-        //     header('Location: ?page=login');
-        //     exit;
-        // }
         
         // Set user page variables
         $title = 'Tài khoản - Thuong Lo';
@@ -578,13 +586,6 @@ switch($page) {
         // Affiliate dashboard routing - Uses its own layout
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
-        
-        // Check affiliate authentication (TEMPORARY DISABLED FOR TESTING)
-        // TODO: Enable this after testing is complete
-        // if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'agent') {
-        //     header('Location: ?page=login');
-        //     exit;
-        // }
         
         // Set flag to use affiliate layout
         $useAffiliateLayout = true;

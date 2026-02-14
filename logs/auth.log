@@ -1,0 +1,13 @@
+{"timestamp":"2026-02-14 17:01:00","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 17:01:52","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 17:04:08","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 17:41:49","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 17:41:49","event":"security_violation","context":{"type":"csrf_mismatch","message":"Token bảo mật không hợp lệ. Vui lòng thử lại","ip":"unknown","user_agent":"unknown","severity":"high"}}
+{"timestamp":"2026-02-14 17:43:19","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 17:43:19","event":"security_violation","context":{"type":"csrf_mismatch","message":"Token bảo mật không hợp lệ. Vui lòng thử lại","ip":"unknown","user_agent":"unknown","severity":"high"}}
+{"timestamp":"2026-02-14 17:45:36","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 17:45:36","event":"security_violation","context":{"type":"csrf_mismatch","message":"Token bảo mật không hợp lệ. Vui lòng thử lại","ip":"unknown","user_agent":"unknown","severity":"high"}}
+{"timestamp":"2026-02-14 19:34:25","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 19:34:25","event":"security_violation","context":{"type":"csrf_mismatch","message":"Token bảo mật không hợp lệ. Vui lòng thử lại","ip":"unknown","user_agent":"unknown","severity":"high"}}
+{"timestamp":"2026-02-14 19:36:18","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}
+{"timestamp":"2026-02-14 19:36:59","event":"auth_error","context":{"type":"invalid_credentials","message":"Email\/số điện thoại hoặc mật khẩu không đúng","ip":"unknown","user_agent":"unknown"}}

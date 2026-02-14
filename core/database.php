@@ -124,6 +124,75 @@ class Database {
         }
     }
     
+    public function insert($data) {
+        $columns = array_keys($data);
+        $placeholders = array_map(function($col) { return ':' . $col; }, $columns);
+        
+        $sql = "INSERT INTO {$this->table} (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($data);
+            return $this->pdo->lastInsertId();
+        } catch (PDOException $e) {
+            throw new Exception("Insert failed: " . $e->getMessage());
+        }
+    }
+    
+    public function update($data) {
+        $setParts = [];
+        $bindings = [];
+        
+        foreach ($data as $column => $value) {
+            $placeholder = ':' . $column;
+            $setParts[] = "{$column} = {$placeholder}";
+            $bindings[$placeholder] = $value;
+        }
+        
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $setParts);
+        
+        // Add WHERE conditions if they exist
+        if (!empty($this->bindings)) {
+            $whereParts = [];
+            foreach ($this->bindings as $placeholder => $value) {
+                $column = str_replace(':', '', $placeholder);
+                $column = str_replace('_' . (count($this->bindings) - 1), '', $column);
+                $whereParts[] = "{$column} = {$placeholder}";
+            }
+            $sql .= " WHERE " . implode(' AND ', $whereParts);
+            $bindings = array_merge($bindings, $this->bindings);
+        }
+        
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute($bindings);
+        } catch (PDOException $e) {
+            throw new Exception("Update failed: " . $e->getMessage());
+        }
+    }
+    
+    public function delete() {
+        $sql = "DELETE FROM {$this->table}";
+        
+        // Add WHERE conditions if they exist
+        if (!empty($this->bindings)) {
+            $whereParts = [];
+            foreach ($this->bindings as $placeholder => $value) {
+                $column = str_replace(':', '', $placeholder);
+                $column = preg_replace('/_\d+$/', '', $column); // Remove trailing numbers
+                $whereParts[] = "{$column} = {$placeholder}";
+            }
+            $sql .= " WHERE " . implode(' AND ', $whereParts);
+        }
+        
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute($this->bindings);
+        } catch (PDOException $e) {
+            throw new Exception("Delete failed: " . $e->getMessage());
+        }
+    }
+    
     public function testConnection() {
         try {
             $result = $this->query("SELECT 1 as test");

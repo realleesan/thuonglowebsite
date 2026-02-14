@@ -82,9 +82,15 @@ $config = [
     ],
     
     'security' => [
-        'session_name' => 'THUONGLO_SESSION',
+        'session_name' => 'THUONGLO_AUTH_SESSION',
+        'session_lifetime' => 3600, // 1 hour
+        'session_timeout' => 1800, // 30 minutes inactivity
         'csrf_protection' => true,
         'password_hash_algo' => PASSWORD_DEFAULT,
+        'password_hash_cost' => 12,
+        'max_login_attempts' => 5,
+        'lockout_duration' => 900, // 15 minutes
+        'reset_token_lifetime' => 3600, // 1 hour
     ],
     
     'performance' => [

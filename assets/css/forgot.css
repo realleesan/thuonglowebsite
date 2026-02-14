@@ -146,6 +146,18 @@
     background: #ffffff;
 }
 
+.forgot-page .auth-section {
+    padding: 80px 0;
+}
+
+.forgot-page .page-title-main {
+    font-family: 'Poppins', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 32px;
+}
+
 .forgot-page .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -169,27 +181,11 @@
     margin: 0;
 }
 
-.forgot-page .forgot-hero-section {
-    padding: 60px 0 30px;
-    background: linear-gradient(135deg, rgba(53, 109, 241, 0.08), rgba(53, 109, 241, 0));
-}
 
-.forgot-page .forgot-form-section {
-    min-height: calc(100vh - 160px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Căn giữa theo chiều dọc */
-    align-items: center;
-    padding: 0 0 80px;
-}
 
 .forgot-page .auth-panel {
-    background: #ffffff;
-    border: 1px solid #E5E7EB;
-    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
-    border-radius: 18px;
-    padding: 48px;
-    max-width: 620px;
+    background: transparent;
+    max-width: 520px;
     margin: 0 auto;
 }
 
@@ -278,20 +274,7 @@
     cursor: pointer;
 }
 
-.forgot-wrapper .forgot-form-section {
-    min-height: calc(100vh - 160px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 0 80px;
-}
 
-.forgot-wrapper .forgot-form-section .container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
 
 .register-link {
     margin-top: 32px;

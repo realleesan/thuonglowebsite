@@ -1,8 +1,14 @@
 <?php
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
+/**
+ * Admin Settings Index
+ * Sử dụng AdminService thông qua ServiceManager
+ */
 
-require_once __DIR__ . '/../../services/AdminService.php';
-require_once __DIR__ . '/../../services/ErrorHandler.php';
+// Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
+
+// Chọn service admin (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {
     // Get filters

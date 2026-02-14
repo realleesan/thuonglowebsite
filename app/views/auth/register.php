@@ -1,87 +1,35 @@
-<?php
-require_once __DIR__ . '/auth.php';
-require_once __DIR__ . '/../../core/view_init.php';
-
-// Chọn service public cho auth (ưu tiên inject từ routing)
-$service = isset($currentService) ? $currentService : ($publicService ?? null);
-
-// Xử lý đăng ký
-$error = '';
-$success = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $fullName = sanitize($_POST['full_name'] ?? '');
-    $email = sanitize($_POST['email'] ?? '');
-    $phone = sanitize($_POST['phone'] ?? '');
-    $password = sanitize($_POST['password'] ?? '');
-    $confirmPassword = sanitize($_POST['confirm_password'] ?? '');
-    $refCode = sanitize($_POST['ref_code'] ?? '');
-    
-    // Validation
-    if (empty($fullName) || empty($email) || empty($phone) || empty($password)) {
-        $error = 'Vui lòng nhập đầy đủ thông tin bắt buộc';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Email không hợp lệ';
-    } elseif ($password !== $confirmPassword) {
-        $error = 'Mật khẩu xác nhận không khớp';
-    } elseif (strlen($password) < 6) {
-        $error = 'Mật khẩu phải có ít nhất 6 ký tự';
-    } else {
-        try {
-            // Đăng ký người dùng thực tế
-            $user = registerUser($fullName, $email, $phone, $password, $refCode);
-            
-            if ($user) {
-                $success = 'Đăng ký thành công! Đang chuyển hướng...';
-            } else {
-                $error = 'Đăng ký thất bại, vui lòng thử lại';
-            }
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-        }
-    }
-}
-
-// Get view data từ PublicService
-$viewData = $service && method_exists($service, 'getAuthRegisterData')
-    ? $service->getAuthRegisterData()
-    : [
-        'page_title' => 'Đăng ký',
-        'form_action' => form_url(),
-        'login_url' => page_url('login'),
-        'ref_code_from_url' => '',
-    ];
-$refCodeFromUrl = $viewData['ref_code_from_url'];
-?>
-
 <main class="page-content">
     <section class="auth-section register-page">
         <div class="container">
-            <h1 class="page-title-main"><?php echo $viewData['page_title']; ?></h1>
+            <h1 class="page-title-main"><?php echo htmlspecialchars($viewData['page_title']); ?></h1>
 
             <div class="auth-panel register-panel">
                 <h2 class="auth-heading">Đăng ký</h2>
                 <p class="auth-subheading">Tham gia ThuongLo.com để khám phá nguồn hàng chất lượng</p>
 
                 <?php if ($error): ?>
-                    <div class="alert alert-error"><?php echo $error; ?></div>
+                    <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
 
                 <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo $success; ?></div>
+                    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
                     <script>
                         setTimeout(function() {
-                            window.location.href = '<?php echo page_url('home'); ?>';
+                            window.location.href = '<?php echo ($viewData['login_url'] ?? '?page=login'); ?>';
                         }, 2000);
                     </script>
                 <?php endif; ?>
 
                 <form method="POST" action="<?php echo $viewData['form_action']; ?>" id="registerForm" class="auth-form">
+                    <!-- CSRF Protection -->
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($viewData['csrf_token'] ?? ''); ?>">
+                    
                     <div class="form-group">
-                        <label for="full_name">Họ và tên <span class="required">*</span></label>
-                        <input type="text" id="full_name" name="full_name" class="form-control"
+                        <label for="name">Họ và tên <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" class="form-control"
                                placeholder="Nhập họ và tên đầy đủ" required
-                               value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
+                               value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
+                               autocomplete="name">
                     </div>
 
                     <div class="form-row">
@@ -89,14 +37,16 @@ $refCodeFromUrl = $viewData['ref_code_from_url'];
                             <label for="email">Email <span class="required">*</span></label>
                             <input type="email" id="email" name="email" class="form-control"
                                    placeholder="Nhập địa chỉ email" required
-                                   value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                                   value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
+                                   autocomplete="email">
                         </div>
 
                         <div class="form-group">
                             <label for="phone">Số điện thoại <span class="required">*</span></label>
                             <input type="tel" id="phone" name="phone" class="form-control"
                                    placeholder="Nhập số điện thoại" required
-                                   value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
+                                   value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>"
+                                   autocomplete="tel">
                         </div>
                     </div>
 
@@ -105,7 +55,8 @@ $refCodeFromUrl = $viewData['ref_code_from_url'];
                             <label for="password">Mật khẩu <span class="required">*</span></label>
                             <div class="password-wrapper">
                                 <input type="password" id="password" name="password" class="form-control"
-                                       placeholder="Nhập mật khẩu" required minlength="6">
+                                       placeholder="Nhập mật khẩu" required minlength="8"
+                                       autocomplete="new-password">
                                 <button type="button" class="password-toggle" onclick="toggleAuthPassword('password')"
                                         aria-label="Hiển thị mật khẩu" aria-pressed="false" data-label-show="Hiển thị mật khẩu"
                                         data-label-hide="Ẩn mật khẩu">
@@ -113,19 +64,24 @@ $refCodeFromUrl = $viewData['ref_code_from_url'];
                                 </button>
                             </div>
                             <div id="passwordStrength" class="password-strength"></div>
+                            <div class="password-requirements">
+                                <small>Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</small>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label for="confirm_password">Xác nhận mật khẩu <span class="required">*</span></label>
                             <div class="password-wrapper">
                                 <input type="password" id="confirm_password" name="confirm_password" class="form-control"
-                                       placeholder="Nhập lại mật khẩu" required>
+                                       placeholder="Nhập lại mật khẩu" required
+                                       autocomplete="new-password">
                                 <button type="button" class="password-toggle" onclick="toggleAuthPassword('confirm_password')"
                                         aria-label="Hiển thị lại mật khẩu" aria-pressed="false" data-label-show="Hiển thị lại mật khẩu"
                                         data-label-hide="Ẩn mật khẩu">
                                     <span class="password-toggle-icon" id="confirm-password-icon" aria-hidden="true"></span>
                                 </button>
                             </div>
+                            <div id="passwordMatch" class="password-match"></div>
                         </div>
                     </div>
 
@@ -157,7 +113,7 @@ $refCodeFromUrl = $viewData['ref_code_from_url'];
                 </form>
 
                 <div class="register-link">
-                    Đã có tài khoản? <a href="<?php echo $viewData['login_url']; ?>">Đăng nhập ngay</a>
+                    Đã có tài khoản? <a href="<?php echo ($viewData['login_url'] ?? '?page=login'); ?>">Đăng nhập ngay</a>
                 </div>
             </div>
         </div>

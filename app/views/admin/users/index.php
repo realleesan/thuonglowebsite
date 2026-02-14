@@ -1,4 +1,13 @@
 <?php
+/**
+ * Admin Users Index
+ * Sử dụng AdminService thông qua ServiceManager
+ */
+
+// Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
+
+// Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 try {

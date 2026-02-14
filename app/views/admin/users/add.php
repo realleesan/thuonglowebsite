@@ -1,9 +1,14 @@
 <?php
-require_once __DIR__ . '/../../../../core/view_init.php';
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
+/**
+ * Admin Users Add
+ * Sử dụng AdminService thông qua ServiceManager
+ */
 
-// Load ErrorHandler for consistent error handling
-require_once __DIR__ . '/../../../services/ErrorHandler.php';
+// Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
+
+// Chọn service admin (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 // Handle form submission
 $errors = [];

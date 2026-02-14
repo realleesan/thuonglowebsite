@@ -1,4 +1,205 @@
-// auth.js - Phiên bản Final (Hỗ trợ tìm icon thông minh)
+// auth.js - Enhanced Authentication with Security Features
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    const requirements = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /\d/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    
+    const score = Object.values(requirements).filter(Boolean).length;
+    const strength = score < 3 ? 'weak' : score < 5 ? 'medium' : 'strong';
+    
+    return { requirements, score, strength };
+}
+
+// Update password strength indicator
+function updatePasswordStrength(inputId, strengthId) {
+    const input = document.getElementById(inputId);
+    const strengthDiv = document.getElementById(strengthId);
+    
+    if (!input || !strengthDiv) return;
+    
+    const password = input.value;
+    const { requirements, strength } = checkPasswordStrength(password);
+    
+    let strengthText = '';
+    let strengthClass = '';
+    
+    if (password.length === 0) {
+        strengthDiv.innerHTML = '';
+        return;
+    }
+    
+    switch (strength) {
+        case 'weak':
+            strengthText = 'Yếu';
+            strengthClass = 'strength-weak';
+            break;
+        case 'medium':
+            strengthText = 'Trung bình';
+            strengthClass = 'strength-medium';
+            break;
+        case 'strong':
+            strengthText = 'Mạnh';
+            strengthClass = 'strength-strong';
+            break;
+    }
+    
+    const requirementsList = [
+        { key: 'length', text: 'Ít nhất 8 ký tự' },
+        { key: 'uppercase', text: 'Chữ hoa' },
+        { key: 'lowercase', text: 'Chữ thường' },
+        { key: 'number', text: 'Số' },
+        { key: 'special', text: 'Ký tự đặc biệt' }
+    ];
+    
+    const requirementsHtml = requirementsList.map(req => 
+        `<span class="${requirements[req.key] ? 'req-met' : 'req-unmet'}">${req.text}</span>`
+    ).join(' • ');
+    
+    strengthDiv.innerHTML = `
+        <div class="strength-indicator ${strengthClass}">
+            <span class="strength-text">Độ mạnh: ${strengthText}</span>
+        </div>
+        <div class="requirements">${requirementsHtml}</div>
+    `;
+}
+
+// Check password match
+function checkPasswordMatch(passwordId, confirmId, matchId) {
+    const password = document.getElementById(passwordId);
+    const confirm = document.getElementById(confirmId);
+    const matchDiv = document.getElementById(matchId);
+    
+    if (!password || !confirm || !matchDiv) return;
+    
+    const passwordValue = password.value;
+    const confirmValue = confirm.value;
+    
+    if (confirmValue.length === 0) {
+        matchDiv.innerHTML = '';
+        return;
+    }
+    
+    if (passwordValue === confirmValue) {
+        matchDiv.innerHTML = '<span class="match-success">✓ Mật khẩu khớp</span>';
+        confirm.setCustomValidity('');
+    } else {
+        matchDiv.innerHTML = '<span class="match-error">✗ Mật khẩu không khớp</span>';
+        confirm.setCustomValidity('Mật khẩu xác nhận không khớp');
+    }
+}
+
+// CSRF token refresh (for long forms)
+function refreshCsrfToken() {
+    fetch('/auth/csrf-token', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.csrf_token) {
+            const csrfInputs = document.querySelectorAll('input[name="csrf_token"]');
+            csrfInputs.forEach(input => {
+                input.value = data.csrf_token;
+            });
+        }
+    })
+    .catch(error => {
+        console.warn('Failed to refresh CSRF token:', error);
+    });
+}
+
+// Rate limiting warning
+function showRateLimitWarning(seconds) {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            const originalText = submitBtn.textContent;
+            
+            const countdown = setInterval(() => {
+                submitBtn.textContent = `Vui lòng chờ ${seconds}s`;
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(countdown);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            }, 1000);
+        }
+    });
+}
+
+// Form validation enhancement
+function enhanceFormValidation() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            // Check CSRF token
+            const csrfToken = form.querySelector('input[name="csrf_token"]');
+            if (csrfToken && !csrfToken.value) {
+                e.preventDefault();
+                alert('Token bảo mật không hợp lệ. Vui lòng tải lại trang.');
+                return false;
+            }
+            
+            // Check password strength for registration
+            if (form.id === 'registerForm') {
+                const password = form.querySelector('#password');
+                if (password) {
+                    const { strength } = checkPasswordStrength(password.value);
+                    if (strength === 'weak') {
+                        e.preventDefault();
+                        alert('Mật khẩu quá yếu. Vui lòng chọn mật khẩu mạnh hơn.');
+                        return false;
+                    }
+                }
+            }
+        });
+    });
+}
+
+// Auto-logout warning
+function setupAutoLogoutWarning(warningTime = 300000, logoutTime = 1800000) { // 5 min warning, 30 min logout
+    let warningShown = false;
+    
+    setTimeout(() => {
+        if (!warningShown) {
+            warningShown = true;
+            if (confirm('Phiên làm việc sắp hết hạn. Bạn có muốn gia hạn không?')) {
+                // Extend session
+                fetch('/auth/extend-session', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        warningShown = false;
+                        setupAutoLogoutWarning(warningTime, logoutTime);
+                    }
+                });
+            }
+        }
+    }, warningTime);
+    
+    setTimeout(() => {
+        window.location.href = '/auth/logout?reason=timeout';
+    }, logoutTime);
+}
 
 // Khởi tạo trạng thái icon khi trang load
 function initPasswordToggleIcons() {
@@ -131,10 +332,63 @@ document.addEventListener('DOMContentLoaded', function() {
     // Khởi tạo trạng thái icon password
     initPasswordToggleIcons();
     
-    const phoneInput = document.getElementById('phone');
+    // Enhanced form validation
+    enhanceFormValidation();
+    
+    // Password strength checking
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            updatePasswordStrength('password', 'passwordStrength');
+        });
+    }
+    
+    // Password confirmation checking
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    if (confirmPasswordInput && passwordInput) {
+        const checkMatch = () => checkPasswordMatch('password', 'confirm_password', 'passwordMatch');
+        passwordInput.addEventListener('input', checkMatch);
+        confirmPasswordInput.addEventListener('input', checkMatch);
+    }
+    
+    // New password strength checking (for reset forms)
+    const newPasswordInput = document.getElementById('new_password');
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            updatePasswordStrength('new_password', 'passwordStrength');
+        });
+        
+        const confirmNewPasswordInput = document.getElementById('confirm_password');
+        if (confirmNewPasswordInput) {
+            const checkNewMatch = () => checkPasswordMatch('new_password', 'confirm_password', 'passwordMatch');
+            newPasswordInput.addEventListener('input', checkNewMatch);
+            confirmNewPasswordInput.addEventListener('input', checkNewMatch);
+        }
+    }
+    
+    // CSRF token refresh every 30 minutes
+    setInterval(refreshCsrfToken, 30 * 60 * 1000);
+    
+    // Setup auto-logout for authenticated users
+    if (document.body.classList.contains('authenticated')) {
+        setupAutoLogoutWarning();
+    }
+    
+    // Demo account functionality
+    const phoneInput = document.getElementById('phone') || document.getElementById('login');
     if (phoneInput) {
         phoneInput.addEventListener('input', function() {
             if (this.value.toLowerCase() === 'admin') window.selectRole('admin');
         });
+    }
+    
+    // Handle rate limiting from server
+    const rateLimitWarning = document.querySelector('.alert-warning');
+    if (rateLimitWarning && rateLimitWarning.textContent.includes('Quá nhiều')) {
+        const match = rateLimitWarning.textContent.match(/(\d+)/);
+        if (match) {
+            const minutes = parseInt(match[1]);
+            showRateLimitWarning(minutes * 60);
+        }
     }
 });

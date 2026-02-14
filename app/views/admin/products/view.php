@@ -1,13 +1,15 @@
 <?php
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
-
 /**
  * Admin Products View - Dynamic Version
- * Converted from direct model usage to AdminService
+ * Sử dụng AdminService thông qua ServiceManager
  */
 
-// Load required services
-// Initialize services
+// Khởi tạo View & ServiceManager
+require_once __DIR__ . '/../../../../core/view_init.php';
+
+// Chọn service admin (được inject từ index.php)
+$service = isset($currentService) ? $currentService : ($adminService ?? null);
+
 // Get product ID from URL
 $product_id = (int)($_GET['id'] ?? 0);
 
