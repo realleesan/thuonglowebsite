@@ -40,13 +40,13 @@ class AuthErrorHandler {
      */
     public function handleAuthenticationError(string $type, array $context = []): array {
         $messages = [
-            'invalid_credentials' => 'Email/số điện thoại hoặc mật khẩu không đúng',
-            'account_locked' => 'Tài khoản đã bị khóa do đăng nhập sai quá nhiều lần',
-            'account_banned' => 'Tài khoản đã bị cấm',
-            'account_inactive' => 'Tài khoản chưa được kích hoạt',
-            'session_expired' => 'Phiên đăng nhập đã hết hạn',
-            'insufficient_permissions' => 'Bạn không có quyền truy cập tài nguyên này',
-            'rate_limited' => 'Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau',
+            'invalid_credentials' => 'Đăng nhập thất bại: Email/số điện thoại hoặc mật khẩu không đúng',
+            'account_locked' => 'Tài khoản bị khóa: Đã đăng nhập sai quá nhiều lần',
+            'account_banned' => 'Tài khoản bị cấm: Liên hệ admin để được hỗ trợ',
+            'account_inactive' => 'Tài khoản chưa kích hoạt: Vui lòng kiểm tra email để kích hoạt',
+            'session_expired' => 'Phiên đăng nhập hết hạn: Vui lòng đăng nhập lại',
+            'insufficient_permissions' => 'Không có quyền truy cập: Bạn không được phép truy cập tài nguyên này',
+            'rate_limited' => 'Quá nhiều lần thử: Vui lòng thử lại sau ít phút',
         ];
         
         $message = $messages[$type] ?? 'Lỗi xác thực';

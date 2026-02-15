@@ -176,7 +176,7 @@ class AuthService implements ServiceInterface {
             $redirectPath = $this->roleManager->getRedirectPath($user);
             
             return $this->errorHandler->createSuccessResponse(
-                'Đăng nhập thành công',
+                'Đăng nhập thành công! Chào mừng bạn quay trở lại',
                 [
                     'user' => $user,
                     'session_id' => $sessionId,
@@ -265,7 +265,7 @@ class AuthService implements ServiceInterface {
                     'reason' => 'duplicate_email'
                 ]);
                 return $this->errorHandler->handleValidationError([
-                    'email' => 'Email này đã được sử dụng'
+                    'email' => 'Email đã tồn tại: Email này đã được sử dụng bởi tài khoản khác'
                 ]);
             } elseif (strpos($e->getMessage(), 'Username already exists') !== false) {
                 $this->securityLogger->logAuthAttempt('registration_failed', [
@@ -273,7 +273,7 @@ class AuthService implements ServiceInterface {
                     'reason' => 'duplicate_username'
                 ]);
                 return $this->errorHandler->handleValidationError([
-                    'username' => 'Tên đăng nhập này đã được sử dụng'
+                    'username' => 'Tên đăng nhập đã tồn tại: Tên đăng nhập này đã được sử dụng'
                 ]);
             } elseif (strpos($e->getMessage(), 'Phone number already exists') !== false) {
                 $this->securityLogger->logAuthAttempt('registration_failed', [
@@ -281,7 +281,7 @@ class AuthService implements ServiceInterface {
                     'reason' => 'duplicate_phone'
                 ]);
                 return $this->errorHandler->handleValidationError([
-                    'phone' => 'Số điện thoại này đã được sử dụng'
+                    'phone' => 'Số điện thoại đã tồn tại: Số điện thoại này đã được sử dụng'
                 ]);
             } elseif (strpos($e->getMessage(), 'already exists') !== false) {
                 $this->securityLogger->logAuthAttempt('registration_failed', [
@@ -289,7 +289,7 @@ class AuthService implements ServiceInterface {
                     'reason' => 'duplicate_data'
                 ]);
                 return $this->errorHandler->handleValidationError([
-                    'general' => 'Thông tin đã được sử dụng, vui lòng kiểm tra lại email, tên đăng nhập hoặc số điện thoại'
+                    'general' => 'Thông tin đã tồn tại: Vui lòng kiểm tra lại email, tên đăng nhập hoặc số điện thoại'
                 ]);
             }
             

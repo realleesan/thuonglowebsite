@@ -1,15 +1,9 @@
 <main class="page-content">
     <section class="auth-section register-page">
         <div class="container">
-            <h1 class="page-title-main"><?php echo htmlspecialchars($viewData['page_title']); ?></h1>
-
             <div class="auth-panel register-panel">
                 <h2 class="auth-heading">Đăng ký</h2>
                 <p class="auth-subheading">Tham gia ThuongLo.com để khám phá nguồn hàng chất lượng</p>
-
-                <?php if ($error): ?>
-                    <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
-                <?php endif; ?>
 
                 <?php 
                 // Get field-specific errors
@@ -18,15 +12,6 @@
                     unset($_SESSION['flash_errors']); // Clear after displaying
                 }
                 ?>
-
-                <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-                    <script>
-                        setTimeout(function() {
-                            window.location.href = '<?php echo ($viewData['login_url'] ?? '?page=login'); ?>';
-                        }, 2000);
-                    </script>
-                <?php endif; ?>
 
                 <form method="POST" action="<?php echo $viewData['form_action']; ?>" id="registerForm" class="auth-form">
                     <!-- CSRF Protection -->

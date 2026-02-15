@@ -38,9 +38,9 @@
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($viewData['csrf_token'] ?? ''); ?>">
                         <input type="hidden" name="action" value="send_code">
                         <div class="form-group">
-                            <label for="contact">Email hoặc Số điện thoại</label>
+                            <label for="contact">Nhập Email</label>
                             <input type="text" id="contact" name="contact" class="form-control" 
-                                   placeholder="Nhập Email hoặc SĐT" required autofocus
+                                   placeholder="Nhập Email" required autofocus
                                    autocomplete="username">
                         </div>
                         <button type="submit" class="btn-primary auth-submit-btn">Gửi mã xác thực</button>

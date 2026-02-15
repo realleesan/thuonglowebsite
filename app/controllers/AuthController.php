@@ -24,10 +24,10 @@ class AuthController {
             return;
         }
         
-        // Get any flash messages
+        // Don't unset flash messages here - let master.php handle them
+        // Get any flash messages for backward compatibility (not used anymore)
         $error = $_SESSION['flash_error'] ?? null;
         $success = $_SESSION['flash_success'] ?? null;
-        unset($_SESSION['flash_error'], $_SESSION['flash_success']);
         
         // Get CSRF token
         $csrfToken = $this->authService->getCsrfToken();
@@ -50,12 +50,9 @@ class AuthController {
             return;
         }
         
-        // Debug: Log the POST data
-        error_log("Login POST data: " . print_r($_POST, true));
-        
-        // Temporarily bypass CSRF for debugging
+        // Verify CSRF token
         $csrfToken = $_POST['csrf_token'] ?? '';
-        if (!empty($csrfToken) && !$this->authService->verifyCsrfToken($csrfToken)) {
+        if (!$this->authService->verifyCsrfToken($csrfToken)) {
             $this->setFlashMessage('error', 'Token bảo mật không hợp lệ');
             $this->redirect('?page=login');
             return;
@@ -64,28 +61,19 @@ class AuthController {
         $login = $_POST['login'] ?? '';
         $password = $_POST['password'] ?? '';
         
-        // Debug: Log authentication attempt
-        error_log("Attempting authentication for: " . $login);
-        
         try {
             $result = $this->authService->authenticate($login, $password);
-            
-            // Debug: Log authentication result
-            error_log("Authentication result: " . print_r($result, true));
             
             if ($result['success']) {
                 // Successful login - redirect to user dashboard
                 $this->setFlashMessage('success', $result['message']);
-                error_log("Login successful, redirecting to ?page=users");
                 $this->redirect('?page=users'); // Redirect to user dashboard
             } else {
                 // Failed login
                 $this->setFlashMessage('error', $result['message']);
-                error_log("Login failed: " . $result['message']);
                 $this->redirect('?page=login');
             }
         } catch (Exception $e) {
-            error_log("Login exception: " . $e->getMessage());
             $this->setFlashMessage('error', 'Có lỗi xảy ra trong quá trình đăng nhập');
             $this->redirect('?page=login');
         }
@@ -101,10 +89,10 @@ class AuthController {
             return;
         }
         
-        // Get any flash messages
+        // Don't unset flash messages here - let master.php handle them
+        // Get any flash messages for backward compatibility (not used anymore)
         $error = $_SESSION['flash_error'] ?? null;
         $errors = $_SESSION['flash_errors'] ?? [];
-        unset($_SESSION['flash_error'], $_SESSION['flash_errors']);
         
         // Get CSRF token
         $csrfToken = $this->authService->getCsrfToken();

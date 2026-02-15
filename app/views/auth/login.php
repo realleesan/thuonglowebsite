@@ -1,33 +1,18 @@
 <main class="page-content">
     <section class="auth-section login-page">
         <div class="container">
-            <h1 class="page-title-main"><?php echo htmlspecialchars($viewData['page_title']); ?></h1>
-
             <div class="auth-panel">
                 <h2 class="auth-heading">Đăng nhập</h2>
-
-                <?php if ($error): ?>
-                    <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
-                <?php endif; ?>
-
-                <?php if ($success): ?>
-                    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?> Đang chuyển hướng...</div>
-                    <script>
-                        setTimeout(function() {
-                            window.location.href = '<?php echo page_url('home'); ?>';
-                        }, 2000);
-                    </script>
-                <?php endif; ?>
 
                 <form method="POST" action="<?php echo $viewData['form_action']; ?>" class="auth-form">
                     <!-- CSRF Protection -->
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($viewData['csrf_token'] ?? ''); ?>">
                     
                     <div class="form-group">
-                        <label for="login" class="form-label">Email, số điện thoại hoặc tên đăng nhập</label>
+                        <label for="login" class="form-label">Tài khoản</label>
                         <input type="text" id="login" name="login" class="form-control"
                                placeholder="Email, số điện thoại hoặc tên đăng nhập" required
-                               value="<?php echo htmlspecialchars($rememberedPhone); ?>"
+                               value="<?php echo htmlspecialchars($_COOKIE['remembered_phone'] ?? ''); ?>"
                                autocomplete="username">
                     </div>
         
@@ -54,7 +39,7 @@
 
                     <div class="remember-forgot">
                         <label class="remember-me">
-                            <input type="checkbox" name="remember_me" <?php echo $rememberedPhone ? 'checked' : ''; ?>>
+                            <input type="checkbox" name="remember_me" <?php echo ($_COOKIE['remembered_phone'] ?? '') ? 'checked' : ''; ?>>
                             Ghi nhớ đăng nhập
                         </label>
                         <div class="register-link" style="margin-top: 15px; margin-bottom: 10px;">
