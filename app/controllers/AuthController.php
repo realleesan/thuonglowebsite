@@ -152,7 +152,7 @@ class AuthController {
         if ($result['success']) {
             // Successful registration - redirect to home with success message
             $this->setFlashMessage('success', 'Đăng ký tài khoản thành công! Chào mừng bạn đến với ThuongLo.com');
-            $this->redirect('/'); // Redirect to home page
+            $this->redirect('');
         } else {
             // Failed registration
             if (isset($result['errors']) && is_array($result['errors'])) {
@@ -303,7 +303,7 @@ class AuthController {
         // Regenerate CSRF token for new session
         $this->authService->getCsrfToken();
         
-        $this->redirect('/'); // Redirect to home page after logout
+        $this->redirect(''); // Redirect to home page after logout
     }
     
     /**
@@ -460,8 +460,10 @@ class AuthController {
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
             $host = $_SERVER['HTTP_HOST'];
             $script = $_SERVER['SCRIPT_NAME'];
-            $baseUrl = $protocol . '://' . $host . $script;
-            header("Location: {$baseUrl}{$url}");
+            $baseUrl = $protocol . '://' . $host . dirname($script);
+            // Remove trailing slash if exists to prevent double slash
+            $baseUrl = rtrim($baseUrl, '/');
+            header("Location: {$baseUrl}/{$url}");
         } else {
             // Relative path
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
@@ -470,6 +472,7 @@ class AuthController {
             if ($basePath === '/') {
                 $basePath = '';
             }
+            $basePath = rtrim($basePath, '/');
             header("Location: {$protocol}://{$host}{$basePath}/{$url}");
         }
         exit;

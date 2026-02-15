@@ -1,30 +1,19 @@
 <?php
-// User Dashboard với UserService
-require_once __DIR__ . '/../../../core/view_init.php';
-
-// Chọn service user (ưu tiên inject từ routing)
-$service = isset($currentService) ? $currentService : ($userService ?? null);
+// User Dashboard - Simplified to avoid WSOD
+// No database calls, use session data only
 
 // Get current user from session
 $currentUser = null;
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-    // Load user data from database
-    try {
-        require_once __DIR__ . '/../../models/UsersModel.php';
-        $usersModel = new UsersModel();
-        $currentUser = $usersModel->find($_SESSION['user_id']);
-    } catch (Exception $e) {
-        // If database fails, use session data
-        $currentUser = [
-            'id' => $_SESSION['user_id'],
-            'name' => $_SESSION['user_name'] ?? 'User',
-            'username' => $_SESSION['username'] ?? '',
-            'email' => $_SESSION['user_email'] ?? '',
-            'role' => $_SESSION['user_role'] ?? 'user',
-            'points' => 0,
-            'level' => 'Bronze'
-        ];
-    }
+    $currentUser = [
+        'id' => $_SESSION['user_id'],
+        'name' => $_SESSION['user_name'] ?? 'User',
+        'username' => $_SESSION['username'] ?? '',
+        'email' => $_SESSION['user_email'] ?? '',
+        'role' => $_SESSION['user_role'] ?? 'user',
+        'points' => 0,
+        'level' => 'Bronze'
+    ];
 }
 
 $user = $currentUser ?: ['name' => 'Người dùng'];
@@ -42,16 +31,6 @@ $trends = [
     'data' => ['value' => 0, 'direction' => 'down'],
     'points' => ['value' => 0, 'direction' => 'down'],
 ];
-
-if ($service && $currentUser) {
-    $userId = $currentUser['id'];
-    $data = $service->getDashboardData((int) $userId);
-    $user = $data['user'] ?? $user;
-    $stats = array_merge($stats, $data['stats'] ?? []);
-    $recentOrders = $data['recent_orders'] ?? $recentOrders;
-    $trends = $data['trends'] ?? $trends;
-}
-
 // Quick actions based on user activity
 $quickActions = [
     [

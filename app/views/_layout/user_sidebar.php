@@ -1,6 +1,27 @@
 <?php
-// User Sidebar Navigation
+// User Sidebar Navigation - Simplified to avoid WSOD
 $current_module = $_GET['module'] ?? 'dashboard';
+
+// Get current user data from session only (no database calls)
+$currentUser = null;
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    $currentUser = [
+        'id' => $_SESSION['user_id'],
+        'name' => $_SESSION['user_name'] ?? 'User',
+        'username' => $_SESSION['username'] ?? '',
+        'email' => $_SESSION['user_email'] ?? '',
+        'role' => $_SESSION['user_role'] ?? 'user',
+        'points' => 0,
+        'level' => 'Bronze'
+    ];
+}
+
+// Default counts (no database calls)
+$cartCount = 0;
+$wishlistCount = 0;
+
+$userName = $currentUser['name'] ?? 'Người dùng';
+$userLevel = ($currentUser['level'] ?? 'Bronze') . ' Member';
 ?>
 
 <div class="user-sidebar" id="userSidebar">
@@ -10,8 +31,8 @@ $current_module = $_GET['module'] ?? 'dashboard';
             <img src="<?php echo img_url('home/home-banner-final.png'); ?>" alt="User Avatar" id="userAvatarImg">
         </div>
         <div class="user-info">
-            <h4 class="user-name" id="userName">Nguyễn Văn An</h4>
-            <span class="user-level" id="userLevel">VIP Member</span>
+            <h4 class="user-name" id="userName"><?php echo htmlspecialchars($userName); ?></h4>
+            <span class="user-level" id="userLevel"><?php echo htmlspecialchars($userLevel); ?></span>
         </div>
     </div>
 
@@ -43,7 +64,9 @@ $current_module = $_GET['module'] ?? 'dashboard';
                 <a href="?page=users&module=cart" class="nav-link">
                     <i class="nav-icon fas fa-shopping-cart"></i>
                     <span class="nav-text">Giỏ hàng</span>
-                    <span class="cart-count" id="cartCount">2</span>
+                    <?php if ($cartCount > 0): ?>
+                    <span class="cart-count" id="cartCount"><?php echo $cartCount; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
             
@@ -51,14 +74,16 @@ $current_module = $_GET['module'] ?? 'dashboard';
                 <a href="?page=users&module=wishlist" class="nav-link">
                     <i class="nav-icon fas fa-heart"></i>
                     <span class="nav-text">Yêu thích</span>
-                    <span class="wishlist-count" id="wishlistCount">2</span>
+                    <?php if ($wishlistCount > 0): ?>
+                    <span class="wishlist-count" id="wishlistCount"><?php echo $wishlistCount; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
             
             <li class="nav-divider"></li>
             
             <li class="nav-item">
-                <a href="?page=auth&action=logout" class="nav-link logout-link">
+                <a href="?page=logout" class="nav-link logout-link">
                     <i class="nav-icon fas fa-sign-out-alt"></i>
                     <span class="nav-text">Đăng xuất</span>
                 </a>

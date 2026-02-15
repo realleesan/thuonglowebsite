@@ -234,17 +234,21 @@ class AuthService implements ServiceInterface {
             // Register user
             $user = $this->usersModel->register($userData);
             
-            // Log successful registration
+            // Auto-login after successful registration
+            $this->sessionManager->createSession($user);
+            
+            // Log successful registration and auto-login
             $this->securityLogger->logAuthAttempt('registration_success', [
                 'email' => $userData['email'],
                 'user_id' => $user['id'],
-                'user_role' => $user['role']
+                'user_role' => $user['role'],
+                'auto_login' => true
             ]);
             
             return $this->errorHandler->createSuccessResponse(
-                'Đăng ký thành công',
-                ['user' => $user],
-                '/auth/login'
+                'Đăng ký thành công! Chào mừng bạn đến với ThuongLo.com',
+                ['user' => $user, 'auto_login' => true],
+                '/'
             );
             
         } catch (Exception $e) {
@@ -255,13 +259,37 @@ class AuthService implements ServiceInterface {
                 'trace' => $e->getTraceAsString()
             ]);
             
-            if (strpos($e->getMessage(), 'already exists') !== false) {
+            if (strpos($e->getMessage(), 'Email already exists') !== false) {
                 $this->securityLogger->logAuthAttempt('registration_failed', [
                     'email' => $userData['email'] ?? 'unknown',
                     'reason' => 'duplicate_email'
                 ]);
                 return $this->errorHandler->handleValidationError([
-                    'email' => 'Email hoặc số điện thoại đã được sử dụng'
+                    'email' => 'Email này đã được sử dụng'
+                ]);
+            } elseif (strpos($e->getMessage(), 'Username already exists') !== false) {
+                $this->securityLogger->logAuthAttempt('registration_failed', [
+                    'email' => $userData['email'] ?? 'unknown',
+                    'reason' => 'duplicate_username'
+                ]);
+                return $this->errorHandler->handleValidationError([
+                    'username' => 'Tên đăng nhập này đã được sử dụng'
+                ]);
+            } elseif (strpos($e->getMessage(), 'Phone number already exists') !== false) {
+                $this->securityLogger->logAuthAttempt('registration_failed', [
+                    'email' => $userData['email'] ?? 'unknown',
+                    'reason' => 'duplicate_phone'
+                ]);
+                return $this->errorHandler->handleValidationError([
+                    'phone' => 'Số điện thoại này đã được sử dụng'
+                ]);
+            } elseif (strpos($e->getMessage(), 'already exists') !== false) {
+                $this->securityLogger->logAuthAttempt('registration_failed', [
+                    'email' => $userData['email'] ?? 'unknown',
+                    'reason' => 'duplicate_data'
+                ]);
+                return $this->errorHandler->handleValidationError([
+                    'general' => 'Thông tin đã được sử dụng, vui lòng kiểm tra lại email, tên đăng nhập hoặc số điện thoại'
                 ]);
             }
             

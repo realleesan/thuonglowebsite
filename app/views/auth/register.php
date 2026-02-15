@@ -11,6 +11,14 @@
                     <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
 
+                <?php 
+                // Get field-specific errors
+                $fieldErrors = $_SESSION['flash_errors'] ?? [];
+                if (!empty($fieldErrors)) {
+                    unset($_SESSION['flash_errors']); // Clear after displaying
+                }
+                ?>
+
                 <?php if ($success): ?>
                     <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
                     <script>
@@ -26,37 +34,49 @@
                     
                     <div class="form-group">
                         <label for="name">Họ và tên <span class="required">*</span></label>
-                        <input type="text" id="name" name="name" class="form-control"
+                        <input type="text" id="name" name="name" class="form-control <?php echo isset($fieldErrors['name']) ? 'error' : ''; ?>"
                                placeholder="Nhập họ và tên đầy đủ" required
                                value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
                                autocomplete="name">
+                        <?php if (isset($fieldErrors['name'])): ?>
+                            <div class="field-error"><?php echo htmlspecialchars($fieldErrors['name']); ?></div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group">
                         <label for="username">Tên đăng nhập <span class="required">*</span></label>
-                        <input type="text" id="username" name="username" class="form-control"
+                        <input type="text" id="username" name="username" class="form-control <?php echo isset($fieldErrors['username']) ? 'error' : ''; ?>"
                                placeholder="Nhập tên đăng nhập" required
                                value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
                                autocomplete="username" pattern="[a-zA-Z0-9_]{3,20}"
                                title="Tên đăng nhập chỉ chứa chữ cái, số và dấu gạch dưới, từ 3-20 ký tự">
                         <small class="form-help">Tên đăng nhập chỉ chứa chữ cái, số và dấu gạch dưới, từ 3-20 ký tự</small>
+                        <?php if (isset($fieldErrors['username'])): ?>
+                            <div class="field-error"><?php echo htmlspecialchars($fieldErrors['username']); ?></div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="email">Email <span class="required">*</span></label>
-                            <input type="email" id="email" name="email" class="form-control"
+                            <input type="email" id="email" name="email" class="form-control <?php echo isset($fieldErrors['email']) ? 'error' : ''; ?>"
                                    placeholder="Nhập địa chỉ email" required
                                    value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                                    autocomplete="email">
+                            <?php if (isset($fieldErrors['email'])): ?>
+                                <div class="field-error"><?php echo htmlspecialchars($fieldErrors['email']); ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="form-group">
                             <label for="phone">Số điện thoại <span class="required">*</span></label>
-                            <input type="tel" id="phone" name="phone" class="form-control"
+                            <input type="tel" id="phone" name="phone" class="form-control <?php echo isset($fieldErrors['phone']) ? 'error' : ''; ?>"
                                    placeholder="Nhập số điện thoại" required
                                    value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>"
                                    autocomplete="tel">
+                            <?php if (isset($fieldErrors['phone'])): ?>
+                                <div class="field-error"><?php echo htmlspecialchars($fieldErrors['phone']); ?></div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -64,7 +84,7 @@
                         <div class="form-group">
                             <label for="password">Mật khẩu <span class="required">*</span></label>
                             <div class="password-wrapper">
-                                <input type="password" id="password" name="password" class="form-control"
+                                <input type="password" id="password" name="password" class="form-control <?php echo isset($fieldErrors['password']) ? 'error' : ''; ?>"
                                        placeholder="Nhập mật khẩu" required minlength="8"
                                        autocomplete="new-password">
                                 <button type="button" class="password-toggle" onclick="toggleAuthPassword('password')"
@@ -77,12 +97,15 @@
                             <div class="password-requirements">
                                 <small>Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</small>
                             </div>
+                            <?php if (isset($fieldErrors['password'])): ?>
+                                <div class="field-error"><?php echo htmlspecialchars($fieldErrors['password']); ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="form-group">
                             <label for="confirm_password">Xác nhận mật khẩu <span class="required">*</span></label>
                             <div class="password-wrapper">
-                                <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-control <?php echo isset($fieldErrors['password_confirmation']) ? 'error' : ''; ?>"
                                        placeholder="Nhập lại mật khẩu" required
                                        autocomplete="new-password">
                                 <button type="button" class="password-toggle" onclick="toggleAuthPassword('confirm_password')"
@@ -92,6 +115,9 @@
                                 </button>
                             </div>
                             <div id="passwordMatch" class="password-match"></div>
+                            <?php if (isset($fieldErrors['password_confirmation'])): ?>
+                                <div class="field-error"><?php echo htmlspecialchars($fieldErrors['password_confirmation']); ?></div>
+                            <?php endif; ?>
                         </div>
                     </div>
 

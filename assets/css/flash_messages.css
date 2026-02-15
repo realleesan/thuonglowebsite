@@ -1,0 +1,152 @@
+/* Flash Messages Styles */
+.flash-message {
+    position: fixed;
+    top: 80px; /* Đặt dưới header */
+    right: 20px;
+    z-index: 9999;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 400px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideInRight 0.3s ease-out;
+    margin-bottom: 10px;
+}
+
+.flash-message i {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.flash-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.flash-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-success i {
+    color: #28a745;
+}
+
+.flash-success .flash-close {
+    color: #155724;
+}
+
+.flash-success .flash-close:hover {
+    background-color: rgba(21, 87, 36, 0.1);
+}
+
+.flash-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.flash-error i {
+    color: #dc3545;
+}
+
+.flash-error .flash-close {
+    color: #721c24;
+}
+
+.flash-error .flash-close:hover {
+    background-color: rgba(114, 28, 36, 0.1);
+}
+
+.flash-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.flash-warning i {
+    color: #ffc107;
+}
+
+.flash-warning .flash-close {
+    color: #856404;
+}
+
+.flash-warning .flash-close:hover {
+    background-color: rgba(133, 100, 4, 0.1);
+}
+
+.flash-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.flash-info i {
+    color: #17a2b8;
+}
+
+.flash-info .flash-close {
+    color: #0c5460;
+}
+
+.flash-info .flash-close:hover {
+    background-color: rgba(12, 84, 96, 0.1);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Auto hide after 5 seconds */
+.flash-message {
+    animation: slideInRight 0.3s ease-out, fadeOut 0.5s ease-out 4.5s forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .flash-message {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        min-width: auto;
+    }
+}

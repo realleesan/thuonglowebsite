@@ -37,6 +37,7 @@ mb_http_output('UTF-8');
     <link rel="stylesheet" href="<?php echo versioned_css('footer.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('cta.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('pusher.css'); ?>">
+    <link rel="stylesheet" href="<?php echo versioned_css('flash_messages.css'); ?>">
     
     <?php
     // Load page-specific CSS
@@ -114,20 +115,54 @@ mb_http_output('UTF-8');
         <?php include_once __DIR__ . '/pageheader.php'; ?>
     <?php endif; ?>
     
+    <!-- Flash Messages -->
+    <?php if (isset($_SESSION['flash_success'])): ?>
+        <div class="flash-message flash-success">
+            <i class="fas fa-check-circle"></i>
+            <?php echo htmlspecialchars($_SESSION['flash_success']); ?>
+            <button class="flash-close" onclick="this.parentElement.style.display='none'">&times;</button>
+        </div>
+        <?php unset($_SESSION['flash_success']); ?>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['flash_error'])): ?>
+        <div class="flash-message flash-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <?php echo htmlspecialchars($_SESSION['flash_error']); ?>
+            <button class="flash-close" onclick="this.parentElement.style.display='none'">&times;</button>
+        </div>
+        <?php unset($_SESSION['flash_error']); ?>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['flash_warning'])): ?>
+        <div class="flash-message flash-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <?php echo htmlspecialchars($_SESSION['flash_warning']); ?>
+            <button class="flash-close" onclick="this.parentElement.style.display='none'">&times;</button>
+        </div>
+        <?php unset($_SESSION['flash_warning']); ?>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['flash_info'])): ?>
+        <div class="flash-message flash-info">
+            <i class="fas fa-info-circle"></i>
+            <?php echo htmlspecialchars($_SESSION['flash_info']); ?>
+            <button class="flash-close" onclick="this.parentElement.style.display='none'">&times;</button>
+        </div>
+        <?php unset($_SESSION['flash_info']); ?>
+    <?php endif; ?>
+
     <!-- Main Content -->
     <main class="main-content">
         <?php 
         // Include the specific page content
         if (isset($content) && $content) {
             if (file_exists($content)) {
-                echo "<!-- Debug: Loading content $content -->\n";
                 include $content;
             } else {
-                echo "<!-- Debug: Content file not found: $content -->\n";
                 echo "<div class='error'>Không tìm thấy nội dung trang.</div>";
             }
         } else {
-            echo "<!-- Debug: No content variable set -->\n";
             echo "<div class='error'>Không có nội dung để hiển thị.</div>";
         }
         ?>
@@ -151,6 +186,7 @@ mb_http_output('UTF-8');
     <script src="<?php echo versioned_js('cta.js'); ?>"></script>
     <script src="<?php echo versioned_js('pusher.js'); ?>"></script>
     <script src="<?php echo versioned_js('breadcrumb.js'); ?>"></script>
+    <script src="<?php echo versioned_js('flash_messages.js'); ?>"></script>
     
     <?php
     // Load page-specific JavaScript

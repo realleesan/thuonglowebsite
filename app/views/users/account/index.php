@@ -1,34 +1,45 @@
 <?php
 // User Account Index - View Account Information
-// Load fake data
-$dataFile = __DIR__ . '/../data/user_fake_data.json';
-$data = [];
+// Simplified version to avoid WSOD
 
-if (file_exists($dataFile)) {
-    $jsonContent = file_get_contents($dataFile);
-    $data = json_decode($jsonContent, true) ?: [];
+// Get current user from session (no database calls for now)
+$currentUser = null;
+$stats = [
+    'total_orders' => 0,
+    'total_spent' => 0,
+    'data_purchased' => 0,
+    'loyalty_points' => 0
+];
+
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    $currentUser = [
+        'id' => $_SESSION['user_id'],
+        'name' => $_SESSION['user_name'] ?? 'User',
+        'username' => $_SESSION['username'] ?? '',
+        'email' => $_SESSION['user_email'] ?? '',
+        'phone' => '',
+        'address' => '',
+        'role' => $_SESSION['user_role'] ?? 'user',
+        'points' => 0,
+        'level' => 'Bronze',
+        'status' => 'active',
+        'created_at' => date('Y-m-d H:i:s'),
+        'last_login' => date('Y-m-d H:i:s')
+    ];
 }
 
-// Get user data
-$user = $data['user'] ?? [
-    'id' => 1,
+// Default user data if not logged in
+$user = $currentUser ?: [
+    'id' => 0,
     'name' => 'Người dùng',
     'email' => 'user@example.com',
     'phone' => '',
     'address' => '',
     'avatar' => '',
-    'level' => 'Basic',
+    'level' => 'Bronze',
     'status' => 'active',
     'created_at' => date('Y-m-d H:i:s'),
     'last_login' => date('Y-m-d H:i:s')
-];
-
-// Calculate account stats
-$stats = $data['stats'] ?? [
-    'total_orders' => 0,
-    'total_spent' => 0,
-    'data_purchased' => 0,
-    'loyalty_points' => 0
 ];
 
 // Security info
@@ -232,3 +243,185 @@ $securityInfo = [
 
 <!-- Include Account JavaScript -->
 <script src="assets/js/user_account.js"></script>
+
+<style>
+.user-content-with-sidebar {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.user-sidebar {
+    width: 280px;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-account {
+    flex: 1;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-card-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-card-content {
+    padding: 20px;
+}
+
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.profile-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profile-info-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.profile-info-value {
+    color: #333;
+}
+
+.account-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.account-stat-item {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.account-stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.account-stat-label {
+    color: #666;
+    margin-top: 5px;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+}
+
+.nav-list li {
+    margin-bottom: 10px;
+}
+
+.nav-list a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #666;
+    border-radius: 5px;
+}
+
+.nav-list li.active a,
+.nav-list a:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.account-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.account-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.account-btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.account-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.profile-avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.profile-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.security-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.security-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.security-item-action {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+}
+</style>
