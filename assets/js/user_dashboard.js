@@ -1,4 +1,4 @@
-// User Dashboard Chart.js Configuration - Simple & Clean
+// User Dashboard Chart.js Configuration - Clean & Professional
 document.addEventListener('DOMContentLoaded', function() {
     // Chart.js default configuration
     Chart.defaults.font.family = "'Inter', sans-serif";
@@ -17,30 +17,27 @@ document.addEventListener('DOMContentLoaded', function() {
         border: '#E5E7EB'
     };
 
-    // Load user data and initialize charts
-    loadUserDataAndCharts();
+    // Initialize charts with data from PHP (passed via data attributes or global variables)
+    initializeCharts();
 
-    async function loadUserDataAndCharts() {
-        try {
-            const response = await fetch('api.php?action=getUserDashboardData');
-            const userData = await response.json();
-            
-            // Initialize all charts with user data
-            initRevenueChart(userData.chartData.revenue);
-            initOrderDistributionChart(userData.chartData.orderDistribution);
-            initOrderStatusChart(userData.chartData.orderStatus);
-            initPurchaseTrendChart(userData.chartData.purchaseTrend);
-            
-        } catch (error) {
-            console.error('Error loading user data:', error);
-            // Initialize with fallback data
-            initChartsWithFallbackData();
+    function initializeCharts() {
+        // Get chart data from PHP (should be set in the PHP view)
+        const chartData = window.dashboardChartData || null;
+        
+        if (chartData) {
+            // Initialize all charts with data from PHP
+            if (chartData.revenue) initRevenueChart(chartData.revenue);
+            if (chartData.orderDistribution) initOrderDistributionChart(chartData.orderDistribution);
+            if (chartData.orderStatus) initOrderStatusChart(chartData.orderStatus);
+            if (chartData.purchaseTrend) initPurchaseTrendChart(chartData.purchaseTrend);
+        } else {
+            console.warn('No chart data available from server');
         }
     }
 
     function initRevenueChart(data) {
         const revenueCtx = document.getElementById('revenueChart');
-        if (!revenueCtx) return;
+        if (!revenueCtx || !data.labels || !data.data) return;
 
         new Chart(revenueCtx.getContext('2d'), {
             type: 'line',
@@ -111,7 +108,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initOrderDistributionChart(data) {
         const orderDistributionCtx = document.getElementById('orderDistributionChart');
-        if (!orderDistributionCtx) return;
+        if (!orderDistributionCtx || !data.labels || !data.data) return;
+
+        // Generate colors dynamically based on number of categories
+        const dynamicColors = [];
+        const baseColors = [colors.primary, colors.success, colors.info, colors.warning, colors.danger];
+        
+        for (let i = 0; i < data.labels.length; i++) {
+            dynamicColors.push(baseColors[i % baseColors.length]);
+        }
 
         new Chart(orderDistributionCtx.getContext('2d'), {
             type: 'doughnut',
@@ -119,15 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: data.labels,
                 datasets: [{
                     data: data.data,
-                    backgroundColor: [
-                        colors.primary,
-                        colors.success,
-                        colors.info,
-                        colors.warning,
-                        colors.danger
-                    ],
-                    borderWidth: 0,
-                    cutout: '60%'
+                    backgroundColor: dynamicColors,
+                    borderWidth: 0
                 }]
             },
             options: {
@@ -166,7 +164,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initOrderStatusChart(data) {
         const orderStatusCtx = document.getElementById('orderStatusChart');
-        if (!orderStatusCtx) return;
+        if (!orderStatusCtx || !data.labels || !data.data) return;
+
+        // Generate colors dynamically based on number of status types
+        const dynamicColors = [];
+        const statusColors = [colors.success, colors.info, colors.warning, colors.danger];
+        
+        for (let i = 0; i < data.labels.length; i++) {
+            dynamicColors.push(statusColors[i % statusColors.length]);
+        }
 
         new Chart(orderStatusCtx.getContext('2d'), {
             type: 'bar',
@@ -175,12 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Số đơn hàng',
                     data: data.data,
-                    backgroundColor: [
-                        colors.success,
-                        colors.info,
-                        colors.warning,
-                        colors.danger
-                    ],
+                    backgroundColor: dynamicColors,
                     borderRadius: 4,
                     borderSkipped: false
                 }]
@@ -233,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initPurchaseTrendChart(data) {
         const purchaseTrendCtx = document.getElementById('purchaseTrendChart');
-        if (!purchaseTrendCtx) return;
+        if (!purchaseTrendCtx || !data.labels || !data.data) return;
 
         new Chart(purchaseTrendCtx.getContext('2d'), {
             type: 'line',
@@ -297,39 +298,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function initChartsWithFallbackData() {
-        // Fallback data if JSON loading fails
-        const fallbackData = {
-            revenue: {
-                labels: ['Tháng 10', 'Tháng 11', 'Tháng 12', 'Tháng 1', 'Tháng 2'],
-                data: [2.5, 4.2, 3.8, 5.1, 4.0]
-            },
-            orderDistribution: {
-                labels: ['Data Nguồn Hàng', 'Vận Chuyển', 'Dịch Vụ TT', 'Đánh Hàng', 'Khóa Học'],
-                data: [45, 20, 15, 12, 8]
-            },
-            orderStatus: {
-                labels: ['Hoàn thành', 'Đang xử lý', 'Chờ xử lý', 'Đã hủy'],
-                data: [18, 3, 2, 1]
-            },
-            purchaseTrend: {
-                labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
-                data: [3, 5, 4, 7]
-            }
-        };
-
-        initRevenueChart(fallbackData.revenue);
-        initOrderDistributionChart(fallbackData.orderDistribution);
-        initOrderStatusChart(fallbackData.orderStatus);
-        initPurchaseTrendChart(fallbackData.purchaseTrend);
-    }
-
     // Chart period change handler
     const revenueChartPeriod = document.getElementById('revenueChartPeriod');
     if (revenueChartPeriod) {
         revenueChartPeriod.addEventListener('change', function() {
             const period = this.value;
-            console.log('Revenue chart period changed to:', period);
+            // Reload page with new period parameter
+            const url = new URL(window.location);
+            url.searchParams.set('chart_period', period);
+            window.location.href = url.toString();
         });
     }
 });

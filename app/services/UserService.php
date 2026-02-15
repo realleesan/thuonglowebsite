@@ -150,13 +150,19 @@ class UserService extends BaseService
      */
     public function getCartData(int $userId): array
     {
-        return [
-            'items' => [],
-            'summary' => [
-                'total_items' => 0,
-                'total_amount' => 0,
-            ],
-        ];
+        try {
+            // For now, return empty cart data
+            // This can be enhanced later with actual cart model
+            return [
+                'items' => [],
+                'summary' => [
+                    'total_items' => 0,
+                    'total_amount' => 0,
+                ],
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getCartData', 'user_id' => $userId]);
+        }
     }
 
     /**
@@ -164,9 +170,15 @@ class UserService extends BaseService
      */
     public function getWishlistData(int $userId): array
     {
-        return [
-            'items' => [],
-            'total_items' => 0,
-        ];
+        try {
+            // For now, return empty wishlist data
+            // This can be enhanced later with actual wishlist model
+            return [
+                'items' => [],
+                'total_items' => 0,
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getWishlistData', 'user_id' => $userId]);
+        }
     }
 }

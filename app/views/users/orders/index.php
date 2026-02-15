@@ -1,16 +1,22 @@
 <?php
 // User Orders Index - List All Orders
-// Load fake data
-$dataFile = __DIR__ . '/../data/user_fake_data.json';
-$data = [];
+require_once __DIR__ . '/../../../services/UserService.php';
 
-if (file_exists($dataFile)) {
-    $jsonContent = file_get_contents($dataFile);
-    $data = json_decode($jsonContent, true) ?: [];
+// Get current user from session
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    header('Location: ?page=login');
+    exit;
 }
 
-// Get orders data
-$orders = $data['orders'] ?? [];
+// Get orders data from UserService
+try {
+    $userService = new UserService();
+    $ordersData = $userService->getOrdersData($userId, 50);
+    $orders = $ordersData['orders'] ?? [];
+} catch (Exception $e) {
+    $orders = [];
+}
 
 // Filter and search functionality
 $statusFilter = $_GET['status'] ?? 'all';
@@ -28,7 +34,7 @@ if ($statusFilter !== 'all') {
 
 if ($typeFilter !== 'all') {
     $filteredOrders = array_filter($filteredOrders, function($order) use ($typeFilter) {
-        return $order['type'] === $typeFilter;
+        return ($order['type'] ?? 'data_nguon_hang') === $typeFilter;
     });
 }
 

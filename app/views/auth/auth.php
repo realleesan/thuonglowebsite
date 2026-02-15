@@ -10,7 +10,26 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user = $_SESSION['user'] ?? null;
+// Get user data from database
+$user = null;
+try {
+    require_once __DIR__ . '/../../models/UsersModel.php';
+    $usersModel = new UsersModel();
+    $user = $usersModel->find($_SESSION['user_id']);
+} catch (Exception $e) {
+    // Fallback to session data if database fails
+    $user = $_SESSION['user'] ?? null;
+}
+
+// If still no user data, use session fallback
+if (!$user && isset($_SESSION['user_id'])) {
+    $user = [
+        'name' => $_SESSION['user_name'] ?? 'Người dùng',
+        'email' => $_SESSION['user_email'] ?? '',
+        'role' => $_SESSION['user_role'] ?? 'user',
+        'status' => 'active'
+    ];
+}
 ?>
 
 <main class="page-content">

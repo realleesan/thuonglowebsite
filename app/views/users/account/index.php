@@ -1,18 +1,30 @@
 <?php
 // User Account Index - View Account Information
-// Simplified version to avoid WSOD
+require_once __DIR__ . '/../../../services/UserService.php';
 
-// Get current user from session (no database calls for now)
-$currentUser = null;
-$stats = [
-    'total_orders' => 0,
-    'total_spent' => 0,
-    'data_purchased' => 0,
-    'loyalty_points' => 0
-];
+// Get current user from session
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    header('Location: ?page=login');
+    exit;
+}
 
-if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-    $currentUser = [
+// Get account data from UserService
+try {
+    $userService = new UserService();
+    $accountData = $userService->getAccountData($userId);
+    $dashboardData = $userService->getDashboardData($userId);
+    
+    $user = $accountData['user'] ?? [];
+    $stats = $dashboardData['stats'] ?? [
+        'total_orders' => 0,
+        'total_spent' => 0,
+        'data_purchased' => 0,
+        'loyalty_points' => 0
+    ];
+} catch (Exception $e) {
+    // Fallback to session data if service fails
+    $user = [
         'id' => $_SESSION['user_id'],
         'name' => $_SESSION['user_name'] ?? 'User',
         'username' => $_SESSION['username'] ?? '',
@@ -24,30 +36,22 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
         'level' => 'Bronze',
         'status' => 'active',
         'created_at' => date('Y-m-d H:i:s'),
-        'last_login' => date('Y-m-d H:i:s')
+        'updated_at' => date('Y-m-d H:i:s')
+    ];
+    $stats = [
+        'total_orders' => 0,
+        'total_spent' => 0,
+        'data_purchased' => 0,
+        'loyalty_points' => 0
     ];
 }
 
-// Default user data if not logged in
-$user = $currentUser ?: [
-    'id' => 0,
-    'name' => 'Người dùng',
-    'email' => 'user@example.com',
-    'phone' => '',
-    'address' => '',
-    'avatar' => '',
-    'level' => 'Bronze',
-    'status' => 'active',
-    'created_at' => date('Y-m-d H:i:s'),
-    'last_login' => date('Y-m-d H:i:s')
-];
-
-// Security info
+// Security info (placeholder for now - can be enhanced later)
 $securityInfo = [
-    'password_last_changed' => $user['password_last_changed'] ?? '2024-01-15',
-    'two_factor_enabled' => $user['two_factor_enabled'] ?? false,
-    'login_notifications' => $user['login_notifications'] ?? true,
-    'last_login_ip' => $user['last_login_ip'] ?? '192.168.1.1'
+    'password_last_changed' => $user['updated_at'] ?? date('Y-m-d'),
+    'two_factor_enabled' => false,
+    'login_notifications' => true,
+    'last_login_ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
 ];
 ?>
 
@@ -228,7 +232,7 @@ $securityInfo = [
                         <div class="security-item">
                             <div class="security-item-info">
                                 <h4>Đăng nhập gần đây</h4>
-                                <p>IP: <?php echo htmlspecialchars($securityInfo['last_login_ip']); ?> - <?php echo date('d/m/Y H:i', strtotime($user['last_login'])); ?></p>
+                                <p>IP: <?php echo htmlspecialchars($securityInfo['last_login_ip']); ?> - <?php echo date('d/m/Y H:i', strtotime($user['updated_at'] ?? 'now')); ?></p>
                             </div>
                             <a href="?page=users&module=account&action=view#login-history" class="security-item-action">
                                 Xem lịch sử

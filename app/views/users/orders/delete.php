@@ -1,21 +1,30 @@
 <?php
 // User Orders Delete - Cancel Order
-// Load fake data
-$dataFile = __DIR__ . '/../data/user_fake_data.json';
-$data = [];
+require_once __DIR__ . '/../../../services/UserService.php';
 
-if (file_exists($dataFile)) {
-    $jsonContent = file_get_contents($dataFile);
-    $data = json_decode($jsonContent, true) ?: [];
+// Get current user from session
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    header('Location: ?page=login');
+    exit;
 }
 
 // Get order ID from URL
 $orderId = $_GET['id'] ?? '';
 
+// Get orders data from UserService
+try {
+    $userService = new UserService();
+    $ordersData = $userService->getOrdersData($userId, 100);
+    $orders = $ordersData['orders'] ?? [];
+} catch (Exception $e) {
+    $orders = [];
+}
+
 // Find the specific order
 $order = null;
 $orderIndex = null;
-foreach ($data['orders'] ?? [] as $index => $orderItem) {
+foreach ($orders as $index => $orderItem) {
     if ($orderItem['id'] === $orderId) {
         $order = $orderItem;
         $orderIndex = $index;
@@ -35,8 +44,7 @@ $messageType = '';
 $cancelSuccess = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_cancel'])) {
-    // Update order status to cancelled (in a real app, this would update the database)
-    $data['orders'][$orderIndex]['status'] = 'cancelled';
+    // In a real app, this would update the database
     $order['status'] = 'cancelled';
     
     $message = 'Đơn hàng #' . htmlspecialchars($order['id']) . ' đã được hủy thành công!';

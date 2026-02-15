@@ -1,27 +1,36 @@
 <?php
 // User Account Edit - Edit Account Information
-// Load fake data
-$dataFile = __DIR__ . '/../data/user_fake_data.json';
-$data = [];
+require_once __DIR__ . '/../../../services/UserService.php';
 
-if (file_exists($dataFile)) {
-    $jsonContent = file_get_contents($dataFile);
-    $data = json_decode($jsonContent, true) ?: [];
+// Get current user from session
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    header('Location: ?page=login');
+    exit;
 }
 
-// Get user data
-$user = $data['user'] ?? [
-    'id' => 1,
-    'name' => 'Người dùng',
-    'email' => 'user@example.com',
-    'phone' => '',
-    'address' => '',
-    'avatar' => '',
-    'level' => 'Basic',
-    'status' => 'active',
-    'created_at' => date('Y-m-d H:i:s'),
-    'last_login' => date('Y-m-d H:i:s')
-];
+// Get account data from UserService
+try {
+    $userService = new UserService();
+    $accountData = $userService->getAccountData($userId);
+    $user = $accountData['user'] ?? [];
+} catch (Exception $e) {
+    // Fallback to session data if service fails
+    $user = [
+        'id' => $_SESSION['user_id'],
+        'name' => $_SESSION['user_name'] ?? 'User',
+        'username' => $_SESSION['username'] ?? '',
+        'email' => $_SESSION['user_email'] ?? '',
+        'phone' => '',
+        'address' => '',
+        'role' => $_SESSION['user_role'] ?? 'user',
+        'points' => 0,
+        'level' => 'Bronze',
+        'status' => 'active',
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s')
+    ];
+}
 
 // Handle form submission (mock)
 $success_message = '';

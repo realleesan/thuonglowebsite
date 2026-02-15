@@ -1,20 +1,32 @@
 <?php
 // User Orders View - Order Details
-// Load fake data
-$dataFile = __DIR__ . '/../data/user_fake_data.json';
-$data = [];
+require_once __DIR__ . '/../../../services/UserService.php';
 
-if (file_exists($dataFile)) {
-    $jsonContent = file_get_contents($dataFile);
-    $data = json_decode($jsonContent, true) ?: [];
+// Get current user from session
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    header('Location: ?page=login');
+    exit;
 }
 
 // Get order ID from URL
 $orderId = $_GET['id'] ?? '';
 
+// Get orders data from UserService
+try {
+    $userService = new UserService();
+    $ordersData = $userService->getOrdersData($userId, 100);
+    $orders = $ordersData['orders'] ?? [];
+    $accountData = $userService->getAccountData($userId);
+    $user = $accountData['user'] ?? [];
+} catch (Exception $e) {
+    $orders = [];
+    $user = [];
+}
+
 // Find the specific order
 $order = null;
-foreach ($data['orders'] ?? [] as $orderItem) {
+foreach ($orders as $orderItem) {
     if ($orderItem['id'] === $orderId) {
         $order = $orderItem;
         break;
@@ -54,10 +66,10 @@ $paymentLabels = [
 // Mock additional order details
 $orderDetails = [
     'customer_info' => [
-        'name' => $data['user']['name'] ?? 'Nguyễn Văn An',
-        'email' => $data['user']['email'] ?? 'nguyenvanan@example.com',
-        'phone' => $data['user']['phone'] ?? '0123456789',
-        'address' => $data['user']['address'] ?? '123 Đường ABC, Quận 1, TP.HCM'
+        'name' => $user['name'] ?? 'Nguyễn Văn An',
+        'email' => $user['email'] ?? 'nguyenvanan@example.com',
+        'phone' => $user['phone'] ?? '0123456789',
+        'address' => $user['address'] ?? '123 Đường ABC, Quận 1, TP.HCM'
     ],
     'order_timeline' => [
         [

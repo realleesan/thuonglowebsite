@@ -134,8 +134,6 @@
                             </button>
                             <div class="dropdown-menu user-dropdown">
                                 <a href="<?php echo nav_url('users'); ?>">Tài khoản của tôi</a>
-                                <a href="<?php echo page_url('users', ['module' => 'orders']); ?>">Đơn hàng</a>
-                                <a href="<?php echo page_url('users', ['module' => 'wishlist']); ?>">Yêu thích</a>
                                 <?php if ($currentUser['role'] === 'admin'): ?>
                                     <a href="<?php echo nav_url('admin'); ?>">Quản trị</a>
                                 <?php elseif ($currentUser['role'] === 'agent'): ?>
