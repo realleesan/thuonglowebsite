@@ -104,13 +104,57 @@
 
                 <!-- Right Side Buttons -->
                 <div class="header-buttons">
-                    <a href="<?php echo nav_url('register'); ?>" class="btn-get-started">Đăng ký</a>
-                    <a href="<?php echo nav_url('login'); ?>" class="btn-login">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 8C10.21 8 12 6.21 12 4C12 1.79 10.21 0 8 0C5.79 0 4 1.79 4 4C4 6.21 5.79 8 8 8ZM8 10C5.33 10 0 11.34 0 14V16H16V14C16 11.34 10.67 10 8 10Z" stroke="currentColor" stroke-width="1" fill="none"/>
-                        </svg>
-                        Đăng nhập
-                    </a>
+                    <?php
+                    // Check if user is authenticated
+                    $isAuthenticated = false;
+                    $currentUser = null;
+                    
+                    if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+                        $isAuthenticated = true;
+                        $currentUser = [
+                            'id' => $_SESSION['user_id'],
+                            'name' => $_SESSION['user_name'] ?? 'User',
+                            'username' => $_SESSION['username'] ?? '',
+                            'email' => $_SESSION['user_email'] ?? '',
+                            'role' => $_SESSION['user_role'] ?? 'user'
+                        ];
+                    }
+                    
+                    if ($isAuthenticated): ?>
+                        <!-- Authenticated User Menu -->
+                        <div class="user-menu has-dropdown">
+                            <button type="button" class="user-btn dropdown-btn">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 8C10.21 8 12 6.21 12 4C12 1.79 10.21 0 8 0C5.79 0 4 1.79 4 4C4 6.21 5.79 8 8 8ZM8 10C5.33 10 0 11.34 0 14V16H16V14C16 11.34 10.67 10 8 10Z" stroke="currentColor" stroke-width="1" fill="none"/>
+                                </svg>
+                                <?php echo htmlspecialchars($currentUser['username'] ?: $currentUser['name']); ?>
+                                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu user-dropdown">
+                                <a href="<?php echo nav_url('users'); ?>">Tài khoản của tôi</a>
+                                <a href="<?php echo page_url('users', ['module' => 'orders']); ?>">Đơn hàng</a>
+                                <a href="<?php echo page_url('users', ['module' => 'wishlist']); ?>">Yêu thích</a>
+                                <?php if ($currentUser['role'] === 'admin'): ?>
+                                    <a href="<?php echo nav_url('admin'); ?>">Quản trị</a>
+                                <?php elseif ($currentUser['role'] === 'agent'): ?>
+                                    <a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a>
+                                <?php endif; ?>
+                                <hr>
+                                <a href="?page=logout">Đăng xuất</a>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <!-- Guest User Buttons -->
+                        <a href="<?php echo nav_url('register'); ?>" class="btn-get-started">Đăng ký</a>
+                        <a href="<?php echo nav_url('login'); ?>" class="btn-login">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 8C10.21 8 12 6.21 12 4C12 1.79 10.21 0 8 0C5.79 0 4 1.79 4 4C4 6.21 5.79 8 8 8ZM8 10C5.33 10 0 11.34 0 14V16H16V14C16 11.34 10.67 10 8 10Z" stroke="currentColor" stroke-width="1" fill="none"/>
+                            </svg>
+                            Đăng nhập
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

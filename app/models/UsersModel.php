@@ -9,7 +9,7 @@ require_once __DIR__ . '/BaseModel.php';
 class UsersModel extends BaseModel {
     protected $table = 'users';
     protected $fillable = [
-        'name', 'email', 'phone', 'password', 'role', 'status', 
+        'name', 'username', 'email', 'phone', 'password', 'role', 'status', 
         'address', 'avatar', 'points', 'level'
     ];
     protected $hidden = ['password', 'remember_token'];
@@ -24,10 +24,10 @@ class UsersModel extends BaseModel {
             throw new Exception('Account is temporarily locked due to too many failed attempts');
         }
         
-        // Login can be email or phone
+        // Login can be email, phone, or username
         $user = $this->db->query(
-            "SELECT * FROM {$this->table} WHERE (email = ? OR phone = ?) AND status = 'active'",
-            [$login, $login]
+            "SELECT * FROM {$this->table} WHERE (email = ? OR phone = ? OR username = ?) AND status = 'active'",
+            [$login, $login, $login]
         );
         
         if (empty($user)) {
@@ -60,6 +60,11 @@ class UsersModel extends BaseModel {
         // Check if email already exists
         if ($this->emailExists($data['email'])) {
             throw new Exception('Email already exists');
+        }
+        
+        // Check if username already exists (if provided)
+        if (!empty($data['username']) && $this->usernameExists($data['username'])) {
+            throw new Exception('Username already exists');
         }
         
         // Check if phone already exists (if provided)
@@ -373,8 +378,8 @@ class UsersModel extends BaseModel {
      */
     public function findByLogin($login): ?array {
         $result = $this->db->query(
-            "SELECT * FROM {$this->table} WHERE email = ? OR phone = ?",
-            [$login, $login]
+            "SELECT * FROM {$this->table} WHERE email = ? OR phone = ? OR username = ?",
+            [$login, $login, $login]
         );
         
         return $result ? $this->hideFields($result[0]) : null;
@@ -427,6 +432,19 @@ class UsersModel extends BaseModel {
         }
         
         $result = $this->db->query("SELECT id FROM {$this->table} WHERE phone = ?", [$phone]);
+        return !empty($result);
+    }
+    
+    /**
+     * Check if user exists by username
+     * Requirements: 1.2, 8.2
+     */
+    public function usernameExists($username): bool {
+        if (empty($username)) {
+            return false;
+        }
+        
+        $result = $this->db->query("SELECT id FROM {$this->table} WHERE username = ?", [$username]);
         return !empty($result);
     }
     

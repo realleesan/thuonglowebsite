@@ -33,6 +33,7 @@ mb_http_output('UTF-8');
     
     <!-- Core CSS Files -->
     <link rel="stylesheet" href="<?php echo versioned_css('header.css'); ?>">
+    <link rel="stylesheet" href="<?php echo versioned_css('header_user_menu.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('footer.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('cta.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('pusher.css'); ?>">
@@ -145,6 +146,7 @@ mb_http_output('UTF-8');
     
     <!-- JavaScript Files -->
     <script src="<?php echo versioned_js('header.js'); ?>"></script>
+    <script src="<?php echo versioned_js('header_user_menu.js'); ?>"></script>
     <script src="<?php echo versioned_js('footer.js'); ?>"></script>
     <script src="<?php echo versioned_js('cta.js'); ?>"></script>
     <script src="<?php echo versioned_js('pusher.js'); ?>"></script>

@@ -22,13 +22,14 @@ class InputValidator {
     public function validateLogin(array $data): array {
         $this->errors = [];
         
-        // Validate login field (email or phone)
+        // Validate login field (email, phone, or username)
         if (empty($data['login'])) {
-            $this->errors['login'] = 'Email hoặc số điện thoại là bắt buộc';
+            $this->errors['login'] = 'Email, số điện thoại hoặc tên đăng nhập là bắt buộc';
         } else {
             $login = $this->sanitizeInput($data['login']);
-            if (!$this->validateEmail($login) && !$this->validatePhone($login)) {
-                $this->errors['login'] = 'Email hoặc số điện thoại không hợp lệ';
+            // Accept email, phone, or username
+            if (!$this->validateEmail($login) && !$this->validatePhone($login) && !$this->validateUsername($login)) {
+                $this->errors['login'] = 'Email, số điện thoại hoặc tên đăng nhập không hợp lệ';
             }
         }
         
@@ -55,6 +56,13 @@ class InputValidator {
             $this->errors['name'] = 'Họ tên là bắt buộc';
         } elseif (strlen(trim($data['name'])) < 2) {
             $this->errors['name'] = 'Họ tên phải có ít nhất 2 ký tự';
+        }
+        
+        // Validate username (optional but if provided must be valid)
+        if (!empty($data['username'])) {
+            if (!$this->validateUsername($data['username'])) {
+                $this->errors['username'] = 'Tên đăng nhập chỉ chứa chữ cái, số và dấu gạch dưới, từ 3-20 ký tự';
+            }
         }
         
         // Validate email
@@ -694,10 +702,20 @@ class InputValidator {
     private function sanitizeRegisterData(array $data): array {
         return [
             'name' => $this->sanitizeInput($data['name'] ?? ''),
+            'username' => $this->sanitizeInput($data['username'] ?? ''),
             'email' => $this->sanitizeInput($data['email'] ?? ''),
             'phone' => $this->sanitizeInput($data['phone'] ?? ''),
             'password' => $data['password'] ?? '', // Don't sanitize password
             'address' => $this->sanitizeInput($data['address'] ?? ''),
+            'ref_code' => $this->sanitizeInput($data['ref_code'] ?? ''),
         ];
+    }
+    
+    /**
+     * Validate username format
+     */
+    private function validateUsername(string $username): bool {
+        // Username should be 3-20 characters, alphanumeric and underscore only
+        return preg_match('/^[a-zA-Z0-9_]{3,20}$/', $username);
     }
 }

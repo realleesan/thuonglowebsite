@@ -24,9 +24,9 @@
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($viewData['csrf_token'] ?? ''); ?>">
                     
                     <div class="form-group">
-                        <label for="login" class="form-label">Tên đăng nhập hoặc email</label>
+                        <label for="login" class="form-label">Email, số điện thoại hoặc tên đăng nhập</label>
                         <input type="text" id="login" name="login" class="form-control"
-                               placeholder="Tên đăng nhập hoặc email" required
+                               placeholder="Email, số điện thoại hoặc tên đăng nhập" required
                                value="<?php echo htmlspecialchars($rememberedPhone); ?>"
                                autocomplete="username">
                     </div>

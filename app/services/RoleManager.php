@@ -150,16 +150,16 @@ class RoleManager {
      */
     public function getRedirectPath(array $user): string {
         if (!isset($user['role'])) {
-            return '/auth/login';
+            return '?page=login';
         }
         
         switch ($user['role']) {
             case 'admin':
-                return '/admin/dashboard';
+                return '?page=admin';
             case 'affiliate':
-                return '/affiliate/dashboard';
+                return '?page=affiliate';
             case 'user':
-                return '/users/dashboard';
+                return '?page=users';
             default:
                 return '/';
         }
@@ -171,11 +171,11 @@ class RoleManager {
     public function getDashboardPath(string $role): string {
         switch ($role) {
             case 'admin':
-                return '/admin/dashboard';
+                return '?page=admin';
             case 'affiliate':
-                return '/affiliate/dashboard';
+                return '?page=affiliate';
             case 'user':
-                return '/users/dashboard';
+                return '?page=users';
             default:
                 return '/';
         }

@@ -5,12 +5,34 @@ require_once __DIR__ . '/../../../core/view_init.php';
 // Chọn service user (ưu tiên inject từ routing)
 $service = isset($currentService) ? $currentService : ($userService ?? null);
 
-$user = ['name' => 'Người dùng'];
+// Get current user from session
+$currentUser = null;
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    // Load user data from database
+    try {
+        require_once __DIR__ . '/../../models/UsersModel.php';
+        $usersModel = new UsersModel();
+        $currentUser = $usersModel->find($_SESSION['user_id']);
+    } catch (Exception $e) {
+        // If database fails, use session data
+        $currentUser = [
+            'id' => $_SESSION['user_id'],
+            'name' => $_SESSION['user_name'] ?? 'User',
+            'username' => $_SESSION['username'] ?? '',
+            'email' => $_SESSION['user_email'] ?? '',
+            'role' => $_SESSION['user_role'] ?? 'user',
+            'points' => 0,
+            'level' => 'Bronze'
+        ];
+    }
+}
+
+$user = $currentUser ?: ['name' => 'Người dùng'];
 $stats = [
     'total_orders' => 0,
     'total_spent' => 0,
-    'loyalty_points' => 0,
-    'user_level' => 'Bronze',
+    'loyalty_points' => $user['points'] ?? 0,
+    'user_level' => $user['level'] ?? 'Bronze',
     'data_purchased' => 0,
 ];
 $recentOrders = [];
@@ -21,15 +43,13 @@ $trends = [
     'points' => ['value' => 0, 'direction' => 'down'],
 ];
 
-if ($service) {
-    $userId = $_SESSION['user_id'] ?? 0;
-    if ($userId) {
-        $data = $service->getDashboardData((int) $userId);
-        $user = $data['user'] ?? $user;
-        $stats = $data['stats'] ?? $stats;
-        $recentOrders = $data['recent_orders'] ?? $recentOrders;
-        $trends = $data['trends'] ?? $trends;
-    }
+if ($service && $currentUser) {
+    $userId = $currentUser['id'];
+    $data = $service->getDashboardData((int) $userId);
+    $user = $data['user'] ?? $user;
+    $stats = array_merge($stats, $data['stats'] ?? []);
+    $recentOrders = $data['recent_orders'] ?? $recentOrders;
+    $trends = $data['trends'] ?? $trends;
 }
 
 // Quick actions based on user activity

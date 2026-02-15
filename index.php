@@ -2,6 +2,9 @@
 // Define security constant for core files
 define('THUONGLO_INIT', true);
 
+// Start session early
+session_start();
+
 // Load basic configuration
 $base_dir = __DIR__;
 $config = require_once $base_dir . '/config.php';
@@ -190,6 +193,61 @@ switch($page) {
             $authController->forgot();
             exit;
         }
+        break;
+
+    case 'logout':
+        // Process logout
+        require_once 'app/controllers/AuthController.php';
+        $authController = new AuthController();
+        $authController->logout();
+        exit;
+        break;
+
+    case 'users':
+        // User dashboard and account pages
+        $module = $_GET['module'] ?? 'dashboard';
+        $title = 'Tài khoản - Thuong Lo';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = [
+            ['title' => 'Trang chủ', 'url' => './'],
+            ['title' => 'Tài khoản']
+        ];
+        
+        // Check authentication
+        if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+            header('Location: ?page=login');
+            exit;
+        }
+        
+        switch($module) {
+            case 'dashboard':
+            default:
+                $content = 'app/views/users/dashboard.php';
+                $title = 'Tài khoản của tôi - Thuong Lo';
+                break;
+            case 'orders':
+                $content = 'app/views/users/orders/index.php';
+                $title = 'Đơn hàng - Thuong Lo';
+                break;
+            case 'cart':
+                $content = 'app/views/users/cart/index.php';
+                $title = 'Giỏ hàng - Thuong Lo';
+                break;
+            case 'wishlist':
+                $content = 'app/views/users/wishlist/index.php';
+                $title = 'Yêu thích - Thuong Lo';
+                break;
+            case 'account':
+                $content = 'app/views/users/account/index.php';
+                $title = 'Thông tin tài khoản - Thuong Lo';
+                break;
+        }
+        
+        $additionalCSS = ['assets/css/users_dashboard.css?v=' . time()];
+        $additionalJS = ['assets/js/users_dashboard.js?v=' . time()];
+        $currentService = $userService ?? $currentService;
         break;
 
     case 'checkout':

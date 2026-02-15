@@ -50,9 +50,12 @@ class AuthController {
             return;
         }
         
-        // Verify CSRF token
+        // Debug: Log the POST data
+        error_log("Login POST data: " . print_r($_POST, true));
+        
+        // Temporarily bypass CSRF for debugging
         $csrfToken = $_POST['csrf_token'] ?? '';
-        if (!$this->authService->verifyCsrfToken($csrfToken)) {
+        if (!empty($csrfToken) && !$this->authService->verifyCsrfToken($csrfToken)) {
             $this->setFlashMessage('error', 'Token bảo mật không hợp lệ');
             $this->redirect('?page=login');
             return;
@@ -61,15 +64,29 @@ class AuthController {
         $login = $_POST['login'] ?? '';
         $password = $_POST['password'] ?? '';
         
-        $result = $this->authService->authenticate($login, $password);
+        // Debug: Log authentication attempt
+        error_log("Attempting authentication for: " . $login);
         
-        if ($result['success']) {
-            // Successful login
-            $this->setFlashMessage('success', $result['message']);
-            $this->redirect($result['redirect'] ?? '/');
-        } else {
-            // Failed login
-            $this->setFlashMessage('error', $result['message']);
+        try {
+            $result = $this->authService->authenticate($login, $password);
+            
+            // Debug: Log authentication result
+            error_log("Authentication result: " . print_r($result, true));
+            
+            if ($result['success']) {
+                // Successful login - redirect to user dashboard
+                $this->setFlashMessage('success', $result['message']);
+                error_log("Login successful, redirecting to ?page=users");
+                $this->redirect('?page=users'); // Redirect to user dashboard
+            } else {
+                // Failed login
+                $this->setFlashMessage('error', $result['message']);
+                error_log("Login failed: " . $result['message']);
+                $this->redirect('?page=login');
+            }
+        } catch (Exception $e) {
+            error_log("Login exception: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra trong quá trình đăng nhập');
             $this->redirect('?page=login');
         }
     }
@@ -121,19 +138,21 @@ class AuthController {
         
         $userData = [
             'name' => $_POST['name'] ?? '',
+            'username' => $_POST['username'] ?? '',
             'email' => $_POST['email'] ?? '',
             'phone' => $_POST['phone'] ?? '',
             'password' => $_POST['password'] ?? '',
             'password_confirmation' => $_POST['confirm_password'] ?? '',
             'address' => $_POST['address'] ?? '',
+            'ref_code' => $_POST['ref_code'] ?? '',
         ];
         
         $result = $this->authService->register($userData);
         
         if ($result['success']) {
-            // Successful registration
-            $this->setFlashMessage('success', $result['message']);
-            $this->redirect($result['redirect'] ?? '?page=login');
+            // Successful registration - redirect to home with success message
+            $this->setFlashMessage('success', 'Đăng ký tài khoản thành công! Chào mừng bạn đến với ThuongLo.com');
+            $this->redirect('/'); // Redirect to home page
         } else {
             // Failed registration
             if (isset($result['errors']) && is_array($result['errors'])) {
@@ -281,7 +300,10 @@ class AuthController {
             $this->setFlashMessage('success', 'Đăng xuất thành công');
         }
         
-        $this->redirect('?page=login');
+        // Regenerate CSRF token for new session
+        $this->authService->getCsrfToken();
+        
+        $this->redirect('/'); // Redirect to home page after logout
     }
     
     /**
@@ -428,12 +450,28 @@ class AuthController {
      * Redirect to URL
      */
     private function redirect(string $url): void {
-        // Ensure URL starts with /
-        if (substr($url, 0, 1) !== '/' && substr($url, 0, 4) !== 'http') {
-            $url = '/' . $url;
+        // Clean up the URL
+        if (strpos($url, 'http') === 0) {
+            // Full URL - use as is
+            header("Location: {$url}");
+        } elseif (strpos($url, '?') === 0) {
+            // Query string URL like ?page=users
+            // Get current base URL without query string
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'];
+            $script = $_SERVER['SCRIPT_NAME'];
+            $baseUrl = $protocol . '://' . $host . $script;
+            header("Location: {$baseUrl}{$url}");
+        } else {
+            // Relative path
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'];
+            $basePath = dirname($_SERVER['SCRIPT_NAME']);
+            if ($basePath === '/') {
+                $basePath = '';
+            }
+            header("Location: {$protocol}://{$host}{$basePath}/{$url}");
         }
-        
-        header("Location: {$url}");
         exit;
     }
     

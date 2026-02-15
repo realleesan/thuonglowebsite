@@ -32,6 +32,16 @@
                                autocomplete="name">
                     </div>
 
+                    <div class="form-group">
+                        <label for="username">Tên đăng nhập <span class="required">*</span></label>
+                        <input type="text" id="username" name="username" class="form-control"
+                               placeholder="Nhập tên đăng nhập" required
+                               value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
+                               autocomplete="username" pattern="[a-zA-Z0-9_]{3,20}"
+                               title="Tên đăng nhập chỉ chứa chữ cái, số và dấu gạch dưới, từ 3-20 ký tự">
+                        <small class="form-help">Tên đăng nhập chỉ chứa chữ cái, số và dấu gạch dưới, từ 3-20 ký tự</small>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="email">Email <span class="required">*</span></label>

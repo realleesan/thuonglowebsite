@@ -195,6 +195,7 @@ class SessionManager {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
         $_SESSION['user_name'] = $user['name'] ?? '';
+        $_SESSION['username'] = $user['username'] ?? '';
         $_SESSION['login_time'] = time();
         $_SESSION['last_activity'] = time();
         $_SESSION['is_authenticated'] = true;
@@ -233,46 +234,27 @@ class SessionManager {
     public function destroySession(): bool {
         $this->start();
         
+        // Store CSRF token before clearing
+        $csrfToken = $_SESSION['csrf_token'] ?? null;
+        
         // Clear all session data
         $_SESSION = [];
         
-        // Delete session cookie with all security parameters
-        if (ini_get('session.use_cookies')) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
-            );
-            
-            // Also clear with SameSite attribute
-            if (PHP_VERSION_ID >= 70300) {
-                setcookie(
-                    session_name(),
-                    '',
-                    [
-                        'expires' => time() - 42000,
-                        'path' => $params['path'],
-                        'domain' => $params['domain'],
-                        'secure' => $params['secure'],
-                        'httponly' => $params['httponly'],
-                        'samesite' => 'Strict'
-                    ]
-                );
-            }
+        // Restore CSRF token for new session
+        if ($csrfToken) {
+            $_SESSION['csrf_token'] = $csrfToken;
+        } else {
+            // Generate new CSRF token
+            $_SESSION['csrf_token'] = $this->getPasswordHasher()->generateSecureRandomString(32);
         }
         
-        // Destroy session file
-        $destroyed = session_destroy();
+        // Regenerate session ID for security
+        session_regenerate_id(true);
         
-        // Reset internal state
-        $this->isStarted = false;
+        // Reset internal state but keep session active
+        $this->isStarted = true;
         
-        return $destroyed;
+        return true;
     }
     
     /**
@@ -449,7 +431,13 @@ class SessionManager {
      */
     public function getCsrfToken(): string {
         $this->start();
-        return $_SESSION['csrf_token'] ?? '';
+        
+        // If no CSRF token exists, create one
+        if (!isset($_SESSION['csrf_token']) || empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = $this->getPasswordHasher()->generateSecureRandomString(32);
+        }
+        
+        return $_SESSION['csrf_token'];
     }
     
     /**
