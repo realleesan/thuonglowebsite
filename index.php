@@ -203,6 +203,41 @@ switch($page) {
         exit;
         break;
 
+    case 'agent':
+        // Agent registration routes
+        $action = $_GET['action'] ?? '';
+        require_once 'app/controllers/AffiliateController.php';
+        $agentController = new AffiliateController();
+        
+        switch($action) {
+            case 'popup':
+                $agentController->showRegistrationPopup();
+                exit;
+                break;
+            case 'register':
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $agentController->processRegistration();
+                } else {
+                    $agentController->showRegistrationPopup();
+                }
+                exit;
+                break;
+            case 'status':
+                $agentController->checkStatus();
+                exit;
+                break;
+            case 'processing':
+                $agentController->showProcessingMessage();
+                exit;
+                break;
+            default:
+                // Default to showing popup
+                $agentController->showRegistrationPopup();
+                exit;
+                break;
+        }
+        break;
+
     case 'users':
         // User dashboard and account pages
         $module = $_GET['module'] ?? 'dashboard';
@@ -577,6 +612,37 @@ switch($page) {
                         break;
                     default:
                         $content = 'app/views/admin/settings/index.php';
+                        break;
+                }
+                break;
+                
+            case 'agents':
+                $page_title = 'Quản lý Đại lý';
+                // Handle agent management through AdminController
+                require_once 'app/controllers/AdminController.php';
+                $adminController = new AdminController();
+                
+                switch($action) {
+                    case 'manage':
+                    default:
+                        $adminController->manageAgentRequests();
+                        exit;
+                        break;
+                    case 'approve':
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            $adminController->approveAgentRequest();
+                        } else {
+                            $adminController->manageAgentRequests();
+                        }
+                        exit;
+                        break;
+                    case 'update_status':
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            $adminController->updateAgentStatus();
+                        } else {
+                            $adminController->manageAgentRequests();
+                        }
+                        exit;
                         break;
                 }
                 break;

@@ -294,6 +294,10 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
                             <i class="fas fa-plus-circle"></i>
                             <span>Thêm sự kiện</span>
                         </a>
+                        <a href="/admin/manageAgentRequests" class="quick-action-btn">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Quản lý đại lý</span>
+                        </a>
                     </div>
                 </div>
             </div>

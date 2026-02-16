@@ -11,7 +11,7 @@ class AffiliateModel extends BaseModel {
     protected $fillable = [
         'user_id', 'referral_code', 'commission_rate', 'total_sales',
         'total_commission', 'paid_commission', 'pending_commission',
-        'status', 'payment_method', 'payment_details', 'approved_by'
+        'status', 'payment_method', 'payment_details', 'approved_by', 'additional_info'
     ];
     
     /**
@@ -62,6 +62,22 @@ class AffiliateModel extends BaseModel {
             'status' => 'pending'
         ];
         
+        return $this->create($data);
+    }
+    /**
+     * Create affiliate with custom data (for admin approval)
+     */
+    public function createAffiliateWithData($data) {
+        // Set default values if not provided
+        $data = array_merge([
+            'referral_code' => $this->generateReferralCode($data['user_id']),
+            'commission_rate' => 10,
+            'total_sales' => 0,
+            'total_commission' => 0,
+            'paid_commission' => 0,
+            'pending_commission' => 0
+        ], $data);
+
         return $this->create($data);
     }
     

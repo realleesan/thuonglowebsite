@@ -99,7 +99,28 @@
                             <a href="<?php echo page_url('news', ['category' => 'kinh-nghiem-kinh-doanh']); ?>">Kinh nghiệm kinh doanh</a>
                         </div>
                     </li>
-                    <li class="<?php echo ($currentPage == 'affiliate') ? 'active' : ''; ?>"><a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a></li>
+                    <li class="<?php echo ($currentPage == 'affiliate' || $currentPage == 'agent') ? 'active' : ''; ?>">
+                        <?php if ($isAuthenticated): ?>
+                            <?php
+                            // Check user's agent status from session or database
+                            $userRole = $_SESSION['user_role'] ?? 'user';
+                            $agentStatus = $_SESSION['agent_request_status'] ?? 'none';
+                            
+                            if ($userRole === 'agent' && $agentStatus === 'approved') {
+                                // User is approved agent - go to affiliate dashboard
+                                echo '<a href="' . nav_url('affiliate') . '">Đại lý</a>';
+                            } elseif ($agentStatus === 'pending') {
+                                // User has pending request - show processing message
+                                echo '<a href="?page=agent&action=processing">Đại lý</a>';
+                            } else {
+                                // User can register as agent - show popup
+                                echo '<a href="?page=agent">Đại lý</a>';
+                            }
+                            ?>
+                        <?php else: ?>
+                            <a href="?page=agent">Đại lý</a>
+                        <?php endif; ?>
+                    </li>
                 </ul>
 
                 <!-- Right Side Buttons -->

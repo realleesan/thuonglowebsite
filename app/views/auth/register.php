@@ -122,6 +122,21 @@
                         <?php endif; ?>
                     </div>
 
+                    <!-- Account Type Selection -->
+                    <div class="form-group">
+                        <label class="form-label">Loại tài khoản</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="role_user" name="account_type" value="user" checked>
+                                <label for="role_user">Người dùng</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="role_agent" name="account_type" value="agent">
+                                <label for="role_agent">Đại lý</label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="terms-checkbox">
                         <input type="checkbox" id="terms" name="terms" required>
                         <label for="terms">

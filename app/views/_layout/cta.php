@@ -13,7 +13,7 @@
                 <div class="cta-description">
                     <p>Tham gia cùng chúng tôi và kiếm thu nhập thụ động từ việc giới thiệu dịch vụ thương mại xuyên biên giới hàng đầu Việt Nam</p>
                 </div>
-                <a class="cta-button" href="/affiliate/">Đăng ký ngay</a>
+                <a class="cta-button" href="?page=agent">Đăng ký ngay</a>
             </div>
         </div>
     </div>

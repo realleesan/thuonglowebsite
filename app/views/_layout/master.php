@@ -34,6 +34,7 @@ mb_http_output('UTF-8');
     <!-- Core CSS Files -->
     <link rel="stylesheet" href="<?php echo versioned_css('header.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('header_user_menu.css'); ?>">
+    <link rel="stylesheet" href="<?php echo versioned_css('agent_registration.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('footer.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('cta.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('pusher.css'); ?>">

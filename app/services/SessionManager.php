@@ -200,6 +200,9 @@ class SessionManager {
         $_SESSION['last_activity'] = time();
         $_SESSION['is_authenticated'] = true;
         
+        // Agent registration status
+        $_SESSION['agent_request_status'] = $user['agent_request_status'] ?? 'none';
+        
         // Security data
         $_SESSION['session_token'] = $this->getPasswordHasher()->generateSessionToken();
         $_SESSION['login_ip'] = $_SERVER['REMOTE_ADDR'] ?? 'unknown';

@@ -61,7 +61,7 @@ abstract class BaseModel {
         }
         
         $id = $this->db->table($this->table)->insert($filteredData);
-        return $this->find($id);
+        return $id;
     }
     
     /**

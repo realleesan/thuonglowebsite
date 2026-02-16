@@ -94,6 +94,9 @@ class AuthController {
         $error = $_SESSION['flash_error'] ?? null;
         $errors = $_SESSION['flash_errors'] ?? [];
         
+        // Get referral code from URL if present
+        $refCodeFromUrl = $_GET['ref'] ?? '';
+        
         // Get CSRF token
         $csrfToken = $this->authService->getCsrfToken();
         
@@ -101,6 +104,7 @@ class AuthController {
             'csrf_token' => $csrfToken,
             'error' => $error,
             'errors' => $errors,
+            'refCodeFromUrl' => $refCodeFromUrl,
             'page_title' => 'Đăng ký',
             'form_action' => '?page=register&action=process',
             'login_url' => '?page=login'
@@ -116,38 +120,55 @@ class AuthController {
             return;
         }
         
-        // Verify CSRF token
-        $csrfToken = $_POST['csrf_token'] ?? '';
-        if (!$this->authService->verifyCsrfToken($csrfToken)) {
-            $this->setFlashMessage('error', 'Token bảo mật không hợp lệ');
-            $this->redirect('?page=register');
-            return;
-        }
-        
-        $userData = [
-            'name' => $_POST['name'] ?? '',
-            'username' => $_POST['username'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'phone' => $_POST['phone'] ?? '',
-            'password' => $_POST['password'] ?? '',
-            'password_confirmation' => $_POST['confirm_password'] ?? '',
-            'address' => $_POST['address'] ?? '',
-            'ref_code' => $_POST['ref_code'] ?? '',
-        ];
-        
-        $result = $this->authService->register($userData);
-        
-        if ($result['success']) {
-            // Successful registration - redirect to home with success message
-            $this->setFlashMessage('success', 'Đăng ký tài khoản thành công! Chào mừng bạn đến với ThuongLo.com');
-            $this->redirect('');
-        } else {
-            // Failed registration
-            if (isset($result['errors']) && is_array($result['errors'])) {
-                $_SESSION['flash_errors'] = $result['errors'];
-            } else {
-                $this->setFlashMessage('error', $result['message']);
+        try {
+            // Verify CSRF token
+            $csrfToken = $_POST['csrf_token'] ?? '';
+            if (!$this->authService->verifyCsrfToken($csrfToken)) {
+                $this->setFlashMessage('error', 'Token bảo mật không hợp lệ');
+                $this->redirect('?page=register');
+                return;
             }
+            
+            $userData = [
+                'name' => $_POST['name'] ?? '',
+                'username' => $_POST['username'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'phone' => $_POST['phone'] ?? '',
+                'password' => $_POST['password'] ?? '',
+                'password_confirmation' => $_POST['confirm_password'] ?? '',
+                'ref_code' => $_POST['ref_code'] ?? '',
+            ];
+            
+            // Check if user wants to register as agent
+            $accountType = $_POST['account_type'] ?? 'user';
+            
+            if ($accountType === 'agent') {
+                // Process agent registration
+                $this->processAgentRegistration($userData);
+            } else {
+                // Process regular user registration
+                $result = $this->authService->register($userData);
+                
+                if ($result['success']) {
+                    // Successful registration - redirect to home with success message
+                    $this->setFlashMessage('success', 'Đăng ký tài khoản thành công! Chào mừng bạn đến với ThuongLo.com');
+                    $this->redirect('');
+                } else {
+                    // Failed registration
+                    if (isset($result['errors']) && is_array($result['errors'])) {
+                        $_SESSION['flash_errors'] = $result['errors'];
+                    } else {
+                        $this->setFlashMessage('error', $result['message']);
+                    }
+                    $this->redirect('?page=register');
+                }
+            }
+        } catch (Exception $e) {
+            // Log the error for debugging
+            error_log("Registration error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
+            $this->setFlashMessage('error', 'Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại.');
             $this->redirect('?page=register');
         }
     }
@@ -582,5 +603,122 @@ class AuthController {
             'success' => true,
             'time_remaining' => $this->authService->getSessionTimeRemaining()
         ]);
+    }
+    
+    /**
+     * Process agent registration for new users
+     * Requirements: 1.3, 1.4
+     */
+    private function processAgentRegistration(array $userData): void {
+        try {
+            // Use the main email field for agent registration
+            $agentEmail = $userData['email'] ?? '';
+            
+            // Validate agent email (must be Gmail)
+            if (empty($agentEmail)) {
+                $this->setFlashMessage('error', 'Email là bắt buộc cho đăng ký đại lý');
+                $this->redirect('?page=register');
+                return;
+            }
+            
+            if (substr(strtolower($agentEmail), -10) !== '@gmail.com') {
+                $this->setFlashMessage('error', 'Chỉ chấp nhận địa chỉ Gmail (@gmail.com) cho đăng ký đại lý');
+                $this->redirect('?page=register');
+                return;
+            }
+            
+            // Prepare agent data
+            $agentData = [
+                'email' => $agentEmail,
+                'additional_info' => [
+                    'registration_source' => 'new_user_form',
+                    'requested_at' => date('Y-m-d H:i:s')
+                ]
+            ];
+            
+            // Use AgentRegistrationService to handle the registration
+            require_once __DIR__ . '/../services/AgentRegistrationService.php';
+            $agentService = new AgentRegistrationService();
+            
+            $result = $agentService->registerNewUserAsAgent($userData, $agentData);
+            
+            if ($result['success']) {
+                $this->setFlashMessage('success', 
+                    'Tài khoản đã được tạo thành công! Yêu cầu đăng ký đại lý của bạn sẽ được xử lý trong vòng 24 giờ. ' .
+                    'Chúng tôi sẽ gửi email thông báo kết quả đến địa chỉ Gmail bạn đã cung cấp.'
+                );
+                $this->redirect('');
+            } else {
+                // Handle different types of errors
+                if (isset($result['rate_limited']) && $result['rate_limited']) {
+                    $this->setFlashMessage('error', $result['message']);
+                } elseif (isset($result['errors']) && is_array($result['errors'])) {
+                    $_SESSION['flash_errors'] = $result['errors'];
+                } else {
+                    $this->setFlashMessage('error', $result['message'] ?? 'Có lỗi xảy ra khi đăng ký đại lý');
+                }
+                $this->redirect('?page=register');
+            }
+        } catch (Exception $e) {
+            // Log the error for debugging
+            error_log("Agent registration error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            
+            $this->setFlashMessage('error', 'Có lỗi xảy ra trong quá trình đăng ký đại lý. Vui lòng thử lại.');
+            $this->redirect('?page=register');
+        }
+    }
+    
+    /**
+     * Register with agent option - alternative method name for clarity
+     * Requirements: 1.3, 1.4
+     */
+    public function registerWithAgentOption(): void {
+        // This method can be used for API calls or specific agent registration flows
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonResponse(['success' => false, 'message' => 'Method not allowed'], 405);
+            return;
+        }
+        
+        // Get JSON input for API calls
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input) {
+            // Fallback to POST data
+            $input = $_POST;
+        }
+        
+        // Verify CSRF token
+        $csrfToken = $input['csrf_token'] ?? '';
+        if (!$this->authService->verifyCsrfToken($csrfToken)) {
+            $this->jsonResponse(['success' => false, 'message' => 'Token bảo mật không hợp lệ'], 403);
+            return;
+        }
+        
+        $userData = [
+            'name' => $input['name'] ?? '',
+            'username' => $input['username'] ?? '',
+            'email' => $input['email'] ?? '',
+            'phone' => $input['phone'] ?? '',
+            'password' => $input['password'] ?? '',
+            'password_confirmation' => $input['confirm_password'] ?? $input['password_confirmation'] ?? '',
+            'ref_code' => $input['ref_code'] ?? '',
+        ];
+        
+        // Use the main email for agent registration
+        $agentData = [
+            'email' => $input['email'] ?? '',
+            'additional_info' => [
+                'registration_source' => 'api_call',
+                'requested_at' => date('Y-m-d H:i:s')
+            ]
+        ];
+        
+        // Use AgentRegistrationService
+        require_once __DIR__ . '/../services/AgentRegistrationService.php';
+        $agentService = new AgentRegistrationService();
+        
+        $result = $agentService->registerNewUserAsAgent($userData, $agentData);
+        
+        $this->jsonResponse($result);
     }
 }

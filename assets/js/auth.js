@@ -264,7 +264,6 @@ window.toggleAuthPassword = function(fieldId) {
     }
 };
 
-// ... (Giữ nguyên các phần logic Role Demo và Social Login bên dưới của bạn) ...
 // Logic Login Demo
 window.toggleRoleSelector = function() {
     const roleSelector = document.getElementById('role-selector');
@@ -328,6 +327,109 @@ window.loginWithGoogle = () => alert('Tính năng đang phát triển');
 window.loginWithX = () => alert('Tính năng đang phát triển');
 window.loginWithLinkedIn = () => alert('Tính năng đang phát triển');
 
+// Agent role selection functionality
+function initializeAgentRoleSelection() {
+    const roleRadios = document.querySelectorAll('input[name="account_type"]');
+    
+    if (!roleRadios.length) return;
+    
+    roleRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            console.log('DEBUG: Role changed to:', this.value);
+            // Just log the change, no UI updates needed
+        });
+    });
+}
+
+// Show Gmail requirement for agent registration (removed - not needed)
+function showGmailRequirement() {
+    // Removed per user request
+}
+
+// Hide Gmail requirement (removed - not needed)
+function hideGmailRequirement() {
+    // Removed per user request
+}
+
+// Validate email for agent registration
+function validateAgentEmail() {
+    const roleAgent = document.getElementById('role_agent');
+    const emailInput = document.getElementById('email');
+    
+    if (!roleAgent || !emailInput || !roleAgent.checked) return true;
+    
+    const email = emailInput.value.trim();
+    
+    if (!email) {
+        showEmailError('Email là bắt buộc cho đăng ký đại lý');
+        return false;
+    }
+    
+    if (!email.endsWith('@gmail.com')) {
+        showEmailError('Chỉ chấp nhận địa chỉ Gmail (@gmail.com) cho đăng ký đại lý');
+        return false;
+    }
+    
+    if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) {
+        showEmailError('Địa chỉ Gmail không hợp lệ');
+        return false;
+    }
+    
+    // Clear error if validation passes
+    hideEmailError();
+    return true;
+}
+
+function showEmailError(message) {
+    const emailInput = document.getElementById('email');
+    const emailGroup = emailInput?.closest('.form-group');
+    
+    if (emailGroup) {
+        let errorDiv = emailGroup.querySelector('.email-error');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error email-error';
+            emailGroup.appendChild(errorDiv);
+        }
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        emailInput.classList.add('error');
+    }
+}
+
+function hideEmailError() {
+    const emailInput = document.getElementById('email');
+    const emailGroup = emailInput?.closest('.form-group');
+    const errorDiv = emailGroup?.querySelector('.email-error');
+    
+    if (errorDiv && emailInput) {
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        emailInput.classList.remove('error');
+    }
+}
+
+// Enhanced form validation for registration
+function validateRegistrationForm() {
+    let isValid = true;
+    
+    // Password validation
+    const password = document.getElementById('password')?.value;
+    const confirmPassword = document.getElementById('confirm_password')?.value;
+    
+    if (password && confirmPassword && password !== confirmPassword) {
+        isValid = false;
+    }
+    
+    // Agent email validation (using main email field)
+    if (!validateAgentEmail()) {
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Khởi tạo trạng thái icon password
     initPasswordToggleIcons();
@@ -390,5 +492,56 @@ document.addEventListener('DOMContentLoaded', function() {
             const minutes = parseInt(match[1]);
             showRateLimitWarning(minutes * 60);
         }
+    }
+    
+    // Initialize agent role selection
+    initializeAgentRoleSelection();
+    
+    // Add email validation for agent registration
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        emailInput.addEventListener('blur', function() {
+            const roleAgent = document.getElementById('role_agent');
+            if (roleAgent && roleAgent.checked) {
+                validateAgentEmail();
+            }
+        });
+        
+        emailInput.addEventListener('input', function() {
+            // Clear error on input if it was showing
+            const emailGroup = this.closest('.form-group');
+            const errorDiv = emailGroup?.querySelector('.email-error');
+            if (errorDiv && errorDiv.style.display === 'block') {
+                setTimeout(() => {
+                    const roleAgent = document.getElementById('role_agent');
+                    if (roleAgent && roleAgent.checked) {
+                        validateAgentEmail();
+                    }
+                }, 300); // Debounce validation
+            }
+        });
+    }
+    
+    // Enhanced form submission
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            // Debug: Log form data before submission
+            const formData = new FormData(this);
+            console.log('DEBUG: Form submission data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+            
+            // Check if agent role is selected
+            const accountType = formData.get('account_type');
+            const email = formData.get('email');
+            console.log(`DEBUG: Account type: ${accountType}, Email: ${email}`);
+            
+            if (!validateRegistrationForm()) {
+                e.preventDefault();
+                return false;
+            }
+        });
     }
 });

@@ -10,7 +10,7 @@ class UsersModel extends BaseModel {
     protected $table = 'users';
     protected $fillable = [
         'name', 'username', 'email', 'phone', 'password', 'role', 'status', 
-        'address', 'avatar', 'points', 'level'
+        'address', 'avatar', 'points', 'level', 'agent_request_status', 'agent_request_date'
     ];
     protected $hidden = ['password', 'remember_token'];
     
@@ -26,7 +26,7 @@ class UsersModel extends BaseModel {
         
         // Login can be email, phone, or username
         $user = $this->db->query(
-            "SELECT * FROM {$this->table} WHERE (email = ? OR phone = ? OR username = ?) AND status = 'active'",
+            "SELECT *, agent_request_status FROM {$this->table} WHERE (email = ? OR phone = ? OR username = ?) AND status = 'active'",
             [$login, $login, $login]
         );
         
@@ -482,4 +482,69 @@ class UsersModel extends BaseModel {
             'last_updated' => $user['updated_at'] ?? null,
         ];
     }
+
+    /**
+     * Get users by role and status for admin management
+     * Requirements: 3.1
+     */
+    public function getUsersByRoleAndStatus($role, $status) {
+        $sql = "SELECT id, name, email, role, status, created_at
+                FROM users
+                WHERE role = ? AND status = ?
+                ORDER BY created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$role, $status]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get users by agent request status
+     * Requirements: 3.2
+     */
+    public function getUsersByAgentStatus($agentStatus) {
+        $sql = "SELECT id, name, email, role, status, agent_request_status, agent_request_date, agent_approved_date
+                FROM users
+                WHERE agent_request_status = ?
+                ORDER BY agent_request_date DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$agentStatus]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get user by ID
+     */
+    public function getUserById($userId) {
+        $sql = "SELECT * FROM users WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Update agent request status
+     * Requirements: 3.3, 3.5
+     */
+    public function updateAgentStatus($userId, $status) {
+        $sql = "UPDATE users
+                SET agent_request_status = ?,
+                    agent_approved_date = CASE WHEN ? = 'approved' THEN NOW() ELSE agent_approved_date END
+                WHERE id = ?";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$status, $status, $userId]);
+    }
+
+    /**
+     * Update user role
+     * Requirements: 3.5
+     */
+    public function updateUserRole($userId, $role) {
+        $sql = "UPDATE users SET role = ? WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$role, $userId]);
+    }
 }
+
