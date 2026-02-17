@@ -115,63 +115,73 @@ class AuthController {
      * Process registration request
      */
     public function processRegister(): void {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('?page=register');
-            return;
-        }
-        
-        try {
-            // Verify CSRF token
-            $csrfToken = $_POST['csrf_token'] ?? '';
-            if (!$this->authService->verifyCsrfToken($csrfToken)) {
-                $this->setFlashMessage('error', 'Token bảo mật không hợp lệ');
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 $this->redirect('?page=register');
                 return;
             }
-            
-            $userData = [
-                'name' => $_POST['name'] ?? '',
-                'username' => $_POST['username'] ?? '',
-                'email' => $_POST['email'] ?? '',
-                'phone' => $_POST['phone'] ?? '',
-                'password' => $_POST['password'] ?? '',
-                'password_confirmation' => $_POST['confirm_password'] ?? '',
-                'ref_code' => $_POST['ref_code'] ?? '',
-            ];
-            
-            // Check if user wants to register as agent
-            $accountType = $_POST['account_type'] ?? 'user';
-            
-            if ($accountType === 'agent') {
-                // Process agent registration
-                $this->processAgentRegistration($userData);
-            } else {
-                // Process regular user registration
-                $result = $this->authService->register($userData);
-                
-                if ($result['success']) {
-                    // Successful registration - redirect to home with success message
-                    $this->setFlashMessage('success', 'Đăng ký tài khoản thành công! Chào mừng bạn đến với ThuongLo.com');
-                    $this->redirect('');
-                } else {
-                    // Failed registration
-                    if (isset($result['errors']) && is_array($result['errors'])) {
-                        $_SESSION['flash_errors'] = $result['errors'];
-                    } else {
-                        $this->setFlashMessage('error', $result['message']);
-                    }
+
+            try {
+                // Verify CSRF token
+                $csrfToken = $_POST['csrf_token'] ?? '';
+                if (!$this->authService->verifyCsrfToken($csrfToken)) {
+                    $this->setFlashMessage('error', 'Token bảo mật không hợp lệ');
                     $this->redirect('?page=register');
+                    return;
                 }
+
+                $userData = [
+                    'name' => $_POST['name'] ?? '',
+                    'username' => $_POST['username'] ?? '',
+                    'email' => $_POST['email'] ?? '',
+                    'phone' => $_POST['phone'] ?? '',
+                    'password' => $_POST['password'] ?? '',
+                    'password_confirmation' => $_POST['confirm_password'] ?? '',
+                    'ref_code' => $_POST['ref_code'] ?? '',
+                ];
+
+                // Check if user wants to register as agent
+                $accountType = $_POST['account_type'] ?? 'user';
+
+                if ($accountType === 'agent') {
+                    // Process agent registration
+                    $this->processAgentRegistration($userData);
+                } else {
+                    // Process regular user registration
+                    $result = $this->authService->register($userData);
+
+                    if ($result['success']) {
+                        // Successful registration with auto-login
+                        $this->setFlashMessage('success', 'Đăng ký tài khoản thành công! Chào mừng bạn đến với ThuongLo.com');
+
+                        // Check if user is logged in (auto-login was successful)
+                        if ($this->checkAuth()) {
+                            // Redirect to user dashboard or home page
+                            $this->redirect('?page=users&module=dashboard');
+                        } else {
+                            // Auto-login failed, redirect to login page
+                            $this->setFlashMessage('info', 'Tài khoản đã được tạo thành công. Vui lòng đăng nhập.');
+                            $this->redirect('?page=login');
+                        }
+                    } else {
+                        // Failed registration
+                        if (isset($result['errors']) && is_array($result['errors'])) {
+                            $_SESSION['flash_errors'] = $result['errors'];
+                        } else {
+                            $this->setFlashMessage('error', $result['message']);
+                        }
+                        $this->redirect('?page=register');
+                    }
+                }
+            } catch (Exception $e) {
+                // Log the error for debugging
+                error_log("Registration error: " . $e->getMessage());
+                error_log("Stack trace: " . $e->getTraceAsString());
+
+                $this->setFlashMessage('error', 'Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại.');
+                $this->redirect('?page=register');
             }
-        } catch (Exception $e) {
-            // Log the error for debugging
-            error_log("Registration error: " . $e->getMessage());
-            error_log("Stack trace: " . $e->getTraceAsString());
-            
-            $this->setFlashMessage('error', 'Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại.');
-            $this->redirect('?page=register');
         }
-    }
+
     
     /**
      * Display forgot password form
@@ -643,11 +653,25 @@ class AuthController {
             $result = $agentService->registerNewUserAsAgent($userData, $agentData);
             
             if ($result['success']) {
+                // Auto-login the newly created user
+                if (isset($result['user']) && is_array($result['user'])) {
+                    // Create session for auto-login
+                    require_once __DIR__ . '/../services/SessionManager.php';
+                    $sessionManager = new SessionManager();
+                    $sessionManager->createSession($result['user']);
+                }
+                
                 $this->setFlashMessage('success', 
                     'Tài khoản đã được tạo thành công! Yêu cầu đăng ký đại lý của bạn sẽ được xử lý trong vòng 24 giờ. ' .
                     'Chúng tôi sẽ gửi email thông báo kết quả đến địa chỉ Gmail bạn đã cung cấp.'
                 );
-                $this->redirect('');
+                
+                // Check if user is logged in and redirect accordingly
+                if ($this->checkAuth()) {
+                    $this->redirect('?page=users&module=dashboard');
+                } else {
+                    $this->redirect('?page=login');
+                }
             } else {
                 // Handle different types of errors
                 if (isset($result['rate_limited']) && $result['rate_limited']) {

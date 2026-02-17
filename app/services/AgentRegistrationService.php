@@ -70,10 +70,12 @@ class AgentRegistrationService extends BaseService {
                 'agent_request_date' => date('Y-m-d H:i:s')
             ]);
             
-            $userId = $usersModel->create($userDataWithAgent);
-            if (!$userId) {
+            $user = $usersModel->register($userDataWithAgent);
+            if (!$user || !isset($user['id'])) {
                 throw new Exception('Không thể tạo tài khoản người dùng');
             }
+            
+            $userId = $user['id'];
             
             // Update agent registration data with user ID
             $agentRegistrationData->userId = $userId;
@@ -120,6 +122,7 @@ class AgentRegistrationService extends BaseService {
                 'success' => true,
                 'message' => 'Đăng ký thành công! Chúng tôi sẽ xử lý yêu cầu trong vòng 24 giờ.',
                 'user_id' => $userId,
+                'user' => $user,
                 'affiliate_id' => $affiliateId,
                 'email_sent' => $emailSent,
                 'status' => 'pending'

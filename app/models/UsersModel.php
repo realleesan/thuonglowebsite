@@ -83,8 +83,15 @@ class UsersModel extends BaseModel {
         $data['points'] = 0;
         $data['level'] = 'Bronze';
         
-        $user = $this->create($data);
-        return $this->hideFields($user);
+        $userId = $this->create($data);
+        
+        if ($userId) {
+            // Get the created user
+            $user = $this->find($userId);
+            return $this->hideFields($user);
+        }
+        
+        return false;
     }
     
     /**
@@ -202,6 +209,10 @@ class UsersModel extends BaseModel {
     public function find($id, $columns = '*') {
         $user = parent::find($id, $columns);
         return $user ? $this->hideFields($user) : null;
+    }
+    
+    public function findById($id, $columns = '*') {
+        return $this->find($id, $columns);
     }
     
     /**
