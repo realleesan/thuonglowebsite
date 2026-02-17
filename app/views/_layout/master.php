@@ -34,7 +34,6 @@ mb_http_output('UTF-8');
     <!-- Core CSS Files -->
     <link rel="stylesheet" href="<?php echo versioned_css('header.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('header_user_menu.css'); ?>">
-    <link rel="stylesheet" href="<?php echo versioned_css('agent_registration.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('footer.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('cta.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('pusher.css'); ?>">
@@ -77,6 +76,11 @@ mb_http_output('UTF-8');
             echo '<link rel="stylesheet" href="' . versioned_css('user_dashboard.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_account.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_orders.css') . '">';
+            break;
+        case 'agent':
+            echo '<link rel="stylesheet" href="' . versioned_css('rate_limit_message.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('agent_registration.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('agent_registration_page.css') . '">';
             break;
         case 'checkout':
         case 'payment':
@@ -227,6 +231,9 @@ mb_http_output('UTF-8');
             echo '<script src="' . versioned_js('user_dashboard.js') . '"></script>';
             echo '<script src="' . versioned_js('user_account.js') . '"></script>';
             echo '<script src="' . versioned_js('user_orders.js') . '"></script>';
+            break;
+        case 'agent':
+            echo '<script src="' . versioned_js('agent_registration.js') . '"></script>';
             break;
         default:
             echo '<script src="' . versioned_js('home.js') . '"></script>';
