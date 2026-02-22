@@ -577,8 +577,8 @@ function getNotificationColor(type) {
 }
 
 // Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
+const adminContactStyles = document.createElement('style');
+adminContactStyles.textContent = `
     @keyframes slideIn {
         from {
             transform: translateX(100%);
@@ -640,4 +640,4 @@ style.textContent = `
         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(adminContactStyles);

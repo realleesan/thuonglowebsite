@@ -174,8 +174,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Add CSS class for animation
-    const style = document.createElement('style');
-    style.textContent = `
+    const footerStyles = document.createElement('style');
+    footerStyles.textContent = `
         .site-footer {
             opacity: 0;
             transform: translateY(20px);
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
             transform: translateY(0);
         }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(footerStyles);
     
     // Initial check
     animateFooterOnScroll();

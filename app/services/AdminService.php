@@ -100,13 +100,13 @@ class AdminService extends BaseService
             // Get total count
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM products {$whereClause}";
-            $totalResult = $productsModel->db->query($countSql, $bindings);
+            $totalResult = $productsModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             // Get products with pagination
             $offset = ($page - 1) * $perPage;
             $productsSql = "SELECT * FROM products {$whereClause} ORDER BY created_at DESC LIMIT {$perPage} OFFSET {$offset}";
-            $products = $productsModel->db->query($productsSql, $bindings);
+            $products = $productsModel->query($productsSql, $bindings);
 
             $transformedProducts = [];
             foreach ($products as $product) {
@@ -265,12 +265,12 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM users {$whereClause}";
-            $totalResult = $usersModel->db->query($countSql, $bindings);
+            $totalResult = $usersModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
             $usersSql = "SELECT * FROM users {$whereClause} ORDER BY created_at DESC LIMIT {$perPage} OFFSET {$offset}";
-            $users = $usersModel->db->query($usersSql, $bindings);
+            $users = $usersModel->query($usersSql, $bindings);
 
             $transformedUsers = [];
             foreach ($users as $user) {
@@ -346,18 +346,18 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM categories {$whereClause}";
-            $totalResult = $categoriesModel->db->query($countSql, $bindings);
+            $totalResult = $categoriesModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
             $categoriesSql = "SELECT * FROM categories {$whereClause} ORDER BY created_at DESC LIMIT {$perPage} OFFSET {$offset}";
-            $categories = $categoriesModel->db->query($categoriesSql, $bindings);
+            $categories = $categoriesModel->query($categoriesSql, $bindings);
 
             // Get product counts
             if ($productsModel) {
                 foreach ($categories as &$category) {
                     $productCountSql = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
-                    $countResult = $productsModel->db->query($productCountSql, [$category['id']]);
+                    $countResult = $productsModel->query($productCountSql, [$category['id']]);
                     $category['products_count'] = $countResult[0]['count'] ?? 0;
                 }
             }
@@ -392,7 +392,7 @@ class AdminService extends BaseService
             $productsModel = $this->getModel('ProductsModel');
             if ($productsModel) {
                 $productCountSql = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
-                $countResult = $productsModel->db->query($productCountSql, [$categoryId]);
+                $countResult = $productsModel->query($productCountSql, [$categoryId]);
                 $category['products_count'] = $countResult[0]['count'] ?? 0;
             }
 
@@ -482,7 +482,7 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM news n {$whereClause}";
-            $totalResult = $newsModel->db->query($countSql, $bindings);
+            $totalResult = $newsModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
@@ -494,7 +494,7 @@ class AdminService extends BaseService
                 ORDER BY n.created_at DESC 
                 LIMIT {$perPage} OFFSET {$offset}
             ";
-            $news = $newsModel->db->query($newsSql, $bindings);
+            $news = $newsModel->query($newsSql, $bindings);
 
             $transformedNews = [];
             foreach ($news as $article) {
@@ -546,18 +546,18 @@ class AdminService extends BaseService
             ];
 
             $statusSql = "SELECT status, COUNT(*) as count FROM news GROUP BY status";
-            $statusResults = $newsModel->db->query($statusSql);
+            $statusResults = $newsModel->query($statusSql);
             foreach ($statusResults as $result) {
                 $stats[$result['status']] = (int)$result['count'];
                 $stats['total'] += (int)$result['count'];
             }
 
             $todaySql = "SELECT COUNT(*) as count FROM news WHERE DATE(created_at) = CURDATE()";
-            $todayResult = $newsModel->db->query($todaySql);
+            $todayResult = $newsModel->query($todaySql);
             $stats['today'] = $todayResult[0]['count'] ?? 0;
 
             $monthSql = "SELECT COUNT(*) as count FROM news WHERE YEAR(created_at) = YEAR(NOW()) AND MONTH(created_at) = MONTH(NOW())";
-            $monthResult = $newsModel->db->query($monthSql);
+            $monthResult = $newsModel->query($monthSql);
             $stats['this_month'] = $monthResult[0]['count'] ?? 0;
 
             return $stats;
@@ -607,7 +607,7 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM orders o LEFT JOIN users u ON o.user_id = u.id {$whereClause}";
-            $totalResult = $ordersModel->db->query($countSql, $bindings);
+            $totalResult = $ordersModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
@@ -622,7 +622,7 @@ class AdminService extends BaseService
                 ORDER BY o.created_at DESC 
                 LIMIT {$perPage} OFFSET {$offset}
             ";
-            $orders = $ordersModel->db->query($ordersSql, $bindings);
+            $orders = $ordersModel->query($ordersSql, $bindings);
 
             $transformedOrders = [];
             foreach ($orders as $order) {
@@ -694,22 +694,22 @@ class AdminService extends BaseService
             ];
 
             $statusSql = "SELECT status, COUNT(*) as count FROM orders GROUP BY status";
-            $statusResults = $ordersModel->db->query($statusSql);
+            $statusResults = $ordersModel->query($statusSql);
             foreach ($statusResults as $result) {
                 $stats[$result['status']] = (int)$result['count'];
                 $stats['total'] += (int)$result['count'];
             }
 
             $todaySql = "SELECT COUNT(*) as count FROM orders WHERE DATE(created_at) = CURDATE()";
-            $todayResult = $ordersModel->db->query($todaySql);
+            $todayResult = $ordersModel->query($todaySql);
             $stats['today'] = $todayResult[0]['count'] ?? 0;
 
             $monthSql = "SELECT COUNT(*) as count FROM orders WHERE YEAR(created_at) = YEAR(NOW()) AND MONTH(created_at) = MONTH(NOW())";
-            $monthResult = $ordersModel->db->query($monthSql);
+            $monthResult = $ordersModel->query($monthSql);
             $stats['this_month'] = $monthResult[0]['count'] ?? 0;
 
             $revenueSql = "SELECT SUM(total) as revenue FROM orders WHERE status = 'completed'";
-            $revenueResult = $ordersModel->db->query($revenueSql);
+            $revenueResult = $ordersModel->query($revenueSql);
             $stats['total_revenue'] = $revenueResult[0]['revenue'] ?? 0;
 
             return $stats;
@@ -744,15 +744,15 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM settings {$whereClause}";
-            $totalResult = $settingsModel->db->query($countSql, $bindings);
+            $totalResult = $settingsModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
             $settingsSql = "SELECT * FROM settings {$whereClause} ORDER BY `key` LIMIT {$perPage} OFFSET {$offset}";
-            $settings = $settingsModel->db->query($settingsSql, $bindings);
+            $settings = $settingsModel->query($settingsSql, $bindings);
 
             $typesSql = "SELECT DISTINCT type FROM settings ORDER BY type";
-            $typesResult = $settingsModel->db->query($typesSql);
+            $typesResult = $settingsModel->query($typesSql);
             $types = array_column($typesResult, 'type');
 
             return [
@@ -808,12 +808,12 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM contacts {$whereClause}";
-            $totalResult = $contactsModel->db->query($countSql, $bindings);
+            $totalResult = $contactsModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
             $contactsSql = "SELECT * FROM contacts {$whereClause} ORDER BY created_at DESC LIMIT {$perPage} OFFSET {$offset}";
-            $contacts = $contactsModel->db->query($contactsSql, $bindings);
+            $contacts = $contactsModel->query($contactsSql, $bindings);
 
             $stats = $this->getContactStatistics($contactsModel);
 
@@ -891,18 +891,18 @@ class AdminService extends BaseService
             ];
 
             $statusSql = "SELECT status, COUNT(*) as count FROM contacts GROUP BY status";
-            $statusResults = $contactsModel->db->query($statusSql);
+            $statusResults = $contactsModel->query($statusSql);
             foreach ($statusResults as $result) {
                 $stats[$result['status']] = (int)$result['count'];
                 $stats['total'] += (int)$result['count'];
             }
 
             $todaySql = "SELECT COUNT(*) as count FROM contacts WHERE DATE(created_at) = CURDATE()";
-            $todayResult = $contactsModel->db->query($todaySql);
+            $todayResult = $contactsModel->query($todaySql);
             $stats['today'] = $todayResult[0]['count'] ?? 0;
 
             $monthSql = "SELECT COUNT(*) as count FROM contacts WHERE YEAR(created_at) = YEAR(NOW()) AND MONTH(created_at) = MONTH(NOW())";
-            $monthResult = $contactsModel->db->query($monthSql);
+            $monthResult = $contactsModel->query($monthSql);
             $stats['this_month'] = $monthResult[0]['count'] ?? 0;
 
             return $stats;
@@ -937,7 +937,7 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM affiliates a LEFT JOIN users u ON a.user_id = u.id {$whereClause}";
-            $totalResult = $affiliateModel->db->query($countSql, $bindings);
+            $totalResult = $affiliateModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
@@ -949,7 +949,7 @@ class AdminService extends BaseService
                 ORDER BY a.created_at DESC 
                 LIMIT {$perPage} OFFSET {$offset}
             ";
-            $affiliates = $affiliateModel->db->query($affiliatesSql, $bindings);
+            $affiliates = $affiliateModel->query($affiliatesSql, $bindings);
 
             $transformedAffiliates = [];
             foreach ($affiliates as $affiliate) {
@@ -986,7 +986,7 @@ class AdminService extends BaseService
                 LEFT JOIN users u ON a.user_id = u.id
                 WHERE a.id = ?
             ";
-            $result = $affiliateModel->db->query($affiliateSql, [$affiliateId]);
+            $result = $affiliateModel->query($affiliateSql, [$affiliateId]);
             $affiliate = $result ? $result[0] : null;
 
             if (!$affiliate) {
@@ -996,7 +996,7 @@ class AdminService extends BaseService
             $orders = [];
             if ($ordersModel) {
                 $ordersSql = "SELECT * FROM orders WHERE affiliate_id = ? ORDER BY created_at DESC LIMIT 10";
-                $orders = $ordersModel->db->query($ordersSql, [$affiliateId]);
+                $orders = $ordersModel->query($ordersSql, [$affiliateId]);
             }
 
             $performanceData = [
@@ -1075,14 +1075,14 @@ class AdminService extends BaseService
             ];
 
             $statusSql = "SELECT status, COUNT(*) as count FROM affiliates GROUP BY status";
-            $statusResults = $affiliateModel->db->query($statusSql);
+            $statusResults = $affiliateModel->query($statusSql);
             foreach ($statusResults as $result) {
                 $stats[$result['status']] = (int)$result['count'];
                 $stats['total'] += (int)$result['count'];
             }
 
             $salesSql = "SELECT SUM(total_sales) as sales, SUM(total_commission) as commission FROM affiliates";
-            $salesResult = $affiliateModel->db->query($salesSql);
+            $salesResult = $affiliateModel->query($salesSql);
             if ($salesResult && $salesResult[0]) {
                 $stats['total_sales'] = $salesResult[0]['sales'] ?? 0;
                 $stats['total_commission'] = $salesResult[0]['commission'] ?? 0;
@@ -1113,7 +1113,7 @@ class AdminService extends BaseService
                 $bindings[] = $excludeAffiliateId;
             }
             
-            $result = $affiliateModel->db->query($sql, $bindings);
+            $result = $affiliateModel->query($sql, $bindings);
             return ($result[0]['count'] ?? 0) > 0;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'checkReferralCodeExists', 'referral_code' => $referralCode]) !== null;
@@ -1137,7 +1137,7 @@ class AdminService extends BaseService
                 WHERE a.id IS NULL AND u.role IN ('user', 'agent')
                 ORDER BY u.name
             ";
-            $users = $usersModel->db->query($sql);
+            $users = $usersModel->query($sql);
 
             return [
                 'users' => $this->transformer->transformUsers($users ?: []),
@@ -1173,12 +1173,12 @@ class AdminService extends BaseService
 
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM events {$whereClause}";
-            $totalResult = $eventsModel->db->query($countSql, $bindings);
+            $totalResult = $eventsModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
             $eventsSql = "SELECT * FROM events {$whereClause} ORDER BY start_date DESC LIMIT {$perPage} OFFSET {$offset}";
-            $events = $eventsModel->db->query($eventsSql, $bindings);
+            $events = $eventsModel->query($eventsSql, $bindings);
 
             $transformedEvents = [];
             foreach ($events as $event) {
@@ -1223,18 +1223,18 @@ class AdminService extends BaseService
             ];
 
             $statusSql = "SELECT status, COUNT(*) as count FROM events GROUP BY status";
-            $statusResults = $eventsModel->db->query($statusSql);
+            $statusResults = $eventsModel->query($statusSql);
             foreach ($statusResults as $result) {
                 $stats[$result['status']] = (int)$result['count'];
                 $stats['total'] += (int)$result['count'];
             }
 
             $monthSql = "SELECT COUNT(*) as count FROM events WHERE YEAR(start_date) = YEAR(NOW()) AND MONTH(start_date) = MONTH(NOW())";
-            $monthResult = $eventsModel->db->query($monthSql);
+            $monthResult = $eventsModel->query($monthSql);
             $stats['this_month'] = $monthResult[0]['count'] ?? 0;
 
             $participantsSql = "SELECT SUM(current_participants) as total FROM events";
-            $participantsResult = $eventsModel->db->query($participantsSql);
+            $participantsResult = $eventsModel->query($participantsSql);
             $stats['total_participants'] = $participantsResult[0]['total'] ?? 0;
 
             return $stats;
@@ -1280,7 +1280,7 @@ class AdminService extends BaseService
 
             $whereClause = implode(' AND ', $conditions);
             $ordersSql = "SELECT * FROM orders WHERE {$whereClause} ORDER BY created_at DESC";
-            $orders = $ordersModel->db->query($ordersSql, $bindings);
+            $orders = $ordersModel->query($ordersSql, $bindings);
 
             // Build lookups
             $products = $productsModel ? $this->callModelMethod('ProductsModel', 'all', [], []) : [];

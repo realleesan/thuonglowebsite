@@ -495,8 +495,8 @@ function resetForm() {
 }
 
 // Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
+const adminAffiliatesStyles = document.createElement('style');
+adminAffiliatesStyles.textContent = `
     @keyframes slideIn {
         from {
             transform: translateX(100%);
@@ -558,4 +558,4 @@ style.textContent = `
         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(adminAffiliatesStyles);

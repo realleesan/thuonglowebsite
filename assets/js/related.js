@@ -211,8 +211,8 @@ function initScrollAnimation() {
 }
 
 // Add CSS animation for fade in effect
-const style = document.createElement('style');
-style.textContent = `
+const relatedProductsStyles = document.createElement('style');
+relatedProductsStyles.textContent = `
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -224,4 +224,4 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(relatedProductsStyles);

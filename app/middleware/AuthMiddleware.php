@@ -272,14 +272,13 @@ class AuthMiddleware {
     // Private helper methods
     
     private function redirectToLogin(): void {
-        $this->redirect('/auth/login');
+        $this->redirect('?page=login');
     }
     
     private function redirectBasedOnRole(): void {
         $user = $this->authService->getCurrentUser();
         if ($user) {
-            $roleManager = $this->authService->getRoleManager();
-            $redirectPath = $roleManager->getRedirectPath($user);
+            $redirectPath = $this->authService->getRedirectPath();
             $this->redirect($redirectPath);
         } else {
             $this->redirectToLogin();
@@ -292,8 +291,13 @@ class AuthMiddleware {
     }
     
     private function redirect(string $url): void {
+        // Handle query parameter URLs
+        if (strpos($url, '?') === 0) {
+            $baseUrl = $this->getBaseUrl();
+            $url = $baseUrl . '/' . $url;
+        }
         // Handle relative URLs
-        if (strpos($url, '/') === 0) {
+        elseif (strpos($url, '/') === 0) {
             $baseUrl = $this->getBaseUrl();
             $url = $baseUrl . $url;
         }

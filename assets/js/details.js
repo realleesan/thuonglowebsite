@@ -310,8 +310,8 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Add focus styles for better accessibility
-const style = document.createElement('style');
-style.textContent = `
+const detailsPageStyles = document.createElement('style');
+detailsPageStyles.textContent = `
     .tab-item:focus {
         outline: 2px solid #2563eb;
         outline-offset: 2px;
@@ -327,4 +327,4 @@ style.textContent = `
         outline-offset: 2px;
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(detailsPageStyles);

@@ -70,6 +70,11 @@ class SecurityHeaders {
         // Remove server information
         header_remove('X-Powered-By');
         header_remove('Server');
+        
+        // Force cache refresh for CSP changes
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
     }
     
     /**
@@ -242,11 +247,11 @@ class SecurityHeaders {
     private function buildContentSecurityPolicy(): string {
         $csp = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline'", // Allow inline scripts for now
-            "style-src 'self' 'unsafe-inline'",  // Allow inline styles
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com", // Allow CDN scripts
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",  // Allow external styles
             "img-src 'self' data: https:",
-            "font-src 'self'",
-            "connect-src 'self'",
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com", // Allow external fonts
+            "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com", // Allow CDN connections for source maps
             "media-src 'self'",
             "object-src 'none'",
             "child-src 'none'",

@@ -507,8 +507,8 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
+const adminOrdersStyles = document.createElement('style');
+adminOrdersStyles.textContent = `
     @keyframes slideInRight {
         from {
             transform: translateX(100%);
@@ -531,4 +531,4 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(adminOrdersStyles);

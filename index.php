@@ -408,17 +408,37 @@ switch($page) {
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
         
+        // Check authentication and admin role
+        if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+            header('Location: ?page=login');
+            exit;
+        }
+        
+        // Check if user has admin role
+        $authMiddleware = new AuthMiddleware();
+        if (!$authMiddleware->requireAdmin()) {
+            // Redirect to appropriate dashboard based on role
+            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'affiliate') {
+                header('Location: ?page=affiliate');
+            } else {
+                header('Location: ?page=users');
+            }
+            exit;
+        }
         
         // Set admin page variables
         $title = 'Admin Panel - Thuong Lo';
         $useAdminLayout = true; // Flag to use admin layout
-        $currentService = $adminService ?? $currentService;
+        $currentService = $adminService; // Use AdminService for all admin pages
         
         // Route to specific admin modules
         switch($module) {
             case 'dashboard':
-                $page_title = 'Dashboard';
-                $content = 'app/views/admin/dashboard.php';
+                // Use controller for dashboard
+                require_once 'app/controllers/AdminController.php';
+                $adminController = new AdminController();
+                $adminController->dashboard();
+                exit;
                 break;
                 
             case 'products':
@@ -659,6 +679,24 @@ switch($page) {
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
         
+        // Check authentication and affiliate role
+        if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+            header('Location: ?page=login');
+            exit;
+        }
+        
+        // Check if user has affiliate role
+        $authMiddleware = new AuthMiddleware();
+        if (!$authMiddleware->requireAffiliate()) {
+            // Redirect to appropriate dashboard based on role
+            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+                header('Location: ?page=admin');
+            } else {
+                header('Location: ?page=users');
+            }
+            exit;
+        }
+        
         // Set flag to use affiliate layout
         $useAffiliateLayout = true;
         $currentService = $affiliateService ?? $currentService;
@@ -667,7 +705,11 @@ switch($page) {
         switch($module) {
             case 'dashboard':
             default:
-                $content = 'app/views/affiliate/dashboard.php';
+                // Use controller for dashboard
+                require_once 'app/controllers/AffiliateController.php';
+                $affiliateController = new AffiliateController();
+                $affiliateController->dashboard();
+                exit;
                 break;
                 
             case 'commissions':

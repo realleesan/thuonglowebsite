@@ -559,7 +559,7 @@ class AuthService implements ServiceInterface {
      */
     public function getRedirectPath(): string {
         $user = $this->getCurrentUser();
-        return $user ? $this->roleManager->getRedirectPath($user) : '/auth/login';
+        return $user ? $this->roleManager->getRedirectPath($user) : '?page=login';
     }
     
     /**

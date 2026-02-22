@@ -53,8 +53,8 @@ function set_security_headers() {
         // Force HTTPS for all future requests (1 year)
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
         
-        // Upgrade insecure requests to HTTPS
-        header('Content-Security-Policy: upgrade-insecure-requests');
+        // Note: CSP is now handled by SecurityHeaders service
+        // header('Content-Security-Policy: upgrade-insecure-requests');
     }
     
     // General security headers (for all environments)

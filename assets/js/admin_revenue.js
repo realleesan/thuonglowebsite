@@ -278,14 +278,14 @@ function showLoadingState() {
     `;
     
     // Add spinner animation
-    const style = document.createElement('style');
-    style.textContent = `
+    const adminRevenueStyles = document.createElement('style');
+    adminRevenueStyles.textContent = `
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(adminRevenueStyles);
     
     document.body.appendChild(overlay);
 }

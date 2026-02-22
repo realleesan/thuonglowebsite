@@ -7,6 +7,12 @@
  * Mỗi service chỉ được tạo khi cần thiết thông qua ServiceManager.
  */
 
+// Prevent multiple initialization
+if (defined('VIEW_INIT_LOADED')) {
+    return;
+}
+define('VIEW_INIT_LOADED', true);
+
 // 1. Load basic configurations if not already loaded
 if (!isset($config)) {
     $config = require_once __DIR__ . '/../config.php';

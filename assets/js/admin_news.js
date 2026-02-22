@@ -669,8 +669,8 @@ function debounce(func, wait) {
 }
 
 // Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
+const adminNewsStyles = document.createElement('style');
+adminNewsStyles.textContent = `
     @keyframes slideInRight {
         from {
             transform: translateX(100%);
@@ -719,7 +719,7 @@ style.textContent = `
         display: block !important;
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(adminNewsStyles);
 
 // Global functions for inline event handlers
 window.generateSlugFromTitle = function() {

@@ -278,15 +278,15 @@ class AdminController {
      * Check if current user is admin
      */
     private function requireAdmin(): bool {
-        if (!$this->authService->isLoggedIn()) {
-            $this->redirect('/auth/login');
+        if (!$this->authService->isAuthenticated()) {
+            $this->redirect('?page=login');
             return false;
         }
 
         $user = $this->getCurrentUser();
         if (!$user || $user['role'] !== 'admin') {
             $this->setFlashMessage('error', 'Access denied. Admin privileges required.');
-            $this->redirect('/');
+            $this->redirect('./');
             return false;
         }
 

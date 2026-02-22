@@ -22,7 +22,6 @@ class AffiliateController {
         $this->agentService = new AgentRegistrationService();
         $this->authService = new AuthService();
         $this->errorHandler = new AgentErrorHandler();
-        $this->authService = new AuthService();
     }
     
     /**
@@ -531,6 +530,49 @@ class AffiliateController {
         
         return true;
     }
+
+    public function requireAffiliate(): bool {
+        if (!$this->checkAuth()) {
+            return false;
+        }
+        
+        $user = $this->getCurrentUser();
+        if (!$user || !in_array($user['role'], ['admin', 'affiliate'])) {
+            $this->setFlashMessage('error', 'Bạn không có quyền truy cập trang này');
+            $this->redirect('./');
+            return false;
+        }
+        
+        return true;
+    }
+
+    public function dashboard(): void {
+        if (!$this->requireAffiliate()) {
+            return;
+        }
+
+        $data = [
+            'title' => 'Affiliate Dashboard',
+            'user' => $this->getCurrentUser()
+        ];
+
+        $this->renderView('affiliate/dashboard', $data);
+    }
+    public function requireAffiliate(): bool {
+        if (!$this->checkAuth()) {
+            return false;
+        }
+
+        $user = $this->getCurrentUser();
+        if (!$user || !in_array($user['role'], ['admin', 'affiliate'])) {
+            $this->setFlashMessage('error', 'Bạn không có quyền truy cập trang này');
+            $this->redirect('./');
+            return false;
+        }
+
+        return true;
+    }
+
     
     /**
      * Get CSRF token for forms
