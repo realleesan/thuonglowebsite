@@ -54,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        // Delete from database
-        if ($newsModel->delete($news_id)) {
+        // Delete from database usando AdminService para invalidar cache
+        if ($service->deleteNews($news_id)) {
             $success = true;
             header('Location: ?page=admin&module=news&deleted=1');
             exit;

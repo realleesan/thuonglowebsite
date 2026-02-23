@@ -96,6 +96,86 @@ try {
             }
             break;
             
+        case 'admin/dashboard/revenue':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->revenue();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'admin/dashboard/top-products':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->topProducts();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'admin/dashboard/orders-status':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->ordersStatus();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'admin/dashboard/new-users':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->newUsers();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'admin/dashboard/statistics':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->statistics();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'admin/dashboard/all':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->allCharts();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'admin/dashboard/notifications':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->notifications();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'admin/dashboard/cache/flush':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
+                $controller = new AdminDashboardController();
+                $controller->flushCache();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
         default:
             throw new Exception('Endpoint not found', 404);
     }

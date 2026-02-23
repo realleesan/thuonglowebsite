@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'admin_note' => $admin_note
         ];
         
-        if ($ordersModel->update($order_id, $updateData)) {
+        if ($service->updateOrder($order_id, $updateData)) {
             $success_message = 'Cập nhật trạng thái đơn hàng thành công!';
             
             // Update the order status for display purposes

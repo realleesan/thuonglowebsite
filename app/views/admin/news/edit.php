@@ -84,8 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        $success = true;
-        // Trong thực tế sẽ cập nhật vào database
+        if ($service->updateNews($news_id, $form_data)) {
+            $success = true;
+        } else {
+            $errors[] = 'Có lỗi xảy ra khi cập nhật tin tức';
+        }
     }
 }
 

@@ -46,7 +46,7 @@ $config = [
     'app' => [
         'name' => 'Thuong Lo',
         'environment' => $environment,
-        'debug' => ($environment === 'local'), // Debug only in local
+        'debug' => true, // Debug only in local - enabled for testing
         'timezone' => 'Asia/Ho_Chi_Minh',
         'charset' => 'UTF-8',
     ],

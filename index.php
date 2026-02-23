@@ -415,30 +415,42 @@ switch($page) {
         }
         
         // Check if user has admin role
-        $authMiddleware = new AuthMiddleware();
-        if (!$authMiddleware->requireAdmin()) {
-            // Redirect to appropriate dashboard based on role
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'affiliate') {
-                header('Location: ?page=affiliate');
-            } else {
-                header('Location: ?page=users');
+        try {
+            $authMiddleware = new AuthMiddleware();
+            if (!$authMiddleware->requireAdmin()) {
+                // Redirect to appropriate dashboard based on role
+                if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'affiliate') {
+                    header('Location: ?page=affiliate');
+                } else {
+                    header('Location: ?page=users');
+                }
+                exit;
             }
-            exit;
+        } catch (Exception $e) {
+            error_log('Admin auth error: ' . $e->getMessage());
+            die('Authentication error: ' . $e->getMessage());
         }
         
         // Set admin page variables
         $title = 'Admin Panel - Thuong Lo';
         $useAdminLayout = true; // Flag to use admin layout
         $currentService = $adminService; // Use AdminService for all admin pages
+        $page_title = 'Admin Dashboard';
         
         // Route to specific admin modules
         switch($module) {
             case 'dashboard':
-                // Use controller for dashboard
-                require_once 'app/controllers/AdminController.php';
-                $adminController = new AdminController();
-                $adminController->dashboard();
-                exit;
+                // Include dashboard view directly
+                try {
+                    // Make services available globally
+                    global $adminService;
+                    $content = 'app/views/admin/dashboard.php';
+                    include_once 'app/views/_layout/admin_master.php';
+                    exit;
+                } catch (Exception $e) {
+                    error_log('Admin dashboard error: ' . $e->getMessage());
+                    die('Admin dashboard error: ' . $e->getMessage());
+                }
                 break;
                 
             case 'products':

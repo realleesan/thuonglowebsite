@@ -86,8 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        $success = true;
-        // Trong thực tế sẽ lưu vào database
+        $result = $service->createEvent($form_data);
+        if ($result) {
+            $success = true;
+        } else {
+            $errors[] = 'Không thể lưu sự kiện vào database. Vui lòng thử lại.';
+        }
     }
 }
 

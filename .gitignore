@@ -1,0 +1,11 @@
+/vendor/
+/logs/*.log
+/tmp/
+/cache/
+/storage/
+/backups/
+.vscode/
+.agent/
+.env
+*.sql
+!database/migrations/*.sql

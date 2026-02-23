@@ -2,15 +2,15 @@
  * Admin Affiliates Module JavaScript
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     // Initialize all affiliate functionality
     initAffiliateTable();
     initBulkActions();
     initDeleteModal();
     initFormValidation();
     initCommissionCalculator();
-    
+
     /**
      * Initialize affiliate table functionality
      */
@@ -18,117 +18,120 @@ document.addEventListener('DOMContentLoaded', function() {
         // Select all checkbox functionality
         const selectAllCheckbox = document.getElementById('select-all');
         const affiliateCheckboxes = document.querySelectorAll('.affiliate-checkbox');
-        
+
         if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function() {
+            selectAllCheckbox.addEventListener('change', function () {
                 affiliateCheckboxes.forEach(checkbox => {
                     checkbox.checked = this.checked;
                 });
                 updateBulkActionsState();
             });
         }
-        
+
         // Individual checkbox change
         affiliateCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 updateSelectAllState();
                 updateBulkActionsState();
             });
         });
-        
+
         // Update select all state based on individual checkboxes
         function updateSelectAllState() {
             if (!selectAllCheckbox) return;
-            
+
             const checkedCount = document.querySelectorAll('.affiliate-checkbox:checked').length;
             const totalCount = affiliateCheckboxes.length;
-            
+
             selectAllCheckbox.checked = checkedCount === totalCount;
             selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
         }
-        
+
         // Update bulk actions state
         function updateBulkActionsState() {
             const checkedCount = document.querySelectorAll('.affiliate-checkbox:checked').length;
             const bulkActionSelect = document.getElementById('bulk-action');
             const applyBulkButton = document.getElementById('apply-bulk');
-            
+
             if (bulkActionSelect && applyBulkButton) {
                 bulkActionSelect.disabled = checkedCount === 0;
                 applyBulkButton.disabled = checkedCount === 0 || !bulkActionSelect.value;
             }
         }
     }
-    
+
     /**
      * Initialize bulk actions
      */
     function initBulkActions() {
         const bulkActionSelect = document.getElementById('bulk-action');
         const applyBulkButton = document.getElementById('apply-bulk');
-        
+
         if (bulkActionSelect) {
-            bulkActionSelect.addEventListener('change', function() {
+            bulkActionSelect.addEventListener('change', function () {
                 const checkedCount = document.querySelectorAll('.affiliate-checkbox:checked').length;
                 if (applyBulkButton) {
                     applyBulkButton.disabled = checkedCount === 0 || !this.value;
                 }
             });
         }
-        
+
         if (applyBulkButton) {
-            applyBulkButton.addEventListener('click', function() {
+            applyBulkButton.addEventListener('click', function () {
                 const action = bulkActionSelect.value;
                 const checkedIds = Array.from(document.querySelectorAll('.affiliate-checkbox:checked'))
                     .map(cb => cb.value);
-                
+
                 if (action && checkedIds.length > 0) {
                     handleBulkAction(action, checkedIds);
                 }
             });
         }
     }
-    
+
     /**
      * Handle bulk actions
      */
     function handleBulkAction(action, ids) {
         let message = '';
-        let confirmMessage = '';
-        
+
         switch (action) {
             case 'activate':
                 message = `Kích hoạt ${ids.length} đại lý đã chọn?`;
-                confirmMessage = `Đã kích hoạt ${ids.length} đại lý`;
                 break;
             case 'deactivate':
                 message = `Vô hiệu hóa ${ids.length} đại lý đã chọn?`;
-                confirmMessage = `Đã vô hiệu hóa ${ids.length} đại lý`;
                 break;
             case 'delete':
                 message = `Xóa ${ids.length} đại lý đã chọn? Hành động này không thể hoàn tác!`;
-                confirmMessage = `Đã xóa ${ids.length} đại lý`;
                 break;
             default:
                 return;
         }
-        
+
         if (confirm(message)) {
-            // In real app: send AJAX request
-            console.log(`Bulk action: ${action}`, ids);
-            showNotification(confirmMessage + ' (Demo)', 'success');
-            
-            // Reset checkboxes
-            document.querySelectorAll('.affiliate-checkbox:checked').forEach(cb => {
-                cb.checked = false;
-            });
-            document.getElementById('select-all').checked = false;
-            document.getElementById('bulk-action').value = '';
-            document.getElementById('bulk-action').disabled = true;
-            document.getElementById('apply-bulk').disabled = true;
+            // Actual implementation: submit a form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '?page=admin&module=affiliates&action=bulk';
+
+            const idsInput = document.createElement('input');
+            idsInput.type = 'hidden';
+            idsInput.name = 'ids';
+            idsInput.value = JSON.stringify(ids);
+
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'bulk_action';
+            actionInput.value = action;
+
+            form.appendChild(idsInput);
+            form.appendChild(actionInput);
+            document.body.appendChild(form);
+            form.submit();
         }
     }
-    
+
     /**
      * Initialize delete modal
      */
@@ -138,97 +141,91 @@ document.addEventListener('DOMContentLoaded', function() {
         const cancelDeleteBtn = document.getElementById('cancelDelete');
         const confirmDeleteBtn = document.getElementById('confirmDelete');
         const modalClose = document.querySelector('.modal-close');
-        
+
         if (!deleteModal) return;
-        
+
         // Open delete modal
         deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const affiliateId = this.dataset.id;
                 const affiliateName = this.dataset.name;
-                
+
                 document.getElementById('deleteAffiliateName').textContent = affiliateName;
                 deleteModal.style.display = 'flex';
-                
+
                 // Set up confirm delete handler
-                confirmDeleteBtn.onclick = function() {
+                confirmDeleteBtn.onclick = function () {
                     handleDeleteAffiliate(affiliateId, affiliateName);
                 };
             });
         });
-        
+
         // Close modal handlers
         [cancelDeleteBtn, modalClose].forEach(element => {
             if (element) {
-                element.addEventListener('click', function() {
+                element.addEventListener('click', function () {
                     deleteModal.style.display = 'none';
                 });
             }
         });
-        
+
         // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             if (event.target === deleteModal) {
                 deleteModal.style.display = 'none';
             }
         });
     }
-    
+
     /**
      * Handle delete affiliate
      */
     function handleDeleteAffiliate(id, name) {
-        // In real app: send AJAX request
-        console.log(`Delete affiliate: ${id}`);
-        showNotification(`Đã xóa đại lý: ${name} (Demo)`, 'success');
-        
-        // Close modal
-        document.getElementById('deleteModal').style.display = 'none';
-        
-        // In real app: remove row from table or reload page
-        // For demo, just show notification
+        if (confirm(`Bạn có chắc chắn muốn xóa đại lý "${name}"?`)) {
+            window.location.href = `?page=admin&module=affiliates&action=delete&id=${id}`;
+        }
     }
-    
+
     /**
      * Initialize form validation
      */
     function initFormValidation() {
         const forms = document.querySelectorAll('.admin-form');
-        
+
         forms.forEach(form => {
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 if (!validateForm(this)) {
                     e.preventDefault();
                 }
             });
-            
+
             // Real-time validation
             const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
             inputs.forEach(input => {
-                input.addEventListener('blur', function() {
+                input.addEventListener('blur', function () {
                     validateField(this);
                 });
-                
-                input.addEventListener('input', function() {
+
+                input.addEventListener('input', function () {
                     clearFieldError(this);
                 });
             });
         });
     }
-    
+
     /**
      * Validate form
      */
     function validateForm(form) {
         let isValid = true;
         const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
-        
+
         requiredFields.forEach(field => {
             if (!validateField(field)) {
                 isValid = false;
             }
         });
-        
+
         // Custom validation for referral code
         const referralCodeInput = form.querySelector('input[name="referral_code"]');
         if (referralCodeInput) {
@@ -238,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 isValid = false;
             }
         }
-        
+
         // Custom validation for commission rate
         const commissionInput = form.querySelector('input[name="commission_rate"]');
         if (commissionInput) {
@@ -248,44 +245,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 isValid = false;
             }
         }
-        
+
         return isValid;
     }
-    
+
     /**
      * Validate individual field
      */
     function validateField(field) {
         const value = field.value.trim();
-        
+
         if (field.hasAttribute('required') && !value) {
             showFieldError(field, 'Trường này không được để trống');
             return false;
         }
-        
+
         clearFieldError(field);
         return true;
     }
-    
+
     /**
      * Show field error
      */
     function showFieldError(field, message) {
         field.classList.add('error');
-        
+
         // Remove existing error message
         const existingError = field.parentNode.querySelector('.field-error');
         if (existingError) {
             existingError.remove();
         }
-        
+
         // Add new error message
         const errorElement = document.createElement('small');
         errorElement.className = 'field-error text-danger';
         errorElement.textContent = message;
         field.parentNode.appendChild(errorElement);
     }
-    
+
     /**
      * Clear field error
      */
@@ -296,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
             errorElement.remove();
         }
     }
-    
+
     /**
      * Initialize commission calculator
      */
@@ -304,25 +301,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const sampleSalesInput = document.getElementById('sample_sales');
         const commissionRateInput = document.getElementById('commission_rate');
         const calculatedCommissionSpan = document.getElementById('calculated_commission');
-        
+
         if (sampleSalesInput && commissionRateInput && calculatedCommissionSpan) {
             function calculateCommission() {
                 const sales = parseFloat(sampleSalesInput.value) || 0;
                 const rate = parseFloat(commissionRateInput.value) || 0;
                 const commission = sales * rate / 100;
-                
-                calculatedCommissionSpan.textContent = 
+
+                calculatedCommissionSpan.textContent =
                     new Intl.NumberFormat('vi-VN').format(commission) + ' VNĐ';
             }
-            
+
             sampleSalesInput.addEventListener('input', calculateCommission);
             commissionRateInput.addEventListener('input', calculateCommission);
-            
+
             // Initial calculation
             calculateCommission();
         }
     }
-    
+
     /**
      * Show notification
      */
@@ -337,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <button class="notification-close">&times;</button>
         `;
-        
+
         // Add styles
         notification.style.cssText = `
             position: fixed;
@@ -355,10 +352,10 @@ document.addEventListener('DOMContentLoaded', function() {
             max-width: 400px;
             animation: slideIn 0.3s ease-out;
         `;
-        
+
         // Add to page
         document.body.appendChild(notification);
-        
+
         // Auto remove after 5 seconds
         setTimeout(() => {
             if (notification.parentNode) {
@@ -370,14 +367,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 300);
             }
         }, 5000);
-        
+
         // Manual close
         const closeBtn = notification.querySelector('.notification-close');
         closeBtn.addEventListener('click', () => {
             notification.remove();
         });
     }
-    
+
     /**
      * Get notification icon
      */
@@ -389,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
             default: return 'info-circle';
         }
     }
-    
+
     /**
      * Get notification color
      */
@@ -412,12 +409,12 @@ function generateNewCode() {
     const code = 'AGENT' + String(Math.floor(Math.random() * 999) + 1).padStart(3, '0');
     const input = document.getElementById('referral_code');
     const display = document.getElementById('ref_code_display');
-    
+
     if (input) {
         input.value = code;
         input.dispatchEvent(new Event('input'));
     }
-    
+
     if (display) {
         display.textContent = code;
     }
@@ -469,21 +466,21 @@ function resetForm() {
         const form = document.querySelector('.admin-form');
         if (form) {
             form.reset();
-            
+
             // Clear any error states
             form.querySelectorAll('.error').forEach(field => {
                 field.classList.remove('error');
             });
-            
+
             form.querySelectorAll('.field-error').forEach(error => {
                 error.remove();
             });
-            
+
             // Regenerate referral code if on add page
             if (document.getElementById('referral_code')) {
                 generateNewCode();
             }
-            
+
             // Recalculate commission
             const event = new Event('input');
             const commissionInput = document.getElementById('commission_rate');

@@ -2,7 +2,7 @@
  * Admin Settings Module JavaScript
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeSettingsModule();
 });
 
@@ -23,18 +23,18 @@ function initializeTableFeatures() {
     // Select all checkbox functionality
     const selectAllCheckbox = document.getElementById('select-all');
     const settingCheckboxes = document.querySelectorAll('.setting-checkbox');
-    
+
     if (selectAllCheckbox && settingCheckboxes.length > 0) {
-        selectAllCheckbox.addEventListener('change', function() {
+        selectAllCheckbox.addEventListener('change', function () {
             settingCheckboxes.forEach(checkbox => {
                 checkbox.checked = this.checked;
             });
             updateBulkActionsState();
         });
-        
+
         // Individual checkbox change
         settingCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 updateSelectAllState();
                 updateBulkActionsState();
             });
@@ -45,10 +45,10 @@ function initializeTableFeatures() {
 function updateSelectAllState() {
     const selectAllCheckbox = document.getElementById('select-all');
     const settingCheckboxes = document.querySelectorAll('.setting-checkbox');
-    
+
     if (selectAllCheckbox && settingCheckboxes.length > 0) {
         const checkedCount = document.querySelectorAll('.setting-checkbox:checked').length;
-        
+
         if (checkedCount === 0) {
             selectAllCheckbox.indeterminate = false;
             selectAllCheckbox.checked = false;
@@ -68,22 +68,22 @@ function updateSelectAllState() {
 function initializeBulkActions() {
     const bulkActionSelect = document.getElementById('bulk-action');
     const applyBulkButton = document.getElementById('apply-bulk');
-    
+
     if (bulkActionSelect && applyBulkButton) {
-        applyBulkButton.addEventListener('click', function() {
+        applyBulkButton.addEventListener('click', function () {
             const selectedAction = bulkActionSelect.value;
             const checkedSettings = document.querySelectorAll('.setting-checkbox:checked');
-            
+
             if (!selectedAction) {
                 showNotification('Vui lòng chọn hành động', 'warning');
                 return;
             }
-            
+
             if (checkedSettings.length === 0) {
                 showNotification('Vui lòng chọn ít nhất một cài đặt', 'warning');
                 return;
             }
-            
+
             const settingKeys = Array.from(checkedSettings).map(cb => cb.value);
             executeBulkAction(selectedAction, settingKeys);
         });
@@ -94,12 +94,12 @@ function updateBulkActionsState() {
     const bulkActionSelect = document.getElementById('bulk-action');
     const applyBulkButton = document.getElementById('apply-bulk');
     const checkedCount = document.querySelectorAll('.setting-checkbox:checked').length;
-    
+
     if (bulkActionSelect && applyBulkButton) {
         const hasSelection = checkedCount > 0;
         bulkActionSelect.disabled = !hasSelection;
         applyBulkButton.disabled = !hasSelection;
-        
+
         if (!hasSelection) {
             bulkActionSelect.value = '';
         }
@@ -118,28 +118,27 @@ function executeBulkAction(action, settingKeys) {
 
 function confirmBulkDelete(settingKeys) {
     const message = `Bạn có chắc chắn muốn xóa ${settingKeys.length} cài đặt đã chọn?\n\nHành động này không thể hoàn tác!`;
-    
+
     if (confirm(message)) {
-        // Demo: simulate bulk delete
-        showNotification(`Đã xóa ${settingKeys.length} cài đặt (Demo)`, 'success');
-        
-        // Remove rows from table (demo)
-        settingKeys.forEach(key => {
-            const checkbox = document.querySelector(`.setting-checkbox[value="${key}"]`);
-            if (checkbox) {
-                const row = checkbox.closest('tr');
-                if (row) {
-                    row.remove();
-                }
-            }
-        });
-        
-        // Reset bulk actions
-        document.getElementById('select-all').checked = false;
-        updateBulkActionsState();
-        
-        // In real app: send AJAX request to delete settings
-        // deleteBulkSettings(settingKeys);
+        // Actual implementation: submit a form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '?page=admin&module=settings&action=bulk';
+
+        const idsInput = document.createElement('input');
+        idsInput.type = 'hidden';
+        idsInput.name = 'ids';
+        idsInput.value = JSON.stringify(settingKeys);
+
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'bulk_action';
+        actionInput.value = 'delete';
+
+        form.appendChild(idsInput);
+        form.appendChild(actionInput);
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 
@@ -149,36 +148,36 @@ function confirmBulkDelete(settingKeys) {
 function initializeDeleteModal() {
     const deleteButtons = document.querySelectorAll('.delete-btn');
     const modal = document.getElementById('deleteModal');
-    
+
     if (deleteButtons.length > 0 && modal) {
         deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const settingKey = this.dataset.key;
                 const settingDescription = this.dataset.description;
-                
+
                 showDeleteModal(settingKey, settingDescription);
             });
         });
-        
+
         // Modal close events
         const closeBtn = modal.querySelector('.modal-close');
         const cancelBtn = document.getElementById('cancelDelete');
         const confirmBtn = document.getElementById('confirmDelete');
-        
+
         if (closeBtn) {
             closeBtn.addEventListener('click', () => hideDeleteModal());
         }
-        
+
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => hideDeleteModal());
         }
-        
+
         if (confirmBtn) {
             confirmBtn.addEventListener('click', handleDeleteConfirm);
         }
-        
+
         // Close on outside click
-        window.addEventListener('click', function(e) {
+        window.addEventListener('click', function (e) {
             if (e.target === modal) {
                 hideDeleteModal();
             }
@@ -189,11 +188,11 @@ function initializeDeleteModal() {
 function showDeleteModal(settingKey, settingDescription) {
     const modal = document.getElementById('deleteModal');
     const keyElement = document.getElementById('deleteSettingKey');
-    
+
     if (modal && keyElement) {
         keyElement.textContent = settingKey;
         modal.style.display = 'block';
-        
+
         // Store setting key for deletion
         modal.dataset.settingKey = settingKey;
     }
@@ -210,24 +209,10 @@ function hideDeleteModal() {
 function handleDeleteConfirm() {
     const modal = document.getElementById('deleteModal');
     const settingKey = modal.dataset.settingKey;
-    
+
     if (settingKey) {
-        // Demo: simulate delete
-        showNotification(`Đã xóa cài đặt "${settingKey}" (Demo)`, 'success');
-        
-        // Remove row from table (demo)
-        const checkbox = document.querySelector(`.setting-checkbox[value="${settingKey}"]`);
-        if (checkbox) {
-            const row = checkbox.closest('tr');
-            if (row) {
-                row.remove();
-            }
-        }
-        
-        hideDeleteModal();
-        
-        // In real app: send AJAX request to delete setting
-        // deleteSetting(settingKey);
+        // Actual implementation: redirect to delete action
+        window.location.href = `?page=admin&module=settings&action=delete&key=${encodeURIComponent(settingKey)}`;
     }
 }
 /**
@@ -235,23 +220,23 @@ function handleDeleteConfirm() {
  */
 function initializeFormValidation() {
     const forms = document.querySelectorAll('.admin-form');
-    
+
     forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             if (!validateForm(this)) {
                 e.preventDefault();
                 return false;
             }
         });
-        
+
         // Real-time validation
         const inputs = form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
-            input.addEventListener('blur', function() {
+            input.addEventListener('blur', function () {
                 validateField(this);
             });
-            
-            input.addEventListener('input', function() {
+
+            input.addEventListener('input', function () {
                 clearFieldError(this);
             });
         });
@@ -261,13 +246,13 @@ function initializeFormValidation() {
 function validateForm(form) {
     let isValid = true;
     const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-    
+
     inputs.forEach(input => {
         if (!validateField(input)) {
             isValid = false;
         }
     });
-    
+
     return isValid;
 }
 
@@ -276,13 +261,13 @@ function validateField(field) {
     const type = field.type || field.tagName.toLowerCase();
     let isValid = true;
     let errorMessage = '';
-    
+
     // Required validation
     if (field.hasAttribute('required') && !value) {
         isValid = false;
         errorMessage = 'Trường này không được để trống';
     }
-    
+
     // Type-specific validation
     if (value && isValid) {
         switch (type) {
@@ -306,7 +291,7 @@ function validateField(field) {
                 break;
         }
     }
-    
+
     // Custom validation for setting key
     if (field.name === 'key' && value && isValid) {
         if (!/^[a-z0-9_]+$/.test(value)) {
@@ -314,32 +299,32 @@ function validateField(field) {
             errorMessage = 'Tên cài đặt chỉ được chứa chữ thường, số và dấu gạch dưới';
         }
     }
-    
+
     // Show/hide error
     if (isValid) {
         clearFieldError(field);
     } else {
         showFieldError(field, errorMessage);
     }
-    
+
     return isValid;
 }
 
 function showFieldError(field, message) {
     clearFieldError(field);
-    
+
     field.classList.add('error');
-    
+
     const errorElement = document.createElement('div');
     errorElement.className = 'field-error';
     errorElement.textContent = message;
-    
+
     field.parentNode.appendChild(errorElement);
 }
 
 function clearFieldError(field) {
     field.classList.remove('error');
-    
+
     const existingError = field.parentNode.querySelector('.field-error');
     if (existingError) {
         existingError.remove();
@@ -371,16 +356,16 @@ function isValidNumber(value) {
 function initializeTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
-    
+
     if (tabBtns.length > 0 && tabContents.length > 0) {
         tabBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 const targetTab = this.dataset.tab;
-                
+
                 // Remove active class from all tabs and contents
                 tabBtns.forEach(b => b.classList.remove('active'));
                 tabContents.forEach(c => c.classList.remove('active'));
-                
+
                 // Add active class to clicked tab and corresponding content
                 this.classList.add('active');
                 const targetContent = document.getElementById(targetTab);
@@ -397,7 +382,7 @@ function initializeTabs() {
  */
 function initializeTooltips() {
     const tooltipElements = document.querySelectorAll('[title]');
-    
+
     tooltipElements.forEach(element => {
         element.addEventListener('mouseenter', showTooltip);
         element.addEventListener('mouseleave', hideTooltip);
@@ -407,23 +392,23 @@ function initializeTooltips() {
 function showTooltip(e) {
     const element = e.target;
     const title = element.getAttribute('title');
-    
+
     if (title) {
         // Remove title to prevent default tooltip
         element.setAttribute('data-original-title', title);
         element.removeAttribute('title');
-        
+
         // Create custom tooltip
         const tooltip = document.createElement('div');
         tooltip.className = 'custom-tooltip';
         tooltip.textContent = title;
         document.body.appendChild(tooltip);
-        
+
         // Position tooltip
         const rect = element.getBoundingClientRect();
         tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
         tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
-        
+
         // Store reference
         element._tooltip = tooltip;
     }
@@ -432,13 +417,13 @@ function showTooltip(e) {
 function hideTooltip(e) {
     const element = e.target;
     const originalTitle = element.getAttribute('data-original-title');
-    
+
     if (originalTitle) {
         // Restore original title
         element.setAttribute('title', originalTitle);
         element.removeAttribute('data-original-title');
     }
-    
+
     // Remove custom tooltip
     if (element._tooltip) {
         element._tooltip.remove();
@@ -452,7 +437,7 @@ function hideTooltip(e) {
 function showNotification(message, type = 'info', duration = 5000) {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    
+
     const icon = getNotificationIcon(type);
     notification.innerHTML = `
         <div class="notification-content">
@@ -461,7 +446,7 @@ function showNotification(message, type = 'info', duration = 5000) {
         </div>
         <button class="notification-close">&times;</button>
     `;
-    
+
     // Add to page
     let container = document.querySelector('.notifications-container');
     if (!container) {
@@ -469,14 +454,14 @@ function showNotification(message, type = 'info', duration = 5000) {
         container.className = 'notifications-container';
         document.body.appendChild(container);
     }
-    
+
     container.appendChild(notification);
-    
+
     // Auto remove
     setTimeout(() => {
         removeNotification(notification);
     }, duration);
-    
+
     // Manual close
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {
@@ -511,14 +496,14 @@ function resetForm() {
         const form = document.querySelector('.admin-form');
         if (form) {
             form.reset();
-            
+
             // Clear all errors
             const errorElements = form.querySelectorAll('.field-error');
             errorElements.forEach(error => error.remove());
-            
+
             const errorFields = form.querySelectorAll('.error');
             errorFields.forEach(field => field.classList.remove('error'));
-            
+
             // Trigger change events for dynamic fields
             const typeSelect = document.getElementById('type');
             if (typeSelect && typeof updateValueField === 'function') {

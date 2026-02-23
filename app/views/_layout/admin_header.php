@@ -1,3 +1,10 @@
+<?php
+// Lấy thông tin user hiện tại từ session
+$headerUserName  = $_SESSION['user_name']  ?? $_SESSION['user_email'] ?? 'Admin';
+$headerUserEmail = $_SESSION['user_email'] ?? '';
+$headerUserRole  = $_SESSION['user_role']  ?? 'admin';
+?>
+
 <header class="admin-header">
     <div class="header-left">
         <a href="<?php echo base_url(); ?>" class="home-btn" title="Về trang chủ website">
@@ -25,38 +32,19 @@
         <div class="header-item notifications-dropdown">
             <button class="header-btn" id="notificationsBtn">
                 <i class="fas fa-bell"></i>
-                <span class="badge">3</span>
+                <span class="badge" id="notifBadge" style="display:none;">0</span>
             </button>
             <div class="dropdown-menu notifications-menu" id="notificationsMenu">
                 <div class="dropdown-header">
                     <h6>Thông báo</h6>
                 </div>
-                <div class="dropdown-body">
+                <div class="dropdown-body" id="notificationsBody">
                     <div class="notification-item">
                         <div class="notification-icon">
-                            <i class="fas fa-shopping-cart text-success"></i>
+                            <i class="fas fa-spinner fa-spin text-muted"></i>
                         </div>
                         <div class="notification-content">
-                            <p class="notification-text">Đơn hàng mới #1001</p>
-                            <span class="notification-time">5 phút trước</span>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-icon">
-                            <i class="fas fa-exclamation-triangle text-warning"></i>
-                        </div>
-                        <div class="notification-content">
-                            <p class="notification-text">Sản phẩm sắp hết hàng</p>
-                            <span class="notification-time">1 giờ trước</span>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-icon">
-                            <i class="fas fa-envelope text-info"></i>
-                        </div>
-                        <div class="notification-content">
-                            <p class="notification-text">Liên hệ mới từ khách hàng</p>
-                            <span class="notification-time">2 giờ trước</span>
+                            <p class="notification-text">Đang tải thông báo...</p>
                         </div>
                     </div>
                 </div>
@@ -70,7 +58,7 @@
         <div class="header-item user-dropdown">
             <button class="header-btn user-btn" id="userBtn">
                 <img src="<?php echo img_url('home/home-banner-final.png'); ?>" alt="Admin" class="user-avatar">
-                <span class="user-name">Admin ThuongLo</span>
+                <span class="user-name"><?php echo htmlspecialchars($headerUserName, ENT_QUOTES, 'UTF-8'); ?></span>
                 <i class="fas fa-chevron-down"></i>
             </button>
             <div class="dropdown-menu user-menu" id="userMenu">
@@ -78,8 +66,8 @@
                     <div class="user-info">
                         <img src="<?php echo img_url('home/home-banner-final.png'); ?>" alt="Admin" class="user-avatar-large">
                         <div class="user-details">
-                            <h6 class="user-name">Admin ThuongLo</h6>
-                            <p class="user-email">admin@thuonglo.com</p>
+                            <h6 class="user-name"><?php echo htmlspecialchars($headerUserName, ENT_QUOTES, 'UTF-8'); ?></h6>
+                            <p class="user-email"><?php echo htmlspecialchars($headerUserEmail, ENT_QUOTES, 'UTF-8'); ?></p>
                         </div>
                     </div>
                 </div>

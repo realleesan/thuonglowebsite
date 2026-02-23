@@ -539,6 +539,13 @@ class AuthService implements ServiceInterface {
     }
     
     /**
+     * Alias for isAuthenticated() - check if user is logged in
+     */
+    public function isLoggedIn(): bool {
+        return $this->isAuthenticated();
+    }
+    
+    /**
      * Get user role
      */
     public function getUserRole(): ?string {

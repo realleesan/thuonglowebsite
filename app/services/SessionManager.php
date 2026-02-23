@@ -14,8 +14,9 @@ class SessionManager {
     private ?PasswordHasher $passwordHasher = null;
     
     public function __construct() {
-        // Load configuration
-        $config = include 'config.php';
+        // Load configuration - use absolute path (go up 2 levels from services/ to root)
+        $configPath = dirname(__DIR__, 2) . '/config.php';
+        $config = include $configPath;
         
         $this->sessionName = $config['security']['session_name'] ?? 'THUONGLO_AUTH_SESSION';
         $this->sessionLifetime = $config['security']['session_lifetime'] ?? 3600; // 1 hour
@@ -161,16 +162,18 @@ class SessionManager {
      * Validate session integrity
      */
     private function validateSessionIntegrity(): bool {
-        // Check session fingerprint
-        if (isset($_SESSION['session_fingerprint'])) {
+        // Check session fingerprint - skip if not set (backward compatibility)
+        if (isset($_SESSION['session_fingerprint']) && !empty($_SESSION['session_fingerprint'])) {
             $currentFingerprint = $this->generateSessionFingerprint();
-            if (!hash_equals($_SESSION['session_fingerprint'], $currentFingerprint)) {
+            if ($_SESSION['session_fingerprint'] !== $currentFingerprint) {
+                // Don't destroy session, just mark as invalid
+                // This can happen if IP or User Agent changes
                 return false;
             }
         }
         
-        // Check session age (prevent session fixation)
-        if (isset($_SESSION['session_created'])) {
+        // Check session age (prevent session fixation) - skip if not set
+        if (isset($_SESSION['session_created']) && !empty($_SESSION['session_created'])) {
             $sessionAge = time() - $_SESSION['session_created'];
             if ($sessionAge > $this->sessionLifetime) {
                 return false;
@@ -207,6 +210,10 @@ class SessionManager {
         $_SESSION['session_token'] = $this->getPasswordHasher()->generateSessionToken();
         $_SESSION['login_ip'] = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $_SESSION['login_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+        
+        // Generate session fingerprint for security validation
+        $_SESSION['session_fingerprint'] = $this->generateSessionFingerprint();
+        $_SESSION['session_created'] = time();
         
         // Regenerate session ID for security (prevents session fixation)
         $this->regenerateId();

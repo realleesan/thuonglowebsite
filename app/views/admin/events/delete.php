@@ -54,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        // Delete from database
-        if ($eventsModel->delete($event_id)) {
+        // Delete from database via AdminService
+        if ($service->deleteEvent($event_id)) {
             $success = true;
             header('Location: ?page=admin&module=events&deleted=1');
             exit;

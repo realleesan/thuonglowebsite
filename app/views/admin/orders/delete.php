@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (empty($delete_reason)) {
         $error_message = 'Vui lòng nhập lý do xóa đơn hàng';
     } else {
-        // Delete from database
-        if ($ordersModel->delete($order_id)) {
+        // Delete from database via AdminService
+        if ($service->deleteOrder($order_id)) {
             $success_message = 'Đơn hàng đã được xóa thành công!';
             header('Location: ?page=admin&module=orders&deleted=1');
             exit;

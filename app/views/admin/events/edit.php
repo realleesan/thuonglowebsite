@@ -108,8 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($errors)) {
-        // Update event in database
-        if ($eventsModel->update($event_id, $form_data)) {
+        // Update event via AdminService to trigger cache invalidation
+        if ($service->updateEvent($event_id, $form_data)) {
             $success = true;
             header('Location: ?page=admin&module=events&action=view&id=' . $event_id . '&updated=1');
             exit;

@@ -167,9 +167,7 @@
     overflow: hidden;
 }
 
-.chart-widget-large {
-    /* Remove grid-column span since we want all 3 on same row */
-}
+
 
 .widget-header {
     display: flex;
@@ -457,12 +455,12 @@
     .dashboard-charts {
         grid-template-columns: 1fr 1fr;
     }
-    
+
     /* On tablet, show revenue chart spanning 2 columns, others below */
     .chart-widget-large {
         grid-column: span 2;
     }
-    
+
     .dashboard-row-1,
     .dashboard-row-2 {
         grid-template-columns: 1fr;
@@ -477,31 +475,31 @@
         gap: 16px;
         padding: 20px;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
         padding: 0 20px;
     }
-    
+
     .dashboard-charts {
         grid-template-columns: 1fr;
         padding: 0 20px;
     }
-    
+
     .chart-widget-large {
         grid-column: span 1;
     }
-    
+
     .dashboard-content {
         padding: 0 20px 32px 20px;
     }
-    
+
     .dashboard-row-1,
     .dashboard-row-2 {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
+
     .quick-actions {
         grid-template-columns: 1fr;
     }
@@ -511,34 +509,79 @@
     .dashboard-header {
         padding: 16px;
     }
-    
+
     .stats-grid {
         padding: 0 16px;
     }
-    
+
     .dashboard-charts {
         padding: 0 16px;
     }
-    
+
     .dashboard-content {
         padding: 0 16px 32px 16px;
     }
-    
+
     .stat-card {
         padding: 20px;
     }
-    
+
     .stat-icon {
         width: 50px;
         height: 50px;
         margin-right: 16px;
     }
-    
+
     .stat-icon i {
         font-size: 20px;
     }
-    
+
     .stat-content h3 {
         font-size: 24px;
     }
+}
+
+/* ===== Chart Loading Overlay ===== */
+.chart-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(2px);
+    border-radius: 8px;
+    z-index: 10;
+    gap: 12px;
+}
+
+.chart-loading p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.chart-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #356df1;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Trend Down ===== */
+.trend-down {
+    color: #ef4444;
+}
+
+.trend-down i {
+    margin-right: 4px;
 }

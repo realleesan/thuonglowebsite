@@ -2,15 +2,15 @@
  * Admin Contact Module JavaScript
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     // Initialize all contact functionality
     initContactTable();
     initBulkActions();
     initDeleteModal();
     initReplyModal();
     initQuickActions();
-    
+
     /**
      * Initialize contact table functionality
      */
@@ -18,117 +18,120 @@ document.addEventListener('DOMContentLoaded', function() {
         // Select all checkbox functionality
         const selectAllCheckbox = document.getElementById('select-all');
         const contactCheckboxes = document.querySelectorAll('.contact-checkbox');
-        
+
         if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function() {
+            selectAllCheckbox.addEventListener('change', function () {
                 contactCheckboxes.forEach(checkbox => {
                     checkbox.checked = this.checked;
                 });
                 updateBulkActionsState();
             });
         }
-        
+
         // Individual checkbox change
         contactCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 updateSelectAllState();
                 updateBulkActionsState();
             });
         });
-        
+
         // Update select all state based on individual checkboxes
         function updateSelectAllState() {
             if (!selectAllCheckbox) return;
-            
+
             const checkedCount = document.querySelectorAll('.contact-checkbox:checked').length;
             const totalCount = contactCheckboxes.length;
-            
+
             selectAllCheckbox.checked = checkedCount === totalCount;
             selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
         }
-        
+
         // Update bulk actions state
         function updateBulkActionsState() {
             const checkedCount = document.querySelectorAll('.contact-checkbox:checked').length;
             const bulkActionSelect = document.getElementById('bulk-action');
             const applyBulkButton = document.getElementById('apply-bulk');
-            
+
             if (bulkActionSelect && applyBulkButton) {
                 bulkActionSelect.disabled = checkedCount === 0;
                 applyBulkButton.disabled = checkedCount === 0 || !bulkActionSelect.value;
             }
         }
     }
-    
+
     /**
      * Initialize bulk actions
      */
     function initBulkActions() {
         const bulkActionSelect = document.getElementById('bulk-action');
         const applyBulkButton = document.getElementById('apply-bulk');
-        
+
         if (bulkActionSelect) {
-            bulkActionSelect.addEventListener('change', function() {
+            bulkActionSelect.addEventListener('change', function () {
                 const checkedCount = document.querySelectorAll('.contact-checkbox:checked').length;
                 if (applyBulkButton) {
                     applyBulkButton.disabled = checkedCount === 0 || !this.value;
                 }
             });
         }
-        
+
         if (applyBulkButton) {
-            applyBulkButton.addEventListener('click', function() {
+            applyBulkButton.addEventListener('click', function () {
                 const action = bulkActionSelect.value;
                 const checkedIds = Array.from(document.querySelectorAll('.contact-checkbox:checked'))
                     .map(cb => cb.value);
-                
+
                 if (action && checkedIds.length > 0) {
                     handleBulkAction(action, checkedIds);
                 }
             });
         }
     }
-    
+
     /**
      * Handle bulk actions
      */
     function handleBulkAction(action, ids) {
         let message = '';
-        let confirmMessage = '';
-        
+
         switch (action) {
             case 'mark-read':
                 message = `Đánh dấu đã đọc ${ids.length} liên hệ đã chọn?`;
-                confirmMessage = `Đã đánh dấu đã đọc ${ids.length} liên hệ`;
                 break;
             case 'mark-replied':
                 message = `Đánh dấu đã trả lời ${ids.length} liên hệ đã chọn?`;
-                confirmMessage = `Đã đánh dấu đã trả lời ${ids.length} liên hệ`;
                 break;
             case 'delete':
                 message = `Xóa ${ids.length} liên hệ đã chọn? Hành động này không thể hoàn tác!`;
-                confirmMessage = `Đã xóa ${ids.length} liên hệ`;
                 break;
             default:
                 return;
         }
-        
+
         if (confirm(message)) {
-            // In real app: send AJAX request
-            console.log(`Bulk action: ${action}`, ids);
-            showNotification(confirmMessage + ' (Demo)', 'success');
-            
-            // Reset checkboxes
-            document.querySelectorAll('.contact-checkbox:checked').forEach(cb => {
-                cb.checked = false;
-            });
-            document.getElementById('select-all').checked = false;
-            document.getElementById('bulk-action').value = '';
-            document.getElementById('bulk-action').disabled = true;
-            document.getElementById('apply-bulk').disabled = true;
+            // Actual implementation: submit a form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '?page=admin&module=contact&action=bulk';
+
+            const idsInput = document.createElement('input');
+            idsInput.type = 'hidden';
+            idsInput.name = 'ids';
+            idsInput.value = JSON.stringify(ids);
+
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'bulk_action';
+            actionInput.value = action;
+
+            form.appendChild(idsInput);
+            form.appendChild(actionInput);
+            document.body.appendChild(form);
+            form.submit();
         }
     }
-    
+
     /**
      * Initialize delete modal
      */
@@ -138,65 +141,56 @@ document.addEventListener('DOMContentLoaded', function() {
         const cancelDeleteBtn = document.getElementById('cancelDelete');
         const confirmDeleteBtn = document.getElementById('confirmDelete');
         const modalClose = deleteModal?.querySelector('.modal-close');
-        
+
         if (!deleteModal) return;
-        
+
         // Open delete modal
         deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const contactId = this.dataset.id;
                 const contactName = this.dataset.name;
-                
+
                 const nameElement = document.getElementById('deleteContactName');
                 if (nameElement) {
                     nameElement.textContent = contactName;
                 }
                 deleteModal.style.display = 'flex';
-                
+
                 // Set up confirm delete handler
                 if (confirmDeleteBtn) {
-                    confirmDeleteBtn.onclick = function() {
+                    confirmDeleteBtn.onclick = function () {
                         handleDeleteContact(contactId, contactName);
                     };
                 }
             });
         });
-        
+
         // Close modal handlers
         [cancelDeleteBtn, modalClose].forEach(element => {
             if (element) {
-                element.addEventListener('click', function() {
+                element.addEventListener('click', function () {
                     deleteModal.style.display = 'none';
                 });
             }
         });
-        
+
         // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             if (event.target === deleteModal) {
                 deleteModal.style.display = 'none';
             }
         });
     }
-    
+
     /**
      * Handle delete contact
      */
     function handleDeleteContact(id, name) {
-        // In real app: send AJAX request
-        console.log(`Delete contact: ${id}`);
-        showNotification(`Đã xóa liên hệ từ: ${name} (Demo)`, 'success');
-        
-        // Close modal
-        const deleteModal = document.getElementById('deleteModal');
-        if (deleteModal) {
-            deleteModal.style.display = 'none';
+        if (confirm(`Bạn có chắc chắn muốn xóa liên hệ từ "${name}"?`)) {
+            window.location.href = `?page=admin&module=contact&action=delete&id=${id}`;
         }
-        
-        // In real app: remove row from table or reload page
-        // For demo, just show notification
     }
-    
+
     /**
      * Initialize reply modal
      */
@@ -206,68 +200,68 @@ document.addEventListener('DOMContentLoaded', function() {
         const cancelReplyBtn = document.getElementById('cancelReply');
         const confirmReplyBtn = document.getElementById('confirmReply');
         const modalClose = replyModal?.querySelector('.modal-close');
-        
+
         if (!replyModal) return;
-        
+
         // Open reply modal
         replyButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const email = this.dataset.email;
                 const subject = this.dataset.subject;
-                
+
                 const emailElement = document.getElementById('replyEmail');
                 const subjectElement = document.getElementById('replySubject');
-                
+
                 if (emailElement) emailElement.textContent = email;
                 if (subjectElement) subjectElement.textContent = subject;
-                
+
                 replyModal.style.display = 'flex';
-                
+
                 // Set up confirm reply handler
                 if (confirmReplyBtn) {
-                    confirmReplyBtn.onclick = function() {
+                    confirmReplyBtn.onclick = function () {
                         handleReplyEmail(email, subject);
                     };
                 }
             });
         });
-        
+
         // Close modal handlers
         [cancelReplyBtn, modalClose].forEach(element => {
             if (element) {
-                element.addEventListener('click', function() {
+                element.addEventListener('click', function () {
                     replyModal.style.display = 'none';
                 });
             }
         });
-        
+
         // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             if (event.target === replyModal) {
                 replyModal.style.display = 'none';
             }
         });
     }
-    
+
     /**
      * Handle reply email
      */
     function handleReplyEmail(email, subject) {
         // Create mailto link
         const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
-        
+
         // Open email client
         window.location.href = mailtoLink;
-        
+
         // Close modal
         const replyModal = document.getElementById('replyModal');
         if (replyModal) {
             replyModal.style.display = 'none';
         }
-        
+
         showNotification('Đã mở ứng dụng email', 'info');
     }
-    
+
     /**
      * Initialize quick actions
      */
@@ -275,89 +269,49 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mark as read buttons
         const markReadButtons = document.querySelectorAll('.mark-read-btn');
         markReadButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const contactId = this.dataset.id;
                 handleMarkAsRead(contactId);
             });
         });
-        
+
         // Mark as replied buttons
         const markRepliedButtons = document.querySelectorAll('.mark-replied-btn');
         markRepliedButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const contactId = this.dataset.id;
                 handleMarkAsReplied(contactId);
             });
         });
-        
+
         // Call phone buttons
         const callButtons = document.querySelectorAll('.call-btn');
         callButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const phone = this.dataset.phone;
                 handleCallPhone(phone);
             });
         });
     }
-    
+
     /**
      * Handle mark as read
      */
     function handleMarkAsRead(id) {
-        // In real app: send AJAX request
-        console.log(`Mark as read: ${id}`);
-        showNotification('Đã đánh dấu liên hệ là đã đọc (Demo)', 'success');
-        
-        // Update UI - remove unread styling
-        const row = document.querySelector(`input[value="${id}"]`)?.closest('tr');
-        if (row) {
-            row.classList.remove('unread-row');
-            
-            // Update status badge
-            const statusBadge = row.querySelector('.status-badge');
-            if (statusBadge) {
-                statusBadge.className = 'status-badge status-read';
-                statusBadge.textContent = 'Đã đọc';
-            }
-            
-            // Remove new badge
-            const newBadge = row.querySelector('.new-badge');
-            if (newBadge) {
-                newBadge.remove();
-            }
-        }
+        // Actual implementation: redirect to mark as read action
+        window.location.href = `?page=admin&module=contact&action=mark_read&id=${id}`;
     }
-    
+
     /**
      * Handle mark as replied
      */
     function handleMarkAsReplied(id) {
         if (confirm('Đánh dấu liên hệ này là đã trả lời?')) {
-            // In real app: send AJAX request
-            console.log(`Mark as replied: ${id}`);
-            showNotification('Đã đánh dấu liên hệ là đã trả lời (Demo)', 'success');
-            
-            // Update UI
-            const row = document.querySelector(`input[value="${id}"]`)?.closest('tr');
-            if (row) {
-                row.classList.remove('unread-row');
-                
-                // Update status badge
-                const statusBadge = row.querySelector('.status-badge');
-                if (statusBadge) {
-                    statusBadge.className = 'status-badge status-replied';
-                    statusBadge.textContent = 'Đã trả lời';
-                }
-                
-                // Remove new badge
-                const newBadge = row.querySelector('.new-badge');
-                if (newBadge) {
-                    newBadge.remove();
-                }
-            }
+            // Actual implementation: redirect to mark as replied action
+            window.location.href = `?page=admin&module=contact&action=mark_replied&id=${id}`;
         }
     }
-    
+
     /**
      * Handle call phone
      */
@@ -366,11 +320,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create tel link
             const telLink = `tel:${phone}`;
             window.location.href = telLink;
-            
+
             showNotification(`Đang gọi ${phone}`, 'info');
         }
     }
-    
+
     /**
      * Show notification
      */
@@ -385,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <button class="notification-close">&times;</button>
         `;
-        
+
         // Add styles
         notification.style.cssText = `
             position: fixed;
@@ -403,10 +357,10 @@ document.addEventListener('DOMContentLoaded', function() {
             max-width: 400px;
             animation: slideIn 0.3s ease-out;
         `;
-        
+
         // Add to page
         document.body.appendChild(notification);
-        
+
         // Auto remove after 5 seconds
         setTimeout(() => {
             if (notification.parentNode) {
@@ -418,14 +372,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 300);
             }
         }, 5000);
-        
+
         // Manual close
         const closeBtn = notification.querySelector('.notification-close');
         closeBtn.addEventListener('click', () => {
             notification.remove();
         });
     }
-    
+
     /**
      * Get notification icon
      */
@@ -437,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
             default: return 'info-circle';
         }
     }
-    
+
     /**
      * Get notification color
      */
@@ -458,13 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Export contact data
 function exportContacts() {
     if (confirm('Xuất dữ liệu liên hệ ra file CSV?')) {
-        // In real app: generate and download CSV
-        console.log('Export contacts to CSV');
-        showNotification('Đang xuất dữ liệu... (Demo)', 'info');
-        
-        setTimeout(() => {
-            showNotification('Đã xuất dữ liệu thành công (Demo)', 'success');
-        }, 2000);
+        window.location.href = '?page=admin&module=contact&action=export';
     }
 }
 
@@ -517,7 +465,7 @@ function showNotification(message, type = 'info') {
         </div>
         <button class="notification-close">&times;</button>
     `;
-    
+
     // Add styles
     notification.style.cssText = `
         position: fixed;
@@ -535,10 +483,10 @@ function showNotification(message, type = 'info') {
         max-width: 400px;
         animation: slideIn 0.3s ease-out;
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentNode) {
@@ -550,7 +498,7 @@ function showNotification(message, type = 'info') {
             }, 300);
         }
     }, 5000);
-    
+
     // Manual close
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {

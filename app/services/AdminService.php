@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/BaseService.php';
 require_once __DIR__ . '/DataTransformer.php';
+require_once __DIR__ . '/CacheService.php';
 
 /**
  * AdminService
@@ -17,11 +18,13 @@ require_once __DIR__ . '/DataTransformer.php';
 class AdminService extends BaseService
 {
     protected DataTransformer $transformer;
+    protected CacheService $cache;
 
     public function __construct(?ErrorHandler $errorHandler = null, string $serviceType = 'admin')
     {
         parent::__construct($errorHandler, $serviceType);
         $this->transformer = new DataTransformer();
+        $this->cache = new CacheService();
     }
 
     // ==================== DASHBOARD ====================
@@ -31,35 +34,778 @@ class AdminService extends BaseService
         try {
             $data = [];
 
-            // Product statistics
-            $data['product_stats'] = $this->callModelMethod('ProductsModel', 'getStats', [], []);
+            // Lấy thống kê tổng quan từ builder (có cache)
+            $statsResult = $this->getDashboardStatistics();
+            $statsData   = $statsResult['data'] ?? [];
+
             $data['stats'] = [
-                'total_products' => $data['product_stats']['total'] ?? 0,
-                'total_revenue' => 0,
+                'total_products'  => $statsData['total_products']  ?? 0,
+                'total_revenue'   => $statsData['total_revenue']   ?? 0,
+                'published_news'  => $statsData['published_news']  ?? 0,
+                'upcoming_events' => $statsData['upcoming_events'] ?? 0,
             ];
+
+            $data['trends'] = $statsData['trends'] ?? [];
+
+            // Product statistics (for backward compat)
+            $data['product_stats'] = $this->callModelMethod('ProductsModel', 'getStats', [], []);
 
             // User statistics
             $data['user_stats'] = $this->callModelMethod('UsersModel', 'getStats', [], []);
 
             // Recent products
-            $recentProducts = $this->callModelMethod('ProductsModel', 'getWithCategory', [5], []);
+            $recentProducts       = $this->callModelMethod('ProductsModel', 'getWithCategory', [5], []);
             $data['recent_products'] = $this->transformer->transformProducts($recentProducts);
 
             // Recent users
-            $recentUsers = $this->callModelMethod('UsersModel', 'all', ['*'], []);
+            $recentUsers          = $this->callModelMethod('UsersModel', 'all', ['*'], []);
             $data['recent_users'] = $this->transformer->transformUsers($recentUsers);
 
-            // Top products, recent activities, charts (placeholders)
-            $data['top_products'] = [];
-            $data['recent_activities'] = [];
-            $data['charts_data'] = [];
-            $data['trends'] = [];
-            $data['alerts'] = [];
+            // Charts data - tải qua AJAX thay vì server-side
+            $data['top_products']     = [];
+            $data['recent_activities']= [];
+            $data['charts_data']      = [];
+            $data['alerts']           = [];
 
             return $data;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'getDashboardData']);
         }
+    }
+
+
+    /**
+     * API: Dữ liệu doanh thu theo kỳ (7days, 30days, 12months).
+     * Cache 5 phút.
+     *
+     * @param array $filters ['period' => '30days', 'date_from' => '2024-01-01', 'date_to' => '2024-01-31']
+     * @return array
+     */
+    public function getDashboardRevenueData(array $filters = []): array
+    {
+        $period   = $filters['period'] ?? '30days';
+        $dateFrom = $filters['date_from'] ?? $this->getDateFrom($period);
+        $dateTo   = $filters['date_to']   ?? date('Y-m-d');
+
+        $cacheKey = $this->cache->generateKey('dashboard:revenue', [
+            'period'    => $period,
+            'date_from' => $dateFrom,
+            'date_to'   => $dateTo,
+        ]);
+
+        return $this->cache->remember($cacheKey, function () use ($period, $dateFrom, $dateTo) {
+            return $this->buildRevenueChartData($period, $dateFrom, $dateTo);
+        }, 300);
+    }
+
+    /**
+     * API: Top N sản phẩm bán chạy.
+     * Cache 10 phút.
+     */
+    public function getDashboardTopProducts(int $limit = 5, string $period = '30days'): array
+    {
+        $dateFrom = $this->getDateFrom($period);
+        $dateTo   = date('Y-m-d');
+
+        $cacheKey = $this->cache->generateKey('dashboard:top_products', [
+            'limit'     => $limit,
+            'date_from' => $dateFrom,
+            'date_to'   => $dateTo,
+        ]);
+
+        return $this->cache->remember($cacheKey, function () use ($limit, $dateFrom, $dateTo) {
+            return $this->buildTopProductsData($limit, $dateFrom, $dateTo);
+        }, 600);
+    }
+
+    /**
+     * API: Phân bố trạng thái đơn hàng.
+     * Không cache dài vì cần real-time.
+     */
+    public function getDashboardOrdersStatus(): array
+    {
+        $cacheKey = $this->cache->generateKey('dashboard:orders_status');
+
+        return $this->cache->remember($cacheKey, function () {
+            return $this->buildOrdersStatusData();
+        }, 300);
+    }
+
+    /**
+     * API: Người dùng mới theo tuần/tháng.
+     * Cache 15 phút.
+     */
+    public function getDashboardNewUsers(string $period = '4weeks'): array
+    {
+        $cacheKey = $this->cache->generateKey('dashboard:new_users', ['period' => $period]);
+
+        return $this->cache->remember($cacheKey, function () use ($period) {
+            return $this->buildNewUsersData($period);
+        }, 900);
+    }
+
+    /**
+     * API: Thống kê tổng quan (KPI cards).
+     * Cache 5 phút.
+     */
+    public function getDashboardStatistics(): array
+    {
+        $cacheKey = $this->cache->generateKey('dashboard:stats:general');
+
+        return $this->cache->remember($cacheKey, function () {
+            return $this->buildDashboardStatistics();
+        }, 300);
+    }
+
+    /**
+     * API: Lấy tất cả dữ liệu chart trong một lần gọi.
+     */
+    public function getDashboardChartsData(array $filters = []): array
+    {
+        try {
+            return [
+                'revenue'      => $this->getDashboardRevenueData($filters),
+                'top_products' => $this->getDashboardTopProducts(5, $filters['period'] ?? '30days'),
+                'orders_status'=> $this->getDashboardOrdersStatus(),
+                'new_users'    => $this->getDashboardNewUsers('4weeks'),
+                'stats'        => $this->getDashboardStatistics(),
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getDashboardChartsData']);
+        }
+    }
+
+    /**
+     * Lấy thông báo admin (cho header).
+     * Cache 5 phút.
+     */
+    public function getAdminNotifications(int $limit = 3): array
+    {
+        $cacheKey = $this->cache->generateKey('dashboard:notifications', ['limit' => $limit]);
+
+        return $this->cache->remember($cacheKey, function () use ($limit) {
+            return $this->buildAdminNotifications($limit);
+        }, 300);
+    }
+
+    public function markNotificationAsRead(int $id): bool
+    {
+        try {
+            $sql = "UPDATE admin_notifications SET is_read = 1 WHERE id = ?";
+            $result = $this->getModel('BaseModel')->execute($sql, [$id]);
+            if ($result) {
+                $this->cache->delete('dashboard:notifications*');
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'markNotificationAsRead', 'id' => $id]) !== null;
+        }
+    }
+
+    public function markAllNotificationsAsRead(): bool
+    {
+        try {
+            $sql = "UPDATE admin_notifications SET is_read = 1";
+            $result = $this->getModel('BaseModel')->execute($sql);
+            if ($result) {
+                $this->cache->delete('dashboard:notifications*');
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'markAllNotificationsAsRead']) !== null;
+        }
+    }
+
+    public function deleteNotification(int $id): bool
+    {
+        try {
+            $sql = "DELETE FROM admin_notifications WHERE id = ?";
+            $result = $this->getModel('BaseModel')->execute($sql, [$id]);
+            if ($result) {
+                $this->cache->delete('dashboard:notifications*');
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'deleteNotification', 'id' => $id]) !== null;
+        }
+    }
+
+    public function getAllNotifications(int $page = 1, int $perPage = 20): array
+    {
+        try {
+            $model = $this->getModel('BaseModel');
+            
+            $countSql = "SELECT COUNT(*) as total FROM admin_notifications";
+            $totalResult = $model->query($countSql);
+            $total = $totalResult[0]['total'] ?? 0;
+            
+            $offset = ($page - 1) * $perPage;
+            $sql = "SELECT * FROM admin_notifications ORDER BY created_at DESC LIMIT {$perPage} OFFSET {$offset}";
+            $rows = $model->query($sql);
+            
+            $notifications = [];
+            foreach ($rows as $row) {
+                $notifications[] = [
+                    'id'       => $row['id'],
+                    'type'     => $row['type'],
+                    'icon'     => $row['icon'],
+                    'message'  => $row['message'],
+                    'is_read'  => $row['is_read'],
+                    'time'     => $row['created_at'],
+                    'time_ago' => $this->timeAgo($row['created_at']),
+                    'link'     => $row['link']
+                ];
+            }
+            
+            return [
+                'notifications' => $notifications,
+                'pagination' => $this->calculatePagination($page, $perPage, $total),
+                'total' => $total
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getAllNotifications']);
+        }
+    }
+
+    /**
+     * Lấy Menu Admin động.
+     * Cache 60 phút.
+     */
+    public function getAdminMenus(): array
+    {
+        $cacheKey = $this->cache->generateKey('admin:menus');
+
+        return $this->cache->remember($cacheKey, function () {
+            try {
+                $sql = "SELECT * FROM admin_menus WHERE status = 1 ORDER BY sort_order ASC";
+                $menus = $this->getModel('BaseModel')->query($sql);
+                
+                // Nesting logic (nếu có submenus) có thể thêm ở đây
+                return ['success' => true, 'data' => $menus];
+            } catch (\Exception $e) {
+                return ['success' => false, 'message' => $e->getMessage()];
+            }
+        }, 3600);
+    }
+
+    /**
+     * Xóa sạch các cache liên quan đến dashboard.
+     * Gọi khi có thay đổi dữ liệu (Order mới, Product mới, v.v.)
+     */
+    public function flushDashboardCache(): bool
+    {
+        return $this->cache->flush('dashboard:*');
+    }
+
+    // ==================== DASHBOARD PRIVATE BUILDERS ====================
+
+    private function getDateFrom(string $period): string
+    {
+        switch ($period) {
+            case '7days':
+                return date('Y-m-d', strtotime('-7 days'));
+            case '12months':
+                return date('Y-m-d', strtotime('-12 months'));
+            case '4weeks':
+                return date('Y-m-d', strtotime('-4 weeks'));
+            case '30days':
+            default:
+                return date('Y-m-d', strtotime('-30 days'));
+        }
+    }
+
+    private function buildRevenueChartData(string $period, string $dateFrom, string $dateTo): array
+    {
+        try {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$ordersModel) {
+                return $this->emptyRevenueData();
+            }
+
+            // Query doanh thu theo ngày
+            $sql = "
+                SELECT DATE(created_at) as date, SUM(`total`) as revenue, COUNT(*) as orders_count
+                FROM orders
+                WHERE status = 'completed'
+                  AND DATE(created_at) >= ?
+                  AND DATE(created_at) <= ?
+                GROUP BY DATE(created_at)
+                ORDER BY date ASC
+            ";
+            $rows = $ordersModel->query($sql, [$dateFrom, $dateTo]);
+
+            // Index theo date
+            $byDate = [];
+            foreach ($rows as $row) {
+                $byDate[$row['date']] = (float)$row['revenue'];
+            }
+
+            // Gom data theo period
+            [$labels, $data] = $this->groupRevenueByPeriod($byDate, $period, $dateFrom, $dateTo);
+
+            $total = array_sum($data);
+            $totalMillion = round($total / 1000000, 2);
+
+            return [
+                'success' => true,
+                'data' => [
+                    'labels'  => $labels,
+                    'datasets' => [[
+                        'label'  => 'Doanh thu (triệu VNĐ)',
+                        'data'   => $data,
+                        'period' => $period,
+                        'total'  => $totalMillion,
+                        'currency' => 'VND',
+                    ]],
+                ],
+                'meta' => [
+                    'period'       => $period,
+                    'date_from'    => $dateFrom,
+                    'date_to'      => $dateTo,
+                    'generated_at' => date('c'),
+                    'cache_hit'    => false,
+                ],
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('buildRevenueChartData error: ' . $e->getMessage());
+            return $this->emptyRevenueData();
+        }
+    }
+
+    private function groupRevenueByPeriod(array $byDate, string $period, string $dateFrom, string $dateTo): array
+    {
+        $labels = [];
+        $data   = [];
+
+        if ($period === '12months') {
+            // Gom theo tháng
+            $current = strtotime(date('Y-m-01', strtotime($dateFrom)));
+            $end     = strtotime(date('Y-m-01', strtotime($dateTo)));
+            while ($current <= $end) {
+                $monthKey = date('Y-m', $current);
+                $labels[] = 'T' . date('n', $current);
+                $monthRevenue = 0;
+                foreach ($byDate as $date => $revenue) {
+                    if (strpos($date, $monthKey) === 0) {
+                        $monthRevenue += $revenue;
+                    }
+                }
+                $data[]  = round($monthRevenue / 1000000, 2);
+                $current = strtotime('+1 month', $current);
+            }
+        } elseif ($period === '7days') {
+            // Gom theo ngày
+            $current = strtotime($dateFrom);
+            $end     = strtotime($dateTo);
+            while ($current <= $end) {
+                $dateStr  = date('Y-m-d', $current);
+                $labels[] = date('d/m', $current);
+                $data[]   = round(($byDate[$dateStr] ?? 0) / 1000000, 2);
+                $current  = strtotime('+1 day', $current);
+            }
+        } else {
+            // 30days - gom theo tuần
+            $current = strtotime($dateFrom);
+            $end     = strtotime($dateTo);
+            $week    = 1;
+            while ($current <= $end) {
+                $weekEnd = min(strtotime('+6 days', $current), $end);
+                $labels[] = 'Tuần ' . $week;
+                $weekRevenue = 0;
+                $temp = $current;
+                while ($temp <= $weekEnd) {
+                    $dateStr = date('Y-m-d', $temp);
+                    $weekRevenue += $byDate[$dateStr] ?? 0;
+                    $temp = strtotime('+1 day', $temp);
+                }
+                $data[]  = round($weekRevenue / 1000000, 2);
+                $current = strtotime('+7 days', $current);
+                $week++;
+            }
+        }
+
+        return [$labels, $data];
+    }
+
+    private function emptyRevenueData(): array
+    {
+        return [
+            'success' => true,
+            'data' => [
+                'labels'  => ['Không có dữ liệu'],
+                'datasets' => [['label' => 'Doanh thu', 'data' => [0]]],
+            ],
+            'meta' => ['generated_at' => date('c'), 'cache_hit' => false],
+        ];
+    }
+
+    private function buildTopProductsData(int $limit, string $dateFrom, string $dateTo): array
+    {
+        try {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$ordersModel) {
+                return ['success' => true, 'data' => ['products' => [], 'total_products' => 0]];
+            }
+
+            $sql = "
+                SELECT
+                    p.id, p.name, p.price,
+                    COUNT(o.id) as sales_count,
+                    SUM(o.total) as revenue
+                FROM products p
+                JOIN orders o ON p.id = o.product_id
+                WHERE o.status = 'completed'
+                  AND DATE(o.created_at) >= ?
+                  AND DATE(o.created_at) <= ?
+                GROUP BY p.id, p.name, p.price
+                ORDER BY sales_count DESC
+                LIMIT ?
+            ";
+            $rows = $ordersModel->query($sql, [$dateFrom, $dateTo, $limit]);
+
+            if (empty($rows)) {
+                return [
+                    'success' => true,
+                    'data' => [
+                        'products'      => [],
+                        'total_products'=> 0,
+                        'message'       => 'Chưa có dữ liệu sản phẩm',
+                    ],
+                ];
+            }
+
+            $totalSales   = array_sum(array_column($rows, 'sales_count'));
+            $totalRevenue = array_sum(array_column($rows, 'revenue'));
+
+            $products = [];
+            foreach ($rows as $row) {
+                $percentage = $totalSales > 0 ? round($row['sales_count'] / $totalSales * 100, 1) : 0;
+                $products[] = [
+                    'id'          => (int)$row['id'],
+                    'name'        => $row['name'],
+                    'sales_count' => (int)$row['sales_count'],
+                    'revenue'     => (float)$row['revenue'],
+                    'percentage'  => $percentage,
+                ];
+            }
+
+            return [
+                'success' => true,
+                'data' => [
+                    'products'      => $products,
+                    'total_products'=> count($products),
+                    'total_sales'   => (int)$totalSales,
+                    'total_revenue' => (float)$totalRevenue,
+                ],
+                'meta' => ['generated_at' => date('c'), 'cache_hit' => false],
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('buildTopProductsData error: ' . $e->getMessage());
+            return ['success' => true, 'data' => ['products' => [], 'total_products' => 0]];
+        }
+    }
+
+    private function buildOrdersStatusData(): array
+    {
+        try {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$ordersModel) {
+                return $this->emptyOrdersStatusData();
+            }
+
+            $statusLabels = [
+                'completed'  => 'Hoàn thành',
+                'processing' => 'Đang xử lý',
+                'pending'    => 'Chờ xử lý',
+                'cancelled'  => 'Đã hủy',
+            ];
+
+            $sql = "SELECT status, COUNT(*) as count FROM orders GROUP BY status";
+            $rows = $ordersModel->query($sql);
+
+            $totals = ['completed' => 0, 'processing' => 0, 'pending' => 0, 'cancelled' => 0];
+            foreach ($rows as $row) {
+                if (isset($totals[$row['status']])) {
+                    $totals[$row['status']] = (int)$row['count'];
+                }
+            }
+
+            $grandTotal = array_sum($totals);
+
+            if ($grandTotal === 0) {
+                return $this->emptyOrdersStatusData();
+            }
+
+            $dataValues = [
+                $grandTotal > 0 ? round($totals['completed']  / $grandTotal * 100, 1) : 0,
+                $grandTotal > 0 ? round($totals['processing'] / $grandTotal * 100, 1) : 0,
+                $grandTotal > 0 ? round($totals['pending']    / $grandTotal * 100, 1) : 0,
+                $grandTotal > 0 ? round($totals['cancelled']  / $grandTotal * 100, 1) : 0,
+            ];
+
+            return [
+                'success' => true,
+                'data' => [
+                    'labels'   => array_values($statusLabels),
+                    'datasets' => [[
+                        'data'            => $dataValues,
+                        'backgroundColor' => ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
+                    ]],
+                    'totals'   => $totals,
+                    'grand_total' => $grandTotal,
+                ],
+                'meta' => ['generated_at' => date('c'), 'cache_hit' => false],
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('buildOrdersStatusData error: ' . $e->getMessage());
+            return $this->emptyOrdersStatusData();
+        }
+    }
+
+    private function emptyOrdersStatusData(): array
+    {
+        return [
+            'success' => true,
+            'data' => [
+                'labels'   => ['Chưa có đơn hàng'],
+                'datasets' => [['data' => [0], 'backgroundColor' => ['#E5E7EB']]],
+                'totals'   => ['completed' => 0, 'processing' => 0, 'pending' => 0, 'cancelled' => 0],
+                'grand_total' => 0,
+            ],
+            'meta' => ['generated_at' => date('c'), 'cache_hit' => false],
+        ];
+    }
+
+    private function buildNewUsersData(string $period): array
+    {
+        try {
+            $usersModel = $this->getModel('UsersModel');
+            if (!$usersModel) {
+                return $this->emptyNewUsersData();
+            }
+
+            $weeks = 4;
+            $labels = [];
+            $data   = [];
+
+            for ($i = $weeks - 1; $i >= 0; $i--) {
+                $weekStart = date('Y-m-d', strtotime("-{$i} weeks last monday"));
+                if ($i === 0) {
+                    $weekStart = date('Y-m-d', strtotime('last monday'));
+                }
+                $weekEnd = date('Y-m-d', strtotime($weekStart . ' +6 days'));
+
+                $sql  = "SELECT COUNT(*) as count FROM users WHERE DATE(created_at) BETWEEN ? AND ?";
+                $rows = $usersModel->query($sql, [$weekStart, $weekEnd]);
+                $count = (int)($rows[0]['count'] ?? 0);
+
+                $labels[] = 'Tuần ' . ($weeks - $i);
+                $data[]   = $count;
+            }
+
+            return [
+                'success' => true,
+                'data' => [
+                    'labels'   => $labels,
+                    'datasets' => [[
+                        'label' => 'Người dùng mới',
+                        'data'  => $data,
+                        'period'=> $period,
+                    ]],
+                ],
+                'meta' => ['period' => $period, 'generated_at' => date('c'), 'cache_hit' => false],
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('buildNewUsersData error: ' . $e->getMessage());
+            return $this->emptyNewUsersData();
+        }
+    }
+
+    private function emptyNewUsersData(): array
+    {
+        return [
+            'success' => true,
+            'data' => [
+                'labels'   => ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                'datasets' => [['label' => 'Người dùng mới', 'data' => [0, 0, 0, 0]]],
+            ],
+            'meta' => ['generated_at' => date('c'), 'cache_hit' => false],
+        ];
+    }
+
+    private function buildDashboardStatistics(): array
+    {
+        try {
+            $productsModel = $this->getModel('ProductsModel');
+            $ordersModel   = $this->getModel('OrdersModel');
+            $newsModel     = $this->getModel('NewsModel');
+            $eventsModel   = $this->getModel('EventsModel');
+
+            $totalProducts = 0;
+            if ($productsModel) {
+                $rows = $productsModel->query("SELECT COUNT(*) as cnt FROM products WHERE status = 'active'");
+                $totalProducts = (int)($rows[0]['cnt'] ?? 0);
+            }
+
+            $totalRevenue = 0;
+            if ($ordersModel) {
+                $rows = $ordersModel->query("SELECT SUM(`total`) as rev FROM orders WHERE status = 'completed'");
+                $totalRevenue = (float)($rows[0]['rev'] ?? 0);
+            }
+
+            $publishedNews = 0;
+            if ($newsModel) {
+                $rows = $newsModel->query("SELECT COUNT(*) as cnt FROM news WHERE status = 'published'");
+                $publishedNews = (int)($rows[0]['cnt'] ?? 0);
+            }
+
+            $upcomingEvents = 0;
+            if ($eventsModel) {
+                $rows = $eventsModel->query("SELECT COUNT(*) as cnt FROM events WHERE start_date > NOW()");
+                $upcomingEvents = (int)($rows[0]['cnt'] ?? 0);
+            }
+
+            // Trends: so sánh với kỳ trước
+            $trends = $this->calculateTrends($ordersModel, $productsModel, $newsModel);
+
+            return [
+                'success' => true,
+                'data' => [
+                    'total_products'  => $totalProducts,
+                    'total_revenue'   => $totalRevenue,
+                    'published_news'  => $publishedNews,
+                    'upcoming_events' => $upcomingEvents,
+                    'trends'          => $trends,
+                ],
+                'meta' => ['generated_at' => date('c'), 'cache_hit' => false],
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('buildDashboardStatistics error: ' . $e->getMessage());
+            return [
+                'success' => true,
+                'data' => [
+                    'total_products'  => 0,
+                    'total_revenue'   => 0,
+                    'published_news'  => 0,
+                    'upcoming_events' => 0,
+                    'trends'          => [
+                        'products' => ['direction' => 'up', 'value' => 0],
+                        'revenue'  => ['direction' => 'up', 'value' => 0],
+                        'news'     => ['direction' => 'up', 'value' => 0],
+                        'events'   => ['direction' => 'up', 'value' => 0],
+                    ],
+                ],
+                'meta' => ['generated_at' => date('c'), 'cache_hit' => false],
+            ];
+        }
+    }
+
+    private function calculateTrends($ordersModel, $productsModel, $newsModel): array
+    {
+        $trends = [
+            'products' => ['direction' => 'up', 'value' => 0],
+            'revenue'  => ['direction' => 'up', 'value' => 0],
+            'news'     => ['direction' => 'up', 'value' => 0],
+            'events'   => ['direction' => 'up', 'value' => 0],
+            'users'    => ['direction' => 'up', 'value' => 0],
+            'sales'    => ['direction' => 'up', 'value' => 0],
+        ];
+
+        try {
+            if ($ordersModel) {
+                $currentRevenue  = (float)($ordersModel->query("SELECT SUM(`total`) as rev FROM orders WHERE status = 'completed' AND DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)")[0]['rev'] ?? 0);
+                $previousRevenue = (float)($ordersModel->query("SELECT SUM(`total`) as rev FROM orders WHERE status = 'completed' AND DATE(created_at) BETWEEN DATE_SUB(CURDATE(), INTERVAL 60 DAY) AND DATE_SUB(CURDATE(), INTERVAL 30 DAY)")[0]['rev'] ?? 0);
+                if ($previousRevenue > 0) {
+                    $pct = round(($currentRevenue - $previousRevenue) / $previousRevenue * 100, 1);
+                    $trends['revenue'] = ['direction' => $pct >= 0 ? 'up' : 'down', 'value' => abs($pct)];
+                }
+            }
+        } catch (\Exception $e) {
+            // bỏ qua lỗi trend
+        }
+
+        return $trends;
+    }
+
+    private function buildAdminNotifications(int $limit): array
+    {
+        try {
+            $notifications = [];
+            
+            // 1. Lấy từ bảng admin_notifications trước
+            $notifModel = $this->getModel('BaseModel'); // Dùng generic model
+            $sql = "SELECT * FROM admin_notifications WHERE is_read = 0 ORDER BY created_at DESC LIMIT " . (int)$limit;
+            $rows = $notifModel->query($sql);
+            
+            if (!empty($rows)) {
+                foreach ($rows as $row) {
+                    $notifications[] = [
+                        'type'     => $row['type'],
+                        'icon'     => $row['icon'],
+                        'message'  => $row['message'],
+                        'time'     => $row['created_at'],
+                        'time_ago' => $this->timeAgo($row['created_at']),
+                        'link'     => $row['link']
+                    ];
+                }
+            }
+
+            // 2. Nếu vẫn còn trống, fallback/bổ sung bằng logic tự động (như cũ)
+            if (count($notifications) < $limit) {
+                $ordersModel   = $this->getModel('OrdersModel');
+                $contactsModel = $this->getModel('ContactsModel');
+
+                // Đơn hàng mới (chờ xử lý)
+                if ($ordersModel) {
+                    $orderRows = $ordersModel->query("SELECT id, created_at FROM orders WHERE status = 'pending' ORDER BY created_at DESC LIMIT 1");
+                    if (!empty($orderRows)) {
+                        $order = $orderRows[0];
+                        $msg = 'Đơn hàng mới #' . str_pad($order['id'], 4, '0', STR_PAD_LEFT);
+                        // Tránh trùng lặp nếu bảng admin_notifications đã có
+                        if (!$this->hasNotification($notifications, $msg)) {
+                            $notifications[] = [
+                                'type'    => 'order',
+                                'icon'    => 'fas fa-shopping-cart text-success',
+                                'message' => $msg,
+                                'time'    => $order['created_at'],
+                                'time_ago'=> $this->timeAgo($order['created_at']),
+                            ];
+                        }
+                    }
+                }
+            }
+
+            return [
+                'success' => true,
+                'data' => [
+                    'notifications' => array_slice($notifications, 0, $limit),
+                    'unread_count'  => count($notifications), 
+                ],
+            ];
+        } catch (\Exception $e) {
+            $this->errorHandler->logError('buildAdminNotifications error: ' . $e->getMessage());
+            return ['success' => true, 'data' => ['notifications' => [], 'unread_count' => 0]];
+        }
+    }
+
+    private function hasNotification(array $list, string $message): bool
+    {
+        foreach ($list as $item) {
+            if ($item['message'] === $message) return true;
+        }
+        return false;
+    }
+
+    private function timeAgo(string $datetime): string
+    {
+        $time = strtotime($datetime);
+        $diff = time() - $time;
+
+        if ($diff < 60)         return 'Vừa xong';
+        if ($diff < 3600)       return floor($diff / 60) . ' phút trước';
+        if ($diff < 86400)      return floor($diff / 3600) . ' giờ trước';
+        if ($diff < 604800)     return floor($diff / 86400) . ' ngày trước';
+        return date('d/m/Y', $time);
     }
 
     // ==================== PRODUCTS ====================
@@ -151,9 +897,6 @@ class AdminService extends BaseService
         }
     }
 
-    /**
-     * Create a new product
-     */
     public function createProduct(array $data): bool
     {
         try {
@@ -162,15 +905,15 @@ class AdminService extends BaseService
                 return false;
             }
             $result = $productsModel->create($data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
             return $result !== false;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'createProduct']) !== null;
         }
     }
 
-    /**
-     * Update an existing product
-     */
     public function updateProduct(int $productId, array $data): bool
     {
         try {
@@ -179,15 +922,15 @@ class AdminService extends BaseService
                 return false;
             }
             $result = $productsModel->update($productId, $data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
             return $result !== false;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'updateProduct', 'product_id' => $productId]) !== null;
         }
     }
 
-    /**
-     * Delete a product
-     */
     public function deleteProduct(int $productId): bool
     {
         try {
@@ -196,6 +939,9 @@ class AdminService extends BaseService
                 return false;
             }
             $result = $productsModel->delete($productId);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
             return $result !== false;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'deleteProduct', 'product_id' => $productId]) !== null;
@@ -405,9 +1151,6 @@ class AdminService extends BaseService
         }
     }
 
-    /**
-     * Create a new category
-     */
     public function createCategory(array $data): bool
     {
         try {
@@ -416,15 +1159,15 @@ class AdminService extends BaseService
                 return false;
             }
             $result = $categoriesModel->create($data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
             return $result !== false;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'createCategory']) !== null;
         }
     }
 
-    /**
-     * Update an existing category
-     */
     public function updateCategory(int $categoryId, array $data): bool
     {
         try {
@@ -433,15 +1176,15 @@ class AdminService extends BaseService
                 return false;
             }
             $result = $categoriesModel->update($categoryId, $data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
             return $result !== false;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'updateCategory', 'category_id' => $categoryId]) !== null;
         }
     }
 
-    /**
-     * Delete a category
-     */
     public function deleteCategory(int $categoryId): bool
     {
         try {
@@ -450,6 +1193,9 @@ class AdminService extends BaseService
                 return false;
             }
             $result = $categoriesModel->delete($categoryId);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
             return $result !== false;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'deleteCategory', 'category_id' => $categoryId]) !== null;
@@ -535,6 +1281,33 @@ class AdminService extends BaseService
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'getNewsDetailsData', 'news_id' => $newsId]);
         }
+    }
+
+    public function createNews(array $data): bool
+    {
+        $result = $this->callModelMethod('NewsModel', 'create', [$data], null);
+        if ($result) {
+            $this->flushDashboardCache();
+        }
+        return $result !== false;
+    }
+
+    public function updateNews(int $newsId, array $data): bool
+    {
+        $result = $this->callModelMethod('NewsModel', 'update', [$newsId, $data], null);
+        if ($result) {
+            $this->flushDashboardCache();
+        }
+        return $result !== false;
+    }
+
+    public function deleteNews(int $newsId): bool
+    {
+        $result = $this->callModelMethod('NewsModel', 'delete', [$newsId], null);
+        if ($result) {
+            $this->flushDashboardCache();
+        }
+        return $result !== false;
     }
 
     private function getNewsStatistics($newsModel): array
@@ -682,6 +1455,40 @@ class AdminService extends BaseService
             ];
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'getOrderDetailsData', 'order_id' => $orderId]);
+        }
+    }
+
+    public function updateOrder(int $orderId, array $data): bool
+    {
+        try {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$ordersModel) {
+                return false;
+            }
+            $result = $ordersModel->update($orderId, $data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'updateOrder', 'order_id' => $orderId]) !== null;
+        }
+    }
+
+    public function deleteOrder(int $orderId): bool
+    {
+        try {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$ordersModel) {
+                return false;
+            }
+            $result = $ordersModel->delete($orderId);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'deleteOrder', 'order_id' => $orderId]) !== null;
         }
     }
 
@@ -844,9 +1651,6 @@ class AdminService extends BaseService
         }
     }
 
-    /**
-     * Update contact status
-     */
     public function updateContactStatus(int $contactId, string $status, ?string $adminNotes = null): bool
     {
         try {
@@ -859,6 +1663,11 @@ class AdminService extends BaseService
                 $data['admin_notes'] = $adminNotes;
             }
             $result = $contactsModel->update($contactId, $data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+                // Task 9.1: Invalidate notifications cache specifically too if needed
+                $this->cache->delete('dashboard:notifications*');
+            }
             return $result !== false;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'updateContactStatus', 'contact_id' => $contactId]) !== null;
@@ -1214,6 +2023,33 @@ class AdminService extends BaseService
         }
     }
 
+    public function createEvent(array $data): bool
+    {
+        $result = $this->callModelMethod('EventsModel', 'create', [$data], null);
+        if ($result) {
+            $this->flushDashboardCache();
+        }
+        return $result !== false;
+    }
+
+    public function updateEvent(int $eventId, array $data): bool
+    {
+        $result = $this->callModelMethod('EventsModel', 'update', [$eventId, $data], null);
+        if ($result) {
+            $this->flushDashboardCache();
+        }
+        return $result !== false;
+    }
+
+    public function deleteEvent(int $eventId): bool
+    {
+        $result = $this->callModelMethod('EventsModel', 'delete', [$eventId], null);
+        if ($result) {
+            $this->flushDashboardCache();
+        }
+        return $result !== false;
+    }
+
     private function getEventStatistics($eventsModel): array
     {
         try {
@@ -1404,6 +2240,66 @@ class AdminService extends BaseService
         }
 
         return $revenueByDate;
+    }
+
+    public function globalSearch(string $query, int $limit = 5): array
+    {
+        try {
+            $results = [];
+            $searchTerm = "%{$query}%";
+
+            // 1. Tìm Sản phẩm
+            $products = $this->getModel('ProductsModel')->query(
+                "SELECT id, name, price, image FROM products WHERE name LIKE ? OR description LIKE ? LIMIT ?",
+                [$searchTerm, $searchTerm, $limit]
+            );
+            foreach ($products as $p) {
+                $results[] = [
+                    'type'  => 'product',
+                    'title' => $p['name'],
+                    'info'  => number_format($p['price'], 0, ',', '.') . ' VNĐ',
+                    'link'  => "?page=admin&module=products&action=view&id={$p['id']}",
+                    'icon'  => 'fas fa-box'
+                ];
+            }
+
+            // 2. Tìm Đơn hàng (theo ID hoặc Email)
+            $orders = $this->getModel('OrdersModel')->query(
+                "SELECT o.id, o.total, u.name as user_name 
+                 FROM orders o 
+                 LEFT JOIN users u ON o.user_id = u.id 
+                 WHERE o.id LIKE ? OR u.name LIKE ? OR u.email LIKE ? LIMIT ?",
+                [$searchTerm, $searchTerm, $searchTerm, $limit]
+            );
+            foreach ($orders as $o) {
+                $results[] = [
+                    'type'  => 'order',
+                    'title' => '#' . str_pad($o['id'], 6, '0', STR_PAD_LEFT),
+                    'info'  => ($o['user_name'] ?? 'Khách lẻ') . ' - ' . number_format($o['total'], 0, ',', '.') . ' VNĐ',
+                    'link'  => "?page=admin&module=orders&action=view&id={$o['id']}",
+                    'icon'  => 'fas fa-shopping-cart'
+                ];
+            }
+
+            // 3. Tìm Tin tức
+            $news = $this->getModel('NewsModel')->query(
+                "SELECT id, title FROM news WHERE title LIKE ? OR excerpt LIKE ? LIMIT ?",
+                [$searchTerm, $searchTerm, $limit]
+            );
+            foreach ($news as $n) {
+                $results[] = [
+                    'type'  => 'news',
+                    'title' => $n['title'],
+                    'info'  => 'Tin tức',
+                    'link'  => "?page=admin&module=news&action=edit&id={$n['id']}",
+                    'icon'  => 'fas fa-newspaper'
+                ];
+            }
+
+            return ['success' => true, 'data' => $results];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'globalSearch', 'query' => $query]);
+        }
     }
 
     // ==================== HELPERS ====================

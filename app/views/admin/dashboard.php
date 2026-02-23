@@ -4,6 +4,9 @@
  * Sử dụng AdminService thông qua ServiceManager
  */
 
+// Make global services available in view scope
+global $adminService, $currentService;
+
 // Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
@@ -35,14 +38,12 @@ try {
     $chartsData = $dashboardData['charts_data'] ?? [];
     
 } catch (Exception $e) {
-    // Handle errors gracefully
-    $result = $errorHandler->handleViewError($e, 'admin_dashboard', []);
+    // Handle errors gracefully - display simple error
     $showErrorMessage = true;
-    $errorMessage = $result['message'];
+    $errorMessage = 'Lỗi: ' . $e->getMessage();
     
-    // Use empty state data - use service's handleEmptyState method
-    $emptyState = $service->handleEmptyState('admin_dashboard');
-    $stats = $emptyState['product_stats'] ?? [];
+    // Use empty state data
+    $stats = [];
     $trends = [];
     $alerts = [];
     $topProducts = [];
@@ -93,18 +94,18 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
     </div>
     <?php endif; ?>
 
-    <!-- KPI Cards with Trends -->
+    <!-- KPI Cards with Trends - Data cập nhật qua AJAX -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-box"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo $stats['total_products'] ?? 0; ?></h3>
+                <h3 id="stat-total-products"><?php echo $stats['total_products'] ?? 0; ?></h3>
                 <p>Tổng sản phẩm</p>
-                <div class="stat-trend trend-<?php echo ($trends['products']['direction'] ?? 'up'); ?>">
+                <div class="stat-trend trend-<?php echo ($trends['products']['direction'] ?? 'up'); ?>" id="trend-products">
                     <i class="fas fa-arrow-<?php echo ($trends['products']['direction'] ?? 'up'); ?>"></i>
-                    <span><?php echo ($trends['products']['value'] ?? 0); ?>% so với tuần trước</span>
+                    <span><?php echo ($trends['products']['value'] ?? 0); ?>% so với tháng trước</span>
                 </div>
             </div>
         </div>
@@ -114,11 +115,11 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo number_format(($totalRevenue / 1000000), 1); ?>M</h3>
+                <h3 id="stat-total-revenue"><?php echo number_format(($totalRevenue / 1000000), 1); ?>M</h3>
                 <p>Doanh thu (VNĐ)</p>
-                <div class="stat-trend trend-<?php echo ($trends['revenue']['direction'] ?? 'up'); ?>">
+                <div class="stat-trend trend-<?php echo ($trends['revenue']['direction'] ?? 'up'); ?>" id="trend-revenue">
                     <i class="fas fa-arrow-<?php echo ($trends['revenue']['direction'] ?? 'up'); ?>"></i>
-                    <span><?php echo ($trends['revenue']['value'] ?? 0); ?>% so với tuần trước</span>
+                    <span><?php echo ($trends['revenue']['value'] ?? 0); ?>% so với tháng trước</span>
                 </div>
             </div>
         </div>
@@ -128,11 +129,11 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
                 <i class="fas fa-newspaper"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo $stats['published_news'] ?? 0; ?></h3>
+                <h3 id="stat-published-news"><?php echo $stats['published_news'] ?? 0; ?></h3>
                 <p>Tin tức đã xuất bản</p>
-                <div class="stat-trend trend-<?php echo ($trends['sales']['direction'] ?? 'up'); ?>">
-                    <i class="fas fa-arrow-<?php echo ($trends['sales']['direction'] ?? 'up'); ?>"></i>
-                    <span><?php echo ($trends['sales']['value'] ?? 0); ?>% so với tuần trước</span>
+                <div class="stat-trend trend-<?php echo ($trends['news']['direction'] ?? 'up'); ?>" id="trend-news">
+                    <i class="fas fa-arrow-<?php echo ($trends['news']['direction'] ?? 'up'); ?>"></i>
+                    <span><?php echo ($trends['news']['value'] ?? 0); ?>% so với tháng trước</span>
                 </div>
             </div>
         </div>
@@ -142,11 +143,11 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
                 <i class="fas fa-calendar"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo $stats['upcoming_events'] ?? 0; ?></h3>
+                <h3 id="stat-upcoming-events"><?php echo $stats['upcoming_events'] ?? 0; ?></h3>
                 <p>Sự kiện sắp tới</p>
-                <div class="stat-trend trend-<?php echo ($trends['users']['direction'] ?? 'up'); ?>">
-                    <i class="fas fa-arrow-<?php echo ($trends['users']['direction'] ?? 'up'); ?>"></i>
-                    <span><?php echo ($trends['users']['value'] ?? 0); ?>% so với tuần trước</span>
+                <div class="stat-trend trend-<?php echo ($trends['events']['direction'] ?? 'up'); ?>" id="trend-events">
+                    <i class="fas fa-arrow-<?php echo ($trends['events']['direction'] ?? 'up'); ?>"></i>
+                    <span><?php echo ($trends['events']['value'] ?? 0); ?>% so với tháng trước</span>
                 </div>
             </div>
         </div>
@@ -166,7 +167,7 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
                     </select>
                 </div>
             </div>
-            <div class="widget-content">
+            <div class="widget-content" style="position:relative;">
                 <canvas id="revenueChart" width="400" height="200"></canvas>
             </div>
         </div>
@@ -174,9 +175,9 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
         <!-- Top Products Chart -->
         <div class="chart-widget">
             <div class="widget-header">
-                <h3>Top 10 sản phẩm bán chạy</h3>
+                <h3>Top sản phẩm bán chạy</h3>
             </div>
-            <div class="widget-content">
+            <div class="widget-content" style="position:relative;">
                 <canvas id="topProductsChart" width="400" height="300"></canvas>
             </div>
         </div>
@@ -186,7 +187,7 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
             <div class="widget-header">
                 <h3>Phân loại đơn hàng</h3>
             </div>
-            <div class="widget-content">
+            <div class="widget-content" style="position:relative;">
                 <canvas id="ordersStatusChart" width="400" height="300"></canvas>
             </div>
         </div>

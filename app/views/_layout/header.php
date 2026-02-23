@@ -1,4 +1,8 @@
     <!-- Top Banner -->
+<?php
+// Initialize authentication state for header
+$isAuthenticated = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+?>
     <div class="top-banner">
         <div class="container">
             <p>Chào mừng đến với ThuongLo! Nền tảng data nguồn hàng và dịch vụ thương mại xuyên biên giới hàng đầu. <a href="?page=products">Khám phá ngay!</a></p>
