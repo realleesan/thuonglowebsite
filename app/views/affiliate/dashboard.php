@@ -4,10 +4,10 @@
  * Trang tổng quan hệ thống đại lý
  */
 
-// 1. Khởi tạo View & ServiceManager
-require_once __DIR__ . '/../../../core/view_init.php';
+// Make global services available in view scope
+global $affiliateService, $currentService;
 
-// 2. Chọn service affiliate (được inject từ index.php)
+// Chọn service affiliate (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
 // Nếu không có AffiliateService, dừng sớm để tránh lỗi
@@ -47,7 +47,12 @@ $conversionChart = ['labels' => [], 'data' => []];
 
 try {
     // Get current affiliate ID from session
-$affiliateId = $_SESSION['user_id'] ?? 0;
+    $affiliateId = $_SESSION['user_id'] ?? 0;
+    
+    // Validate affiliate is logged in
+    if ($affiliateId <= 0) {
+        throw new Exception('Vui lòng đăng nhập để xem dashboard');
+    }
     
     // Get dashboard data từ AffiliateService
     $dashboardData = $service->getDashboardData($affiliateId);

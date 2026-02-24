@@ -16,12 +16,23 @@ $wallet = [
     'total_withdrawn' => 0
 ];
 $bankAccounts = [];
-$withdrawalSettings = ['min_amount' => 100000, 'fee_percentage' => 2];
+$withdrawalSettings = [
+    'min_amount' => 100000,
+    'max_amount' => 10000000,
+    'fee_percentage' => 0,
+    'processing_time' => '1-3 ngày làm việc',
+    'rules' => []
+];
 
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để rút tiền');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -37,6 +48,12 @@ try {
             'balance' => $financeData['balance'] ?? 0,
             'total_withdrawn' => $financeData['paid_commission'] ?? 0
         ];
+        
+        // Get withdrawal settings from service
+        $withdrawalSettings = $service->getWithdrawalSettings($affiliateId) ?? $withdrawalSettings;
+        
+        // Get bank accounts from service
+        $bankAccounts = $service->getBankList($affiliateId) ?? [];
     }
 } catch (Exception $e) {
     $errorHandler->handleViewError($e, 'affiliate_withdraw', []);
@@ -44,13 +61,6 @@ try {
 
 // Generate withdrawal reference code
 $withdrawalCode = 'WD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
-
-// Include master layout
-ob_start();
-?>
-
-// Page title
-$page_title = 'Yêu cầu rút tiền';
 
 // Include master layout
 ob_start();
@@ -180,8 +190,8 @@ ob_start();
                 </div>
                 <small class="form-help">
                     <i class="fas fa-info-circle"></i>
-                    Tối thiểu: <?php echo number_format($withdrawalSettings['min_amount']); ?> đ - 
-                    Tối đa: <?php echo number_format($withdrawalSettings['max_amount']); ?> đ
+                    Tối thiểu: <?php echo number_format($withdrawalSettings['min_amount'] ?? 100000); ?> đ - 
+                    Tối đa: <?php echo number_format($withdrawalSettings['max_amount'] ?? 10000000); ?> đ
                 </small>
             </div>
 
@@ -245,7 +255,21 @@ ob_start();
     </div>
     <div class="info-card-body">
         <ul class="rules-list">
-            <?php foreach ($withdrawalSettings['rules'] as $rule): ?>
+            <?php 
+            // Build dynamic rules from settings
+            $rules = [];
+            if (!empty($withdrawalSettings['require_verification'])) {
+                $rules[] = 'Yêu cầu xác minh tài khoản trước khi rút tiền';
+            }
+            $minAmount = $withdrawalSettings['min_amount'] ?? 100000;
+            $maxAmount = $withdrawalSettings['max_amount'] ?? 10000000;
+            $rules[] = 'Số tiền rút tối thiểu là ' . number_format($minAmount) . ' VNĐ';
+            $rules[] = 'Số tiền rút tối đa là ' . number_format($maxAmount) . ' VNĐ';
+            $processingTime = $withdrawalSettings['processing_time'] ?? '1-3 ngày làm việc';
+            $rules[] = 'Thời gian xử lý từ ' . $processingTime;
+            
+            foreach ($rules as $rule): 
+            ?>
             <li class="rule-item">
                 <i class="fas fa-check-circle"></i>
                 <span><?php echo htmlspecialchars($rule); ?></span>
@@ -260,7 +284,7 @@ ob_start();
     <i class="fas fa-clock"></i>
     <div class="alert-content">
         <strong>Thời gian xử lý:</strong>
-        <p>Yêu cầu rút tiền sẽ được xử lý trong vòng <?php echo htmlspecialchars($withdrawalSettings['processing_time']); ?>. 
+        <p>Yêu cầu rút tiền sẽ được xử lý trong vòng <?php echo htmlspecialchars($withdrawalSettings['processing_time'] ?? '1-3 ngày làm việc'); ?>. 
         Tiền sẽ được chuyển vào tài khoản ngân hàng của bạn sau khi được duyệt.</p>
     </div>
 </div>

@@ -25,7 +25,12 @@ $customers = [$customer];
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để xem chi tiết khách hàng');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -33,6 +38,9 @@ try {
             'name' => '',
             'email' => ''
         ];
+        
+        // Get commission rate from service or settings
+        $commissionRate = $service->getCommissionRate($affiliateId) ?? 0.10;
         
         // Get customer ID from URL
         $customerId = (int)($_GET['id'] ?? 0);
@@ -247,8 +255,11 @@ ob_start();
                         <?php 
                         $totalOrderAmount = 0;
                         $totalOrderCommission = 0;
+                        $commissionRate = $commissionRate ?? 0.10; // Default 10% if not set
                         foreach ($customer['orders'] as $order): 
-                            $commission = $order['amount'] * 0.10; // 10% commission
+                            // Get commission rate from order data or use default
+                            $orderCommissionRate = $order['commission_rate'] ?? $commissionRate;
+                            $commission = $order['amount'] * $orderCommissionRate;
                             $totalOrderAmount += $order['amount'];
                             $totalOrderCommission += $commission;
                         ?>
@@ -289,7 +300,7 @@ ob_start();
                                     <span class="commission-amount">
                                         <?php echo number_format($commission); ?>đ
                                     </span>
-                                    <span class="commission-rate">(10%)</span>
+                                    <span class="commission-rate">(<?php echo ($orderCommissionRate * 100); ?>%)</span>
                                 </div>
                             </td>
 
@@ -407,7 +418,7 @@ ob_start();
                     </div>
                     <div class="metric-content">
                         <div class="metric-label">Tỷ lệ hoa hồng</div>
-                        <div class="metric-value">10%</div>
+                        <div class="metric-value"><?php echo ($commissionRate * 100); ?>%</div>
                         <div class="metric-description">Hoa hồng trên mỗi đơn</div>
                     </div>
                 </div>

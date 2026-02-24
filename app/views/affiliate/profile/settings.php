@@ -21,7 +21,12 @@ $profileData = [
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để xem hồ sơ');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -31,10 +36,16 @@ try {
         ];
         
         $profileData = $dashboardData['affiliate'] ?? $profileData;
+        
+        // Get bank list from service
+        $bankList = $service->getBankList($affiliateId) ?? [
+            'Vietcombank', 'Techcombank', 'VietinBank', 'BIDV', 'ACB', 'MB Bank', 'VPBank'
+        ];
     }
 } catch (Exception $e) {
     $errorHandler->handleViewError($e, 'affiliate_profile', []);
     error_log('Profile Settings Error: ' . $e->getMessage());
+    $bankList = ['Vietcombank', 'Techcombank', 'VietinBank', 'BIDV', 'ACB', 'MB Bank', 'VPBank'];
 }
 
 // Page title
@@ -142,7 +153,7 @@ ob_start();
                             <label class="form-label">Ngày Tham Gia</label>
                             <input type="text" 
                                    class="form-input" 
-                                   value="<?php echo date('d/m/Y', strtotime($profileData['joined_date'])); ?>"
+                                   value="<?php echo isset($profileData['joined_date']) ? date('d/m/Y', strtotime($profileData['joined_date'])) : 'N/A'; ?>"
                                    readonly>
                         </div>
                     </div>
@@ -151,7 +162,7 @@ ob_start();
                         <label class="form-label">Địa Chỉ</label>
                         <textarea class="form-textarea" 
                                   name="address" 
-                                  rows="3"><?php echo htmlspecialchars($profileData['address']); ?></textarea>
+                                  rows="3"><?php echo htmlspecialchars($profileData['address'] ?? ''); ?></textarea>
                     </div>
 
                     <!-- Affiliate Info (Read-only) -->
@@ -164,7 +175,7 @@ ob_start();
                             <div class="info-row">
                                 <span class="info-label">Affiliate ID:</span>
                                 <span class="info-value">
-                                    <code><?php echo htmlspecialchars($profileData['affiliate_id']); ?></code>
+                                    <code><?php echo htmlspecialchars($profileData['affiliate_id'] ?? 'N/A'); ?></code>
                                 </span>
                             </div>
                             <div class="info-row">
@@ -218,13 +229,9 @@ ob_start();
                         <label class="form-label required">Tên Ngân Hàng</label>
                         <select class="form-select" name="bank_name" required>
                             <option value="">-- Chọn ngân hàng --</option>
-                            <option value="Vietcombank" <?php echo $profileData['bank_info']['bank_name'] === 'Vietcombank' ? 'selected' : ''; ?>>Vietcombank</option>
-                            <option value="Techcombank" <?php echo $profileData['bank_info']['bank_name'] === 'Techcombank' ? 'selected' : ''; ?>>Techcombank</option>
-                            <option value="VietinBank" <?php echo $profileData['bank_info']['bank_name'] === 'VietinBank' ? 'selected' : ''; ?>>VietinBank</option>
-                            <option value="BIDV" <?php echo $profileData['bank_info']['bank_name'] === 'BIDV' ? 'selected' : ''; ?>>BIDV</option>
-                            <option value="ACB" <?php echo $profileData['bank_info']['bank_name'] === 'ACB' ? 'selected' : ''; ?>>ACB</option>
-                            <option value="MB Bank" <?php echo $profileData['bank_info']['bank_name'] === 'MB Bank' ? 'selected' : ''; ?>>MB Bank</option>
-                            <option value="VPBank" <?php echo $profileData['bank_info']['bank_name'] === 'VPBank' ? 'selected' : ''; ?>>VPBank</option>
+                            <?php foreach ($bankList as $bank): ?>
+                            <option value="<?php echo htmlspecialchars($bank); ?>" <?php echo ($profileData['bank_info']['bank_name'] ?? '') === $bank ? 'selected' : ''; ?>><?php echo htmlspecialchars($bank); ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
 

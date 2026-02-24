@@ -206,6 +206,18 @@ switch($page) {
     case 'agent':
         // Agent registration routes
         $action = $_GET['action'] ?? '';
+        
+        // Check if user is logged in as admin - allow direct access
+        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $userRole = $_SESSION['user_role'] ?? '';
+            if ($userRole === 'admin') {
+                // Admin can access affiliate dashboard directly
+                // Redirect to affiliate page
+                header('Location: ?page=affiliate');
+                exit;
+            }
+        }
+        
         require_once 'app/controllers/AffiliateController.php';
         $agentController = new AffiliateController();
         
@@ -691,21 +703,17 @@ switch($page) {
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
         
-        // Check authentication and affiliate role
+        // Check if user is logged in
         if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
             header('Location: ?page=login');
             exit;
         }
         
-        // Check if user has affiliate role
-        $authMiddleware = new AuthMiddleware();
-        if (!$authMiddleware->requireAffiliate()) {
-            // Redirect to appropriate dashboard based on role
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
-                header('Location: ?page=admin');
-            } else {
-                header('Location: ?page=users');
-            }
+        // Check user role - allow admin or affiliate
+        $userRole = $_SESSION['user_role'] ?? '';
+        if ($userRole !== 'admin' && $userRole !== 'affiliate') {
+            // Not an affiliate - redirect to users page
+            header('Location: ?page=users');
             exit;
         }
         
@@ -718,7 +726,7 @@ switch($page) {
             case 'dashboard':
             default:
                 // Use controller for dashboard
-                require_once 'app/controllers/AffiliateController.php';
+                require_once __DIR__ . '/app/controllers/AffiliateController.php';
                 $affiliateController = new AffiliateController();
                 $affiliateController->dashboard();
                 exit;

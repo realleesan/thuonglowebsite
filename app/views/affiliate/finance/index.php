@@ -22,7 +22,12 @@ $transactions = [];
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để xem tài chính');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -36,9 +41,17 @@ try {
         
         $wallet = [
             'balance' => $financeData['balance'] ?? 0,
-            'total_earned' => $financeData['pending_commission'] + $financeData['paid_commission'],
+            'total_earned' => ($financeData['pending_commission'] ?? 0) + ($financeData['paid_commission'] ?? 0),
             'total_withdrawn' => $financeData['paid_commission'] ?? 0,
             'pending' => $financeData['pending_commission'] ?? 0
+        ];
+        
+        // Get withdrawal settings from service
+        $withdrawalSettings = $service->getWithdrawalSettings($affiliateId) ?? [
+            'min_amount' => 100000,
+            'max_amount' => 10000000,
+            'fee_percentage' => 0,
+            'processing_time' => '1-3 ngày làm việc'
         ];
     }
 } catch (Exception $e) {
@@ -46,11 +59,15 @@ try {
     error_log('Finance Error: ' . $e->getMessage());
 }
 
-$withdrawalSettings = [
-    'min_amount' => 100000,
-    'max_amount' => 10000000,
-    'fee_percentage' => 2
-];
+// Fallback default settings if not available from service
+if (!isset($withdrawalSettings)) {
+    $withdrawalSettings = [
+        'min_amount' => 100000,
+        'max_amount' => 10000000,
+        'fee_percentage' => 0,
+        'processing_time' => '1-3 ngày làm việc'
+    ];
+}
 
 // Page title
 $page_title = 'Ví của tôi';
@@ -99,7 +116,7 @@ ob_start();
         </div>
         <div class="stat-content">
             <div class="stat-label">Đang xử lý</div>
-            <div class="stat-value"><?php echo number_format($wallet['frozen']); ?> đ</div>
+            <div class="stat-value"><?php echo number_format($wallet['frozen'] ?? 0); ?> đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Lệnh rút đang chờ</span>
             </div>
@@ -139,7 +156,7 @@ ob_start();
             </div>
             <div class="info-item">
                 <div class="info-label">Thời gian xử lý</div>
-                <div class="info-value"><?php echo htmlspecialchars($withdrawalSettings['processing_time']); ?></div>
+                <div class="info-value"><?php echo htmlspecialchars($withdrawalSettings['processing_time'] ?? '1-3 ngày làm việc'); ?></div>
             </div>
             <div class="info-item">
                 <div class="info-label">Phí rút tiền</div>

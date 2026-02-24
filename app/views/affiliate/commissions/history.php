@@ -17,7 +17,12 @@ $overview = [];
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để xem lịch sử hoa hồng');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -43,11 +48,6 @@ $page_title = 'Lịch sử hoa hồng';
 $page_module = 'commissions';
 $page_action = 'history';
 
-// Include master layout
-ob_start();
-?>
-
-// Include master layout
 ob_start();
 ?>
 
@@ -89,9 +89,14 @@ ob_start();
                 <div class="filter-item">
                     <label class="filter-label">Năm</label>
                     <select class="form-control" name="year" id="filterYear">
-                        <option value="2024" selected>2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
+                        <option value="">Tất cả</option>
+                        <?php 
+                        $currentYear = date('Y');
+                        for ($year = $currentYear; $year >= $currentYear - 5; $year--) {
+                            $selected = ($year == $currentYear) ? 'selected' : '';
+                            echo "<option value=\"$year\" $selected>$year</option>";
+                        }
+                        ?>
                     </select>
                 </div>
 
@@ -358,11 +363,15 @@ function resetFilters() {
 }
 
 function viewCommissionDetail(id) {
-    showAlert('Chức năng xem chi tiết đang được phát triển', 'info');
+    // TODO: Implement AJAX call to fetch commission details
+    console.log('View commission detail:', id);
+    showAlert('Chi tiết hoa hồng #' + id, 'info');
 }
 
 function exportCommissions() {
-    showAlert('Chức năng xuất Excel đang được phát triển', 'info');
+    // TODO: Implement Excel export via API
+    console.log('Export commissions');
+    showAlert('Tính năng xuất Excel sẽ sớm khả dụng', 'info');
 }
 </script>
 

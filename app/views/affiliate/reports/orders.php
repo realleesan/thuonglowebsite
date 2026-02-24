@@ -21,7 +21,12 @@ $ordersByProduct = [];
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để xem báo cáo');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -36,6 +41,11 @@ try {
         $totalRevenue = $stats['total_revenue'] ?? 0;
         $totalCommission = $stats['total_commission'] ?? 0;
         $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+        
+        // Get orders data from service
+        $ordersData = $service->getOrdersData($affiliateId);
+        $ordersByDate = $ordersData['by_date'] ?? [];
+        $ordersByProduct = $ordersData['by_product'] ?? [];
     }
 } catch (Exception $e) {
     $errorHandler->handleViewError($e, 'affiliate_reports_orders', []);
@@ -45,11 +55,6 @@ try {
 $page_title = 'Báo Cáo Đơn Hàng';
 $load_chartjs = true;
 
-// Include master layout
-ob_start();
-?>
-
-// Include master layout
 ob_start();
 ?>
 

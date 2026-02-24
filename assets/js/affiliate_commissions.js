@@ -61,18 +61,133 @@
     };
     
     /**
-     * Export commissions (placeholder)
+     * Export commissions to Excel
      */
     window.exportCommissions = function() {
-        alert('Chức năng xuất Excel đang được phát triển');
+        const monthFilter = document.getElementById('monthFilter')?.value || '';
+        const yearFilter = document.getElementById('yearFilter')?.value || '';
+        const statusFilter = document.getElementById('statusFilter')?.value || '';
+        const typeFilter = document.getElementById('typeFilter')?.value || '';
+        
+        const params = new URLSearchParams();
+        if (monthFilter) params.append('month', monthFilter);
+        if (yearFilter) params.append('year', yearFilter);
+        if (statusFilter) params.append('status', statusFilter);
+        if (typeFilter) params.append('type', typeFilter);
+        params.append('export', '1');
+        
+        // Redirect to export endpoint
+        window.location.href = '/api/affiliate/commissions/export?' + params.toString();
     };
     
     /**
-     * View commission detail (placeholder)
+     * View commission detail via API
      */
     window.viewCommissionDetail = function(id) {
-        alert('Xem chi tiết hoa hồng #' + id);
+        if (!id) return;
+        
+        // Show loading
+        const modal = document.getElementById('commissionDetailModal');
+        const modalContent = document.getElementById('commissionDetailContent');
+        
+        if (!modal || !modalContent) {
+            // Fallback: redirect to detail page
+            window.location.href = '?page=affiliate&module=commissions&action=detail&id=' + id;
+            return;
+        }
+        
+        modalContent.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>';
+        modal.style.display = 'flex';
+        
+        fetch('/api/affiliate/commissions/' + id)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.commission) {
+                const c = data.commission;
+                modalContent.innerHTML = `
+                    <div class="detail-header">
+                        <h3>Chi tiết hoa hồng #${c.id}</h3>
+                        <span class="badge badge-${c.status === 'completed' ? 'success' : (c.status === 'pending' ? 'warning' : 'error')}">${getStatusText(c.status)}</span>
+                    </div>
+                    <div class="detail-body">
+                        <div class="detail-row">
+                            <span class="label">Loại:</span>
+                            <span class="value">${c.type === 'logistics' ? 'Logistics' : 'Data Subscription'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Số tiền đơn hàng:</span>
+                            <span class="value">${formatNumber(c.order_amount)} đ</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Hoa hồng:</span>
+                            <span class="value highlight">${formatNumber(c.commission_amount)} đ</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Tỷ lệ:</span>
+                            <span class="value">${(c.commission_rate * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Đơn hàng ID:</span>
+                            <span class="value">#${c.order_id}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Khách hàng:</span>
+                            <span class="value">${c.customer_name || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Ngày tạo:</span>
+                            <span class="value">${c.created_at}</span>
+                        </div>
+                        ${c.completed_at ? `
+                        <div class="detail-row">
+                            <span class="label">Ngày hoàn thành:</span>
+                            <span class="value">${c.completed_at}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="detail-footer">
+                        <button onclick="closeCommissionDetailModal()" class="btn btn-secondary">Đóng</button>
+                    </div>
+                `;
+            } else {
+                modalContent.innerHTML = '<div class="error-message">Không thể tải thông tin hoa hồng</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading commission detail:', error);
+            modalContent.innerHTML = '<div class="error-message">Lỗi kết nối. Vui lòng thử lại.</div>';
+        });
     };
+    
+    /**
+     * Close commission detail modal
+     */
+    window.closeCommissionDetailModal = function() {
+        const modal = document.getElementById('commissionDetailModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+    
+    /**
+     * Get status text in Vietnamese
+     */
+    function getStatusText(status) {
+        const statusMap = {
+            'pending': 'Chờ xử lý',
+            'completed': 'Hoàn thành',
+            'cancelled': 'Đã hủy',
+            'processing': 'Đang xử lý'
+        };
+        return statusMap[status] || status;
+    }
+    
+    /**
+     * Format number with thousand separators
+     */
+    function formatNumber(number) {
+        return new Intl.NumberFormat('vi-VN').format(number);
+    }
     
     /**
      * Initialize commissions module
@@ -90,6 +205,16 @@
         if (yearFilter) yearFilter.addEventListener('change', filterCommissions);
         if (statusFilter) statusFilter.addEventListener('change', filterCommissions);
         if (typeFilter) typeFilter.addEventListener('change', filterCommissions);
+        
+        // Close modal on outside click
+        const modal = document.getElementById('commissionDetailModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeCommissionDetailModal();
+                }
+            });
+        }
     }
     
     // Initialize when DOM is ready

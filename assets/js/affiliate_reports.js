@@ -9,13 +9,148 @@
     // ===================================
     // Export Functions
     // ===================================
+    
+    /**
+     * Export clicks report to Excel via API
+     */
     window.exportClicksReport = function() {
-        showAlert('Tính năng xuất báo cáo đang được phát triển', 'info');
+        const dateFrom = document.getElementById('dateFrom')?.value || '';
+        const dateTo = document.getElementById('dateTo')?.value || '';
+        const sourceFilter = document.getElementById('sourceFilter')?.value || '';
+        
+        const params = new URLSearchParams();
+        if (dateFrom) params.append('date_from', dateFrom);
+        if (dateTo) params.append('date_to', dateTo);
+        if (sourceFilter) params.append('source', sourceFilter);
+        params.append('export', '1');
+        
+        // Redirect to export endpoint
+        window.location.href = '/api/affiliate/reports/clicks/export?' + params.toString();
     };
 
+    /**
+     * Export orders report to Excel via API
+     */
     window.exportOrdersReport = function() {
-        showAlert('Tính năng xuất báo cáo đang được phát triển', 'info');
+        const dateFrom = document.getElementById('dateFrom')?.value || '';
+        const dateTo = document.getElementById('dateTo')?.value || '';
+        const statusFilter = document.getElementById('statusFilter')?.value || '';
+        
+        const params = new URLSearchParams();
+        if (dateFrom) params.append('date_from', dateFrom);
+        if (dateTo) params.append('date_to', dateTo);
+        if (statusFilter) params.append('status', statusFilter);
+        params.append('export', '1');
+        
+        // Redirect to export endpoint
+        window.location.href = '/api/affiliate/reports/orders/export?' + params.toString();
     };
+    
+    /**
+     * Refresh clicks data via API
+     */
+    window.refreshClicksData = function() {
+        const container = document.getElementById('clicksDataContainer');
+        if (!container) {
+            showAlert('Không tìm thấy container dữ liệu', 'error');
+            return;
+        }
+        
+        showLoading();
+        
+        fetch('/api/affiliate/reports/clicks/data')
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                // Update summary cards
+                updateSummaryCard('totalClicks', data.total_clicks);
+                updateSummaryCard('uniqueClicks', data.unique_clicks);
+                updateSummaryCard('clickRate', data.click_rate + '%');
+                
+                // Update chart if exists
+                if (data.chart_data && window.clicksChart) {
+                    window.clicksChart.data.labels = data.chart_data.labels;
+                    window.clicksChart.data.datasets[0].data = data.chart_data.clicks;
+                    window.clicksChart.data.datasets[1].data = data.chart_data.unique;
+                    window.clicksChart.update();
+                }
+                
+                showAlert('Đã làm mới dữ liệu', 'success');
+            } else {
+                showAlert('Không thể làm mới dữ liệu', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Lỗi kết nối', 'error');
+            console.error('Refresh error:', error);
+        });
+    };
+    
+    /**
+     * Refresh orders data via API
+     */
+    window.refreshOrdersData = function() {
+        const container = document.getElementById('ordersDataContainer');
+        if (!container) {
+            showAlert('Không tìm thấy container dữ liệu', 'error');
+            return;
+        }
+        
+        showLoading();
+        
+        fetch('/api/affiliate/reports/orders/data')
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                // Update summary cards
+                updateSummaryCard('totalOrders', data.total_orders);
+                updateSummaryCard('totalRevenue', formatNumber(data.total_revenue) + ' đ');
+                updateSummaryCard('totalCommission', formatNumber(data.total_commission) + ' đ');
+                
+                // Update chart if exists
+                if (data.chart_data && window.revenueChart) {
+                    window.revenueChart.data.labels = data.chart_data.labels;
+                    window.revenueChart.data.datasets[0].data = data.chart_data.revenue;
+                    window.revenueChart.data.datasets[1].data = data.chart_data.commission;
+                    window.revenueChart.update();
+                }
+                
+                showAlert('Đã làm mới dữ liệu', 'success');
+            } else {
+                showAlert('Không thể làm mới dữ liệu', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Lỗi kết nối', 'error');
+            console.error('Refresh error:', error);
+        });
+    };
+    
+    /**
+     * Update summary card value
+     */
+    function updateSummaryCard(id, value) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = value;
+            // Add animation
+            el.style.color = '#10B981';
+            setTimeout(() => {
+                el.style.color = '';
+            }, 1000);
+        }
+    }
+    
+    /**
+     * Format number with thousand separators
+     */
+    function formatNumber(number) {
+        return new Intl.NumberFormat('vi-VN').format(number);
+    }
 
     // ===================================
     // Charts Initialization
@@ -28,7 +163,7 @@
         const clicks = JSON.parse(clicksByDateCanvas.dataset.clicks || '[]');
         const unique = JSON.parse(clicksByDateCanvas.dataset.unique || '[]');
         
-        new Chart(clicksByDateCanvas, {
+        window.clicksChart = new Chart(clicksByDateCanvas, {
             type: 'line',
             data: {
                 labels: labels.map(date => {
@@ -118,7 +253,7 @@
         const revenue = JSON.parse(revenueByDateCanvas.dataset.revenue || '[]');
         const commission = JSON.parse(revenueByDateCanvas.dataset.commission || '[]');
         
-        new Chart(revenueByDateCanvas, {
+        window.revenueChart = new Chart(revenueByDateCanvas, {
             type: 'bar',
             data: {
                 labels: labels.map(date => {

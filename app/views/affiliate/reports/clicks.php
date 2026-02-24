@@ -19,7 +19,12 @@ $clicksBySource = [];
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để xem báo cáo');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -31,7 +36,13 @@ try {
         $stats = $dashboardData['stats'] ?? [];
         
         $totalClicks = $stats['total_clicks'] ?? 0;
-        $uniqueClicks = (int)($totalClicks * 0.6);
+        // Get unique clicks from database, fallback to calculation only if not available
+        $uniqueClicks = $stats['unique_clicks'] ?? (int)($totalClicks * 0.6);
+        
+        // Get clicks data from service
+        $clicksData = $service->getClicksData($affiliateId);
+        $clicksByDate = $clicksData['by_date'] ?? [];
+        $clicksBySource = $clicksData['by_source'] ?? [];
     }
 } catch (Exception $e) {
     $errorHandler->handleViewError($e, 'affiliate_reports_clicks', []);

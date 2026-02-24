@@ -26,7 +26,12 @@ $history = [];
 try {
     if ($service) {
         // Get current affiliate ID from session
-        $affiliateId = $_SESSION['user_id'] ?? 1;
+        $affiliateId = $_SESSION['user_id'] ?? 0;
+        
+        // Validate affiliate is logged in
+        if ($affiliateId <= 0) {
+            throw new Exception('Vui lòng đăng nhập để xem hoa hồng');
+        }
         
         // Get dashboard data FIRST for affiliate info (needed by header)
         $dashboardData = $service->getDashboardData($affiliateId);
@@ -42,8 +47,10 @@ try {
         $overview['pending_commission'] = $commissionsData['pending_commission'] ?? 0;
         $overview['paid_commission'] = $commissionsData['paid_commission'] ?? 0;
         $overview['total_earned'] = $overview['total_commission'];
-        $overview['from_subscription'] = $overview['total_commission'] * 0.7;
-        $overview['from_logistics'] = $overview['total_commission'] * 0.3;
+        
+        // Get subscription vs logistics breakdown from database
+        $overview['from_subscription'] = $commissionsData['from_subscription'] ?? ($overview['total_commission'] * 0.7);
+        $overview['from_logistics'] = $commissionsData['from_logistics'] ?? ($overview['total_commission'] * 0.3);
         $overview['pending'] = $overview['pending_commission'];
         $overview['paid'] = $overview['paid_commission'];
     }
@@ -144,7 +151,10 @@ ob_start();
                         </div>
                         <div class="commission-breakdown-percentage">
                             <?php 
-                            $subscriptionPercent = ($overview['from_subscription'] / $overview['total_earned']) * 100;
+                            $subscriptionPercent = 0;
+                            if (isset($overview['total_earned']) && $overview['total_earned'] > 0) {
+                                $subscriptionPercent = ($overview['from_subscription'] / $overview['total_earned']) * 100;
+                            }
                             echo number_format($subscriptionPercent, 1); 
                             ?>% tổng hoa hồng
                         </div>
@@ -169,7 +179,10 @@ ob_start();
                         </div>
                         <div class="commission-breakdown-percentage">
                             <?php 
-                            $logisticsPercent = ($overview['from_logistics'] / $overview['total_earned']) * 100;
+                            $logisticsPercent = 0;
+                            if (isset($overview['total_earned']) && $overview['total_earned'] > 0) {
+                                $logisticsPercent = ($overview['from_logistics'] / $overview['total_earned']) * 100;
+                            }
                             echo number_format($logisticsPercent, 1); 
                             ?>% tổng hoa hồng
                         </div>

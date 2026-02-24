@@ -420,35 +420,28 @@ class AffiliateController {
      * Render view with data
      */
     private function renderView(string $view, array $data = []): void {
-        // Set up view data for layout
-        $viewData = $data;
+        // Check and set the view file path
+        $viewFile = __DIR__ . "/../views/{$view}.php";
         
         // Set layout variables
-        $content = __DIR__ . "/../views/{$view}.php";
-        $title = $data['page_title'] ?? 'Đăng ký đại lý';
+        $title = $data['page_title'] ?? 'Đại lý';
         $showPageHeader = false;
         $showCTA = false;
         $showBreadcrumb = true;
-        
-        // Set current page for CSS/JS loading
-        $currentPage = 'agent';
+        $currentPage = 'affiliate';
         $breadcrumbs = [
             ['title' => 'Trang chủ', 'url' => './'],
-            ['title' => 'Đăng ký đại lý']
+            ['title' => 'Đại lý']
         ];
         
         // Check if view file exists
-        if (!file_exists($content)) {
-            throw new Exception("View file not found: {$view}");
+        if (!file_exists($viewFile)) {
+            echo "View file not found: {$viewFile}";
+            return;
         }
         
-        // Include master layout
-        $masterLayout = __DIR__ . '/../views/_layout/master.php';
-        if (!file_exists($masterLayout)) {
-            throw new Exception("Master layout not found: {$masterLayout}");
-        }
-        
-        include $masterLayout;
+        // Include view file directly - it will be wrapped by the layout
+        include $viewFile;
     }
     
     /**
@@ -547,32 +540,23 @@ class AffiliateController {
     }
 
     public function dashboard(): void {
-        if (!$this->requireAffiliate()) {
-            return;
+        try {
+            if (!$this->requireAffiliate()) {
+                return;
+            }
+
+            $data = [
+                'title' => 'Affiliate Dashboard',
+                'user' => $this->getCurrentUser()
+            ];
+
+            $this->renderView('affiliate/dashboard', $data);
+        } catch (Exception $e) {
+            echo 'Error in dashboard: ' . $e->getMessage();
         }
-
-        $data = [
-            'title' => 'Affiliate Dashboard',
-            'user' => $this->getCurrentUser()
-        ];
-
-        $this->renderView('affiliate/dashboard', $data);
-    }
-    public function requireAffiliate(): bool {
-        if (!$this->checkAuth()) {
-            return false;
-        }
-
-        $user = $this->getCurrentUser();
-        if (!$user || !in_array($user['role'], ['admin', 'affiliate'])) {
-            $this->setFlashMessage('error', 'Bạn không có quyền truy cập trang này');
-            $this->redirect('./');
-            return false;
-        }
-
-        return true;
     }
 
+    // Other methods follow
     
     /**
      * Get CSRF token for forms

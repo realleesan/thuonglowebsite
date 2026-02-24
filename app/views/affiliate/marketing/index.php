@@ -26,6 +26,11 @@ try {
             // Get dashboard data từ AffiliateService
             $dashboardData = $service->getDashboardData($affiliateId);
             $affiliateInfo = $dashboardData['affiliate'] ?? $affiliateInfo;
+            
+            // Get marketing data from service (banners, campaigns)
+            $marketingData = $service->getMarketingData($affiliateId);
+            $banners = $marketingData['banners'] ?? [];
+            $campaigns = $marketingData['campaigns'] ?? [];
         }
     }
     
@@ -38,27 +43,28 @@ try {
     $errorHandler->handleViewError($e, 'affiliate_marketing', []);
     $affiliateLink = '';
     $qrCodeUrl = '';
+    $banners = [];
+    $campaigns = [];
 }
 
-// Include master layout
-ob_start();
-?>
-
-$banners = [
-    ['id' => 1, 'name' => 'Banner 728x90', 'size' => '728x90', 'url' => 'assets/images/banners/728x90.jpg'],
-    ['id' => 2, 'name' => 'Banner 300x250', 'size' => '300x250', 'url' => 'assets/images/banners/300x250.jpg']
-];
+// Set page variables - fallback default banners if not available
+if (empty($banners)) {
+    $banners = [
+        ['id' => 1, 'name' => 'Banner 728x90', 'size' => '728x90', 'url' => 'assets/images/banners/728x90.jpg'],
+        ['id' => 2, 'name' => 'Banner 300x250', 'size' => '300x250', 'url' => 'assets/images/banners/300x250.jpg']
+    ];
+}
 
 $socialShare = [
-    'facebook' => "https://www.facebook.com/sharer/sharer.php?u=" . urlencode($affiliateLink),
-    'twitter' => "https://twitter.com/intent/tweet?url=" . urlencode($affiliateLink),
-    'linkedin' => "https://www.linkedin.com/sharing/share-offsite/?url=" . urlencode($affiliateLink)
+    'facebook' => !empty($affiliateLink) ? "https://www.facebook.com/sharer/sharer.php?u=" . urlencode($affiliateLink) : '',
+    'twitter' => !empty($affiliateLink) ? "https://twitter.com/intent/tweet?url=" . urlencode($affiliateLink) : '',
+    'linkedin' => !empty($affiliateLink) ? "https://www.linkedin.com/sharing/share-offsite/?url=" . urlencode($affiliateLink) : '',
+    'email' => !empty($affiliateLink) ? "mailto:?subject=Đăng ký ngay&body=Đăng ký qua link của tôi: " . urlencode($affiliateLink) : ''
 ];
 
 // Page title
 $page_title = 'Công cụ Marketing';
 
-// Include master layout
 ob_start();
 ?>
 

@@ -65,8 +65,158 @@
             if (notificationsDropdown) {
                 notificationsDropdown.classList.toggle('show');
             }
+            
+            // Load notifications via AJAX if opening for first time
+            if (notificationsDropdown && !notificationsDropdown.classList.contains('loaded')) {
+                loadNotifications();
+            }
         });
     }
+    
+    // Load notifications via AJAX
+    window.loadNotifications = function() {
+        const notificationsDropdown = document.querySelector('.notifications-dropdown .dropdown-body');
+        if (!notificationsDropdown) return;
+        
+        fetch('/api/affiliate/notifications')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.notifications) {
+                renderNotifications(data.notifications, data.unread_count);
+                if (notificationsDropdown.parentElement) {
+                    notificationsDropdown.parentElement.classList.add('loaded');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading notifications:', error);
+        });
+    };
+    
+    // Render notifications
+    window.renderNotifications = function(notifications, unreadCount) {
+        const notificationsDropdown = document.querySelector('.notifications-dropdown .dropdown-body');
+        const badge = document.querySelector('#notificationsBtn .badge');
+        
+        // Update badge
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        if (!notificationsDropdown) return;
+        
+        if (!notifications || notifications.length === 0) {
+            notificationsDropdown.innerHTML = `
+                <div class="notification-empty">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>Không có thông báo nào</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        notifications.forEach(notif => {
+            const iconClass = getNotificationIcon(notif.type);
+            const timeAgo = getTimeAgo(notif.created_at);
+            
+            html += `
+                <div class="notification-item${notif.is_read ? '' : ' unread'}">
+                    <div class="notification-icon">
+                        <i class="fas ${iconClass}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <p class="notification-text">${escapeHtml(notif.message || notif.title || '')}</p>
+                        <span class="notification-time">${timeAgo}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        notificationsDropdown.innerHTML = html;
+    };
+    
+    // Get notification icon based on type
+    function getNotificationIcon(type) {
+        const icons = {
+            'commission': 'fa-dollar-sign text-success',
+            'success': 'fa-dollar-sign text-success',
+            'customer': 'fa-user-plus text-info',
+            'user': 'fa-user-plus text-info',
+            'order': 'fa-shopping-cart text-warning',
+            'error': 'fa-exclamation-circle text-danger',
+            'danger': 'fa-exclamation-circle text-danger',
+            'warning': 'fa-exclamation-triangle text-warning',
+            'info': 'fa-info-circle text-info'
+        };
+        return icons[type] || 'fa-info-circle text-info';
+    }
+    
+    // Get time ago string
+    function getTimeAgo(datetime) {
+        if (!datetime) return 'Vừa xong';
+        
+        const timestamp = new Date(datetime).getTime();
+        const diff = Math.floor((Date.now() - timestamp) / 1000);
+        
+        if (diff < 60) return 'Vừa xong';
+        if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
+        if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
+        if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
+        
+        return new Date(datetime).toLocaleDateString('vi-VN');
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Mark notification as read
+    window.markNotificationAsRead = function(notificationId) {
+        fetch('/api/affiliate/notifications/mark-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadNotifications();
+            }
+        })
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+        });
+    };
+    
+    // Mark all notifications as read
+    window.markAllNotificationsAsRead = function() {
+        fetch('/api/affiliate/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadNotifications();
+            }
+        })
+        .catch(error => {
+            console.error('Error marking all notifications as read:', error);
+        });
+    };
 
     // ===================================
     // User Menu Dropdown

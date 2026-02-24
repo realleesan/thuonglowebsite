@@ -7,7 +7,6 @@
 // Make global services available in view scope
 global $adminService, $currentService;
 
-// Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 // Nếu vì lý do nào đó không có AdminService, dừng sớm để tránh lỗi khó đoán

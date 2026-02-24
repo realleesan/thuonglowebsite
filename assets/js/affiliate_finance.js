@@ -1,6 +1,6 @@
 /**
  * Affiliate Finance Module JavaScript
- * Xử lý logic cho Ví ảo, Rút tiền, Webhook simulation
+ * Xử lý logic cho Ví ảo, Rút tiền, Commission
  */
 
 (function() {
@@ -53,7 +53,20 @@
     };
 
     window.exportTransactions = function() {
-        showAlert('Tính năng xuất Excel đang được phát triển', 'info');
+        const typeFilter = document.getElementById('transactionTypeFilter');
+        const statusFilter = document.getElementById('transactionStatusFilter');
+        
+        const params = new URLSearchParams();
+        if (typeFilter && typeFilter.value !== 'all') {
+            params.append('type', typeFilter.value);
+        }
+        if (statusFilter && statusFilter.value !== 'all') {
+            params.append('status', statusFilter.value);
+        }
+        params.append('export', '1');
+        
+        // Redirect to export endpoint
+        window.location.href = '/api/affiliate/transactions/export?' + params.toString();
     };
 
     // ===================================
@@ -169,13 +182,17 @@
                 return;
             }
             
-            if (amount < 500000) {
-                showError('Số tiền rút tối thiểu là 500,000 đ');
+            // Get withdrawal limits from DOM data attributes or use defaults
+            const minAmount = parseInt(document.getElementById('withdrawalAmount')?.dataset?.minAmount) || 100000;
+            const maxAmount = parseInt(document.getElementById('withdrawalAmount')?.dataset?.maxAmount) || 10000000;
+            
+            if (amount < minAmount) {
+                showError('Số tiền rút tối thiểu là ' + formatNumber(minAmount) + ' đ');
                 return;
             }
             
-            if (amount > 50000000) {
-                showError('Số tiền rút tối đa là 50,000,000 đ');
+            if (amount > maxAmount) {
+                showError('Số tiền rút tối đa là ' + formatNumber(maxAmount) + ' đ');
                 return;
             }
             
@@ -192,68 +209,86 @@
             // Show loading
             showLoading();
             
-            // Simulate API call
-            setTimeout(function() {
+            // Make actual API call
+            fetch('/api/affiliate/withdraw', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    bank_account: bankAccount,
+                    amount: amount,
+                    note: note
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
                 hideLoading();
-                
-                // Show success message with detailed info
-                const successMessage = `
-                    <div style="text-align: center;">
-                        <i class="fas fa-check-circle" style="font-size: 48px; color: #10B981; margin-bottom: 16px;"></i>
-                        <h3 style="margin: 0 0 12px 0; color: #111827;">Yêu cầu rút tiền đã được gửi!</h3>
-                        <p style="margin: 0 0 8px 0; color: #6B7280;">Số tiền: <strong>${formatNumber(amount)} đ</strong></p>
-                        <p style="margin: 0 0 16px 0; color: #6B7280;">Yêu cầu của bạn đã được gửi đến Admin để xử lý.</p>
-                        <div style="background: #FEF3C7; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-                            <p style="margin: 0; color: #92400E; font-size: 14px;">
-                                <i class="fas fa-clock"></i> 
-                                Thời gian xử lý: <strong>1-3 ngày làm việc</strong>
+                if (data.success) {
+                    // Show success
+                    const successMessage = `
+                        <div style="text-align: center;">
+                            <i class="fas fa-check-circle" style="font-size: 48px; color: #10B981; margin-bottom: 16px;"></i>
+                            <h3 style="margin: 0 0 12px 0; color: #111827;">Yêu cầu rút tiền đã được gửi!</h3>
+                            <p style="margin: 0 0 8px 0; color: #6B7280;">Số tiền: <strong>${formatNumber(amount)} đ</strong></p>
+                            <p style="margin: 0 0 16px 0; color: #6B7280;">Yêu cầu của bạn đã được gửi đến Admin để xử lý.</p>
+                            <div style="background: #FEF3C7; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                                <p style="margin: 0; color: #92400E; font-size: 14px;">
+                                    <i class="fas fa-clock"></i> 
+                                    Thời gian xử lý: <strong>1-3 ngày làm việc</strong>
+                                </p>
+                            </div>
+                            <p style="margin: 0; color: #6B7280; font-size: 13px;">
+                                Bạn có thể xem trạng thái rút tiền tại trang 
+                                <a href="?page=affiliate&module=finance" style="color: #356DF1;">Ví của tôi</a>
                             </p>
                         </div>
-                        <p style="margin: 0; color: #6B7280; font-size: 13px;">
-                            Bạn có thể xem trạng thái rút tiền tại trang 
-                            <a href="?page=affiliate&module=finance" style="color: #356DF1;">Ví của tôi</a>
-                        </p>
-                    </div>
-                `;
-                
-                // Create custom alert
-                const alertDiv = document.createElement('div');
-                alertDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: white;
-                    padding: 32px;
-                    border-radius: 12px;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-                    z-index: 10000;
-                    max-width: 500px;
-                    width: 90%;
-                `;
-                alertDiv.innerHTML = successMessage + `
-                    <button onclick="this.parentElement.remove(); document.getElementById('overlay').remove(); window.location.href='?page=affiliate&module=finance'" 
-                            style="width: 100%; padding: 12px; background: #356DF1; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;">
-                        Đóng và quay về Ví
-                    </button>
-                `;
-                
-                // Create overlay
-                const overlay = document.createElement('div');
-                overlay.id = 'overlay';
-                overlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0,0,0,0.5);
-                    z-index: 9999;
-                `;
-                
-                document.body.appendChild(overlay);
-                document.body.appendChild(alertDiv);
-            }, 1500);
+                    `;
+                    
+                    const alertDiv = document.createElement('div');
+                    alertDiv.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: white;
+                        padding: 32px;
+                        border-radius: 12px;
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                        z-index: 10000;
+                        max-width: 500px;
+                        width: 90%;
+                    `;
+                    alertDiv.innerHTML = successMessage + `
+                        <button onclick="this.parentElement.remove(); document.getElementById('overlay').remove(); window.location.href='?page=affiliate&module=finance'" 
+                                style="width: 100%; padding: 12px; background: #356DF1; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px;">
+                            Đóng và quay về Ví
+                        </button>
+                    `;
+                    
+                    const overlay = document.createElement('div');
+                    overlay.id = 'overlay';
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 9999;
+                    `;
+                    
+                    document.body.appendChild(overlay);
+                    document.body.appendChild(alertDiv);
+                } else {
+                    showError(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Lỗi kết nối. Vui lòng thử lại.');
+                console.error('Withdrawal error:', error);
+            });
         });
     }
 
@@ -271,18 +306,21 @@
     }
 
     // ===================================
-    // Webhook Demo
+    // Commission & Withdrawal - Real API Integration
     // ===================================
     
-    // Order Amount Input - Calculate Commission
+    // Order Amount Input - Calculate Commission (with real rate from server)
     const orderAmount = document.getElementById('orderAmount');
     if (orderAmount) {
+        // Get commission rate from data attribute or use default
+        const commissionRate = parseFloat(orderAmount.dataset.commissionRate) || 0.10;
+        
         orderAmount.addEventListener('input', function() {
             let value = this.value.replace(/[^0-9]/g, '');
             this.value = value;
             
             const amount = parseInt(value) || 0;
-            const commission = amount * 0.1; // 10% commission
+            const commission = amount * commissionRate;
             
             const commissionPreview = document.getElementById('commissionPreview');
             if (commissionPreview) {
@@ -293,8 +331,8 @@
         // Trigger on load
         orderAmount.dispatchEvent(new Event('input'));
     }
-
-    // Withdrawal Select - Show Preview
+    
+    // Withdrawal Select - Show Preview (from admin panel)
     const withdrawalSelect = document.getElementById('withdrawalSelect');
     if (withdrawalSelect) {
         withdrawalSelect.addEventListener('change', function() {
@@ -327,128 +365,103 @@
             }
         });
     }
-
-    // Simulate Commission
-    window.simulateCommission = function() {
-        const orderAmount = document.getElementById('orderAmount');
-        const orderType = document.getElementById('orderType');
+    
+    // Process Commission from Order (Admin function)
+    window.processCommission = function(orderId, amount, type) {
+        showLoading();
         
-        if (!orderAmount || !orderType) return;
-        
-        const amount = parseInt(orderAmount.value.replace(/[^0-9]/g, '')) || 0;
-        const type = orderType.value;
-        const commission = amount * 0.1;
-        
-        if (amount < 100000) {
-            showAlert('Số tiền đơn hàng tối thiểu là 100,000 đ', 'warning');
-            return;
-        }
-        
-        // Update wallet balance
-        const currentBalance = document.getElementById('currentBalance');
-        const currentEarned = document.getElementById('currentEarned');
-        
-        if (currentBalance) {
-            const balance = parseInt(currentBalance.textContent.replace(/[^0-9]/g, '')) || 0;
-            const newBalance = balance + commission;
-            currentBalance.textContent = formatNumber(newBalance) + ' đ';
-            
-            // Animate
-            currentBalance.style.color = '#10B981';
-            setTimeout(() => {
-                currentBalance.style.color = '';
-            }, 2000);
-        }
-        
-        if (currentEarned) {
-            const earned = parseInt(currentEarned.textContent.replace(/[^0-9]/g, '')) || 0;
-            const newEarned = earned + commission;
-            currentEarned.textContent = formatNumber(newEarned) + ' đ';
-        }
-        
-        // Add log
-        const typeName = type === 'logistics' ? 'Logistics' : 'Data Subscription';
-        addWebhookLog('success', `Nhận hoa hồng ${formatNumber(commission)} đ từ đơn hàng ${typeName} (${formatNumber(amount)} đ)`);
-        
-        // Show notification
-        showAlert(`Nhận hoa hồng thành công: ${formatNumber(commission)} đ`, 'success');
-    };
-
-    // Simulate Withdrawal Approval
-    window.simulateWithdrawalApproval = function() {
-        const withdrawalSelect = document.getElementById('withdrawalSelect');
-        
-        if (!withdrawalSelect || !withdrawalSelect.value) {
-            showAlert('Vui lòng chọn lệnh rút', 'warning');
-            return;
-        }
-        
-        const selectedOption = withdrawalSelect.options[withdrawalSelect.selectedIndex];
-        const amount = parseInt(selectedOption.getAttribute('data-amount')) || 0;
-        const code = selectedOption.getAttribute('data-code');
-        
-        // Update wallet balance
-        const currentBalance = document.getElementById('currentBalance');
-        const currentFrozen = document.getElementById('currentFrozen');
-        
-        if (currentFrozen) {
-            const frozen = parseInt(currentFrozen.textContent.replace(/[^0-9]/g, '')) || 0;
-            const newFrozen = Math.max(0, frozen - amount);
-            currentFrozen.textContent = formatNumber(newFrozen) + ' đ';
-            
-            // Animate
-            currentFrozen.style.color = '#EF4444';
-            setTimeout(() => {
-                currentFrozen.style.color = '';
-            }, 2000);
-        }
-        
-        // Add log
-        addWebhookLog('success', `Lệnh rút tiền ${code} đã được duyệt. Số tiền ${formatNumber(amount)} đ đã được chuyển khoản.`);
-        
-        // Show notification
-        showAlert(`Lệnh rút tiền ${code} đã được duyệt thành công!`, 'success');
-        
-        // Remove from select and reset
-        const selectedIndex = withdrawalSelect.selectedIndex;
-        withdrawalSelect.remove(selectedIndex);
-        
-        // Reset select to default
-        withdrawalSelect.selectedIndex = 0;
-        
-        // Hide preview and disable button
-        const withdrawalPreview = document.getElementById('withdrawalPreview');
-        const approveBtn = document.getElementById('approveBtn');
-        
-        if (withdrawalPreview) {
-            withdrawalPreview.style.display = 'none';
-        }
-        
-        if (approveBtn) {
-            approveBtn.disabled = true;
-        }
-        
-        // Check if no more pending withdrawals
-        if (withdrawalSelect.options.length <= 1) {
-            // Only default option left
-            withdrawalSelect.disabled = true;
-            if (approveBtn) {
-                approveBtn.disabled = true;
-                approveBtn.innerHTML = '<i class="fas fa-info-circle"></i><span>Không có lệnh rút nào đang chờ</span>';
+        fetch('/api/affiliate/commission/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                amount: amount,
+                type: type
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                showAlert('Xử lý hoa hồng thành công!', 'success');
+                location.reload();
+            } else {
+                showAlert(data.message || 'Có lỗi xảy ra', 'error');
             }
-        }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Lỗi kết nối. Vui lòng thử lại.', 'error');
+            console.error('Commission processing error:', error);
+        });
     };
-
+    
+    // Approve Withdrawal (Admin function)
+    window.approveWithdrawal = function(withdrawalId) {
+        showLoading();
+        
+        fetch('/api/affiliate/withdraw/approve', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                withdrawal_id: withdrawalId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                showAlert('Duyệt rút tiền thành công!', 'success');
+                location.reload();
+            } else {
+                showAlert(data.message || 'Có lỗi xảy ra', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Lỗi kết nối. Vui lòng thử lại.', 'error');
+            console.error('Withdrawal approval error:', error);
+        });
+    };
+    
     // Refresh Wallet Status
     window.refreshWalletStatus = function() {
         showLoading();
         
-        setTimeout(function() {
+        fetch('/api/affiliate/wallet/status')
+        .then(response => response.json())
+        .then(data => {
             hideLoading();
-            showAlert('Đã làm mới trạng thái ví', 'info');
-        }, 500);
+            if (data.success) {
+                const balanceEl = document.getElementById('currentBalance');
+                const frozenEl = document.getElementById('currentFrozen');
+                const earnedEl = document.getElementById('currentEarned');
+                
+                if (balanceEl && data.balance !== undefined) {
+                    balanceEl.textContent = formatNumber(data.balance) + ' đ';
+                }
+                if (frozenEl && data.frozen !== undefined) {
+                    frozenEl.textContent = formatNumber(data.frozen) + ' đ';
+                }
+                if (earnedEl && data.earned !== undefined) {
+                    earnedEl.textContent = formatNumber(data.earned) + ' đ';
+                }
+                showAlert('Đã làm mới trạng thái ví', 'info');
+            } else {
+                showAlert('Không thể làm mới trạng thái', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Lỗi kết nối', 'error');
+            console.error('Refresh error:', error);
+        });
     };
-
+    
     // Clear Logs
     window.clearLogs = function() {
         const webhookLogs = document.getElementById('webhookLogs');
@@ -461,37 +474,6 @@
             `;
         }
     };
-
-    // Add Webhook Log
-    function addWebhookLog(type, message) {
-        const webhookLogs = document.getElementById('webhookLogs');
-        if (!webhookLogs) return;
-        
-        // Remove empty state
-        const emptyState = webhookLogs.querySelector('.log-empty');
-        if (emptyState) {
-            emptyState.remove();
-        }
-        
-        // Create log entry
-        const logEntry = document.createElement('div');
-        logEntry.className = 'log-entry' + (type === 'error' ? ' log-error' : '');
-        
-        const timestamp = new Date().toLocaleString('vi-VN');
-        logEntry.innerHTML = `
-            <div class="log-timestamp">[${timestamp}]</div>
-            <div class="log-message">${message}</div>
-        `;
-        
-        // Add to top
-        webhookLogs.insertBefore(logEntry, webhookLogs.firstChild);
-        
-        // Limit to 10 logs
-        const logs = webhookLogs.querySelectorAll('.log-entry');
-        if (logs.length > 10) {
-            logs[logs.length - 1].remove();
-        }
-    }
 
     // ===================================
     // Utility Functions

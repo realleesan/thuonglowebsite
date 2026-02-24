@@ -7,8 +7,8 @@
 // 1. Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
 
-// 2. Chọn service (ưu tiên biến được inject từ routing)
-$service = isset($currentService) ? $currentService : ($adminService ?? $publicService ?? null);
+// 2. Chọn service affiliate (ưu tiên biến được inject từ routing)
+$service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
 // Initialize data variables
 $policy = [
@@ -30,14 +30,25 @@ try {
         ];
     }
     
-    if ($service && method_exists($service, 'getSettings')) {
-        // Get commission policy từ AdminService
-        $settings = $service->getSettings();
-        $policy = [
-            'commission_rate' => $settings['commission_rate'] ?? 10,
-            'min_withdrawal' => $settings['min_withdrawal'] ?? 100000,
-            'payment_schedule' => $settings['payment_schedule'] ?? 'monthly'
-        ];
+    // Get commission settings from SettingsModel via service
+    try {
+        if ($service && method_exists($service, 'getModel')) {
+            $settingsModel = $service->getModel('SettingsModel');
+            if ($settingsModel) {
+                $commissionSettings = $settingsModel->getByGroup('commission');
+                
+                if (!empty($commissionSettings)) {
+                    $policy = [
+                        'commission_rate' => $commissionSettings['commission_rate'] ?? 10,
+                        'min_withdrawal' => $commissionSettings['min_withdrawal'] ?? 100000,
+                        'payment_schedule' => $commissionSettings['payment_schedule'] ?? 'monthly'
+                    ];
+                }
+            }
+        }
+    } catch (Exception $e) {
+        // Fall back to default policy already set above
+        error_log("Commission Settings Error: " . $e->getMessage());
     }
 } catch (Exception $e) {
     $errorHandler->handleViewError($e, 'affiliate_commissions_policy', []);
@@ -49,9 +60,7 @@ $page_title = 'Chính sách hoa hồng';
 $page_module = 'commissions';
 $page_action = 'policy';
 
-// Include master layout
 ob_start();
-?>
 ?>
 
 <!-- Page Header -->

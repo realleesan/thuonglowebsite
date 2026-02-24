@@ -38,6 +38,8 @@ if (!isset($serviceManager)) {
 
     // Khởi tạo các service chính - lazy loaded qua ServiceManager
     // Mỗi service chỉ thực sự tạo instance khi getService() được gọi
+    // Make them global so they're available in all views
+    global $publicService, $userService, $adminService, $affiliateService;
     $publicService = $serviceManager->getService('public');
     $userService = $serviceManager->getService('user');
     $adminService = $serviceManager->getService('admin');
