@@ -160,6 +160,7 @@ $isAuthenticated = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
                             <div class="dropdown-menu user-dropdown">
                                 <a href="<?php echo nav_url('users'); ?>">Tài khoản của tôi</a>
                                 <?php if ($currentUser['role'] === 'admin'): ?>
+                                    <a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a>
                                     <a href="<?php echo nav_url('admin'); ?>">Quản trị</a>
                                 <?php elseif ($currentUser['role'] === 'agent'): ?>
                                     <a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a>

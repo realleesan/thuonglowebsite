@@ -304,7 +304,7 @@ class EmailNotificationService implements ServiceInterface {
             
             'processing_notification' => '
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #ffc107;">⏳ Đang xử lý yêu cầu</h2>
+                    <h2 style="color: #ffc107;">&#9203; Đang xử lý yêu cầu</h2>
                     <p>Xin chào <strong>{{user_name}}</strong>,</p>
                     <p>Chúng tôi đang xử lý yêu cầu đăng ký làm đại lý của bạn.</p>
                     
@@ -319,6 +319,43 @@ class EmailNotificationService implements ServiceInterface {
                     <p>Cảm ơn sự kiên nhẫn của bạn!</p>
                     <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
                     <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+                </div>
+            ',
+
+            'device_verification' => '
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
+                        <h2 style="color: #ffffff; margin: 0; font-size: 24px;">Xác thực đăng nhập</h2>
+                        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0;">{{website_name}}</p>
+                    </div>
+                    
+                    <div style="padding: 30px; border: 1px solid #e9ecef; border-top: none; border-radius: 0 0 8px 8px;">
+                        <p style="font-size: 16px;">Xin chào <strong>{{user_name}}</strong>,</p>
+                        <p>Chúng tôi nhận được yêu cầu đăng nhập từ một thiết bị mới. Sử dụng mã bên dưới để xác thực:</p>
+                        
+                        <div style="background-color: #f8f9fa; padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center; border: 2px dashed #667eea;">
+                            <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 14px;">Mã xác thực của bạn</p>
+                            <p style="font-size: 36px; font-weight: bold; color: #667eea; letter-spacing: 8px; margin: 0;">{{verification_code}}</p>
+                            <p style="margin: 8px 0 0 0; color: #dc3545; font-size: 13px;">Mã có hiệu lực trong {{expiry_minutes}} phút</p>
+                        </div>
+                        
+                        <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                            <h4 style="color: #856404; margin: 0 0 10px 0;">Thông tin thiết bị yêu cầu:</h4>
+                            <table style="width: 100%; color: #856404; font-size: 14px;">
+                                <tr><td style="padding: 3px 0;"><strong>Thiết bị:</strong></td><td>{{device_name}}</td></tr>
+                                <tr><td style="padding: 3px 0;"><strong>Trình duyệt:</strong></td><td>{{browser}}</td></tr>
+                                <tr><td style="padding: 3px 0;"><strong>Hệ điều hành:</strong></td><td>{{os}}</td></tr>
+                                <tr><td style="padding: 3px 0;"><strong>Địa chỉ IP:</strong></td><td>{{ip_address}}</td></tr>
+                                <tr><td style="padding: 3px 0;"><strong>Vị trí:</strong></td><td>{{location}}</td></tr>
+                            </table>
+                        </div>
+                        
+                        <div style="background-color: #f8d7da; padding: 12px 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #dc3545;">
+                            <p style="color: #721c24; margin: 0; font-size: 13px;"><strong>Lưu ý bảo mật:</strong> Nếu bạn không yêu cầu đăng nhập này, hãy bỏ qua email này và đổi mật khẩu ngay lập tức.</p>
+                        </div>
+                        
+                        <p style="color: #6c757d; font-size: 14px; margin-top: 25px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+                    </div>
                 </div>
             '
         ];
@@ -351,6 +388,45 @@ class EmailNotificationService implements ServiceInterface {
         return $protocol . '://' . $host;
     }
     
+    /**
+     * Gửi email mã xác thực thiết bị (OTP 6 số)
+     */
+    public function sendDeviceVerificationCode(string $userEmail, string $userName, string $code, array $deviceInfo = []): bool {
+        try {
+            $this->setupMailer();
+            
+            // Recipient
+            $this->mailer->addAddress($userEmail, $userName);
+            
+            // Content
+            $this->mailer->Subject = 'Mã xác thực đăng nhập - ThuongLo';
+            
+            $emailBody = $this->getEmailTemplate('device_verification', [
+                'user_name' => $userName,
+                'verification_code' => $code,
+                'device_name' => $deviceInfo['device_name'] ?? 'Thiết bị không xác định',
+                'ip_address' => $deviceInfo['ip_address'] ?? 'N/A',
+                'location' => $deviceInfo['location'] ?? 'N/A',
+                'browser' => $deviceInfo['browser'] ?? 'N/A',
+                'os' => $deviceInfo['os'] ?? 'N/A',
+                'expiry_minutes' => '5',
+                'website_name' => 'ThuongLo'
+            ]);
+            
+            $this->mailer->Body = $emailBody;
+            $this->mailer->AltBody = "Mã xác thực của bạn là: {$code}. Mã có hiệu lực trong 5 phút.";
+            
+            $result = $this->mailer->send();
+            $this->resetMailer();
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            error_log("Device verification email failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
     /**
      * Test email configuration
      */

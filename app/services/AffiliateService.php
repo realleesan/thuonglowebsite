@@ -63,7 +63,7 @@ class AffiliateService extends BaseService
 
             // Stats cơ bản
             $stats = [
-                'total_clicks' => rand(1000, 5000),
+                'total_clicks' => 0, // Cần có bảng clicks để theo dõi
                 'total_orders' => isset($dashboardData['recent_orders']) ? count($dashboardData['recent_orders']) : 0,
                 'total_revenue' => $affiliateInfo['total_sales'] ?? 0,
                 'total_commission' => $affiliateInfo['total_commission'] ?? 0,
@@ -71,23 +71,30 @@ class AffiliateService extends BaseService
                 'monthly_revenue' => ($affiliateInfo['total_sales'] ?? 0) * 0.8,
                 'pending_commission' => $affiliateInfo['pending_commission'] ?? 0,
                 'paid_commission' => $affiliateInfo['paid_commission'] ?? 0,
-                'conversion_rate' => rand(15, 35) / 10,
+                'conversion_rate' => 0, // Cần có bảng clicks để tính toán
                 'total_customers' => isset($dashboardData['recent_orders']) ? count($dashboardData['recent_orders']) : 0,
             ];
 
             // Recent customers
             $recentCustomers = [];
+            $customerOrderCounts = [];
             foreach ($dashboardData['recent_orders'] ?? [] as $order) {
                 if (empty($order['user_id'])) {
                     continue;
                 }
                 $customer = $usersModel->getById($order['user_id']);
                 if ($customer) {
+                    // Đếm số đơn hàng của khách
+                    if (!isset($customerOrderCounts[$order['user_id']])) {
+                        $customerOrderCounts[$order['user_id']] = 0;
+                    }
+                    $customerOrderCounts[$order['user_id']]++;
+                    
                     $recentCustomers[] = [
                         'name' => $customer['name'] ?? ($customer['full_name'] ?? 'Khách hàng'),
-                        'email' => $customer['email'] ?? 'email@example.com',
-                        'total_orders' => rand(1, 10),
-                        'total_spent' => rand(500000, 5000000),
+                        'email' => $customer['email'] ?? '',
+                        'total_orders' => 1, // Đếm từ đơn hàng hiện tại
+                        'total_spent' => $order['total'] ?? $order['total_amount'] ?? 0,
                         'joined_date' => $customer['created_at'] ?? date('Y-m-d'),
                     ];
                 }

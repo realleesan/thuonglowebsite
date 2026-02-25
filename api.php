@@ -176,6 +176,167 @@ try {
             }
             break;
 
+        // ==========================================
+        // DEVICE ACCESS MANAGEMENT API
+        // ==========================================
+        
+        case 'device/verify-email':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $userId = $_SESSION['pending_user_id'] ?? ($_SESSION['user_id'] ?? 0);
+                $deviceSessionId = $_SESSION['pending_device_session_id'] ?? ($input['device_session_id'] ?? 0);
+                $result = $service->initiateEmailVerification($userId, $input['email'] ?? '', (int)$deviceSessionId);
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/verify-otp':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $userId = $_SESSION['pending_user_id'] ?? ($_SESSION['user_id'] ?? 0);
+                $deviceSessionId = $_SESSION['pending_device_session_id'] ?? ($input['device_session_id'] ?? 0);
+                $result = $service->verifyOTP($userId, $input['code'] ?? '', (int)$deviceSessionId);
+                
+                // Nếu xác thực thành công, tạo session đầy đủ
+                if ($result['success']) {
+                    if (isset($_SESSION['pending_user_data'])) {
+                        $userData = $_SESSION['pending_user_data'];
+                        $_SESSION['user_id'] = $userData['id'];
+                        $_SESSION['user_name'] = $userData['name'];
+                        $_SESSION['username'] = $userData['username'] ?? '';
+                        $_SESSION['user_email'] = $userData['email'];
+                        $_SESSION['user_role'] = $userData['role'];
+                        $_SESSION['is_logged_in'] = true;
+                        // Clear pending data
+                        unset($_SESSION['pending_user_id']);
+                        unset($_SESSION['pending_user_data']);
+                        unset($_SESSION['pending_device_session_id']);
+                    }
+                }
+                
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/resend-otp':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $userId = $_SESSION['pending_user_id'] ?? ($_SESSION['user_id'] ?? 0);
+                $deviceSessionId = $_SESSION['pending_device_session_id'] ?? ($input['device_session_id'] ?? 0);
+                $result = $service->resendOTP($userId, (int)$deviceSessionId);
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/poll-status':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $deviceSessionId = $_GET['device_session_id'] ?? ($_SESSION['pending_device_session_id'] ?? 0);
+                $result = $service->pollDeviceStatus((int)$deviceSessionId);
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/list':
+            if ($method === 'GET') {
+                if (empty($_SESSION['user_id'])) {
+                    throw new Exception('Unauthorized', 401);
+                }
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $result = $service->getDeviceList((int)$_SESSION['user_id']);
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/approve':
+            if ($method === 'POST') {
+                if (empty($_SESSION['user_id'])) {
+                    throw new Exception('Unauthorized', 401);
+                }
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $result = $service->approveDevice(
+                    (int)$_SESSION['user_id'],
+                    (int)($input['device_session_id'] ?? 0),
+                    $input['password'] ?? ''
+                );
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/reject':
+            if ($method === 'POST') {
+                if (empty($_SESSION['user_id'])) {
+                    throw new Exception('Unauthorized', 401);
+                }
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $result = $service->rejectDevice(
+                    (int)$_SESSION['user_id'],
+                    (int)($input['device_session_id'] ?? 0)
+                );
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/remove':
+            if ($method === 'POST') {
+                if (empty($_SESSION['user_id'])) {
+                    throw new Exception('Unauthorized', 401);
+                }
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $result = $service->removeDevice(
+                    (int)$_SESSION['user_id'],
+                    (int)($input['device_id'] ?? 0)
+                );
+                
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'device/pending':
+            if ($method === 'GET') {
+                if (empty($_SESSION['user_id'])) {
+                    throw new Exception('Unauthorized', 401);
+                }
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $model = $service->getModel('DeviceAccessModel');
+                $pending = $model->getPendingDevices((int)$_SESSION['user_id']);
+                echo json_encode(['success' => true, 'devices' => $pending]);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
         default:
             throw new Exception('Endpoint not found', 404);
     }

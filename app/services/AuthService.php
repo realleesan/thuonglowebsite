@@ -144,8 +144,54 @@ class AuthService implements ServiceInterface {
                 return $this->errorHandler->handleAuthenticationError($statusType);
             }
             
+            // ==========================================
+            // DEVICE ACCESS CHECK
+            // ==========================================
+            require_once __DIR__ . '/DeviceAccessService.php';
+            $deviceService = new DeviceAccessService();
+            $deviceCheck = $deviceService->checkDeviceOnLogin($user['id']);
+            
+            if ($deviceCheck['requires_verification'] ?? false) {
+                // Vượt giới hạn thiết bị - cần xác thực
+                // Lưu thông tin user tạm thời vào session (chưa đăng nhập đầy đủ)
+                $_SESSION['pending_user_id'] = $user['id'];
+                $_SESSION['pending_user_data'] = [
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'username' => $user['username'] ?? '',
+                    'email' => $user['email'],
+                    'role' => $user['role']
+                ];
+                $_SESSION['pending_device_session_id'] = $deviceCheck['device_session_id'];
+                
+                $this->securityLogger->logAuthAttempt('login_device_verification_required', [
+                    'login' => $login,
+                    'user_id' => $user['id'],
+                    'active_devices' => $deviceCheck['active_count']
+                ]);
+                
+                return [
+                    'success' => false,
+                    'requires_device_verification' => true,
+                    'device_session_id' => $deviceCheck['device_session_id'],
+                    'active_count' => $deviceCheck['active_count'],
+                    'max_devices' => $deviceCheck['max_devices'],
+                    'message' => $deviceCheck['message']
+                ];
+            }
+            // ==========================================
+            
             // Create session
             $sessionId = $this->sessionManager->createSession($user);
+            
+            // Register device session
+            if (isset($deviceCheck['device_id'])) {
+                $deviceModel = $deviceService->getModel('DeviceAccessModel');
+                if ($deviceModel) {
+                    $deviceModel->setCurrentDevice($user['id'], $deviceCheck['device_id']);
+                    $deviceModel->updateLastActivity($deviceCheck['device_id']);
+                }
+            }
             
             // Log successful authentication
             $this->securityLogger->logAuthAttempt('login_success', [

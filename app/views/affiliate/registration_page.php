@@ -4,6 +4,9 @@
  * Beautiful full-page registration form instead of popup
  */
 
+// Start output buffering
+ob_start();
+
 $user = $user ?? [];
 $csrf_token = $csrf_token ?? '';
 $form_action = $form_action ?? '?page=agent&action=register';
@@ -220,3 +223,17 @@ $current_email = $current_email ?? ($user['email'] ?? '');
         </div>
     </section>
 </main>
+
+<?php
+$content = ob_get_clean();
+
+// Set page info for master layout
+$page_title = 'Đăng ký trở thành đại lý';
+$showBreadcrumb = true;
+$breadcrumbs = [
+    ['title' => 'Trang chủ', 'url' => './'],
+    ['title' => 'Đăng ký đại lý']
+];
+
+// Include master layout (standard website layout with header/footer)
+include __DIR__ . '/../_layout/master.php';

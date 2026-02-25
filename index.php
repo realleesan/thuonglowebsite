@@ -375,6 +375,29 @@ switch($page) {
                     ['title' => 'Yêu thích']
                 ];
                 break;
+
+            case 'access':
+                switch($action) {
+                    case 'view':
+                        $content = 'app/views/users/access/view.php';
+                        break;
+                    case 'edit':
+                        $content = 'app/views/users/access/edit.php';
+                        break;
+                    case 'delete':
+                        $content = 'app/views/users/access/delete.php';
+                        break;
+                    default:
+                        $content = 'app/views/users/access/index.php';
+                        break;
+                }
+                $title = 'Quản lý truy cập - Thuong Lo';
+                $breadcrumbs = [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tài khoản', 'url' => '?page=users'],
+                    ['title' => 'Quản lý truy cập']
+                ];
+                break;
         }
         
         $currentService = $userService ?? $currentService;

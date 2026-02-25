@@ -102,7 +102,7 @@
                         <span>Cài đặt</span>
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="?page=auth&action=logout" class="dropdown-item text-danger">
+                    <a href="?page=logout" class="dropdown-item text-danger">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Đăng xuất</span>
                     </a>

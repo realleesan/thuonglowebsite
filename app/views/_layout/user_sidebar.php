@@ -79,6 +79,13 @@ $userLevel = ($currentUser['level'] ?? 'Bronze') . ' Member';
                     <?php endif; ?>
                 </a>
             </li>
+
+            <li class="nav-item <?php echo $current_module === 'access' ? 'active' : ''; ?>">
+                <a href="?page=users&module=access" class="nav-link">
+                    <i class="nav-icon fas fa-shield-alt"></i>
+                    <span class="nav-text">Truy cập</span>
+                </a>
+            </li>
             
             <li class="nav-divider"></li>
             

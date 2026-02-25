@@ -440,7 +440,10 @@ class AffiliateController {
             return;
         }
         
-        // Include view file directly - it will be wrapped by the layout
+        // Extract data array to make variables available in view
+        extract($data);
+        
+        // Include view file directly - view will handle the layout
         include $viewFile;
     }
     

@@ -32,20 +32,15 @@ $headerUserRole  = $_SESSION['user_role']  ?? 'admin';
         <div class="header-item notifications-dropdown">
             <button class="header-btn" id="notificationsBtn">
                 <i class="fas fa-bell"></i>
-                <span class="badge" id="notifBadge" style="display:none;">0</span>
             </button>
             <div class="dropdown-menu notifications-menu" id="notificationsMenu">
                 <div class="dropdown-header">
                     <h6>Thông báo</h6>
                 </div>
-                <div class="dropdown-body" id="notificationsBody">
-                    <div class="notification-item">
-                        <div class="notification-icon">
-                            <i class="fas fa-spinner fa-spin text-muted"></i>
-                        </div>
-                        <div class="notification-content">
-                            <p class="notification-text">Đang tải thông báo...</p>
-                        </div>
+                <div class="dropdown-body">
+                    <div class="notification-empty" style="text-align: center; padding: 20px; color: #6B7280;">
+                        <i class="fas fa-bell-slash" style="font-size: 24px; margin-bottom: 8px;"></i>
+                        <p style="margin: 0;">Không có thông báo nào</p>
                     </div>
                 </div>
                 <div class="dropdown-footer">
@@ -81,7 +76,7 @@ $headerUserRole  = $_SESSION['user_role']  ?? 'admin';
                         <span>Cài đặt</span>
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="?page=auth&action=logout" class="dropdown-item text-danger">
+                    <a href="?page=logout" class="dropdown-item text-danger">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Đăng xuất</span>
                     </a>

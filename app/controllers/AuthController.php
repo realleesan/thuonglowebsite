@@ -68,6 +68,10 @@ class AuthController {
                 // Successful login - redirect to user dashboard
                 $this->setFlashMessage('success', $result['message']);
                 $this->redirect('?page=users'); // Redirect to user dashboard
+            } elseif (!empty($result['requires_device_verification'])) {
+                // Device limit reached - show verification popup
+                $_SESSION['device_verify_message'] = $result['message'];
+                $this->redirect('?page=login&device_verify=1&device_session_id=' . $result['device_session_id']);
             } else {
                 // Failed login
                 $this->setFlashMessage('error', $result['message']);

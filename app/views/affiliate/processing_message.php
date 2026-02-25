@@ -4,6 +4,9 @@
  * Requirements: 1.5, 2.4, 4.4
  */
 
+// Start output buffering
+ob_start();
+
 $messageData = $messageData ?? [];
 $status = $status ?? 'pending';
 $requestDetails = $requestDetails ?? [];
@@ -370,3 +373,18 @@ if (empty($messageData)) {
     }
 }
 </style>
+
+<?php
+$content = ob_get_clean();
+
+// Set page info for master layout
+$page_title = $messageData['title'] ?? 'Xử lý yêu cầu';
+$showBreadcrumb = true;
+$breadcrumbs = [
+    ['title' => 'Trang chủ', 'url' => './'],
+    ['title' => 'Đăng ký đại lý', 'url' => '?page=agent'],
+    ['title' => 'Trạng thái']
+];
+
+// Include master layout (standard website layout with header/footer)
+include __DIR__ . '/../_layout/master.php';

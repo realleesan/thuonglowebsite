@@ -1,0 +1,467 @@
+<?php
+/**
+ * DeviceAccessService - Service quản lý truy cập đa thiết bị
+ * Xử lý logic nghiệp vụ: kiểm tra device, gửi OTP, phê duyệt, từ chối
+ */
+
+require_once __DIR__ . '/ServiceInterface.php';
+require_once __DIR__ . '/../models/DeviceAccessModel.php';
+require_once __DIR__ . '/EmailNotificationService.php';
+
+class DeviceAccessService implements ServiceInterface {
+    private DeviceAccessModel $model;
+    private EmailNotificationService $emailService;
+
+    private const MAX_DEVICES = 3;
+    private const OTP_EXPIRY_MINUTES = 5;
+    private const RESEND_COOLDOWN_SECONDS = 120;
+    private const MAX_OTP_ATTEMPTS = 5;
+
+    public function __construct() {
+        $this->model = new DeviceAccessModel();
+        $this->emailService = new EmailNotificationService();
+    }
+
+    /**
+     * ServiceInterface implementation
+     */
+    public function getData(string $method, array $params = []): array {
+        try {
+            switch ($method) {
+                case 'getDeviceList':
+                    return $this->getDeviceList($params['user_id'] ?? 0);
+                case 'getPendingDevices':
+                    return ['success' => true, 'devices' => $this->model->getPendingDevices($params['user_id'] ?? 0)];
+                case 'checkDeviceOnLogin':
+                    return $this->checkDeviceOnLogin($params['user_id'] ?? 0);
+                default:
+                    throw new \Exception("Unknown method: $method");
+            }
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => $method]);
+        }
+    }
+
+    public function getModel(string $modelName) {
+        if ($modelName === 'DeviceAccessModel') {
+            return $this->model;
+        }
+        return null;
+    }
+
+    public function handleError(\Exception $e, array $context = []): array {
+        error_log("DeviceAccessService Error: " . $e->getMessage() . " Context: " . json_encode($context));
+        return [
+            'success' => false,
+            'message' => $e->getMessage()
+        ];
+    }
+
+    // ==========================================
+    // LOGIN FLOW
+    // ==========================================
+
+    /**
+     * Kiểm tra thiết bị khi đăng nhập
+     * Trả về: cần xác thực hay không
+     */
+    public function checkDeviceOnLogin(int $userId): array {
+        $activeCount = $this->model->getActiveDeviceCount($userId);
+        $currentSessionId = session_id();
+
+        // Kiểm tra xem thiết bị này đã có phiên active chưa
+        $existingDevice = $this->model->findByUserAndSession($userId, $currentSessionId);
+        if ($existingDevice && $existingDevice['status'] === 'active') {
+            // Thiết bị đã được xác thực - cập nhật last_activity
+            $this->model->updateLastActivity($existingDevice['id']);
+            return [
+                'success' => true,
+                'requires_verification' => false,
+                'device_id' => $existingDevice['id']
+            ];
+        }
+
+        // Nếu chưa đạt giới hạn - cho phép đăng nhập ngay
+        if ($activeCount < self::MAX_DEVICES) {
+            $deviceId = $this->registerCurrentDevice($userId, 'active');
+            return [
+                'success' => true,
+                'requires_verification' => false,
+                'device_id' => $deviceId
+            ];
+        }
+
+        // Vượt giới hạn - cần xác thực
+        $deviceId = $this->registerCurrentDevice($userId, 'pending');
+        return [
+            'success' => true,
+            'requires_verification' => true,
+            'device_session_id' => $deviceId,
+            'active_count' => $activeCount,
+            'max_devices' => self::MAX_DEVICES,
+            'message' => 'Tài khoản đã đạt giới hạn ' . self::MAX_DEVICES . ' thiết bị. Vui lòng xác thực để tiếp tục.'
+        ];
+    }
+
+    /**
+     * Đăng ký thiết bị hiện tại vào database
+     */
+    public function registerCurrentDevice(int $userId, string $status = 'active'): int {
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+        $deviceInfo = $this->model->parseUserAgent($ua);
+        $ip = $this->model->getClientIP();
+        $location = $this->model->getLocationFromIP($ip);
+
+        $deviceId = $this->model->createDeviceSession([
+            'user_id' => $userId,
+            'session_id' => session_id(),
+            'device_name' => $deviceInfo['device_name'],
+            'device_type' => $deviceInfo['device_type'],
+            'browser' => $deviceInfo['browser'],
+            'os' => $deviceInfo['os'],
+            'ip_address' => $ip,
+            'location' => $location,
+            'status' => $status,
+            'is_current' => ($status === 'active') ? 1 : 0
+        ]);
+
+        if ($status === 'active') {
+            $this->model->setCurrentDevice($userId, $deviceId);
+        }
+
+        return $deviceId;
+    }
+
+    // ==========================================
+    // EMAIL OTP VERIFICATION
+    // ==========================================
+
+    /**
+     * Bắt đầu xác thực email - gửi OTP
+     */
+    public function initiateEmailVerification(int $userId, string $inputEmail, int $deviceSessionId): array {
+        // Lấy thông tin user để kiểm tra email
+        require_once __DIR__ . '/../models/UsersModel.php';
+        $usersModel = new UsersModel();
+        $user = $usersModel->find($userId);
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'Không tìm thấy tài khoản.'];
+        }
+
+        // Kiểm tra email có khớp không
+        if (strtolower(trim($inputEmail)) !== strtolower(trim($user['email']))) {
+            return ['success' => false, 'message' => 'Email không khớp với tài khoản đăng ký.'];
+        }
+
+        // Kiểm tra cooldown
+        $cooldown = $this->model->canResendCode($deviceSessionId);
+        if (!$cooldown['can_resend']) {
+            return [
+                'success' => false,
+                'message' => 'Vui lòng chờ ' . $cooldown['wait_seconds'] . ' giây trước khi gửi lại mã.',
+                'wait_seconds' => $cooldown['wait_seconds']
+            ];
+        }
+
+        // Tạo và gửi OTP
+        $code = $this->model->createVerificationCode($userId, $deviceSessionId);
+        
+        // Lấy thông tin thiết bị để đưa vào email
+        $device = $this->model->find($deviceSessionId);
+        $deviceInfo = $device ? [
+            'device_name' => $device['device_name'],
+            'ip_address' => $device['ip_address'],
+            'location' => $device['location'],
+            'browser' => $device['browser'],
+            'os' => $device['os']
+        ] : [];
+
+        // Gửi email
+        $emailSent = $this->sendVerificationEmail(
+            $user['email'],
+            $user['name'] ?? 'User',
+            $code,
+            $deviceInfo
+        );
+
+        if (!$emailSent) {
+            return ['success' => false, 'message' => 'Không thể gửi email. Vui lòng thử lại sau.'];
+        }
+
+        // Mask email
+        $maskedEmail = $this->maskEmail($user['email']);
+
+        return [
+            'success' => true,
+            'message' => 'Mã xác thực đã được gửi đến ' . $maskedEmail,
+            'masked_email' => $maskedEmail,
+            'expires_in' => self::OTP_EXPIRY_MINUTES * 60,
+            'cooldown' => self::RESEND_COOLDOWN_SECONDS
+        ];
+    }
+
+    /**
+     * Xác thực mã OTP
+     */
+    public function verifyOTP(int $userId, string $code, int $deviceSessionId): array {
+        // Kiểm tra mã
+        $verification = $this->model->validateVerificationCode($userId, $code);
+
+        if (!$verification) {
+            // Kiểm tra số lần thử
+            $activeCode = $this->model->getActiveVerificationCode($deviceSessionId);
+            $attemptsLeft = $activeCode ? (self::MAX_OTP_ATTEMPTS - $activeCode['attempts']) : 0;
+
+            if ($attemptsLeft <= 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Đã vượt quá số lần thử. Vui lòng yêu cầu mã mới.',
+                    'attempts_left' => 0
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Mã xác thực không đúng hoặc đã hết hạn.',
+                'attempts_left' => $attemptsLeft
+            ];
+        }
+
+        // OTP đúng - activate device
+        $this->model->updateDeviceStatus($deviceSessionId, 'active');
+        $this->model->setCurrentDevice($userId, $deviceSessionId);
+
+        // Lấy session_id của thiết bị mới
+        $newDevice = $this->model->find($deviceSessionId);
+        $newSessionId = $newDevice ? $newDevice['session_id'] : '';
+
+        // Hủy tất cả các thiết bị khác (logout các thiết bị cũ)
+        if ($newSessionId) {
+            $this->model->deactivateOtherSessions($userId, $newSessionId);
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Xác thực thành công! Đang đăng nhập...',
+            'device_activated' => true,
+            'logged_out_other_devices' => true
+        ];
+    }
+
+    /**
+     * Gửi lại mã OTP
+     */
+    public function resendOTP(int $userId, int $deviceSessionId): array {
+        // Kiểm tra device session có thuộc user không
+        $device = $this->model->findByIdAndUser($deviceSessionId, $userId);
+        if (!$device) {
+            return ['success' => false, 'message' => 'Thiết bị không hợp lệ.'];
+        }
+
+        // Kiểm tra cooldown
+        $cooldown = $this->model->canResendCode($deviceSessionId);
+        if (!$cooldown['can_resend']) {
+            return [
+                'success' => false,
+                'message' => 'Vui lòng chờ ' . $cooldown['wait_seconds'] . ' giây.',
+                'wait_seconds' => $cooldown['wait_seconds']
+            ];
+        }
+
+        // Lấy email user
+        require_once __DIR__ . '/../models/UsersModel.php';
+        $usersModel = new UsersModel();
+        $user = $usersModel->find($userId);
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'Không tìm thấy tài khoản.'];
+        }
+
+        // Tạo mã mới và gửi
+        $code = $this->model->createVerificationCode($userId, $deviceSessionId);
+        $emailSent = $this->sendVerificationEmail(
+            $user['email'],
+            $user['name'] ?? 'User',
+            $code,
+            [
+                'device_name' => $device['device_name'],
+                'ip_address' => $device['ip_address'],
+                'location' => $device['location']
+            ]
+        );
+
+        if (!$emailSent) {
+            return ['success' => false, 'message' => 'Không thể gửi email. Vui lòng thử lại sau.'];
+        }
+
+        $maskedEmail = $this->maskEmail($user['email']);
+        return [
+            'success' => true,
+            'message' => 'Mã mới đã được gửi đến ' . $maskedEmail,
+            'expires_in' => self::OTP_EXPIRY_MINUTES * 60,
+            'cooldown' => self::RESEND_COOLDOWN_SECONDS
+        ];
+    }
+
+    // ==========================================
+    // DEVICE APPROVAL (FROM DEVICE A)
+    // ==========================================
+
+    /**
+     * Phê duyệt thiết bị từ thiết bị hiện tại (Device A approves Device B)
+     */
+    public function approveDevice(int $userId, int $deviceSessionId, string $password): array {
+        // Kiểm tra password
+        require_once __DIR__ . '/../models/UsersModel.php';
+        $usersModel = new UsersModel();
+        $user = $usersModel->find($userId);
+
+        if (!$user || !password_verify($password, $user['password'])) {
+            return ['success' => false, 'message' => 'Mật khẩu không đúng.'];
+        }
+
+        // Kiểm tra thiết bị có pending không
+        $device = $this->model->findByIdAndUser($deviceSessionId, $userId);
+        if (!$device || $device['status'] !== 'pending') {
+            return ['success' => false, 'message' => 'Thiết bị không hợp lệ hoặc đã được xử lý.'];
+        }
+
+        // Activate thiết bị mới
+        $this->model->updateDeviceStatus($deviceSessionId, 'active');
+        $this->model->setCurrentDevice($userId, $deviceSessionId);
+
+        // Hủy tất cả các thiết bị khác (logout các thiết bị cũ bao gồm cả thiết bị hiện tại)
+        $this->model->deactivateOtherSessions($userId, $device['session_id']);
+
+        return [
+            'success' => true,
+            'message' => 'Đã phê duyệt thiết bị thành công! Các thiết bị khác đã được đăng xuất.',
+            'logged_out_other_devices' => true
+        ];
+    }
+
+    /**
+     * Từ chối thiết bị
+     */
+    public function rejectDevice(int $userId, int $deviceSessionId): array {
+        $device = $this->model->findByIdAndUser($deviceSessionId, $userId);
+        if (!$device) {
+            return ['success' => false, 'message' => 'Thiết bị không hợp lệ.'];
+        }
+
+        $this->model->updateDeviceStatus($deviceSessionId, 'rejected');
+
+        return [
+            'success' => true,
+            'message' => 'Đã từ chối thiết bị.'
+        ];
+    }
+
+    // ==========================================
+    // DEVICE MANAGEMENT
+    // ==========================================
+
+    /**
+     * Xóa thiết bị khỏi danh sách
+     */
+    public function removeDevice(int $userId, int $deviceId): array {
+        $device = $this->model->findByIdAndUser($deviceId, $userId);
+        if (!$device) {
+            return ['success' => false, 'message' => 'Thiết bị không tồn tại.'];
+        }
+
+        // Luôn luôn logout khi xóa thiết bị hiện tại
+        // Kiểm tra bằng cách so sánh session_id hoặc dựa vào is_current flag từ database
+        $isCurrentDevice = ($device['is_current'] == 1) || ($device['session_id'] === session_id());
+        
+        // Debug log
+        error_log("removeDevice: device_id=" . $deviceId . ", is_current=" . $device['is_current'] . ", session_id=" . $device['session_id'] . ", current_session=" . session_id() . ", isCurrentDevice=" . ($isCurrentDevice ? 'true' : 'false'));
+        
+        $this->model->deleteDeviceSession($deviceId);
+
+        return [
+            'success' => true,
+            'message' => $isCurrentDevice ? 'Đã xóa thiết bị hiện tại. Bạn sẽ bị đăng xuất.' : 'Đã xóa thiết bị.',
+            'is_current_device' => $isCurrentDevice,
+            'should_logout' => $isCurrentDevice
+        ];
+    }
+
+    /**
+     * Lấy danh sách tất cả thiết bị
+     */
+    public function getDeviceList(int $userId): array {
+        $activeDevices = $this->model->getActiveDevices($userId);
+        $pendingDevices = $this->model->getPendingDevices($userId);
+        $currentSessionId = session_id();
+
+        // Đánh dấu thiết bị hiện tại
+        foreach ($activeDevices as &$device) {
+            $device['is_this_device'] = ($device['session_id'] === $currentSessionId);
+        }
+        foreach ($pendingDevices as &$device) {
+            $device['is_this_device'] = ($device['session_id'] === $currentSessionId);
+        }
+
+        return [
+            'success' => true,
+            'active_devices' => $activeDevices,
+            'pending_devices' => $pendingDevices,
+            'active_count' => count($activeDevices),
+            'max_devices' => self::MAX_DEVICES
+        ];
+    }
+
+    /**
+     * Poll trạng thái thiết bị (Device B poll để biết đã được duyệt/từ chối)
+     */
+    public function pollDeviceStatus(int $deviceSessionId): array {
+        $device = $this->model->find($deviceSessionId);
+        if (!$device) {
+            return ['success' => false, 'status' => 'not_found'];
+        }
+
+        return [
+            'success' => true,
+            'status' => $device['status'],
+            'device_id' => $device['id']
+        ];
+    }
+
+    // ==========================================
+    // HELPER METHODS
+    // ==========================================
+
+    /**
+     * Mask email address (ví dụ: t***t@gmail.com)
+     */
+    private function maskEmail(string $email): string {
+        $parts = explode('@', $email);
+        if (count($parts) !== 2) return '***@***';
+
+        $name = $parts[0];
+        $domain = $parts[1];
+
+        if (strlen($name) <= 2) {
+            $masked = $name[0] . '***';
+        } else {
+            $masked = $name[0] . str_repeat('*', strlen($name) - 2) . $name[strlen($name) - 1];
+        }
+
+        return $masked . '@' . $domain;
+    }
+
+    /**
+     * Gửi email xác thực thiết bị
+     */
+    private function sendVerificationEmail(string $email, string $userName, string $code, array $deviceInfo = []): bool {
+        try {
+            // Sử dụng EmailNotificationService có sẵn
+            return $this->emailService->sendDeviceVerificationCode($email, $userName, $code, $deviceInfo);
+        } catch (\Exception $e) {
+            error_log("Failed to send device verification email: " . $e->getMessage());
+            return false;
+        }
+    }
+}

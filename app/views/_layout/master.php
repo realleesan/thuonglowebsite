@@ -67,6 +67,7 @@ mb_http_output('UTF-8');
         case 'login':
         case 'register':
             echo '<link rel="stylesheet" href="' . versioned_css('auth.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_access.css') . '">';
             break;
         case 'forgot':
             echo '<link rel="stylesheet" href="' . versioned_css('forgot.css') . '">';
@@ -76,6 +77,11 @@ mb_http_output('UTF-8');
             echo '<link rel="stylesheet" href="' . versioned_css('user_dashboard.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_account.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_orders.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_access.css') . '">';
+            break;
+        case 'access':
+            echo '<link rel="stylesheet" href="' . versioned_css('user_sidebar.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_access.css') . '">';
             break;
         case 'agent':
             echo '<link rel="stylesheet" href="' . versioned_css('rate_limit_message.css') . '">';
@@ -161,8 +167,13 @@ mb_http_output('UTF-8');
     <main class="main-content">
         <?php 
         // Include the specific page content
-        if (isset($content) && $content) {
-            if (file_exists($content)) {
+        if (isset($content)) {
+            // Check if $content is HTML content or a file path
+            if (strpos($content, '<') !== false || strpos($content, '<?php') !== false) {
+                // It's HTML content - echo directly
+                echo $content;
+            } elseif (file_exists($content)) {
+                // It's a file path - include the file
                 include $content;
             } else {
                 echo "<div class='error'>Không tìm thấy nội dung trang.</div>";
@@ -221,6 +232,7 @@ mb_http_output('UTF-8');
         case 'login':
         case 'register':
             echo '<script src="' . versioned_js('auth.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_access.js') . '"></script>';
             break;
         case 'forgot':
             echo '<script src="' . versioned_js('forgot.js') . '"></script>';
@@ -231,6 +243,11 @@ mb_http_output('UTF-8');
             echo '<script src="' . versioned_js('user_dashboard.js') . '"></script>';
             echo '<script src="' . versioned_js('user_account.js') . '"></script>';
             echo '<script src="' . versioned_js('user_orders.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_access.js') . '"></script>';
+            break;
+        case 'access':
+            echo '<script src="' . versioned_js('user_sidebar.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_access.js') . '"></script>';
             break;
         case 'agent':
             echo '<script src="' . versioned_js('agent_registration.js') . '"></script>';
