@@ -11,7 +11,14 @@ class AffiliateModel extends BaseModel {
     protected $fillable = [
         'user_id', 'referral_code', 'commission_rate', 'total_sales',
         'total_commission', 'paid_commission', 'pending_commission',
-        'status', 'payment_method', 'payment_details', 'approved_by', 'additional_info'
+        'status', 'payment_method', 'payment_details', 'approved_by', 'additional_info',
+        // Wallet fields
+        'balance', 'pending_withdrawal', 'total_withdrawn',
+        // Bank information
+        'bank_name', 'bank_account', 'account_holder', 'bank_branch',
+        'bank_verified', 'bank_verified_at',
+        // OTP for bank changes
+        'bank_change_otp', 'bank_change_otp_expires_at', 'bank_last_changed_at'
     ];
     
     /**
@@ -249,5 +256,268 @@ class AffiliateModel extends BaseModel {
             'recent_orders' => $recentOrders,
             'monthly_stats' => $monthlyStats
         ];
+    }
+    
+    // ==================== WALLET MANAGEMENT METHODS ====================
+    
+    /**
+     * Credit balance (add money to wallet)
+     */
+    public function creditBalance($affiliateId, $amount, $description = null) {
+        if ($amount <= 0) {
+            throw new Exception('Credit amount must be positive');
+        }
+        
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            throw new Exception('Affiliate not found');
+        }
+        
+        $newBalance = $affiliate['balance'] + $amount;
+        
+        return $this->update($affiliateId, [
+            'balance' => $newBalance
+        ]);
+    }
+    
+    /**
+     * Debit balance (subtract money from wallet)
+     */
+    public function debitBalance($affiliateId, $amount, $description = null) {
+        if ($amount <= 0) {
+            throw new Exception('Debit amount must be positive');
+        }
+        
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            throw new Exception('Affiliate not found');
+        }
+        
+        if ($affiliate['balance'] < $amount) {
+            throw new Exception('Insufficient balance');
+        }
+        
+        $newBalance = $affiliate['balance'] - $amount;
+        
+        return $this->update($affiliateId, [
+            'balance' => $newBalance
+        ]);
+    }
+    
+    /**
+     * Freeze balance for withdrawal (move from balance to pending_withdrawal)
+     */
+    public function freezeBalance($affiliateId, $amount) {
+        if ($amount <= 0) {
+            throw new Exception('Freeze amount must be positive');
+        }
+        
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            throw new Exception('Affiliate not found');
+        }
+        
+        if ($affiliate['balance'] < $amount) {
+            throw new Exception('Insufficient balance to freeze');
+        }
+        
+        return $this->update($affiliateId, [
+            'balance' => $affiliate['balance'] - $amount,
+            'pending_withdrawal' => $affiliate['pending_withdrawal'] + $amount
+        ]);
+    }
+    
+    /**
+     * Unfreeze balance (move from pending_withdrawal back to balance)
+     */
+    public function unfreezeBalance($affiliateId, $amount) {
+        if ($amount <= 0) {
+            throw new Exception('Unfreeze amount must be positive');
+        }
+        
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            throw new Exception('Affiliate not found');
+        }
+        
+        if ($affiliate['pending_withdrawal'] < $amount) {
+            throw new Exception('Insufficient pending withdrawal to unfreeze');
+        }
+        
+        return $this->update($affiliateId, [
+            'balance' => $affiliate['balance'] + $amount,
+            'pending_withdrawal' => $affiliate['pending_withdrawal'] - $amount
+        ]);
+    }
+    
+    /**
+     * Complete withdrawal (move from pending_withdrawal to total_withdrawn)
+     */
+    public function completeWithdrawal($affiliateId, $amount) {
+        if ($amount <= 0) {
+            throw new Exception('Withdrawal amount must be positive');
+        }
+        
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            throw new Exception('Affiliate not found');
+        }
+        
+        if ($affiliate['pending_withdrawal'] < $amount) {
+            throw new Exception('Insufficient pending withdrawal');
+        }
+        
+        return $this->update($affiliateId, [
+            'pending_withdrawal' => $affiliate['pending_withdrawal'] - $amount,
+            'total_withdrawn' => $affiliate['total_withdrawn'] + $amount
+        ]);
+    }
+    
+    /**
+     * Get wallet balance info
+     */
+    public function getWalletBalance($affiliateId) {
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            return null;
+        }
+        
+        return [
+            'balance' => $affiliate['balance'],
+            'pending_withdrawal' => $affiliate['pending_withdrawal'],
+            'total_withdrawn' => $affiliate['total_withdrawn'],
+            'available_for_withdrawal' => $affiliate['balance']
+        ];
+    }
+    
+    // ==================== BANK INFORMATION METHODS ====================
+    
+    /**
+     * Update bank information
+     */
+    public function updateBankInfo($affiliateId, $bankData) {
+        $updateData = [];
+        
+        if (isset($bankData['bank_name'])) {
+            $updateData['bank_name'] = $bankData['bank_name'];
+        }
+        
+        if (isset($bankData['bank_account'])) {
+            $updateData['bank_account'] = $bankData['bank_account'];
+        }
+        
+        if (isset($bankData['account_holder'])) {
+            $updateData['account_holder'] = $bankData['account_holder'];
+        }
+        
+        if (isset($bankData['bank_branch'])) {
+            $updateData['bank_branch'] = $bankData['bank_branch'];
+        }
+        
+        // Reset verification when bank info changes
+        $updateData['bank_verified'] = 0;
+        $updateData['bank_verified_at'] = null;
+        $updateData['bank_last_changed_at'] = date('Y-m-d H:i:s');
+        
+        return $this->update($affiliateId, $updateData);
+    }
+    
+    /**
+     * Verify bank information
+     */
+    public function verifyBankInfo($affiliateId) {
+        return $this->update($affiliateId, [
+            'bank_verified' => 1,
+            'bank_verified_at' => date('Y-m-d H:i:s')
+        ]);
+    }
+    
+    /**
+     * Check if bank info is complete
+     */
+    public function hasBankInfo($affiliateId) {
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            return false;
+        }
+        
+        return !empty($affiliate['bank_name']) && 
+               !empty($affiliate['bank_account']) && 
+               !empty($affiliate['account_holder']);
+    }
+    
+    /**
+     * Get bank information
+     */
+    public function getBankInfo($affiliateId) {
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            return null;
+        }
+        
+        return [
+            'bank_name' => $affiliate['bank_name'],
+            'bank_account' => $affiliate['bank_account'],
+            'account_holder' => $affiliate['account_holder'],
+            'bank_branch' => $affiliate['bank_branch'],
+            'bank_verified' => $affiliate['bank_verified'],
+            'bank_verified_at' => $affiliate['bank_verified_at'],
+            'bank_last_changed_at' => $affiliate['bank_last_changed_at']
+        ];
+    }
+    
+    // ==================== OTP METHODS ====================
+    
+    /**
+     * Generate and save OTP for bank info change
+     */
+    public function generateBankChangeOTP($affiliateId) {
+        $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+        
+        $this->update($affiliateId, [
+            'bank_change_otp' => $otp,
+            'bank_change_otp_expires_at' => $expiresAt
+        ]);
+        
+        return $otp;
+    }
+    
+    /**
+     * Verify OTP for bank info change
+     */
+    public function verifyBankChangeOTP($affiliateId, $otp) {
+        $affiliate = $this->find($affiliateId);
+        if (!$affiliate) {
+            return false;
+        }
+        
+        // Check if OTP matches
+        if ($affiliate['bank_change_otp'] !== $otp) {
+            return false;
+        }
+        
+        // Check if OTP is expired
+        if (strtotime($affiliate['bank_change_otp_expires_at']) < time()) {
+            return false;
+        }
+        
+        // Clear OTP after successful verification
+        $this->update($affiliateId, [
+            'bank_change_otp' => null,
+            'bank_change_otp_expires_at' => null
+        ]);
+        
+        return true;
+    }
+    
+    /**
+     * Clear OTP
+     */
+    public function clearBankChangeOTP($affiliateId) {
+        return $this->update($affiliateId, [
+            'bank_change_otp' => null,
+            'bank_change_otp_expires_at' => null
+        ]);
     }
 }

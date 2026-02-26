@@ -317,4 +317,129 @@ class OrdersModel extends BaseModel {
         
         return $this->db->query($sql, [$year]);
     }
+    
+    // ==================== COMMISSION TRACKING METHODS ====================
+    
+    /**
+     * Record commission for completed order
+     */
+    public function recordCommission($orderId, $affiliateId, $commissionAmount) {
+        if ($commissionAmount <= 0) {
+            throw new Exception('Commission amount must be positive');
+        }
+        
+        return $this->update($orderId, [
+            'affiliate_id' => $affiliateId,
+            'commission_amount' => $commissionAmount
+        ]);
+    }
+    
+    /**
+     * Get orders by affiliate
+     */
+    public function getByAffiliate($affiliateId, $limit = null, $status = null) {
+        $query = $this->where('affiliate_id', $affiliateId);
+        
+        if ($status) {
+            $query->where('status', $status);
+        }
+        
+        $query->orderBy('created_at', 'DESC');
+        
+        if ($limit) {
+            $query->limit($limit);
+        }
+        
+        return $query->get();
+    }
+    
+    /**
+     * Get affiliate commission summary
+     */
+    public function getAffiliateCommissionSummary($affiliateId, $dateRange = null) {
+        $whereClause = "WHERE affiliate_id = ?";
+        $bindings = [$affiliateId];
+        
+        if ($dateRange) {
+            $whereClause .= " AND created_at >= ? AND created_at <= ?";
+            $bindings[] = $dateRange['start'];
+            $bindings[] = $dateRange['end'];
+        }
+        
+        $sql = "
+            SELECT 
+                COUNT(*) as total_orders,
+                SUM(total) as total_sales,
+                SUM(commission_amount) as total_commission,
+                AVG(commission_amount) as avg_commission,
+                SUM(CASE WHEN status = 'completed' THEN commission_amount ELSE 0 END) as completed_commission,
+                SUM(CASE WHEN status = 'pending' THEN commission_amount ELSE 0 END) as pending_commission
+            FROM {$this->table}
+            {$whereClause}
+        ";
+        
+        $result = $this->db->query($sql, $bindings);
+        return $result ? $result[0] : [];
+    }
+    
+    /**
+     * Get orders with commission for affiliate
+     */
+    public function getAffiliateOrdersWithCommission($affiliateId, $page = 1, $perPage = 20) {
+        $offset = ($page - 1) * $perPage;
+        
+        $sql = "
+            SELECT o.*, u.name as customer_name, u.email as customer_email
+            FROM {$this->table} o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.affiliate_id = ? AND o.commission_amount > 0
+            ORDER BY o.created_at DESC
+            LIMIT {$perPage} OFFSET {$offset}
+        ";
+        
+        $orders = $this->db->query($sql, [$affiliateId]);
+        
+        // Get total count
+        $countSql = "SELECT COUNT(*) as count FROM {$this->table} 
+                     WHERE affiliate_id = ? AND commission_amount > 0";
+        $countResult = $this->db->query($countSql, [$affiliateId]);
+        $total = $countResult[0]['count'] ?? 0;
+        
+        return [
+            'data' => $orders,
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $total,
+            'last_page' => ceil($total / $perPage),
+            'from' => $offset + 1,
+            'to' => min($offset + $perPage, $total)
+        ];
+    }
+    
+    /**
+     * Get total commission statistics
+     */
+    public function getCommissionStats($dateRange = null) {
+        $whereClause = "WHERE commission_amount > 0";
+        $bindings = [];
+        
+        if ($dateRange) {
+            $whereClause .= " AND created_at >= ? AND created_at <= ?";
+            $bindings = [$dateRange['start'], $dateRange['end']];
+        }
+        
+        $sql = "
+            SELECT 
+                COUNT(*) as total_orders_with_commission,
+                COUNT(DISTINCT affiliate_id) as active_affiliates,
+                SUM(commission_amount) as total_commission_paid,
+                AVG(commission_amount) as avg_commission_per_order,
+                SUM(total) as total_sales_with_affiliate
+            FROM {$this->table}
+            {$whereClause}
+        ";
+        
+        $result = $this->db->query($sql, $bindings);
+        return $result ? $result[0] : [];
+    }
 }

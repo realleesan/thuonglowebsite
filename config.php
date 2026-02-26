@@ -9,6 +9,9 @@ if (!defined('THUONGLO_INIT')) {
     define('THUONGLO_INIT', true);
 }
 
+// Load environment variables from .env file
+require_once __DIR__ . '/core/env.php';
+
 /**
  * Environment Detection Function
  * Automatically detects local vs hosting environment
@@ -104,7 +107,114 @@ $config = [
         'display_errors' => ($environment === 'local'),
         'log_errors' => true,
         'log_file' => 'logs/error.log',
-    ]
+    ],
+    
+    // SePay Payment Gateway Configuration
+    'sepay' => [
+        'enabled' => true,
+        'api_key' => Env::get('SEPAY_API_KEY', 'YOUR_SEPAY_API_KEY_HERE'),
+        'api_secret' => Env::get('SEPAY_API_SECRET', 'YOUR_SEPAY_API_SECRET_HERE'),
+        'account_number' => Env::get('SEPAY_ACCOUNT_NUMBER', 'YOUR_ACCOUNT_NUMBER_HERE'),
+        'account_name' => 'THUONG LO',
+        'bank_code' => 'MB', // MB Bank, VCB, TCB, etc.
+        'api_url' => 'https://my.sepay.vn/userapi',
+        'webhook_secret' => Env::get('SEPAY_WEBHOOK_SECRET', 'YOUR_WEBHOOK_SECRET_HERE'),
+        'payment_timeout' => 120, // 120 seconds (2 minutes)
+        'qr_timeout' => 120, // QR code expiration time
+        'order_prefix' => 'DH', // Order prefix: DH[OrderId]
+        'withdrawal_prefix' => 'RUT', // Withdrawal prefix: RUT[Code]
+        'test_mode' => ($environment === 'local'), // Enable test mode in local
+    ],
+    
+    // Commission & Wallet Configuration
+    'commission' => [
+        'enabled' => true,
+        'default_rate' => 10.00, // 10% default commission rate
+        'min_order_for_commission' => 0, // Minimum order amount to earn commission
+        'auto_credit' => true, // Auto credit commission when order is paid
+        'allow_negative_balance' => false, // Don't allow negative balance (for refunds)
+    ],
+    
+    // Withdrawal Configuration
+    'withdrawal' => [
+        'enabled' => true,
+        'min_amount' => 5000, // Minimum 5,000 VND
+        'max_amount' => 50000000, // Maximum 50,000,000 VND per request
+        'fee' => 0, // Withdrawal fee (0 = free)
+        'fee_type' => 'fixed', // 'fixed' or 'percentage'
+        'require_bank_verification' => true, // Require OTP when changing bank info
+        'otp_expiry' => 300, // OTP expires in 5 minutes
+        'auto_approve' => false, // Require admin approval
+        'daily_limit' => 100000000, // Daily withdrawal limit per affiliate
+        'monthly_limit' => 500000000, // Monthly withdrawal limit per affiliate
+    ],
+    
+    // Email Configuration (PHPMailer)
+    'email' => [
+        'enabled' => true,
+        'driver' => 'smtp', // 'smtp' or 'mail'
+        'smtp_host' => Env::get('SMTP_HOST', 'smtp.gmail.com'),
+        'smtp_port' => Env::get('SMTP_PORT', 587),
+        'smtp_encryption' => 'tls', // 'tls' or 'ssl'
+        'smtp_username' => Env::get('SMTP_USERNAME', 'your-email@gmail.com'),
+        'smtp_password' => Env::get('SMTP_PASSWORD', 'your-app-password'),
+        'from_email' => Env::get('MAIL_FROM_EMAIL', 'noreply@thuonglo.com'),
+        'from_name' => Env::get('MAIL_FROM_NAME', 'Thuong Lo'),
+        'reply_to' => 'support@thuonglo.com',
+        'charset' => 'UTF-8',
+        'timeout' => 30,
+        // Email templates
+        'templates' => [
+            'order_confirmation' => 'emails/order_confirmation.php',
+            'payment_success' => 'emails/payment_success.php',
+            'payment_failed' => 'emails/payment_failed.php',
+            'commission_earned' => 'emails/commission_earned.php',
+            'withdrawal_request' => 'emails/withdrawal_request.php',
+            'withdrawal_approved' => 'emails/withdrawal_approved.php',
+            'withdrawal_completed' => 'emails/withdrawal_completed.php',
+            'withdrawal_rejected' => 'emails/withdrawal_rejected.php',
+            'bank_info_changed' => 'emails/bank_info_changed.php',
+            'otp_verification' => 'emails/otp_verification.php',
+        ],
+    ],
+    
+    // Webhook Configuration
+    'webhook' => [
+        'enabled' => true,
+        'verify_signature' => true,
+        'log_all_webhooks' => true,
+        'retry_failed' => true,
+        'max_retries' => 3,
+        'retry_delay' => 60, // seconds
+        'allowed_ips' => [
+            // SePay webhook IPs (update with actual IPs)
+            '0.0.0.0', // Allow all for now, restrict in production
+        ],
+    ],
+    
+    // Logging Configuration
+    'logging' => [
+        'payment' => [
+            'enabled' => true,
+            'file' => 'logs/payment.log',
+            'level' => 'info', // debug, info, warning, error
+        ],
+        'webhook' => [
+            'enabled' => true,
+            'file' => 'logs/webhook.log',
+            'level' => 'debug',
+        ],
+        'commission' => [
+            'enabled' => true,
+            'file' => 'logs/commission.log',
+            'level' => 'info',
+        ],
+        'withdrawal' => [
+            'enabled' => true,
+            'file' => 'logs/withdrawal.log',
+            'level' => 'info',
+        ],
+    ],
 ];
 
 // Set error reporting based on environment

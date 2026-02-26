@@ -437,6 +437,57 @@ switch($page) {
             ['title' => 'Thanh toán thành công']
         ];
         break;
+    
+    // ==================== DEMO ROUTES ====================
+    case 'products_demo':
+        $title = 'Sản phẩm Demo - Thuong Lo';
+        $content = 'app/views/products/products_demo.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = false;
+        break;
+        
+    case 'details_demo':
+        $title = 'Chi tiết sản phẩm Demo - Thuong Lo';
+        $content = 'app/views/products/details_demo.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = false;
+        break;
+        
+    case 'checkout_demo':
+        $title = 'Thanh toán Demo - Thuong Lo';
+        $content = 'app/views/payment/checkout_demo.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = false;
+        break;
+        
+    case 'payment_demo':
+        $title = 'Xử lý thanh toán Demo - Thuong Lo';
+        $content = 'app/views/payment/payment_demo.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = false;
+        break;
+        
+    case 'payment_success_demo':
+        $title = 'Thanh toán thành công Demo - Thuong Lo';
+        $content = 'app/views/payment/success_demo.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = false;
+        break;
+        
+    case 'check_payment_demo':
+        // AJAX endpoint to check payment status
+        require_once 'app/controllers/PaymentDemoController.php';
+        $controller = new PaymentDemoController();
+        $result = $controller->checkPaymentStatus();
+        header('Content-Type: application/json');
+        echo json_encode($result);
+        exit;
+        break;
         
     case 'admin':
         // Admin panel routing

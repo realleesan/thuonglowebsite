@@ -96,6 +96,10 @@ try {
             }
             break;
             
+        // ==========================================
+        // ADMIN DASHBOARD API
+        // ==========================================
+            
         case 'admin/dashboard/revenue':
             if ($method === 'GET') {
                 require_once __DIR__ . '/app/controllers/AdminDashboardController.php';
@@ -337,6 +341,45 @@ try {
             }
             break;
 
+        // ==========================================
+        // WEBHOOK ENDPOINTS
+        // ==========================================
+        
+        case 'webhook/sepay':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/controllers/WebhookController.php';
+                $controller = new WebhookController();
+                $controller->handleSepayWebhook();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+            
+        case 'webhook/test':
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/controllers/WebhookController.php';
+                $controller = new WebhookController();
+                $controller->test();
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+            
+        // ==========================================
+        // DEMO WEBHOOK ENDPOINTS
+        // ==========================================
+        
+        case 'webhook/sepay_demo':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/controllers/WebhookDemoController.php';
+                $controller = new WebhookDemoController();
+                $result = $controller->handleWebhook();
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+            
         default:
             throw new Exception('Endpoint not found', 404);
     }
