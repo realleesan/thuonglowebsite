@@ -581,7 +581,34 @@ class AuthService implements ServiceInterface {
      * Check if user is authenticated
      */
     public function isAuthenticated(): bool {
-        return $this->sessionManager->isValid();
+        if (!$this->sessionManager->isValid()) {
+            return false;
+        }
+        
+        // Kiểm tra phiên thiết bị có còn active không
+        return $this->isDeviceSessionValid();
+    }
+    
+    /**
+     * Kiểm tra xem phiên thiết bị hiện tại có còn active không
+     */
+    private function isDeviceSessionValid(): bool {
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            return true; // Không có user thì bỏ qua kiểm tra
+        }
+        
+        // Debug log
+        error_log("isDeviceSessionValid: userId=$userId, session_id=" . session_id());
+        
+        // Kiểm tra xem thiết bị có trong database và status là active không
+        require_once __DIR__ . '/DeviceAccessService.php';
+        $deviceService = new DeviceAccessService();
+        $isValid = $deviceService->checkCurrentDeviceSession($userId);
+        
+        error_log("isDeviceSessionValid result: " . ($isValid ? 'true' : 'false'));
+        
+        return $isValid;
     }
     
     /**

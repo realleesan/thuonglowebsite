@@ -102,14 +102,37 @@ class DeviceAccessModel extends BaseModel {
     }
 
     /**
-     * Xóa phiên thiết bị
+     * Cập nhật session_id cho thiết bị (dùng khi session được regeneration)
      */
-    public function deleteDeviceSession(int $id): bool {
+    public function updateSessionId(int $id, string $sessionId): bool {
         $this->query(
-            "DELETE FROM device_sessions WHERE id = :id",
-            ['id' => $id]
+            "UPDATE device_sessions SET session_id = :session_id, updated_at = :updated_at WHERE id = :id",
+            ['session_id' => $sessionId, 'updated_at' => date('Y-m-d H:i:s'), 'id' => $id]
         );
         return true;
+    }
+
+    /**
+     * Xóa phiên thiết bị (đánh dấu là rejected thay vì xóa để có thể kiểm tra)
+     */
+    public function deleteDeviceSession(int $id): bool {
+        // Thay vì xóa, đánh dấu là rejected để có thể kiểm tra session
+        $this->query(
+            "UPDATE device_sessions SET status = 'rejected', updated_at = :updated_at WHERE id = :id",
+            ['updated_at' => date('Y-m-d H:i:s'), 'id' => $id]
+        );
+        return true;
+    }
+
+    /**
+     * Kiểm tra xem thiết bị có đang active không
+     */
+    public function isDeviceActive(int $userId, string $sessionId): bool {
+        $result = $this->query(
+            "SELECT id FROM device_sessions WHERE user_id = :user_id AND session_id = :session_id AND status = 'active' LIMIT 1",
+            ['user_id' => $userId, 'session_id' => $sessionId]
+        );
+        return !empty($result);
     }
 
     /**

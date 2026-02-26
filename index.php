@@ -259,8 +259,10 @@ switch($page) {
         $showCTA = false;
         $showBreadcrumb = true;
         
-        // Check authentication
-        if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+        // Check authentication using AuthService (includes device validation)
+        require_once __DIR__ . '/app/services/AuthService.php';
+        $authService = new AuthService();
+        if (!$authService->isAuthenticated()) {
             header('Location: ?page=login');
             exit;
         }
@@ -443,13 +445,7 @@ switch($page) {
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
         
-        // Check authentication and admin role
-        if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-            header('Location: ?page=login');
-            exit;
-        }
-        
-        // Check if user has admin role
+        // Check authentication and admin role using AuthMiddleware (includes device validation)
         try {
             $authMiddleware = new AuthMiddleware();
             if (!$authMiddleware->requireAdmin()) {
@@ -726,8 +722,10 @@ switch($page) {
         $module = $_GET['module'] ?? 'dashboard';
         $action = $_GET['action'] ?? 'index';
         
-        // Check if user is logged in
-        if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+        // Check authentication using AuthService (includes device validation)
+        require_once __DIR__ . '/app/services/AuthService.php';
+        $authService = new AuthService();
+        if (!$authService->isAuthenticated()) {
             header('Location: ?page=login');
             exit;
         }

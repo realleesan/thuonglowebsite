@@ -371,13 +371,14 @@ class DeviceAccessService implements ServiceInterface {
             return ['success' => false, 'message' => 'Thiết bị không tồn tại.'];
         }
 
-        // Luôn luôn logout khi xóa thiết bị hiện tại
-        // Kiểm tra bằng cách so sánh session_id hoặc dựa vào is_current flag từ database
-        $isCurrentDevice = ($device['is_current'] == 1) || ($device['session_id'] === session_id());
+        // Chỉ logout nếu xóa chính thiết bị hiện tại (session_id khớp)
+        // KHÔNG dựa vào is_current vì nó có thể bị sai
+        $isCurrentDevice = ($device['session_id'] === session_id());
         
         // Debug log
-        error_log("removeDevice: device_id=" . $deviceId . ", is_current=" . $device['is_current'] . ", session_id=" . $device['session_id'] . ", current_session=" . session_id() . ", isCurrentDevice=" . ($isCurrentDevice ? 'true' : 'false'));
+        error_log("removeDevice: userId=$userId, device_id=$deviceId, device_session=" . $device['session_id'] . ", current_session=" . session_id() . ", isCurrentDevice=$isCurrentDevice");
         
+        // Đánh dấu thiết bị là rejected
         $this->model->deleteDeviceSession($deviceId);
 
         return [
@@ -463,5 +464,53 @@ class DeviceAccessService implements ServiceInterface {
             error_log("Failed to send device verification email: " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Kiểm tra phiên thiết bị hiện tại có còn active không
+     * Được gọi từ AuthService::isAuthenticated() để xác nhận user vẫn còn quyền truy cập
+     */
+    public function checkCurrentDeviceSession(int $userId): bool {
+        $currentSessionId = session_id();
+        
+        // Tìm thiết bị với session_id hiện tại
+        $device = $this->model->findByUserAndSession($userId, $currentSessionId);
+        
+        // Nếu không tìm thấy thiết bị, có thể do session_id đã được regeneration
+        // Thử tìm thiết bị active gần nhất của user để cập nhật session_id
+        if (!$device) {
+            error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device=NOT_FOUND - checking for session regeneration");
+            
+            // Tìm thiết bị active của user
+            $activeDevices = $this->model->getActiveDevices($userId);
+            if (!empty($activeDevices)) {
+                // Lấy thiết bị đầu tiên (thường là thiết bị hiện tại)
+                $device = $activeDevices[0];
+                
+                // Cập nhật session_id cho thiết bị
+                $this->model->updateSessionId($device['id'], $currentSessionId);
+                error_log("checkCurrentDeviceSession: updated session_id for device " . $device['id']);
+                
+                // Kiểm tra lại status
+                if ($device['status'] !== 'active') {
+                    error_log("checkCurrentDeviceSession: user=$userId, device status=" . $device['status']);
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Không có thiết bị active nào
+            return false;
+        }
+        
+        if ($device['status'] !== 'active') {
+            // Log để debug
+            error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device status=" . $device['status']);
+            return false;
+        }
+        
+        error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device FOUND, status=" . $device['status']);
+        return true;
     }
 }
