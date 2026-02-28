@@ -91,32 +91,54 @@ class DeviceAccessService implements ServiceInterface {
             ];
         }
 
-        // Kiểm tra xem có thiết bị nào của user đang pending với IP và user-agent tương tự không
-        // (Trường hợp: thiết bị đã được duyệt nhưng session_id thay đổi)
+        // Có thiết bị khác đang đăng nhập rồi
+        // Kiểm tra xem thiết bị này đã từng được duyệt chưa (cùng IP)
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
         $ip = $this->model->getClientIP();
-        $deviceInfo = $this->model->parseUserAgent($ua);
         
-        // Tìm thiết bị pending với cùng IP và device type
-        $pendingDevices = $this->model->getPendingDevices($userId);
-        foreach ($pendingDevices as $pending) {
-            // Nếu thiết bị pending có cùng IP và device type, tự động activate
-            if ($pending['ip_address'] === $ip && 
-                $pending['device_type'] === $deviceInfo['device_type']) {
-                // Cập nhật session_id mới và activate
-                $this->model->updateSessionId($pending['id'], $currentSessionId);
-                $this->model->updateDeviceStatus($pending['id'], 'active');
-                $this->model->setCurrentDevice($userId, $pending['id']);
-                return [
-                    'success' => true,
-                    'requires_verification' => false,
-                    'device_id' => $pending['id'],
-                    'auto_activated' => true
-                ];
+        // Tìm thiết bị active hoặc pending có cùng IP
+        $foundDevice = null;
+        
+        // Tìm trong active devices
+        $activeDevices = $this->model->getActiveDevices($userId);
+        foreach ($activeDevices as $active) {
+            if ($active['ip_address'] === $ip) {
+                $foundDevice = $active;
+                break;
             }
         }
 
-        // Thiết bị thứ 2 trở đi - cần xác thực
+        // Tìm trong pending devices
+        if (!$foundDevice) {
+            $pendingDevices = $this->model->getPendingDevices($userId);
+            foreach ($pendingDevices as $pending) {
+                if ($pending['ip_address'] === $ip) {
+                    $foundDevice = $pending;
+                    break;
+                }
+            }
+        }
+
+        // Nếu tìm thấy thiết bị đã được duyệt (cùng IP)
+        // -> Cho phép đăng nhập, đăng xuất thiết bị cũ
+        if ($foundDevice) {
+            // Đăng xuất tất cả các thiết bị khác
+            // (Chưa có session mới nên deactivate hết)
+            $this->model->deactivateOtherSessions($userId, '');
+            
+            // Đăng ký thiết bị mới cho session hiện tại
+            $newDeviceId = $this->registerCurrentDevice($userId, 'active');
+            
+            return [
+                'success' => true,
+                'requires_verification' => false,
+                'device_id' => $newDeviceId,
+                'auto_activated' => true,
+                'logged_out_other_devices' => true
+            ];
+        }
+
+        // Thiết bị mới (IP khác) - cần xác thực từ thiết bị đang có
         $deviceId = $this->registerCurrentDevice($userId, 'pending');
         return [
             'success' => true,

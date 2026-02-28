@@ -261,11 +261,13 @@ class AuthService implements ServiceInterface {
             // Create session
             $sessionId = $this->sessionManager->createSession($user);
             
-            // Register device session
+            // Cập nhật session_id cho thiết bị sau khi session được tạo (vì session_id có thể thay đổi)
             if (isset($deviceService) && isset($deviceCheck['device_id'])) {
                 try {
                     $deviceModel = $deviceService->getModel('DeviceAccessModel');
                     if ($deviceModel) {
+                        // Cập nhật session_id mới cho thiết bị
+                        $deviceModel->updateSessionId($deviceCheck['device_id'], $sessionId);
                         $deviceModel->setCurrentDevice($user['id'], $deviceCheck['device_id']);
                         $deviceModel->updateLastActivity($deviceCheck['device_id']);
                     }
