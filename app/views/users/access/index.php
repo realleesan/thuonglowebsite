@@ -92,45 +92,46 @@ $maxDevices = $deviceData['max_devices'] ?? 3;
         </div>
         <?php endif; ?>
 
-        <!-- Active Devices List -->
+        <!-- Active Devices List - Only show current device -->
         <div class="profile-card profile-card-full">
             <div class="profile-card-header">
-                <h3><i class="fas fa-laptop"></i> Thiết bị đã đăng nhập</h3>
+                <h3><i class="fas fa-laptop"></i> Thiết bị đang đăng nhập</h3>
             </div>
             <div class="profile-card-content">
-                <?php if (empty($activeDevices)): ?>
+                <?php 
+                // Lọc chỉ lấy thiết bị hiện tại
+                $currentDevice = null;
+                foreach ($activeDevices as $device) {
+                    if ($device['is_this_device']) {
+                        $currentDevice = $device;
+                        break;
+                    }
+                }
+                ?>
+                <?php if (!$currentDevice): ?>
                     <div class="text-center py-4">
                         <i class="fas fa-laptop-code fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Chưa có thiết bị nào đăng nhập</p>
+                        <p class="text-muted">Không tìm thấy thiết bị hiện tại</p>
                     </div>
                 <?php else: ?>
-                    <?php foreach ($activeDevices as $device): ?>
-                    <div class="device-item <?php echo $device['is_this_device'] ? 'current' : ''; ?>" id="device-<?php echo $device['id']; ?>">
+                    <div class="device-item current" id="device-<?php echo $currentDevice['id']; ?>">
                         <div class="device-icon-large">
-                            <i class="fas <?php echo $device['device_type'] === 'mobile' ? 'fa-mobile-alt' : 'fa-desktop'; ?>"></i>
+                            <i class="fas <?php echo $currentDevice['device_type'] === 'mobile' ? 'fa-mobile-alt' : 'fa-desktop'; ?>"></i>
                         </div>
                         <div class="device-info">
                             <div class="fw-bold">
-                                <?php echo htmlspecialchars($device['device_name']); ?>
-                                <?php if ($device['is_this_device']): ?>
-                                    <span class="badge bg-primary ms-2">Đang dùng</span>
-                                <?php endif; ?>
+                                <?php echo htmlspecialchars($currentDevice['device_name']); ?>
+                                <span class="badge bg-primary ms-2">Đang dùng</span>
                             </div>
                             <small class="text-muted">
-                                <?php echo $device['ip_address']; ?> • <?php echo htmlspecialchars($device['location']); ?>
+                                <?php echo $currentDevice['ip_address']; ?> • <?php echo htmlspecialchars($currentDevice['location']); ?>
                             </small>
                             <small class="text-muted d-block">
-                                Hoạt động: <?php echo date('d/m/Y H:i', strtotime($device['last_activity'])); ?>
+                                Hoạt động: <?php echo date('d/m/Y H:i', strtotime($currentDevice['last_activity'])); ?>
                             </small>
                         </div>
-                        <div class="device-actions">
-                            <button class="btn btn-outline-danger btn-sm btn-remove" data-id="<?php echo $device['id']; ?>" data-current="<?php echo $device['is_this_device'] ? '1' : '0'; ?>">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
                     </div>
-                    <hr>
-                    <?php endforeach; ?>
+                    <p class="text-muted mt-3"><i class="fas fa-info-circle"></i> Đây là thiết bị bạn đang sử dụng để truy cập tài khoản này.</p>
                 <?php endif; ?>
             </div>
         </div>
