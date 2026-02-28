@@ -337,6 +337,40 @@ try {
             }
             break;
 
+        case 'device/auto-login':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/services/DeviceAccessService.php';
+                $service = new DeviceAccessService();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $deviceSessionId = (int)($input['device_session_id'] ?? 0);
+                
+                if (!$deviceSessionId) {
+                    throw new Exception('Device session ID is required', 400);
+                }
+                
+                $result = $service->autoLogin($deviceSessionId);
+                
+                if ($result['success']) {
+                    // Tạo session cho user
+                    $_SESSION['user_id'] = $result['user']['id'];
+                    $_SESSION['user_name'] = $result['user']['name'];
+                    $_SESSION['user_email'] = $result['user']['email'];
+                    $_SESSION['username'] = $result['user']['username'];
+                    $_SESSION['user_role'] = $result['user']['role'];
+                    $_SESSION['user'] = $result['user'];
+                    
+                    // Xóa pending device session
+                    unset($_SESSION['pending_user_id']);
+                    unset($_SESSION['pending_user_data']);
+                    unset($_SESSION['pending_device_session_id']);
+                }
+                
+                echo json_encode($result);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
         default:
             throw new Exception('Endpoint not found', 404);
     }

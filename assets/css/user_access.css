@@ -25,7 +25,7 @@
 }
 
 .section-title i {
-    color: #667eea;
+    color: #356DF1;
 }
 
 .section-subtitle {
@@ -49,12 +49,12 @@
 .device-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
-    border-color: #667eea;
+    border-color: #356DF1;
 }
 
 .device-card.current-device {
-    background: linear-gradient(to right, #f8faff, #ffffff);
-    border-left: 5px solid #667eea;
+    background: linear-gradient(to right, #f0f5ff, #ffffff);
+    border-left: 5px solid #356DF1;
 }
 
 .device-card.pending-card {
@@ -92,8 +92,8 @@
 }
 
 .current-device .device-icon {
-    background: #ebf4ff;
-    color: #667eea;
+    background: #eff6ff;
+    color: #356DF1;
 }
 
 .pending-card .device-icon {
@@ -201,13 +201,13 @@
 }
 
 #deviceVerifyModal .nav-pills .nav-link.active {
-    background: #667eea;
+    background: #356DF1;
     color: #fff;
 }
 
 #otpCode:focus {
     box-shadow: none;
-    border-color: #667eea;
+    border-color: #356DF1;
 }
 
 .tab-pane {
@@ -249,4 +249,372 @@
     .section-title {
         font-size: 20px;
     }
+}
+
+/* ==========================================
+   Custom Modal for Device Verification
+   (Without Bootstrap)
+   ========================================== */
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Container */
+.modal-container {
+    background: #fff;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.modal-overlay.active .modal-container {
+    transform: scale(1) translateY(0);
+}
+
+/* Modal Body */
+.modal-body-custom {
+    padding: 32px;
+    text-align: center;
+}
+
+/* Icon */
+.modal-icon {
+    font-size: 56px;
+    color: #356DF1;
+    margin-bottom: 16px;
+}
+
+/* Headings */
+.modal-title-custom {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 12px;
+}
+
+.modal-subtitle {
+    color: #6B7280;
+    font-size: 14px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+/* Buttons */
+.btn-modal-primary {
+    background: #356DF1;
+    color: #fff;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-primary:hover {
+    background: #000000;
+    transform: translateY(-1px);
+}
+
+.btn-modal-outline {
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    text-align: left;
+    color: #1F2937;
+}
+
+.btn-modal-outline:hover {
+    border-color: #356DF1;
+    background: #f9fafb;
+}
+
+.btn-modal-outline.selected {
+    border-color: #356DF1;
+    background: #eff6ff;
+}
+
+/* Radio option styling */
+.radio-option {
+    position: relative;
+    padding-left: 40px;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    accent-color: #356DF1;
+}
+
+.radio-option .option-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border-radius: 8px;
+    color: #6B7280;
+}
+
+.radio-option:hover .option-icon {
+    background: #e5e7eb;
+    color: #356DF1;
+}
+
+.btn-modal-outline i {
+    font-size: 20px;
+}
+
+.btn-modal-link {
+    background: none;
+    border: none;
+    color: #6c757d;
+    padding: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn-modal-link:hover {
+    color: #356DF1;
+}
+
+/* Form Inputs */
+.form-label-custom {
+    display: block;
+    text-align: left;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-input-custom {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+    background: #fff;
+    color: #1F2937;
+}
+
+.form-input-custom:focus {
+    outline: none;
+    border-color: #356DF1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+/* Alert */
+.alert-custom {
+    background: #eff6ff;
+    color: #1e40af;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    text-align: left;
+    margin-bottom: 16px;
+    border: 1px solid #bfdbfe;
+}
+
+.alert-custom i {
+    margin-right: 6px;
+}
+
+/* Spinner */
+.spinner-custom {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #ffc107;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* OTP Input */
+.otp-input {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 12px;
+    padding: 16px;
+}
+
+/* Utility */
+.d-none-custom {
+    display: none !important;
+}
+
+.text-warning-custom {
+    color: #ffc107 !important;
+}
+
+.text-primary-custom {
+    color: #356DF1 !important;
+}
+
+.text-success-custom {
+    color: #48bb78 !important;
+}
+
+.mb-0-custom {
+    margin-bottom: 0 !important;
+}
+
+.mb-2-custom {
+    margin-bottom: 8px !important;
+}
+
+.mb-3-custom {
+    margin-bottom: 16px !important;
+}
+
+.mb-4-custom {
+    margin-bottom: 24px !important;
+}
+
+.w-100-custom {
+    width: 100% !important;
+}
+
+.d-grid-custom {
+    display: grid !important;
+}
+
+.gap-2-custom {
+    gap: 12px !important;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .modal-container {
+        width: 95%;
+        margin: 16px;
+    }
+    
+    .modal-body-custom {
+        padding: 24px;
+    }
+}
+
+/* Password Modal Additional Styles */
+.form-control-custom {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s;
+    background: #fff;
+}
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: #356DF1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+.form-control-custom.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback-custom {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+}
+
+.invalid-feedback-custom.show {
+    display: block;
+}
+
+.btn-modal-secondary {
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    z-index: 10;
+}
+
+.btn-modal-close:hover {
+    color: #1f2937;
+}
+
+.modal-footer-custom {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
 }

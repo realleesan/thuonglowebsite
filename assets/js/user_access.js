@@ -28,6 +28,21 @@ document.addEventListener('DOMContentLoaded', function () {
     function initAccessManagement() {
         console.log('initAccessManagement called');
         
+        // Thêm các hàm đóng modal toàn cục
+        window.closeApproveConfirmModal = function() {
+            const confirmModal = document.getElementById('approveConfirmModal');
+            if (confirmModal) {
+                confirmModal.classList.remove('active');
+            }
+        };
+        
+        window.closePasswordModal = function() {
+            const modalEl = document.getElementById('passwordConfirmModal');
+            if (modalEl) {
+                modalEl.classList.remove('active');
+            }
+        };
+        
         const btnApprove = document.querySelectorAll('.btn-approve');
         const btnReject = document.querySelectorAll('.btn-reject');
         const btnRemove = document.querySelectorAll('.btn-remove');
@@ -39,17 +54,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let targetDeviceId = null;
 
-        // Bấm nút Phê duyệt
+        // Bấm nút Phê duyệt - Hiện modal xác nhận trước
         btnApprove.forEach(btn => {
             btn.addEventListener('click', function () {
                 targetDeviceId = this.getAttribute('data-id');
                 const deviceName = this.getAttribute('data-name');
+                const deviceInfo = this.getAttribute('data-info');
+                
+                // Hiển thị thông tin trong modal xác nhận
+                document.getElementById('confirmDeviceName').textContent = deviceName;
+                document.getElementById('confirmDeviceInfo').textContent = deviceInfo || '';
                 document.getElementById('targetDeviceName').textContent = deviceName;
 
-                const modal = new bootstrap.Modal(passwordModal);
-                modal.show();
+                // Show confirm modal first
+                const confirmModal = document.getElementById('approveConfirmModal');
+                if (confirmModal) {
+                    confirmModal.classList.add('active');
+                }
             });
         });
+        
+        // Bấm nút Đồng ý trong modal xác nhận -> Hiện modal mật khẩu
+        const btnConfirmDevice = document.getElementById('btnConfirmDevice');
+        if (btnConfirmDevice) {
+            btnConfirmDevice.addEventListener('click', function() {
+                // Close confirm modal
+                const confirmModal = document.getElementById('approveConfirmModal');
+                if (confirmModal) {
+                    confirmModal.classList.remove('active');
+                }
+                
+                // Reset password fields
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('confirmPassword2').value = '';
+                
+                // Show password modal
+                const modalEl = document.getElementById('passwordConfirmModal');
+                if (modalEl) {
+                    modalEl.classList.add('active');
+                }
+            });
+        }
 
         // Xác nhận mật khẩu để phê duyệt
         if (btnConfirmApprove) {
@@ -64,21 +109,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Reset validation
                 passwordInput.classList.remove('is-invalid');
                 password2Input.classList.remove('is-invalid');
+                passwordError.classList.remove('show');
+                password2Error.classList.remove('show');
                 
                 if (!password) {
                     passwordInput.classList.add('is-invalid');
+                    passwordError.classList.add('show');
                     passwordError.textContent = 'Vui lòng nhập mật khẩu.';
                     return;
                 }
                 
                 if (!password2) {
                     password2Input.classList.add('is-invalid');
+                    password2Error.classList.add('show');
                     password2Error.textContent = 'Vui lòng nhập lại mật khẩu.';
                     return;
                 }
                 
                 if (password !== password2) {
                     password2Input.classList.add('is-invalid');
+                    password2Error.classList.add('show');
                     password2Error.textContent = 'Mật khẩu không khớp.';
                     return;
                 }
@@ -91,19 +141,34 @@ document.addEventListener('DOMContentLoaded', function () {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ device_session_id: targetDeviceId, password: password })
                 })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error('Network response was not ok: ' + res.status);
+                        }
+                        return res.json();
+                    })
                     .then(data => {
+                        console.log('Approve response:', data);
+                        if (data.debug) {
+                            console.log('Debug info:', data.debug);
+                        }
                         if (data.success) {
-                            alert('Đã phê duyệt thiết bị thành công!');
-                            // Close modal
+                            alert('Đã phê duyệt thiết bị thành công! Thiết bị này sẽ đăng nhập và bạn sẽ bị đăng xuất.');
+                            // Close custom modal
                             const modalEl = document.getElementById('passwordConfirmModal');
-                            const modal = bootstrap.Modal.getInstance(modalEl);
-                            if (modal) modal.hide();
+                            if (modalEl) {
+                                modalEl.classList.remove('active');
+                            }
                             location.reload();
                         } else {
                             passwordInput.classList.add('is-invalid');
+                            passwordError.classList.add('show');
                             passwordError.textContent = data.message || 'Mật khẩu không đúng.';
                         }
+                    })
+                    .catch(error => {
+                        console.error('Approve error:', error);
+                        alert('Có lỗi xảy ra: ' + error.message);
                     })
                     .finally(() => {
                         btnConfirmApprove.disabled = false;
@@ -118,18 +183,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 const id = this.getAttribute('data-id');
                 if (!confirm('Bạn có chắc chắn muốn từ chối thiết bị này?')) return;
 
+                // Disable button to prevent double click
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+
                 fetch('api.php?path=device/reject', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ device_session_id: id })
                 })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return res.json();
+                    })
                     .then(data => {
                         if (data.success) {
-                            location.reload();
+                            // Ẩn thiết bị
+                            const deviceEl = document.getElementById('device-' + id);
+                            if (deviceEl) {
+                                deviceEl.style.display = 'none';
+                            }
+                            setTimeout(() => location.reload(), 500);
                         } else {
-                            alert(data.message);
+                            alert(data.message || 'Có lỗi xảy ra.');
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fas fa-times"></i> Từ chối';
                         }
+                    })
+                    .catch(error => {
+                        console.error('Reject error:', error);
+                        // Vẫn reload vì có thể API đã xử lý
+                        location.reload();
                     });
             });
         });
@@ -200,16 +286,80 @@ document.addEventListener('DOMContentLoaded', function () {
             injectVerifyModal();
         }
 
-        const modalElement = document.getElementById('deviceVerifyModal');
-        const modal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
-        modal.show();
+        // Inject modal HTML
+        injectVerifyModal();
 
+        // ========== Step Navigation ==========
+        const step1 = document.getElementById('verifyStep1');
+        const step2 = document.getElementById('verifyStep2');
+        const emailStep = document.getElementById('verifyEmailStep');
+        const remoteStep = document.getElementById('verifyRemoteStep');
+        const emailInputStep = document.getElementById('emailInputStep');
+        const otpInputStep = document.getElementById('otpInputStep');
+
+        // ========== Button References ==========
         const btnSendOtp = document.getElementById('btnSendOtp');
         const btnVerifyOtp = document.getElementById('btnVerifyOtp');
         const btnResendOtp = document.getElementById('btnResendOtp');
-        const emailInput = document.getElementById('verifyEmail');
-        const otpInput = document.getElementById('otpCode');
+        const emailInput = document.getElementById('deviceVerifyEmail');
+        const otpInput = document.getElementById('deviceVerifyOtpCode');
 
+        // Step 1: Start verification
+        document.getElementById('btnStartVerify').addEventListener('click', function() {
+            step1.classList.add('d-none-custom');
+            step2.classList.remove('d-none-custom');
+        });
+
+        // Step 2: Confirm method selection
+        document.getElementById('btnConfirmMethod').addEventListener('click', function() {
+            const selectedMethod = document.querySelector('input[name="verifyMethod"]:checked').value;
+            
+            if (selectedMethod === 'email') {
+                step2.classList.add('d-none-custom');
+                emailStep.classList.remove('d-none-custom');
+            } else {
+                step2.classList.add('d-none-custom');
+                remoteStep.classList.remove('d-none-custom');
+                // Start polling for approval
+                startApprovalPolling();
+            }
+        });
+        
+        // Add visual feedback for radio selection
+        const radioOptions = document.querySelectorAll('.radio-option');
+        radioOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                radioOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Back to Step 1 from Step 2
+        document.getElementById('btnBackStep1').addEventListener('click', function() {
+            step2.classList.add('d-none-custom');
+            step1.classList.remove('d-none-custom');
+        });
+
+        // Back to Step 2 from Email Step
+        document.getElementById('btnBackToOptions').addEventListener('click', function() {
+            emailStep.classList.add('d-none-custom');
+            step2.classList.remove('d-none-custom');
+        });
+
+        // Back to Step 2 from Remote Step
+        document.getElementById('btnBackFromRemote').addEventListener('click', function() {
+            remoteStep.classList.add('d-none-custom');
+            step2.classList.remove('d-none-custom');
+        });
+
+        // Function to show email OTP input after sending
+        function showOtpInput(maskedEmail) {
+            document.getElementById('displayMaskedEmail').textContent = maskedEmail;
+            emailInputStep.classList.add('d-none');
+            otpInputStep.classList.remove('d-none');
+        }
+
+        // ========== OTP Functions ==========
         // Gửi mã OTP lần đầu
         btnSendOtp.addEventListener('click', function () {
             const email = emailInput.value;
@@ -229,9 +379,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById('emailStep').classList.add('d-none');
-                        document.getElementById('otpStep').classList.remove('d-none');
-                        document.getElementById('displayMaskedEmail').textContent = data.masked_email;
+                        showOtpInput(data.masked_email);
                         startOtpCooldown(data.cooldown);
                     } else {
                         alert(data.message);
@@ -299,28 +447,62 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
 
-        // Bắt đầu polling kiểm tra xem có được duyệt từ thiết bị khác không
-        pollInterval = setInterval(() => {
-            fetch(`api.php?path=device/poll-status&device_session_id=${pendingDeviceId}`)
+        // Function to start polling for remote approval
+        function startApprovalPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            
+            pollInterval = setInterval(() => {
+                fetch(`api.php?path=device/poll-status&device_session_id=${pendingDeviceId}`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log('Poll status:', data);
                     if (data.success) {
                         if (data.status === 'active') {
                             clearInterval(pollInterval);
-                            alert('Thiết bị đã được phê duyệt! Đang chuyển hướng...');
-                            // Lưu user_id vào session thực sự (cần API hỗ trợ login sau approve)
-                            // Trong api.php device/verify-otp đã handle việc clone session pending
-                            // Ở đây chúng ta cần gọi 1 endpoint để "hoàn tất" login nếu được approve
-                            // Hoặc đơn giản là refresh trang login, AuthService sẽ thấy device đã active
-                            window.location.href = '?page=users';
+                            // Đóng modal trước khi gọi API đăng nhập
+                            hideModal();
+                            
+                            // Gọi API đăng nhập tự động
+                            fetch('api.php?path=device/auto-login', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ device_session_id: pendingDeviceId })
+                            })
+                            .then(res => res.json())
+                            .then(loginData => {
+                                console.log('Auto login result:', loginData);
+                                if (loginData.success) {
+                                    setTimeout(() => {
+                                        alert('Đăng nhập thành công! Đang chuyển hướng...');
+                                        window.location.href = '?page=users';
+                                    }, 300);
+                                } else {
+                                    alert('Đăng nhập thất bại: ' + loginData.message);
+                                    window.location.href = '?page=login';
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Auto login error:', err);
+                                alert('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.');
+                                window.location.href = '?page=login';
+                            });
                         } else if (data.status === 'rejected') {
                             clearInterval(pollInterval);
-                            alert('Yêu cầu truy cập bị từ chối.');
-                            window.location.href = '?page=login';
+                            // Đóng modal trước khi alert
+                            hideModal();
+                            setTimeout(() => {
+                                alert('Đăng nhập thất bại: Thiết bị của bạn đã bị từ chối. Vui lòng thử lại hoặc liên hệ quản trị viên.');
+                                // Xóa các tham số device_verify và chuyển về trang login thuần
+                                window.location.href = '?page=login';
+                            }, 300);
                         }
                     }
+                })
+                .catch(err => {
+                    console.error('Poll error:', err);
                 });
-        }, 5000); // 5 giây một lần
+            }, 5000); // 5 giây một lần
+        }
     }
 
     function startOtpCooldown(seconds) {
@@ -346,70 +528,118 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function injectVerifyModal() {
         const modalHtml = `
-            <div class="modal fade" id="deviceVerifyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow-lg">
-                        <div class="modal-header bg-dark text-white">
-                            <h5 class="modal-title"><i class="fas fa-shield-alt me-2 text-warning"></i> Xác thực thiết bị mới</h5>
+            <div id="deviceVerifyModal" class="modal-overlay">
+                <div class="modal-container">
+                    <button id="btnCloseModal" class="btn-modal-close" aria-label="Đóng">&times;</button>
+                    <!-- Step 1: Initial Notice -->
+                    <div id="verifyStep1" class="modal-body-custom">
+                        <div class="modal-icon">
+                            <i class="fas fa-shield-alt"></i>
                         </div>
-                        <div class="modal-body p-4">
-                            <!-- Tabs Nav -->
-                            <ul class="nav nav-pills nav-justified mb-4" id="verifyTabs" role="tablist">
-                                <li class="nav-item">
-                                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#emailVerifyTab">Xác thực Email</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#remoteVerifyTab">Phê duyệt khác</button>
-                                </li>
-                            </ul>
-
-                            <div class="tab-content">
-                                <!-- Email Tab -->
-                                <div class="tab-pane fade show active" id="emailVerifyTab">
-                                    <div id="emailStep">
-                                        <p class="text-muted">Nhập email đăng ký tài khoản để nhận mã OTP 6 số.</p>
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Email tài khoản</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                                <input type="email" id="verifyEmail" class="form-control" placeholder="example@gmail.com">
-                                            </div>
-                                        </div>
-                                        <button id="btnSendOtp" class="btn btn-primary w-100 py-2">Gửi mã xác thực</button>
-                                    </div>
-
-                                    <div id="otpStep" class="d-none">
-                                        <div class="alert alert-info py-2 small">
-                                            Mã đã được gửi đến: <strong id="displayMaskedEmail"></strong>
-                                        </div>
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Nhập mã OTP 6 số</label>
-                                            <input type="text" id="otpCode" class="form-control text-center fs-3 fw-bold" maxlength="6" placeholder="000000" style="letter-spacing: 12px;">
-                                            <p id="otpAttemptsTip" class="text-muted small mt-1"></p>
-                                        </div>
-                                        <button id="btnVerifyOtp" class="btn btn-success w-100 py-2 mb-3">Xác nhận đăng nhập</button>
-                                        <button id="btnResendOtp" class="btn btn-link btn-sm w-100 text-decoration-none">Gửi lại mã <span id="resendTimerText"></span></button>
-                                    </div>
-                                </div>
-
-                                <!-- Remote Tab -->
-                                <div class="tab-pane fade" id="remoteVerifyTab">
-                                    <div class="text-center py-4">
-                                        <div class="spinner-grow text-warning mb-3" role="status"></div>
-                                        <h5>Đang đợi phê duyệt từ thiết bị khác</h5>
-                                        <p class="text-muted px-3">Hãy mở website trên một thiết bị bạn đã đăng nhập trước đó và phê duyệt yêu cầu này trong mục <strong>Truy cập</strong>.</p>
-                                        <div class="alert alert-warning small mt-3 mx-2">
-                                            <i class="fas fa-info-circle"></i> Trình duyệt này sẽ tự động chuyển hướng sau khi được phê duyệt.
-                                        </div>
-                                        <a href="?page=login" class="btn btn-outline-secondary btn-sm mt-2">Quay lại đăng nhập</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <h5 class="modal-title-custom">Thiết bị chưa xác thực</h5>
+                        <p class="modal-subtitle">Tài khoản này đang đăng nhập trên thiết bị khác. Vui lòng xác thực để tiếp tục.</p>
+                        <button id="btnStartVerify" class="btn-modal-primary">Xác thực ngay</button>
                     </div>
+                    
+                    <!-- Step 2: Choose Method -->
+                    <div id="verifyStep2" class="modal-body-custom d-none-custom">
+                        <h6 class="modal-title-custom">Chọn phương thức xác thực</h6>
+                        
+                        <div class="d-grid-custom gap-2-custom">
+                            <label class="btn-modal-outline radio-option">
+                                <input type="radio" name="verifyMethod" value="email" checked>
+                                <span class="option-icon"><i class="fas fa-envelope"></i></span>
+                                <div style="text-align: left;">
+                                    <div style="font-weight: 600;">Xác thực qua Email</div>
+                                    <small style="color: #6B7280;">Nhận mã OTP qua email</small>
+                                </div>
+                            </label>
+                            
+                            <label class="btn-modal-outline radio-option">
+                                <input type="radio" name="verifyMethod" value="remote">
+                                <span class="option-icon"><i class="fas fa-mobile-alt"></i></span>
+                                <div style="text-align: left;">
+                                    <div style="font-weight: 600;">Phê duyệt từ thiết bị</div>
+                                    <small style="color: #6B7280;">Xác nhận từ thiết bị đã đăng nhập</small>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <button id="btnConfirmMethod" class="btn-modal-primary" style="margin-top: 16px;">Tiếp tục</button>
+                        <button id="btnBackStep1" class="btn-modal-link">← Quay lại</button>
+                    </div>
+                    
+                    <!-- Step 3: Email OTP Form -->
+                    <div id="verifyEmailStep" class="modal-body-custom d-none-custom">
+                        <h6 class="modal-title-custom"><i class="fas fa-envelope me-2"></i>Xác thực Email</h6>
+                        
+                        <div id="emailInputStep">
+                            <div class="mb-3-custom">
+                                <label for="deviceVerifyEmail" class="form-label-custom">Email đã đăng ký</label>
+                                <input type="email" id="deviceVerifyEmail" class="form-input-custom" placeholder="example@gmail.com">
+                            </div>
+                            <button id="btnSendOtp" class="btn-modal-primary">Gửi mã xác thực</button>
+                        </div>
+                        
+                        <div id="otpInputStep" class="d-none-custom">
+                            <div class="alert-custom">
+                                <i class="fas fa-check-circle"></i> Mã đã gửi đến: <strong id="displayMaskedEmail"></strong>
+                            </div>
+                            <div class="mb-3-custom">
+                                <label for="deviceVerifyOtpCode" class="form-label-custom">Nhập mã OTP (6 số)</label>
+                                <input type="text" id="deviceVerifyOtpCode" class="form-input-custom otp-input" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+                            </div>
+                            <button id="btnVerifyOtp" class="btn-modal-primary" style="background: #48bb78;">Xác nhận</button>
+                            <button id="btnResendOtp" class="btn-modal-link">Chưa nhận được mã? Gửi lại (<span id="resendTimerText">2:00</span>)</button>
+                        </div>
+                        
+                        <button id="btnBackToOptions" class="btn-modal-link">← Chọn phương thức khác</button>
+                    </div>
+                    
+                    <!-- Step 4: Remote Approval Waiting -->
+                    <div id="verifyRemoteStep" class="modal-body-custom d-none-custom">
+                        <div class="spinner-custom"></div>
+                        <h6 class="modal-title-custom">Đang chờ phê duyệt...</h6>
+                        <p class="modal-subtitle">Vui lòng truy cập vào tài khoản trên thiết bị đã đăng nhập trước đó và phê duyệt yêu cầu này.</p>
+                        <div class="alert-custom" style="background: #fffaf0; color: #92400e;">
+                            <i class="fas fa-info-circle"></i> Trình duyệt sẽ tự động chuyển hướng sau khi được phê duyệt
+                        </div>
+                        <button id="btnBackFromRemote" class="btn-modal-link">← Quay lại</button>
+                    </div>
+                    
                 </div>
             </div>
         `;
+        
+        // Insert modal at the body to avoid being inside the login form
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Add close button event listener
+        const closeBtn = document.getElementById('btnCloseModal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                // Close modal and redirect to login
+                const modalEl = document.getElementById('deviceVerifyModal');
+                if (modalEl) {
+                    modalEl.classList.remove('active');
+                }
+                // Remove query params and go to login
+                window.location.href = '?page=login';
+            });
+        }
+        
+        // Show the modal
+        const modalEl = document.getElementById('deviceVerifyModal');
+        if (modalEl) {
+            modalEl.classList.add('active');
+        }
+    }
+    
+    // Custom function to hide modal
+    function hideModal() {
+        const modalEl = document.getElementById('deviceVerifyModal');
+        if (modalEl) {
+            modalEl.classList.remove('active');
+        }
     }
 });

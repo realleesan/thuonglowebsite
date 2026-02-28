@@ -78,7 +78,7 @@ $maxDevices = $deviceData['max_devices'] ?? 3;
                         </small>
                     </div>
                     <div class="device-actions">
-                        <button class="btn btn-success btn-sm btn-approve" data-id="<?php echo $device['id']; ?>" data-name="<?php echo htmlspecialchars($device['device_name']); ?>">
+                        <button class="btn btn-success btn-sm btn-approve" data-id="<?php echo $device['id']; ?>" data-name="<?php echo htmlspecialchars($device['device_name']); ?>" data-info="<?php echo htmlspecialchars($device['ip_address'] . ' • ' . $device['location']); ?>">
                             <i class="fas fa-check"></i> Đồng ý
                         </button>
                         <button class="btn btn-outline-danger btn-sm btn-reject" data-id="<?php echo $device['id']; ?>">
@@ -138,32 +138,52 @@ $maxDevices = $deviceData['max_devices'] ?? 3;
     </div>
 </div>
 
-<!-- Password Confirmation Modal -->
-<div class="modal fade" id="passwordConfirmModal" tabindex="-1" aria-labelledby="passwordConfirmModalLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="passwordConfirmModalLabel">Xác nhận phê duyệt</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Approve Confirmation Modal (First step) -->
+<div class="modal-overlay" id="approveConfirmModal">
+    <div class="modal-container" style="max-width: 400px;">
+        <div class="modal-header-custom">
+            <h5 class="modal-title-custom">Xác nhận phê duyệt</h5>
+            <button type="button" class="btn-modal-close" onclick="closeApproveConfirmModal()" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body-custom">
+            <div class="text-center">
+                <i class="fas fa-question-circle text-warning" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <p class="mb-2">Bạn có muốn phê duyệt thiết bị này không?</p>
+                <p class="fw-bold" id="confirmDeviceName" style="font-size: 16px;"></p>
+                <p class="text-muted small" id="confirmDeviceInfo"></p>
             </div>
-            <div class="modal-body">
-                <p>Nhập mật khẩu để xác nhận phê duyệt thiết bị:</p>
-                <p class="fw-bold" id="targetDeviceName"></p>
-                <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Mật khẩu</label>
-                    <input type="password" id="confirmPassword" class="form-control" placeholder="Nhập mật khẩu">
-                    <div class="invalid-feedback" id="passwordError">Mật khẩu không đúng.</div>
-                </div>
-                <div class="mb-3">
-                    <label for="confirmPassword2" class="form-label">Nhập lại mật khẩu</label>
-                    <input type="password" id="confirmPassword2" class="form-control" placeholder="Nhập lại mật khẩu">
-                    <div class="invalid-feedback" id="password2Error">Mật khẩu không khớp.</div>
-                </div>
+        </div>
+        <div class="modal-footer-custom">
+            <button type="button" class="btn-modal-secondary" onclick="closeApproveConfirmModal()">Hủy</button>
+            <button type="button" class="btn-modal-primary" id="btnConfirmDevice">Đồng ý</button>
+        </div>
+    </div>
+</div>
+
+<!-- Password Confirmation Modal (Custom) -->
+<div class="modal-overlay" id="passwordConfirmModal">
+    <div class="modal-container" style="max-width: 450px;">
+        <div class="modal-header-custom">
+            <h5 class="modal-title-custom">Xác nhận mật khẩu</h5>
+            <button type="button" class="btn-modal-close" onclick="closePasswordModal()" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body-custom">
+            <p>Nhập mật khẩu để xác nhận phê duyệt thiết bị:</p>
+            <p class="fw-bold" id="targetDeviceName"></p>
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label-custom">Mật khẩu</label>
+                <input type="password" id="confirmPassword" class="form-control-custom" placeholder="Nhập mật khẩu">
+                <div class="invalid-feedback-custom" id="passwordError">Mật khẩu không đúng.</div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="btnConfirmApprove">Xác nhận</button>
+            <div class="mb-3">
+                <label for="confirmPassword2" class="form-label-custom">Nhập lại mật khẩu</label>
+                <input type="password" id="confirmPassword2" class="form-control-custom" placeholder="Nhập lại mật khẩu">
+                <div class="invalid-feedback-custom" id="password2Error">Mật khẩu không khớp.</div>
             </div>
+        </div>
+        <div class="modal-footer-custom">
+            <button type="button" class="btn-modal-secondary" onclick="closePasswordModal()">Hủy</button>
+            <button type="button" class="btn-modal-primary" id="btnConfirmApprove">Xác nhận</button>
         </div>
     </div>
 </div>

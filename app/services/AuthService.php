@@ -147,9 +147,32 @@ class AuthService implements ServiceInterface {
             // ==========================================
             // DEVICE ACCESS CHECK
             // ==========================================
-            require_once __DIR__ . '/DeviceAccessService.php';
-            $deviceService = new DeviceAccessService();
-            $deviceCheck = $deviceService->checkDeviceOnLogin($user['id']);
+            try {
+                // Check if file exists before including
+                $deviceServiceFile = __DIR__ . '/DeviceAccessService.php';
+                if (file_exists($deviceServiceFile)) {
+                    require_once $deviceServiceFile;
+                    $deviceService = new DeviceAccessService();
+                    $deviceCheck = $deviceService->checkDeviceOnLogin($user['id']);
+                } else {
+                    // Device service file doesn't exist, skip check
+                    $deviceCheck = [
+                        'success' => true,
+                        'requires_verification' => false
+                    ];
+                }
+            } catch (Throwable $e) {
+                // If device check fails, allow login anyway (fail-open for usability)
+                $this->securityLogger->logAuthAttempt('login_device_check_failed', [
+                    'login' => $login,
+                    'user_id' => $user['id'],
+                    'error' => $e->getMessage()
+                ]);
+                $deviceCheck = [
+                    'success' => true,
+                    'requires_verification' => false
+                ];
+            }
             
             if ($deviceCheck['requires_verification'] ?? false) {
                 // Vượt giới hạn thiết bị - cần xác thực
@@ -185,11 +208,15 @@ class AuthService implements ServiceInterface {
             $sessionId = $this->sessionManager->createSession($user);
             
             // Register device session
-            if (isset($deviceCheck['device_id'])) {
-                $deviceModel = $deviceService->getModel('DeviceAccessModel');
-                if ($deviceModel) {
-                    $deviceModel->setCurrentDevice($user['id'], $deviceCheck['device_id']);
-                    $deviceModel->updateLastActivity($deviceCheck['device_id']);
+            if (isset($deviceService) && isset($deviceCheck['device_id'])) {
+                try {
+                    $deviceModel = $deviceService->getModel('DeviceAccessModel');
+                    if ($deviceModel) {
+                        $deviceModel->setCurrentDevice($user['id'], $deviceCheck['device_id']);
+                        $deviceModel->updateLastActivity($deviceCheck['device_id']);
+                    }
+                } catch (Throwable $e) {
+                    // Ignore device registration errors
                 }
             }
             

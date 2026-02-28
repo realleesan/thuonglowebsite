@@ -12,7 +12,7 @@ class DeviceAccessService implements ServiceInterface {
     private DeviceAccessModel $model;
     private EmailNotificationService $emailService;
 
-    private const MAX_DEVICES = 3;
+    private const MAX_DEVICES = 3; // Tối đa 3 thiết bị có thể sử dụng
     private const OTP_EXPIRY_MINUTES = 5;
     private const RESEND_COOLDOWN_SECONDS = 120;
     private const MAX_OTP_ATTEMPTS = 5;
@@ -81,8 +81,8 @@ class DeviceAccessService implements ServiceInterface {
             ];
         }
 
-        // Nếu chưa đạt giới hạn - cho phép đăng nhập ngay
-        if ($activeCount < self::MAX_DEVICES) {
+        // Nếu là thiết bị đầu tiên - cho phép đăng nhập ngay
+        if ($activeCount === 0) {
             $deviceId = $this->registerCurrentDevice($userId, 'active');
             return [
                 'success' => true,
@@ -91,7 +91,7 @@ class DeviceAccessService implements ServiceInterface {
             ];
         }
 
-        // Vượt giới hạn - cần xác thực
+        // Thiết bị thứ 2 trở đi - cần xác thực
         $deviceId = $this->registerCurrentDevice($userId, 'pending');
         return [
             'success' => true,
@@ -99,7 +99,7 @@ class DeviceAccessService implements ServiceInterface {
             'device_session_id' => $deviceId,
             'active_count' => $activeCount,
             'max_devices' => self::MAX_DEVICES,
-            'message' => 'Tài khoản đã đạt giới hạn ' . self::MAX_DEVICES . ' thiết bị. Vui lòng xác thực để tiếp tục.'
+            'message' => 'Tài khoản đã có thiết bị đăng nhập. Vui lòng xác thực để tiếp tục.'
         ];
     }
 
@@ -312,19 +312,45 @@ class DeviceAccessService implements ServiceInterface {
      * Phê duyệt thiết bị từ thiết bị hiện tại (Device A approves Device B)
      */
     public function approveDevice(int $userId, int $deviceSessionId, string $password): array {
-        // Kiểm tra password
+        // Debug
+        $debugInfo = [
+            'user_id' => $userId,
+            'session_username' => isset($_SESSION['username']) ? $_SESSION['username'] : 'not_set',
+            'device_session_id' => $deviceSessionId,
+            'password_length' => strlen($password)
+        ];
+        
+        // Thay vì dùng user_id từ session, dùng username để xác thực
         require_once __DIR__ . '/../models/UsersModel.php';
         $usersModel = new UsersModel();
-        $user = $usersModel->find($userId);
-
-        if (!$user || !password_verify($password, $user['password'])) {
+        
+        // Lấy username từ session
+        $login = $_SESSION['username'] ?? $_SESSION['email'] ?? '';
+        
+        if (!$login) {
+            return ['success' => false, 'message' => 'Không tìm thấy thông tin đăng nhập.'];
+        }
+        
+        // Thử đăng nhập bằng username/email để xác thực
+        $user = $usersModel->authenticate($login, $password);
+        
+        if (!$user) {
             return ['success' => false, 'message' => 'Mật khẩu không đúng.'];
         }
+        
+        // Xác thực thành công! Lấy user info
+        $user = is_array($user) ? $user : [];
+        $userId = $user['id'];
+        $debugInfo['authenticated_user_id'] = $userId;
+        $debugInfo['user_email'] = $user['email'] ?? '';
+        
+        // Không cần kiểm tra password lại vì authenticate() đã xác thực rồi
+        // Tiếp tục xử lý approve device
 
         // Kiểm tra thiết bị có pending không
         $device = $this->model->findByIdAndUser($deviceSessionId, $userId);
         if (!$device || $device['status'] !== 'pending') {
-            return ['success' => false, 'message' => 'Thiết bị không hợp lệ hoặc đã được xử lý.'];
+            return ['success' => false, 'message' => 'Thiết bị không hợp lệ hoặc đã được xử lý.', 'debug' => $debugInfo];
         }
 
         // Activate thiết bị mới
@@ -512,5 +538,51 @@ class DeviceAccessService implements ServiceInterface {
         
         error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device FOUND, status=" . $device['status']);
         return true;
+    }
+
+    /**
+     * Đăng nhập tự động sau khi thiết bị được phê duyệt
+     * Sử dụng device_session_id để xác định user và tạo session
+     */
+    public function autoLogin(int $deviceSessionId): array {
+        // Tìm thiết bị theo session ID
+        $device = $this->model->find($deviceSessionId);
+        
+        if (!$device) {
+            return ['success' => false, 'message' => 'Thiết bị không hợp lệ.'];
+        }
+        
+        // Kiểm tra trạng thái thiết bị
+        if ($device['status'] !== 'active') {
+            return ['success' => false, 'message' => 'Thiết bị chưa được phê duyệt.', 'status' => $device['status']];
+        }
+        
+        // Lấy thông tin user
+        $userId = $device['user_id'];
+        require_once __DIR__ . '/../models/UsersModel.php';
+        $usersModel = new UsersModel();
+        $user = $usersModel->find($userId);
+        
+        if (!$user) {
+            return ['success' => false, 'message' => 'Không tìm thấy tài khoản.'];
+        }
+        
+        // Cập nhật session_id cho thiết bị (vì session_id mới khác với session_id lưu trong DB)
+        $this->model->updateSessionId($deviceSessionId, session_id());
+        
+        // Đánh dấu đây là thiết bị hiện tại
+        $this->model->setCurrentDevice($userId, $deviceSessionId);
+        
+        return [
+            'success' => true,
+            'message' => 'Đăng nhập thành công!',
+            'user' => [
+                'id' => $user['id'],
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'username' => $user['username'] ?? '',
+                'role' => $user['role']
+            ]
+        ];
     }
 }
