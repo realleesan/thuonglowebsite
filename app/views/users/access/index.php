@@ -95,7 +95,7 @@ $maxDevices = $deviceData['max_devices'] ?? 3;
         <!-- Active Devices List -->
         <div class="profile-card profile-card-full">
             <div class="profile-card-header">
-                <h3><i class="fas fa-laptop"></i> Thiết bị đang đăng nhập</h3>
+                <h3><i class="fas fa-laptop"></i> Thiết bị đã đăng nhập</h3>
             </div>
             <div class="profile-card-content">
                 <?php if (empty($activeDevices)): ?>

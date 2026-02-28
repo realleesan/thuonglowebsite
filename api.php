@@ -21,6 +21,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Get request method and path
 $method = $_SERVER['REQUEST_METHOD'];
 $path = $_GET['path'] ?? '';
+$action = $_GET['action'] ?? '';
 
 // Basic CORS headers for AJAX requests
 header('Access-Control-Allow-Origin: *');
@@ -34,6 +35,38 @@ if ($method === 'OPTIONS') {
 }
 
 try {
+    // Handle action-based requests (legacy format)
+    if ($action && empty($path)) {
+        switch ($action) {
+            case 'getUserData':
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                $userId = $_SESSION['user_id'] ?? 0;
+                
+                if ($userId > 0) {
+                    $accountData = $userService->getAccountData($userId);
+                    $cartData = $userService->getCartData($userId);
+                    $wishlistData = $userService->getWishlistData($userId);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'user' => $accountData['user'] ?? ['name' => 'Người dùng', 'level' => 'Basic'],
+                        'cart' => $cartData['items'] ?? [],
+                        'wishlist' => $wishlistData['items'] ?? []
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Not authenticated'
+                    ]);
+                }
+                exit;
+                
+            default:
+                throw new Exception('Unknown action: ' . $action, 404);
+        }
+    }
+    
     // Route API requests
     switch ($path) {
         case 'agent/register':
@@ -246,6 +279,22 @@ try {
                 $service = new DeviceAccessService();
                 $deviceSessionId = $_GET['device_session_id'] ?? ($_SESSION['pending_device_session_id'] ?? 0);
                 $result = $service->pollDeviceStatus((int)$deviceSessionId);
+                
+                // Nếu thiết bị đã được duyệt và có pending_user_id, hoàn tất đăng nhập
+                if ($result['success'] && $result['status'] === 'active' && !empty($_SESSION['pending_user_id'])) {
+                    require_once __DIR__ . '/app/services/AuthService.php';
+                    $authService = new AuthService();
+                    $completeResult = $authService->completePendingLogin($_SESSION['pending_user_id']);
+                    if ($completeResult['success']) {
+                        $result['login_completed'] = true;
+                        $result['redirect_url'] = '?page=users';
+                        // Xóa pending data
+                        unset($_SESSION['pending_user_id']);
+                        unset($_SESSION['pending_user_data']);
+                        unset($_SESSION['pending_device_session_id']);
+                    }
+                }
+                
                 echo json_encode($result);
             } else {
                 throw new Exception('Method not allowed', 405);
@@ -332,51 +381,6 @@ try {
                 $model = $service->getModel('DeviceAccessModel');
                 $pending = $model->getPendingDevices((int)$_SESSION['user_id']);
                 echo json_encode(['success' => true, 'devices' => $pending]);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case 'device/auto-login':
-            if ($method === 'POST') {
-                require_once __DIR__ . '/app/services/DeviceAccessService.php';
-                $service = new DeviceAccessService();
-                $input = json_decode(file_get_contents('php://input'), true);
-                $deviceSessionId = (int)($input['device_session_id'] ?? 0);
-                
-                if (!$deviceSessionId) {
-                    throw new Exception('Device session ID is required', 400);
-                }
-                
-                // Giữ nguyên session_id từ cookie nếu có
-                $currentSessionId = session_id();
-                
-                $result = $service->autoLogin($deviceSessionId);
-                
-                if ($result['success']) {
-                    // Khôi phục session_id để giữ nguyên session
-                    if (session_id() !== $currentSessionId) {
-                        session_id($currentSessionId);
-                    }
-                    
-                    // Tạo session cho user
-                    $_SESSION['user_id'] = $result['user']['id'];
-                    $_SESSION['user_name'] = $result['user']['name'];
-                    $_SESSION['user_email'] = $result['user']['email'];
-                    $_SESSION['username'] = $result['user']['username'];
-                    $_SESSION['user_role'] = $result['user']['role'];
-                    $_SESSION['user'] = $result['user'];
-                    
-                    // Xóa pending device session
-                    unset($_SESSION['pending_user_id']);
-                    unset($_SESSION['pending_user_data']);
-                    unset($_SESSION['pending_device_session_id']);
-                    
-                    // Lưu session
-                    session_write_close();
-                }
-                
-                echo json_encode($result);
             } else {
                 throw new Exception('Method not allowed', 405);
             }

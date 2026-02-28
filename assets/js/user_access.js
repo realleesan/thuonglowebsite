@@ -153,13 +153,19 @@ document.addEventListener('DOMContentLoaded', function () {
                             console.log('Debug info:', data.debug);
                         }
                         if (data.success) {
-                            alert('Đã phê duyệt thiết bị thành công! Thiết bị này sẽ đăng nhập và bạn sẽ bị đăng xuất.');
-                            // Close custom modal
+                            // Đóng modal
                             const modalEl = document.getElementById('passwordConfirmModal');
                             if (modalEl) {
                                 modalEl.classList.remove('active');
                             }
-                            location.reload();
+                            
+                            if (data.approved_device_id) {
+                                // Chuyển hướng đến trang đăng nhập để thiết bị được duyệt tự đăng nhập
+                                alert('Đã phê duyệt thiết bị thành công! Đang chuyển đến trang đăng nhập...');
+                                window.location.href = '?page=login&approved=1&device_id=' + data.approved_device_id;
+                            } else {
+                                location.reload();
+                            }
                         } else {
                             passwordInput.classList.add('is-invalid');
                             passwordError.classList.add('show');
@@ -452,39 +458,28 @@ document.addEventListener('DOMContentLoaded', function () {
             if (pollInterval) clearInterval(pollInterval);
             
             pollInterval = setInterval(() => {
-                fetch(`api.php?path=device/poll-status&device_session_id=${pendingDeviceId}`, { credentials: 'same-origin' })
+                fetch(`api.php?path=device/poll-status&device_session_id=${pendingDeviceId}`)
                 .then(res => res.json())
                 .then(data => {
                     console.log('Poll status:', data);
                     if (data.success) {
                         if (data.status === 'active') {
                             clearInterval(pollInterval);
-                            // Đóng modal trước khi gọi API đăng nhập
-                            hideModal();
                             
-                            // Gọi API đăng nhập tự động
-                            fetch('api.php?path=device/auto-login', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                credentials: 'same-origin',
-                                body: JSON.stringify({ device_session_id: pendingDeviceId })
-                            })
-                            .then(res => res.json())
-                            .then(loginData => {
-                                console.log('Auto login result:', loginData);
-                                if (loginData.success) {
-                                    // Chuyển hướng ngay lập tức mà không cần alert
+                            // Kiểm tra nếu có redirect_url từ login completed
+                            if (data.login_completed && data.redirect_url) {
+                                hideModal();
+                                setTimeout(() => {
+                                    window.location.href = data.redirect_url;
+                                }, 300);
+                            } else {
+                                // Đóng modal trước khi alert
+                                hideModal();
+                                setTimeout(() => {
+                                    alert('Thiết bị đã được phê duyệt! Đang chuyển hướng...');
                                     window.location.href = '?page=users';
-                                } else {
-                                    alert('Đăng nhập thất bại: ' + loginData.message);
-                                    window.location.href = '?page=login';
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Auto login error:', err);
-                                alert('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.');
-                                window.location.href = '?page=login';
-                            });
+                                }, 300);
+                            }
                         } else if (data.status === 'rejected') {
                             clearInterval(pollInterval);
                             // Đóng modal trước khi alert

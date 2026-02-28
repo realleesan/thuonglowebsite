@@ -78,6 +78,60 @@ class AuthService implements ServiceInterface {
     // ========== Main Authentication Methods ==========
     
     /**
+     * Complete pending login after device approval
+     */
+    public function completePendingLogin(int $userId): array {
+        if (!$userId) {
+            return ['success' => false, 'message' => 'Invalid user ID'];
+        }
+        
+        // Get user data
+        $user = $this->usersModel->find($userId);
+        if (!$user) {
+            return ['success' => false, 'message' => 'User not found'];
+        }
+        
+        // Create session (login)
+        $sessionId = $this->sessionManager->createSession($user);
+        
+        // Get device session ID from pending
+        $deviceSessionId = $_SESSION['pending_device_session_id'] ?? 0;
+        
+        // Update device session
+        if ($deviceSessionId > 0) {
+            try {
+                require_once __DIR__ . '/DeviceAccessService.php';
+                $deviceService = new DeviceAccessService();
+                $deviceModel = $deviceService->getModel('DeviceAccessModel');
+                if ($deviceModel) {
+                    $deviceModel->setCurrentDevice($userId, $deviceSessionId);
+                    $deviceModel->updateLastActivity($deviceSessionId);
+                }
+            } catch (Throwable $e) {
+                // Ignore device errors
+            }
+        }
+        
+        // Log successful login
+        $this->securityLogger->logAuthAttempt('login_success', [
+            'user_id' => $userId,
+            'login' => $user['email'],
+            'session_id' => $sessionId
+        ]);
+        
+        return [
+            'success' => true,
+            'message' => 'Login completed successfully',
+            'user' => [
+                'id' => $user['id'],
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'role' => $user['role']
+            ]
+        ];
+    }
+
+    /**
      * Authenticate user with credentials
      * Requirements: 2.1, 2.2
      */
