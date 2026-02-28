@@ -159,10 +159,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                 modalEl.classList.remove('active');
                             }
                             
-                            if (data.approved_device_id) {
-                                // Chuyển hướng đến trang đăng nhập để thiết bị được duyệt tự đăng nhập
-                                alert('Đã phê duyệt thiết bị thành công! Đang chuyển đến trang đăng nhập...');
-                                window.location.href = '?page=login&approved=1&device_id=' + data.approved_device_id;
+                            if (data.approved_device_session_id) {
+                                // Thông báo cho Device A (người duyệt)
+                                alert('Đã phê duyệt thiết bị thành công! Bạn sẽ được đăng xuất và thiết bị kia sẽ tự đăng nhập.');
+                                // Đăng xuất Device A và chuyển đến login với thông báo
+                                window.location.href = '?page=logout&device_approved=1';
                             } else {
                                 location.reload();
                             }
@@ -470,6 +471,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (data.login_completed && data.redirect_url) {
                                 hideModal();
                                 setTimeout(() => {
+                                    alert('Đăng nhập thành công! Chào mừng bạn.');
                                     window.location.href = data.redirect_url;
                                 }, 300);
                             } else {

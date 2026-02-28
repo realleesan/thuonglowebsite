@@ -320,13 +320,19 @@ class AuthController {
         $result = $this->authService->logout();
         
         if ($result) {
-            $this->setFlashMessage('success', 'Đăng xuất thành công');
+            // Kiểm tra nếu logout do duyệt thiết bị
+            $deviceApproved = $_GET['device_approved'] ?? 0;
+            if ($deviceApproved) {
+                $this->setFlashMessage('success', 'Thiết bị mới đã được phê duyệt. Vui lòng đăng nhập lại.');
+            } else {
+                $this->setFlashMessage('success', 'Đăng xuất thành công');
+            }
         }
         
         // Regenerate CSRF token for new session
         $this->authService->getCsrfToken();
         
-        $this->redirect(''); // Redirect to home page after logout
+        $this->redirect('?page=login'); // Redirect to login page after logout
     }
     
     /**
