@@ -348,9 +348,17 @@ try {
                     throw new Exception('Device session ID is required', 400);
                 }
                 
+                // Giữ nguyên session_id từ cookie nếu có
+                $currentSessionId = session_id();
+                
                 $result = $service->autoLogin($deviceSessionId);
                 
                 if ($result['success']) {
+                    // Khôi phục session_id để giữ nguyên session
+                    if (session_id() !== $currentSessionId) {
+                        session_id($currentSessionId);
+                    }
+                    
                     // Tạo session cho user
                     $_SESSION['user_id'] = $result['user']['id'];
                     $_SESSION['user_name'] = $result['user']['name'];
@@ -363,6 +371,9 @@ try {
                     unset($_SESSION['pending_user_id']);
                     unset($_SESSION['pending_user_data']);
                     unset($_SESSION['pending_device_session_id']);
+                    
+                    // Lưu session
+                    session_write_close();
                 }
                 
                 echo json_encode($result);

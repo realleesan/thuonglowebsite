@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (pollInterval) clearInterval(pollInterval);
             
             pollInterval = setInterval(() => {
-                fetch(`api.php?path=device/poll-status&device_session_id=${pendingDeviceId}`)
+                fetch(`api.php?path=device/poll-status&device_session_id=${pendingDeviceId}`, { credentials: 'same-origin' })
                 .then(res => res.json())
                 .then(data => {
                     console.log('Poll status:', data);
@@ -466,16 +466,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             fetch('api.php?path=device/auto-login', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
+                                credentials: 'same-origin',
                                 body: JSON.stringify({ device_session_id: pendingDeviceId })
                             })
                             .then(res => res.json())
                             .then(loginData => {
                                 console.log('Auto login result:', loginData);
                                 if (loginData.success) {
-                                    setTimeout(() => {
-                                        alert('Đăng nhập thành công! Đang chuyển hướng...');
-                                        window.location.href = '?page=users';
-                                    }, 300);
+                                    // Chuyển hướng ngay lập tức mà không cần alert
+                                    window.location.href = '?page=users';
                                 } else {
                                     alert('Đăng nhập thất bại: ' + loginData.message);
                                     window.location.href = '?page=login';

@@ -16,10 +16,145 @@ class DeviceAccessService implements ServiceInterface {
     private const OTP_EXPIRY_MINUTES = 5;
     private const RESEND_COOLDOWN_SECONDS = 120;
     private const MAX_OTP_ATTEMPTS = 5;
+    private const APPROVED_DEVICES_COOKIE = 'approved_devices';
+    private const APPROVED_FINGERPRINTS_COOKIE = 'approved_fingerprints';
+    private const COOKIE_EXPIRY_DAYS = 30; // Lưu cookie trong 30 ngày
 
     public function __construct() {
         $this->model = new DeviceAccessModel();
         $this->emailService = new EmailNotificationService();
+    }
+
+    // ==========================================
+    // COOKIE HELPER METHODS
+    // ==========================================
+
+    /**
+     * Tạo fingerprint cho thiết bị hiện tại
+     */
+    private function getDeviceFingerprint(): string {
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $acceptLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+        
+        // Tạo fingerprint dựa vào User-Agent, IP, ngôn ngữ
+        $data = $ua . '|' . $ip . '|' . $acceptLang;
+        return hash('sha256', $data);
+    }
+
+    /**
+     * Lấy danh sách fingerprint đã được duyệt từ cookie
+     */
+    private function getApprovedFingerprints(): array {
+        if (!isset($_COOKIE[self::APPROVED_FINGERPRINTS_COOKIE])) {
+            return [];
+        }
+        $value = $_COOKIE[self::APPROVED_FINGERPRINTS_COOKIE];
+        $data = json_decode($value, true);
+        return is_array($data) ? $data : [];
+    }
+
+    /**
+     * Lưu fingerprint vào cookie khi thiết bị được duyệt
+     */
+    private function addFingerprintApproved(string $fingerprint, int $userId): void {
+        $data = $this->getApprovedFingerprints();
+        
+        // Tạo key theo user_id để lưu riêng cho từng user
+        $key = 'user_' . $userId;
+        if (!isset($data[$key])) {
+            $data[$key] = [];
+        }
+        
+        if (!in_array($fingerprint, $data[$key])) {
+            $data[$key][] = $fingerprint;
+            $this->saveApprovedFingerprints($data);
+        }
+    }
+
+    /**
+     * Xóa fingerprint khỏi cookie khi thiết bị bị xóa
+     */
+    private function removeFingerprintApproved(string $fingerprint, int $userId): void {
+        $data = $this->getApprovedFingerprints();
+        $key = 'user_' . $userId;
+        
+        if (isset($data[$key])) {
+            $data[$key] = array_diff($data[$key], [$fingerprint]);
+            $this->saveApprovedFingerprints($data);
+        }
+    }
+
+    /**
+     * Kiểm tra fingerprint đã được duyệt chưa
+     */
+    private function isFingerprintApproved(string $fingerprint, int $userId): bool {
+        $data = $this->getApprovedFingerprints();
+        $key = 'user_' . $userId;
+        
+        if (!isset($data[$key])) {
+            return false;
+        }
+        
+        return in_array($fingerprint, $data[$key]);
+    }
+
+    /**
+     * Lưu danh sách fingerprint đã duyệt vào cookie
+     */
+    private function saveApprovedFingerprints(array $data): void {
+        $value = json_encode($data);
+        $expiry = time() + (self::COOKIE_EXPIRY_DAYS * 24 * 60 * 60);
+        setcookie(self::APPROVED_FINGERPRINTS_COOKIE, $value, $expiry, '/');
+    }
+
+    /**
+     * Lấy danh sách thiết bị đã được duyệt từ cookie
+     */
+    private function getApprovedDevices(): array {
+        if (!isset($_COOKIE[self::APPROVED_DEVICES_COOKIE])) {
+            return [];
+        }
+        $value = $_COOKIE[self::APPROVED_DEVICES_COOKIE];
+        $devices = json_decode($value, true);
+        return is_array($devices) ? $devices : [];
+    }
+
+    /**
+     * Lưu device_id vào cookie khi thiết bị được duyệt
+     */
+    private function addApprovedDevice(int $deviceId): void {
+        $devices = $this->getApprovedDevices();
+        if (!in_array($deviceId, $devices)) {
+            $devices[] = $deviceId;
+            $this->saveApprovedDevices($devices);
+        }
+    }
+
+    /**
+     * Xóa device_id khỏi cookie khi thiết bị bị xóa
+     */
+    private function removeApprovedDevice(int $deviceId): void {
+        $devices = $this->getApprovedDevices();
+        $devices = array_diff($devices, [$deviceId]);
+        $this->saveApprovedDevices(array_values($devices));
+    }
+
+    /**
+     * Kiểm tra device_id đã được duyệt chưa
+     */
+    private function isDeviceApproved(int $deviceId): bool {
+        $devices = $this->getApprovedDevices();
+        return in_array($deviceId, $devices);
+    }
+
+    /**
+     * Lưu danh sách thiết bị đã duyệt vào cookie
+     */
+    private function saveApprovedDevices(array $devices): void {
+        $value = json_encode($devices);
+        $expiry = time() + (self::COOKIE_EXPIRY_DAYS * 24 * 60 * 60);
+        setcookie(self::APPROVED_DEVICES_COOKIE, $value, $expiry, '/');
     }
 
     /**
@@ -78,6 +213,24 @@ class DeviceAccessService implements ServiceInterface {
                 'success' => true,
                 'requires_verification' => false,
                 'device_id' => $existingDevice['id']
+            ];
+        }
+
+        // Tạo fingerprint cho thiết bị hiện tại
+        $currentFingerprint = $this->getDeviceFingerprint();
+        
+        // Kiểm tra xem thiết bị này đã được duyệt trước đó chưa (dựa vào cookie)
+        if ($this->isFingerprintApproved($currentFingerprint, $userId)) {
+            // Thiết bị đã được duyệt trước đó - cho phép đăng nhập ngay
+            // Xóa tất cả các thiết bị active khác để tránh vượt quá giới hạn
+            $currentSessionId = session_id();
+            $this->model->deactivateOtherSessions($userId, $currentSessionId);
+            
+            $deviceId = $this->registerCurrentDevice($userId, 'active');
+            return [
+                'success' => true,
+                'requires_verification' => false,
+                'device_id' => $deviceId
             ];
         }
 
@@ -232,6 +385,10 @@ class DeviceAccessService implements ServiceInterface {
         $this->model->updateDeviceStatus($deviceSessionId, 'active');
         $this->model->setCurrentDevice($userId, $deviceSessionId);
 
+        // Lưu fingerprint vào cookie để đánh dấu thiết bị đã được duyệt
+        $fingerprint = $this->getDeviceFingerprint();
+        $this->addFingerprintApproved($fingerprint, $userId);
+
         // Lấy session_id của thiết bị mới
         $newDevice = $this->model->find($deviceSessionId);
         $newSessionId = $newDevice ? $newDevice['session_id'] : '';
@@ -357,6 +514,10 @@ class DeviceAccessService implements ServiceInterface {
         $this->model->updateDeviceStatus($deviceSessionId, 'active');
         $this->model->setCurrentDevice($userId, $deviceSessionId);
 
+        // Lưu fingerprint vào cookie để đánh dấu thiết bị đã được duyệt
+        $fingerprint = $this->getDeviceFingerprint();
+        $this->addFingerprintApproved($fingerprint, $userId);
+
         // Hủy tất cả các thiết bị khác (logout các thiết bị cũ bao gồm cả thiết bị hiện tại)
         $this->model->deactivateOtherSessions($userId, $device['session_id']);
 
@@ -403,6 +564,10 @@ class DeviceAccessService implements ServiceInterface {
         
         // Debug log
         error_log("removeDevice: userId=$userId, device_id=$deviceId, device_session=" . $device['session_id'] . ", current_session=" . session_id() . ", isCurrentDevice=$isCurrentDevice");
+        
+        // Xóa fingerprint khỏi cookie
+        $fingerprint = $this->getDeviceFingerprint();
+        $this->removeFingerprintApproved($fingerprint, $userId);
         
         // Đánh dấu thiết bị là rejected
         $this->model->deleteDeviceSession($deviceId);
@@ -572,6 +737,10 @@ class DeviceAccessService implements ServiceInterface {
         
         // Đánh dấu đây là thiết bị hiện tại
         $this->model->setCurrentDevice($userId, $deviceSessionId);
+        
+        // Lưu fingerprint vào cookie để đánh dấu thiết bị đã được duyệt
+        $fingerprint = $this->getDeviceFingerprint();
+        $this->addFingerprintApproved($fingerprint, $userId);
         
         return [
             'success' => true,
