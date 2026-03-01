@@ -119,22 +119,23 @@ class DeviceAccessService implements ServiceInterface {
             }
         }
 
-        // Nếu tìm thấy thiết bị đã được duyệt (cùng IP)
-        // -> Cho phép đăng nhập, đăng xuất thiết bị cũ
-        if ($foundDevice) {
-            // Đăng xuất tất cả các thiết bị khác
-            // (Chưa có session mới nên deactivate hết)
-            $this->model->deactivateOtherSessions($userId, '');
+        // Nếu tìm thấy thiết bị đã được duyệt (cùng IP) và không có thiết bị nào khác đang hoạt động
+        // -> Cho phép đăng nhập ngay
+        if ($foundDevice && $activeCount <= 1) {
+            // Activate thiết bị found nếu là pending
+            if ($foundDevice['status'] === 'pending') {
+                $this->model->updateDeviceStatus($foundDevice['id'], 'active');
+            }
             
-            // Đăng ký thiết bị mới cho session hiện tại
-            $newDeviceId = $this->registerCurrentDevice($userId, 'active');
+            // Cập nhật session_id cho thiết bị found
+            $this->model->updateSessionId($foundDevice['id'], session_id() ?: 'pending_' . time());
             
             return [
                 'success' => true,
                 'requires_verification' => false,
-                'device_id' => $newDeviceId,
+                'device_id' => $foundDevice['id'],
                 'auto_activated' => true,
-                'logged_out_other_devices' => true
+                'logged_out_other_devices' => false
             ];
         }
 

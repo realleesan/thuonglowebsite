@@ -172,13 +172,30 @@ class DeviceAccessModel extends BaseModel {
      * Hủy kích hoạt tất cả các phiên khác (giữ lại phiên hiện tại)
      */
     public function deactivateOtherSessions(int $userId, string $keepSessionId): int {
+        // Luôn luôn deactive tất cả các thiết bị active khác
+        // Thiết bị hiện tại (is_current = 1) sẽ được thay thế bằng thiết bị mới
         $this->query(
             "UPDATE device_sessions SET status = 'rejected', is_current = 0, updated_at = :updated_at 
-             WHERE user_id = :user_id AND session_id != :keep_session_id AND status = 'active'",
+             WHERE user_id = :user_id AND status = 'active'",
+            [
+                'updated_at' => date('Y-m-d H:i:s'),
+                'user_id' => $userId
+            ]
+        );
+        return 1;
+    }
+    
+    /**
+     * Hủy kích hoạt tất cả các phiên khác TRỪ thiết bị được chỉ định
+     */
+    public function deactivateOtherSessionsExcept(int $userId, int $exceptDeviceId): int {
+        $this->query(
+            "UPDATE device_sessions SET status = 'rejected', is_current = 0, updated_at = :updated_at 
+             WHERE user_id = :user_id AND id != :except_device_id AND status = 'active'",
             [
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id' => $userId,
-                'keep_session_id' => $keepSessionId
+                'except_device_id' => $exceptDeviceId
             ]
         );
         return 1;
