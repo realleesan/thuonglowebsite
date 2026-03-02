@@ -60,14 +60,19 @@ class AuthController {
         
         $login = $_POST['login'] ?? '';
         $password = $_POST['password'] ?? '';
+        $redirect = $_POST['redirect'] ?? '';
         
         try {
             $result = $this->authService->authenticate($login, $password);
             
             if ($result['success']) {
-                // Successful login - redirect to user dashboard
+                // Successful login - redirect to user dashboard or specified page
                 $this->setFlashMessage('success', $result['message']);
-                $this->redirect('?page=users'); // Redirect to user dashboard
+                if (!empty($redirect) && strpos($redirect, '?page=') === 0) {
+                    $this->redirect($redirect); // Redirect to original page
+                } else {
+                    $this->redirect('?page=users'); // Default redirect to user dashboard
+                }
             } elseif (!empty($result['requires_device_verification'])) {
                 // Device limit reached - show verification popup
                 $_SESSION['device_verify_message'] = $result['message'];

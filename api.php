@@ -386,6 +386,144 @@ try {
             }
             break;
 
+        // ==========================================
+        // CART MANAGEMENT API
+        // ==========================================
+        
+        case 'cart/add':
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $productId = (int)($input['product_id'] ?? 0);
+                $quantity = (int)($input['quantity'] ?? 1);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                
+                // Get product price first
+                require_once __DIR__ . '/app/models/ProductsModel.php';
+                $productsModel = new ProductsModel();
+                $product = $productsModel->find($productId);
+                
+                if (!$product) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Không tìm thấy sản phẩm'
+                    ]);
+                    exit;
+                }
+                
+                $price = $product['price'] ?? 0;
+                
+                try {
+                    $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);
+                    
+                    echo json_encode([
+                        'success' => $result,
+                        'message' => $result ? 'Đã thêm sản phẩm vào giỏ hàng' : 'Thêm vào giỏ hàng thất bại'
+                    ]);
+                } catch (Exception $e) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Lỗi: ' . $e->getMessage()
+                    ]);
+                }
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'cart/checkout':
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $productId = (int)($input['product_id'] ?? 0);
+                $quantity = (int)($input['quantity'] ?? 1);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để đặt hàng'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                
+                // Get product price first
+                require_once __DIR__ . '/app/models/ProductsModel.php';
+                $productsModel = new ProductsModel();
+                $product = $productsModel->find($productId);
+                
+                if (!$product) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Không tìm thấy sản phẩm'
+                    ]);
+                    exit;
+                }
+                
+                $price = $product['price'] ?? 0;
+                
+                // Add to cart first
+                $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);
+                
+                if ($result) {
+                    // Redirect to checkout page
+                    echo json_encode([
+                        'success' => true,
+                        'redirect' => '?page=payment&action=checkout'
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Có lỗi xảy ra, vui lòng thử lại'
+                    ]);
+                }
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'wishlist/add':
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $productId = (int)($input['product_id'] ?? 0);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào yêu thích'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                $result = $userService->addToWishlist($_SESSION['user_id'], $productId);
+                
+                echo json_encode([
+                    'success' => $result,
+                    'message' => $result ? 'Đã thêm sản phẩm vào yêu thích' : 'Thêm vào yêu thích thất bại'
+                ]);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
         default:
             throw new Exception('Endpoint not found', 404);
     }

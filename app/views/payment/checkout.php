@@ -55,7 +55,7 @@ try {
 
 <section class="payment-section">
     <div class="container">
-        <h1 class="checkout-title">Thanh toán khóa học</h1>
+        <h1 class="checkout-title">Thanh toán đơn hàng</h1>
 
         <div class="checkout-wrap">
             <h3 class="mb-3">Đơn hàng của bạn</h3>
@@ -65,7 +65,7 @@ try {
                     <thead>
                         <tr>
                             <th style="width: 70%;">Sản phẩm</th>
-                            <th style="width: 30%;">Tạm tính</th>
+                            <th style="width: 30%;">Giá</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,9 +102,9 @@ try {
                     <label for="pm_sepay">Chuyển khoản QR (SePay) </label>
                 </div>
                 <div class="payment-note">
-                    <i class="fas fa-info-circle"></i> Đây là đơn hàng mô phỏng. Không cần thanh toán thật.
+                    <i class="fas fa-info-circle"></i> Dữ liệu sẽ được gửi sau khi thanh toán thành công.
                 </div>
-                <button type="submit" class="btn-place-order">Đặt hàng ngay</button>
+                <button type="submit" class="btn-place-order">Thanh toán ngay</button>
             </form>
         </div>
     </div>

@@ -248,36 +248,7 @@ $securityInfo = [
 <!-- Include Account JavaScript -->
 <script src="assets/js/user_account.js"></script>
 
-<style>
-.user-content-with-sidebar {
-    display: flex;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
 
-.user-sidebar {
-    width: 280px;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.user-account {
-    flex: 1;
-}
-
-.profile-card {
-    background: white;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.profile-card-header {
-    padding: 20px;
     border-bottom: 1px solid #eee;
 }
 

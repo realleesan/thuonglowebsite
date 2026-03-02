@@ -77,6 +77,8 @@ mb_http_output('UTF-8');
             echo '<link rel="stylesheet" href="' . versioned_css('user_dashboard.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_account.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_orders.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_cart.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('user_wishlist.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('user_access.css') . '">';
             break;
         case 'access':
