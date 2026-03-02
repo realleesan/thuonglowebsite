@@ -324,6 +324,23 @@ document.addEventListener('DOMContentLoaded', function () {
             if (selectedMethod === 'email') {
                 step2.classList.add('d-none-custom');
                 emailStep.classList.remove('d-none-custom');
+                
+                // Reset email/OTP step states
+                const emailInputStepEl = document.getElementById('emailInputStep');
+                const otpInputStepEl = document.getElementById('otpInputStep');
+                if (emailInputStepEl) {
+                    emailInputStepEl.classList.remove('d-none-custom');
+                    emailInputStepEl.classList.add('d-flex-custom');
+                }
+                if (otpInputStepEl) {
+                    otpInputStepEl.classList.add('d-none-custom');
+                    otpInputStepEl.classList.remove('d-flex-custom');
+                }
+                // Clear inputs
+                const emailInput = document.getElementById('deviceVerifyEmail');
+                const otpInput = document.getElementById('deviceVerifyOtpCode');
+                if (emailInput) emailInput.value = '';
+                if (otpInput) otpInput.value = '';
             } else {
                 step2.classList.add('d-none-custom');
                 remoteStep.classList.remove('d-none-custom');
@@ -361,9 +378,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Function to show email OTP input after sending
         function showOtpInput(maskedEmail) {
-            document.getElementById('displayMaskedEmail').textContent = maskedEmail;
-            emailInputStep.classList.add('d-none');
-            otpInputStep.classList.remove('d-none');
+            const displayEmail = document.getElementById('displayMaskedEmail');
+            const emailStepEl = document.getElementById('emailInputStep');
+            const otpStepEl = document.getElementById('otpInputStep');
+            
+            if (displayEmail) displayEmail.textContent = maskedEmail;
+            if (emailStepEl) {
+                emailStepEl.classList.add('d-none-custom');
+                emailStepEl.classList.remove('d-flex-custom');
+            }
+            if (otpStepEl) {
+                otpStepEl.classList.remove('d-none-custom');
+                otpStepEl.classList.add('d-flex-custom');
+            }
         }
 
         // ========== OTP Functions ==========
@@ -417,12 +444,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Xác thực thành công! Đang chuyển hướng...');
-                        window.location.href = '?page=users';
+                        // Đóng modal trước
+                        hideModal();
+                        // Redirect đến URL từ server hoặc mặc định
+                        const redirectUrl = data.redirect_url || '?page=users';
+                        setTimeout(() => {
+                            alert('Xác thực thành công! Đang chuyển hướng...');
+                            window.location.href = redirectUrl;
+                        }, 300);
                     } else {
                         alert(data.message);
                         if (data.attempts_left !== undefined) {
-                            document.getElementById('otpAttemptsTip').textContent = `Bạn còn ${data.attempts_left} lần thử.`;
+                            const attemptsTip = document.getElementById('otpAttemptsTip');
+                            if (attemptsTip) {
+                                attemptsTip.textContent = `Bạn còn ${data.attempts_left} lần thử.`;
+                            }
                         }
                     }
                 })

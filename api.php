@@ -236,21 +236,21 @@ try {
                 $deviceSessionId = $_SESSION['pending_device_session_id'] ?? ($input['device_session_id'] ?? 0);
                 $result = $service->verifyOTP($userId, $input['code'] ?? '', (int)$deviceSessionId);
                 
-                // Nếu xác thực thành công, tạo session đầy đủ
+                // Nếu xác thực thành công, hoàn tất đăng nhập đúng cách
                 if ($result['success']) {
-                    if (isset($_SESSION['pending_user_data'])) {
-                        $userData = $_SESSION['pending_user_data'];
-                        $_SESSION['user_id'] = $userData['id'];
-                        $_SESSION['user_name'] = $userData['name'];
-                        $_SESSION['username'] = $userData['username'] ?? '';
-                        $_SESSION['user_email'] = $userData['email'];
-                        $_SESSION['user_role'] = $userData['role'];
-                        $_SESSION['is_logged_in'] = true;
-                        // Clear pending data
-                        unset($_SESSION['pending_user_id']);
-                        unset($_SESSION['pending_user_data']);
-                        unset($_SESSION['pending_device_session_id']);
+                    require_once __DIR__ . '/app/services/AuthService.php';
+                    $authService = new AuthService();
+                    $completeResult = $authService->completePendingLogin($userId);
+                    
+                    if ($completeResult['success']) {
+                        $result['login_completed'] = true;
+                        $result['redirect_url'] = '?page=users';
                     }
+                    
+                    // Clear pending data
+                    unset($_SESSION['pending_user_id']);
+                    unset($_SESSION['pending_user_data']);
+                    unset($_SESSION['pending_device_session_id']);
                 }
                 
                 echo json_encode($result);
