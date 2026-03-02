@@ -24,6 +24,10 @@ try {
         throw new Exception('ID sản phẩm không hợp lệ');
     }
     
+    if (!$service) {
+        throw new Exception('Service không khả dụng');
+    }
+    
     // Get product details
     $productData = $service->getProductDetailsData($productId);
     $product = $productData['product'] ?? null;
@@ -116,51 +120,90 @@ if (!function_exists('getProductImage')) {
                                 </div>
                             </div>
 
-                            <!-- Product Description -->
+                            <!-- Product Content with Tabs -->
                             <div class="product-content">
-                                <?php if (!empty($product['description'])): ?>
-                                <div class="product-description">
-                                    <h4>Mô tả sản phẩm</h4>
-                                    <div class="description-content">
-                                        <?php echo nl2br(htmlspecialchars($product['description'])); ?>
-                                    </div>
+                                <!-- Tab Navigation -->
+                                <div class="product-tabs">
+                                    <button class="tab-button active" data-tab="description">Mô tả</button>
+                                    <button class="tab-button" data-tab="specifications">Thông số kỹ thuật</button>
+                                    <button class="tab-button" data-tab="reviews">Đánh giá</button>
                                 </div>
-                                <?php endif; ?>
                                 
-                                <?php if (!empty($product['short_description'])): ?>
-                                <div class="product-short-description">
-                                    <h4>Thông tin ngắn gọn</h4>
-                                    <div class="short-description-content">
-                                        <?php echo nl2br(htmlspecialchars($product['short_description'])); ?>
+                                <!-- Tab Content -->
+                                <div class="tab-content">
+                                    <!-- Description Tab -->
+                                    <div id="description" class="tab-panel active">
+                                        <?php if (!empty($product['description'])): ?>
+                                        <div class="product-description">
+                                            <div class="description-content">
+                                                <?php echo nl2br(htmlspecialchars($product['description'])); ?>
+                                            </div>
+                                        </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($product['short_description'])): ?>
+                                        <div class="product-short-description">
+                                            <h4>Thông tin ngắn gọn</h4>
+                                            <div class="short-description-content">
+                                                <?php echo nl2br(htmlspecialchars($product['short_description'])); ?>
+                                            </div>
+                                        </div>
+                                        <?php endif; ?>
                                     </div>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <!-- Product Specifications -->
-                                <div class="product-specifications">
-                                    <h4>Thông số sản phẩm</h4>
-                                    <table class="specs-table">
-                                        <tr>
-                                            <td>Loại sản phẩm:</td>
-                                            <td><?php echo htmlspecialchars($product['type'] ?? 'Không xác định'); ?></td>
-                                        </tr>
-                                        <?php if (!empty($product['weight'])): ?>
-                                        <tr>
-                                            <td>Trọng lượng:</td>
-                                            <td><?php echo htmlspecialchars($product['weight']); ?></td>
-                                        </tr>
-                                        <?php endif; ?>
-                                        <?php if (!empty($product['dimensions'])): ?>
-                                        <tr>
-                                            <td>Kích thước:</td>
-                                            <td><?php echo htmlspecialchars($product['dimensions']); ?></td>
-                                        </tr>
-                                        <?php endif; ?>
-                                        <tr>
-                                            <td>Trạng thái:</td>
-                                            <td><?php echo ($product['status'] === 'active') ? 'Đang bán' : 'Ngừng bán'; ?></td>
-                                        </tr>
-                                    </table>
+                                    
+                                    <!-- Specifications Tab -->
+                                    <div id="specifications" class="tab-panel">
+                                        <div class="product-specifications">
+                                            <table class="specs-table">
+                                                <tr>
+                                                    <td>Loại sản phẩm:</td>
+                                                    <td><?php echo htmlspecialchars($product['type'] ?? 'Không xác định'); ?></td>
+                                                </tr>
+                                                <?php if (!empty($product['weight'])): ?>
+                                                <tr>
+                                                    <td>Trọng lượng:</td>
+                                                    <td><?php echo htmlspecialchars($product['weight']); ?></td>
+                                                </tr>
+                                                <?php endif; ?>
+                                                <?php if (!empty($product['dimensions'])): ?>
+                                                <tr>
+                                                    <td>Kích thước:</td>
+                                                    <td><?php echo htmlspecialchars($product['dimensions']); ?></td>
+                                                </tr>
+                                                <?php endif; ?>
+                                                <tr>
+                                                    <td>Trạng thái:</td>
+                                                    <td><?php echo ($product['status'] === 'active') ? 'Đang bán' : 'Ngừng bán'; ?></td>
+                                                </tr>
+                                                <?php if (!empty($product['sku'])): ?>
+                                                <tr>
+                                                    <td>SKU:</td>
+                                                    <td><?php echo htmlspecialchars($product['sku']); ?></td>
+                                                </tr>
+                                                <?php endif; ?>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Reviews Tab -->
+                                    <div id="reviews" class="tab-panel">
+                                        <div class="product-reviews">
+                                            <div class="reviews-summary">
+                                                <div class="rating-overview">
+                                                    <span class="rating-value">0.0</span>
+                                                    <div class="rating-stars">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                                    </div>
+                                                    <span class="rating-count">0 đánh giá</span>
+                                                </div>
+                                            </div>
+                                            <p class="no-reviews">Chưa có đánh giá nào cho sản phẩm này.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +231,7 @@ if (!function_exists('getProductImage')) {
                                     </div>
                                     
                                     <?php if ($product['status'] === 'active' && $product['stock'] > 0): ?>
-                                        <button class="btn-order" onclick="addToCart(<?php echo $product['id']; ?>)">
+                                        <button class="btn-order" onclick="buyNow(<?php echo $product['id']; ?>)">
                                             Đặt hàng ngay
                                         </button>
                                         <button class="btn-cart" onclick="addToCart(<?php echo $product['id']; ?>)">
@@ -290,8 +333,102 @@ if (!function_exists('getProductImage')) {
 </div>
 
 <script>
-function addToCart(productId) {
-    // Add to cart functionality
-    alert('Thêm sản phẩm vào giỏ hàng: ' + productId);
+function addToCart(productId, quantity = 1) {
+    fetch('api.php?path=cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.require_login) {
+            // Redirect to login with return URL
+            window.location.href = '?page=login&redirect=' + encodeURIComponent(window.location.href);
+        } else if (data.success) {
+            // Show success message
+            alert(data.message);
+            // Update cart count if exists
+            updateCartCount();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra, vui lòng thử lại');
+    });
 }
+
+function buyNow(productId, quantity = 1) {
+    fetch('api.php?path=cart/checkout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.require_login) {
+            // Redirect to login with return URL
+            window.location.href = '?page=login&redirect=' + encodeURIComponent(window.location.href);
+        } else if (data.success) {
+            // Redirect to checkout
+            window.location.href = data.redirect;
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra, vui lòng thử lại');
+    });
+}
+
+function updateCartCount() {
+    // Update cart count in header if element exists
+    const cartCountEl = document.getElementById('cart-count');
+    if (cartCountEl) {
+        fetch('api.php?action=getUserData')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.cart) {
+                cartCountEl.textContent = data.cart.length;
+            }
+        })
+        .catch(error => console.error('Error updating cart count:', error));
+    }
+}
+
+// Tab switching functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons and panels
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanels.forEach(panel => panel.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Show corresponding panel
+            const tabId = this.getAttribute('data-tab');
+            const targetPanel = document.getElementById(tabId);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+});
 </script>

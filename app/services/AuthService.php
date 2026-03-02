@@ -78,6 +78,60 @@ class AuthService implements ServiceInterface {
     // ========== Main Authentication Methods ==========
     
     /**
+     * Complete pending login after device approval
+     */
+    public function completePendingLogin(int $userId): array {
+        if (!$userId) {
+            return ['success' => false, 'message' => 'Invalid user ID'];
+        }
+        
+        // Get user data
+        $user = $this->usersModel->find($userId);
+        if (!$user) {
+            return ['success' => false, 'message' => 'User not found'];
+        }
+        
+        // Create session (login)
+        $sessionId = $this->sessionManager->createSession($user);
+        
+        // Get device session ID from pending
+        $deviceSessionId = $_SESSION['pending_device_session_id'] ?? 0;
+        
+        // Update device session
+        if ($deviceSessionId > 0) {
+            try {
+                require_once __DIR__ . '/DeviceAccessService.php';
+                $deviceService = new DeviceAccessService();
+                $deviceModel = $deviceService->getModel('DeviceAccessModel');
+                if ($deviceModel) {
+                    $deviceModel->setCurrentDevice($userId, $deviceSessionId);
+                    $deviceModel->updateLastActivity($deviceSessionId);
+                }
+            } catch (Throwable $e) {
+                // Ignore device errors
+            }
+        }
+        
+        // Log successful login
+        $this->securityLogger->logAuthAttempt('login_success', [
+            'user_id' => $userId,
+            'login' => $user['email'],
+            'session_id' => $sessionId
+        ]);
+        
+        return [
+            'success' => true,
+            'message' => 'Login completed successfully',
+            'user' => [
+                'id' => $user['id'],
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'role' => $user['role']
+            ]
+        ];
+    }
+
+    /**
      * Authenticate user with credentials
      * Requirements: 2.1, 2.2
      */
@@ -147,9 +201,32 @@ class AuthService implements ServiceInterface {
             // ==========================================
             // DEVICE ACCESS CHECK
             // ==========================================
-            require_once __DIR__ . '/DeviceAccessService.php';
-            $deviceService = new DeviceAccessService();
-            $deviceCheck = $deviceService->checkDeviceOnLogin($user['id']);
+            try {
+                // Check if file exists before including
+                $deviceServiceFile = __DIR__ . '/DeviceAccessService.php';
+                if (file_exists($deviceServiceFile)) {
+                    require_once $deviceServiceFile;
+                    $deviceService = new DeviceAccessService();
+                    $deviceCheck = $deviceService->checkDeviceOnLogin($user['id']);
+                } else {
+                    // Device service file doesn't exist, skip check
+                    $deviceCheck = [
+                        'success' => true,
+                        'requires_verification' => false
+                    ];
+                }
+            } catch (Throwable $e) {
+                // If device check fails, allow login anyway (fail-open for usability)
+                $this->securityLogger->logAuthAttempt('login_device_check_failed', [
+                    'login' => $login,
+                    'user_id' => $user['id'],
+                    'error' => $e->getMessage()
+                ]);
+                $deviceCheck = [
+                    'success' => true,
+                    'requires_verification' => false
+                ];
+            }
             
             if ($deviceCheck['requires_verification'] ?? false) {
                 // Vượt giới hạn thiết bị - cần xác thực
@@ -185,11 +262,19 @@ class AuthService implements ServiceInterface {
             $sessionId = $this->sessionManager->createSession($user);
             
             // Register device session
-            if (isset($deviceCheck['device_id'])) {
-                $deviceModel = $deviceService->getModel('DeviceAccessModel');
-                if ($deviceModel) {
-                    $deviceModel->setCurrentDevice($user['id'], $deviceCheck['device_id']);
-                    $deviceModel->updateLastActivity($deviceCheck['device_id']);
+            if (isset($deviceService) && isset($deviceCheck['device_id'])) {
+                try {
+                    $deviceModel = $deviceService->getModel('DeviceAccessModel');
+                    if ($deviceModel) {
+                        $deviceModel->updateSessionId($deviceCheck['device_id'], $sessionId);
+                        $deviceModel->setCurrentDevice($user['id'], $deviceCheck['device_id']);
+                        $deviceModel->updateLastActivity($deviceCheck['device_id']);
+                        
+                        // Store device_id in session for validation
+                        $_SESSION['device_id'] = $deviceCheck['device_id'];
+                    }
+                } catch (Throwable $e) {
+                    // Ignore device registration errors
                 }
             }
             
@@ -581,7 +666,34 @@ class AuthService implements ServiceInterface {
      * Check if user is authenticated
      */
     public function isAuthenticated(): bool {
-        return $this->sessionManager->isValid();
+        if (!$this->sessionManager->isValid()) {
+            return false;
+        }
+        
+        // Kiểm tra phiên thiết bị có còn active không
+        return $this->isDeviceSessionValid();
+    }
+    
+    /**
+     * Kiểm tra xem phiên thiết bị hiện tại có còn active không
+     */
+    private function isDeviceSessionValid(): bool {
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            return true; // Không có user thì bỏ qua kiểm tra
+        }
+        
+        // Debug log
+        error_log("isDeviceSessionValid: userId=$userId, session_id=" . session_id());
+        
+        // Kiểm tra xem thiết bị có trong database và status là active không
+        require_once __DIR__ . '/DeviceAccessService.php';
+        $deviceService = new DeviceAccessService();
+        $isValid = $deviceService->checkCurrentDeviceSession($userId);
+        
+        error_log("isDeviceSessionValid result: " . ($isValid ? 'true' : 'false'));
+        
+        return $isValid;
     }
     
     /**

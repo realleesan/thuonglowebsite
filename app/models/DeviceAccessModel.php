@@ -102,14 +102,37 @@ class DeviceAccessModel extends BaseModel {
     }
 
     /**
-     * Xóa phiên thiết bị
+     * Cập nhật session_id cho thiết bị (dùng khi session được regeneration)
      */
-    public function deleteDeviceSession(int $id): bool {
+    public function updateSessionId(int $id, string $sessionId): bool {
         $this->query(
-            "DELETE FROM device_sessions WHERE id = :id",
-            ['id' => $id]
+            "UPDATE device_sessions SET session_id = :session_id, updated_at = :updated_at WHERE id = :id",
+            ['session_id' => $sessionId, 'updated_at' => date('Y-m-d H:i:s'), 'id' => $id]
         );
         return true;
+    }
+
+    /**
+     * Xóa phiên thiết bị (đánh dấu là rejected thay vì xóa để có thể kiểm tra)
+     */
+    public function deleteDeviceSession(int $id): bool {
+        // Thay vì xóa, đánh dấu là rejected để có thể kiểm tra session
+        $this->query(
+            "UPDATE device_sessions SET status = 'rejected', updated_at = :updated_at WHERE id = :id",
+            ['updated_at' => date('Y-m-d H:i:s'), 'id' => $id]
+        );
+        return true;
+    }
+
+    /**
+     * Kiểm tra xem thiết bị có đang active không
+     */
+    public function isDeviceActive(int $userId, string $sessionId): bool {
+        $result = $this->query(
+            "SELECT id FROM device_sessions WHERE user_id = :user_id AND session_id = :session_id AND status = 'active' LIMIT 1",
+            ['user_id' => $userId, 'session_id' => $sessionId]
+        );
+        return !empty($result);
     }
 
     /**
@@ -149,13 +172,31 @@ class DeviceAccessModel extends BaseModel {
      * Hủy kích hoạt tất cả các phiên khác (giữ lại phiên hiện tại)
      */
     public function deactivateOtherSessions(int $userId, string $keepSessionId): int {
+        // Hủy kích hoạt tất cả các thiết bị active KHÁC với session cần giữ lại
+        // Giữ nguyên thiết bị có session_id = $keepSessionId
         $this->query(
             "UPDATE device_sessions SET status = 'rejected', is_current = 0, updated_at = :updated_at 
-             WHERE user_id = :user_id AND session_id != :keep_session_id AND status = 'active'",
+             WHERE user_id = :user_id AND status = 'active' AND session_id != :keep_session_id",
             [
                 'updated_at' => date('Y-m-d H:i:s'),
                 'user_id' => $userId,
                 'keep_session_id' => $keepSessionId
+            ]
+        );
+        return 1;
+    }
+    
+    /**
+     * Hủy kích hoạt tất cả các phiên khác TRỪ thiết bị được chỉ định
+     */
+    public function deactivateOtherSessionsExcept(int $userId, int $exceptDeviceId): int {
+        $this->query(
+            "UPDATE device_sessions SET status = 'rejected', is_current = 0, updated_at = :updated_at 
+             WHERE user_id = :user_id AND id != :except_device_id AND status = 'active'",
+            [
+                'updated_at' => date('Y-m-d H:i:s'),
+                'user_id' => $userId,
+                'except_device_id' => $exceptDeviceId
             ]
         );
         return 1;
@@ -397,6 +438,30 @@ class DeviceAccessModel extends BaseModel {
         }
 
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '0.0.0.0';
+    }
+
+    /**
+     * Tìm thiết bị theo IP + Browser + OS (dùng khi session_id thay đổi)
+     * Đây là cách tìm thiết bị ổn định hơn khi session được regeneration
+     */
+    public function findByIPAndDevice(int $userId, string $ip, string $browser, string $os): ?array {
+        $result = $this->query(
+            "SELECT * FROM device_sessions 
+             WHERE user_id = :user_id 
+             AND ip_address = :ip_address 
+             AND browser = :browser 
+             AND os = :os 
+             AND status IN ('active', 'pending')
+             ORDER BY last_activity DESC 
+             LIMIT 1",
+            [
+                'user_id' => $userId,
+                'ip_address' => $ip,
+                'browser' => $browser,
+                'os' => $os
+            ]
+        );
+        return $result[0] ?? null;
     }
 
     /**

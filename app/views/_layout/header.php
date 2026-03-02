@@ -1,7 +1,9 @@
     <!-- Top Banner -->
 <?php
-// Initialize authentication state for header
-$isAuthenticated = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+// Initialize authentication state for header using AuthService (includes device validation)
+require_once __DIR__ . '/../../services/AuthService.php';
+$authService = new AuthService();
+$isAuthenticated = $authService->isAuthenticated();
 ?>
     <div class="top-banner">
         <div class="container">
@@ -130,12 +132,11 @@ $isAuthenticated = isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
                 <!-- Right Side Buttons -->
                 <div class="header-buttons">
                     <?php
-                    // Check if user is authenticated
-                    $isAuthenticated = false;
+                    // Use the already-set $isAuthenticated from AuthService (line 4)
+                    // If not authenticated, $currentUser remains null
                     $currentUser = null;
                     
-                    if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-                        $isAuthenticated = true;
+                    if ($isAuthenticated) {
                         $currentUser = [
                             'id' => $_SESSION['user_id'],
                             'name' => $_SESSION['user_name'] ?? 'User',

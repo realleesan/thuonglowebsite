@@ -68,7 +68,8 @@ try {
                     <div class="cart-item">
                         <div class="cart-item-image">
                             <?php if (!empty($item['image'])): ?>
-                                <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
+                                <?php $imageUrl = (strpos($item['image'], 'http') === 0) ? $item['image'] : ($item['image'] ?? ''); ?>
+                                <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
                             <?php else: ?>
                                 <div class="cart-item-placeholder">
                                     <i class="fas fa-image"></i>
@@ -78,10 +79,14 @@ try {
                         
                         <div class="cart-item-details">
                             <h4><?php echo htmlspecialchars($item['name']); ?></h4>
-                            <p class="cart-item-description"><?php echo htmlspecialchars($item['description'] ?? ''); ?></p>
+                            <?php if (!empty($item['short_description'])): ?>
+                            <p class="cart-item-description"><?php echo htmlspecialchars($item['short_description']); ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($item['sku'])): ?>
                             <div class="cart-item-meta">
-                                <span class="cart-item-sku">SKU: <?php echo htmlspecialchars($item['sku'] ?? 'N/A'); ?></span>
+                                <span class="cart-item-sku">Mã: <?php echo htmlspecialchars($item['sku']); ?></span>
                             </div>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="cart-item-quantity">
@@ -98,9 +103,11 @@ try {
                         </div>
                         
                         <div class="cart-item-price">
+                            <?php if (!empty($item['original_price']) && $item['original_price'] > $item['price']): ?>
                             <div class="cart-item-unit-price">
-                                <?php echo number_format($item['price'], 0, ',', '.'); ?> VNĐ
+                                <?php echo number_format($item['original_price'], 0, ',', '.'); ?> VNĐ
                             </div>
+                            <?php endif; ?>
                             <div class="cart-item-total-price">
                                 <?php echo number_format($item['price'] * $item['quantity'], 0, ',', '.'); ?> VNĐ
                             </div>
@@ -124,16 +131,6 @@ try {
                             <div class="cart-summary-row">
                                 <span>Tổng sản phẩm:</span>
                                 <span><?php echo $cartSummary['total_items']; ?> sản phẩm</span>
-                            </div>
-                            
-                            <div class="cart-summary-row">
-                                <span>Tạm tính:</span>
-                                <span><?php echo number_format($cartSummary['total_amount'], 0, ',', '.'); ?> VNĐ</span>
-                            </div>
-                            
-                            <div class="cart-summary-row">
-                                <span>Phí vận chuyển:</span>
-                                <span>Miễn phí</span>
                             </div>
                             
                             <div class="cart-summary-row cart-summary-total">
@@ -162,208 +159,3 @@ try {
 
 <!-- Include Cart JavaScript -->
 <script src="assets/js/user_cart.js"></script>
-
-<style>
-.user-content-with-sidebar {
-    display: flex;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.user-cart {
-    flex: 1;
-}
-
-.cart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-.cart-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
-    border: none;
-    cursor: pointer;
-}
-
-.cart-btn-primary {
-    background: #3b82f6;
-    color: white;
-}
-
-.cart-btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-.cart-btn-full {
-    width: 100%;
-    justify-content: center;
-}
-
-.cart-empty {
-    text-align: center;
-    padding: 60px 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.cart-empty-icon {
-    font-size: 64px;
-    color: #d1d5db;
-    margin-bottom: 20px;
-}
-
-.cart-content {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 30px;
-}
-
-.cart-items {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.cart-item {
-    display: grid;
-    grid-template-columns: 80px 1fr auto auto auto;
-    gap: 20px;
-    align-items: center;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.cart-item-image img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.cart-item-placeholder {
-    width: 80px;
-    height: 80px;
-    background: #f3f4f6;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-}
-
-.cart-item-details h4 {
-    margin: 0 0 8px 0;
-    font-size: 16px;
-}
-
-.cart-item-description {
-    color: #666;
-    font-size: 14px;
-    margin: 0 0 8px 0;
-}
-
-.cart-item-meta {
-    font-size: 12px;
-    color: #999;
-}
-
-.quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.quantity-btn {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #ddd;
-    background: white;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.quantity-input {
-    width: 60px;
-    height: 32px;
-    text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.cart-item-price {
-    text-align: right;
-}
-
-.cart-item-unit-price {
-    font-size: 14px;
-    color: #666;
-}
-
-.cart-item-total-price {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
-
-.cart-item-remove {
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: #fee2e2;
-    color: #dc2626;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.cart-summary-card {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 20px;
-}
-
-.cart-summary-details {
-    margin: 20px 0;
-}
-
-.cart-summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-}
-
-.cart-summary-total {
-    font-weight: bold;
-    font-size: 18px;
-    padding-top: 12px;
-    border-top: 1px solid #eee;
-}
-
-.cart-summary-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-</style>

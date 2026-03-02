@@ -303,9 +303,46 @@ class SessionManager {
             return false;
         }
         
+        // Check device status - if device is rejected, invalidate session
+        if (!$this->validateDeviceStatus()) {
+            $this->destroySession();
+            return false;
+        }
+        
         // Check timeout
         if (!$this->checkTimeout()) {
             $this->destroySession();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Validate device status from database
+     * Ensures the device session is still active
+     */
+    private function validateDeviceStatus(): bool {
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['device_id'])) {
+            // No device associated, allow session
+            return true;
+        }
+        
+        $userId = $_SESSION['user_id'];
+        $deviceId = $_SESSION['device_id'];
+        
+        require_once __DIR__ . '/../models/DeviceAccessModel.php';
+        $deviceModel = new DeviceAccessModel();
+        
+        $device = $deviceModel->find($deviceId);
+        
+        // If device not found or status is not active, invalidate
+        if (!$device || $device['status'] !== 'active') {
+            return false;
+        }
+        
+        // Also check if this is the current device for the user
+        if ($device['user_id'] != $userId) {
             return false;
         }
         

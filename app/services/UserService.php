@@ -151,17 +151,116 @@ class UserService extends BaseService
     public function getCartData(int $userId): array
     {
         try {
-            // For now, return empty cart data
-            // This can be enhanced later with actual cart model
+            $cartModel = $this->getModel('CartModel');
+            $productsModel = $this->getModel('ProductsModel');
+            
+            if (!$cartModel) {
+                return [
+                    'items' => [],
+                    'summary' => [
+                        'total_items' => 0,
+                        'total_amount' => 0,
+                    ],
+                ];
+            }
+            
+            $cartItems = $cartModel->getByUser($userId);
+            $items = [];
+            $totalAmount = 0;
+            
+            foreach ($cartItems as $item) {
+                $product = null;
+                if ($productsModel) {
+                    $product = $productsModel->find($item['product_id']);
+                }
+                
+                $price = $item['price'] ?? ($product['price'] ?? 0);
+                $quantity = $item['quantity'] ?? 1;
+                $subtotal = $price * $quantity;
+                $totalAmount += $subtotal;
+                
+                $items[] = [
+                    'id' => $item['id'],
+                    'product_id' => $item['product_id'],
+                    'name' => $product['name'] ?? 'Sản phẩm',
+                    'price' => $price,
+                    'original_price' => $product['original_price'] ?? $price,
+                    'image' => $product['image'] ?? '',
+                    'short_description' => $product['short_description'] ?? '',
+                    'sku' => $product['sku'] ?? '',
+                    'stock' => $product['stock'] ?? 0,
+                    'quantity' => $quantity,
+                    'subtotal' => $subtotal,
+                    'created_at' => $item['created_at'],
+                ];
+            }
+            
             return [
-                'items' => [],
+                'items' => $items,
                 'summary' => [
-                    'total_items' => 0,
-                    'total_amount' => 0,
+                    'total_items' => count($items),
+                    'total_amount' => $totalAmount,
                 ],
             ];
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'getCartData', 'user_id' => $userId]);
+        }
+    }
+
+    /**
+     * Thêm sản phẩm vào giỏ hàng.
+     */
+    public function addToCart(int $userId, int $productId, int $quantity = 1, float $price = 0): bool
+    {
+        try {
+            $cartModel = $this->getModel('CartModel');
+            
+            if (!$cartModel) {
+                return false;
+            }
+            
+            return $cartModel->addItem($userId, $productId, $quantity, $price);
+        } catch (\Exception $e) {
+            $this->handleError($e, ['method' => 'addToCart', 'user_id' => $userId, 'product_id' => $productId]);
+            return false;
+        }
+    }
+
+    /**
+     * Cập nhật số lượng sản phẩm trong giỏ hàng.
+     */
+    public function updateCartItem(int $userId, $itemId, int $quantity): bool
+    {
+        try {
+            $cartModel = $this->getModel('CartModel');
+            
+            if (!$cartModel) {
+                return false;
+            }
+            
+            return $cartModel->updateQuantity($itemId, $quantity);
+        } catch (\Exception $e) {
+            $this->handleError($e, ['method' => 'updateCartItem', 'user_id' => $userId, 'item_id' => $itemId]);
+            return false;
+        }
+    }
+
+    /**
+     * Xóa sản phẩm khỏi giỏ hàng.
+     */
+    public function removeFromCart(int $userId, $itemId): bool
+    {
+        try {
+            $cartModel = $this->getModel('CartModel');
+            
+            if (!$cartModel) {
+                return false;
+            }
+            
+            return $cartModel->removeItem($itemId);
+        } catch (\Exception $e) {
+            $this->handleError($e, ['method' => 'removeFromCart', 'user_id' => $userId, 'item_id' => $itemId]);
+            return false;
         }
     }
 
@@ -171,14 +270,104 @@ class UserService extends BaseService
     public function getWishlistData(int $userId): array
     {
         try {
-            // For now, return empty wishlist data
-            // This can be enhanced later with actual wishlist model
+            $wishlistModel = $this->getModel('WishlistModel');
+            $productsModel = $this->getModel('ProductsModel');
+            
+            if (!$wishlistModel) {
+                return [
+                    'items' => [],
+                    'total_items' => 0,
+                ];
+            }
+            
+            $wishlistItems = $wishlistModel->getByUser($userId);
+            $items = [];
+            
+            foreach ($wishlistItems as $item) {
+                $product = null;
+                if ($productsModel) {
+                    $product = $productsModel->find($item['product_id']);
+                }
+                
+                $items[] = [
+                    'id' => $item['id'],
+                    'product_id' => $item['product_id'],
+                    'name' => $product['name'] ?? 'Sản phẩm',
+                    'price' => $product['price'] ?? 0,
+                    'original_price' => $product['original_price'] ?? ($product['price'] ?? 0),
+                    'image' => $product['image'] ?? '',
+                    'short_description' => $product['short_description'] ?? '',
+                    'category' => $product['category_name'] ?? '',
+                    'stock' => $product['stock'] ?? 0,
+                    'sku' => $product['sku'] ?? '',
+                    'notes' => $item['notes'] ?? '',
+                    'created_at' => $item['created_at'],
+                ];
+            }
+            
             return [
-                'items' => [],
-                'total_items' => 0,
+                'items' => $items,
+                'total_items' => count($items),
             ];
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'getWishlistData', 'user_id' => $userId]);
+        }
+    }
+
+    /**
+     * Thêm sản phẩm vào wishlist.
+     */
+    public function addToWishlist(int $userId, int $productId, string $notes = ''): bool
+    {
+        try {
+            $wishlistModel = $this->getModel('WishlistModel');
+            
+            if (!$wishlistModel) {
+                return false;
+            }
+            
+            return $wishlistModel->addProduct($userId, $productId, $notes);
+        } catch (\Exception $e) {
+            $this->handleError($e, ['method' => 'addToWishlist', 'user_id' => $userId, 'product_id' => $productId]);
+            return false;
+        }
+    }
+
+    /**
+     * Xóa sản phẩm khỏi wishlist.
+     */
+    public function removeFromWishlist(int $userId, $itemId): bool
+    {
+        try {
+            $wishlistModel = $this->getModel('WishlistModel');
+            
+            if (!$wishlistModel) {
+                return false;
+            }
+            
+            return $wishlistModel->removeProduct($itemId);
+        } catch (\Exception $e) {
+            $this->handleError($e, ['method' => 'removeFromWishlist', 'user_id' => $userId, 'item_id' => $itemId]);
+            return false;
+        }
+    }
+
+    /**
+     * Cập nhật ghi chú wishlist.
+     */
+    public function updateWishlistNotes(int $userId, $itemId, string $notes): bool
+    {
+        try {
+            $wishlistModel = $this->getModel('WishlistModel');
+            
+            if (!$wishlistModel) {
+                return false;
+            }
+            
+            return $wishlistModel->updateNotes($itemId, $notes);
+        } catch (\Exception $e) {
+            $this->handleError($e, ['method' => 'updateWishlistNotes', 'user_id' => $userId, 'item_id' => $itemId]);
+            return false;
         }
     }
 }

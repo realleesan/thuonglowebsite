@@ -37,11 +37,68 @@ $success_message = '';
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Mock form processing
+    require_once __DIR__ . '/../../models/UsersModel.php';
+    $usersModel = new UsersModel();
+    
     if (isset($_POST['update_profile'])) {
-        $success_message = 'Thông tin tài khoản đã được cập nhật thành công!';
+        // Update profile information
+        $name = $_POST['name'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $phone = $_POST['phone'] ?? '';
+        $address = $_POST['address'] ?? '';
+        
+        $updateData = [
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'address' => $address,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $result = $usersModel->update($userId, $updateData);
+        if ($result) {
+            $success_message = 'Thông tin tài khoản đã được cập nhật thành công!';
+            // Update session data
+            $_SESSION['user_name'] = $name;
+            $_SESSION['user_email'] = $email;
+        } else {
+            $error_message = 'Không thể cập nhật thông tin tài khoản.';
+        }
     } elseif (isset($_POST['change_password'])) {
-        $success_message = 'Mật khẩu đã được thay đổi thành công!';
+        // Change password
+        $currentPassword = $_POST['current_password'] ?? '';
+        $newPassword = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        
+        // Validate new password
+        if (strlen($newPassword) < 6) {
+            $error_message = 'Mật khẩu mới phải có ít nhất 6 ký tự.';
+        } elseif ($newPassword !== $confirmPassword) {
+            $error_message = 'Mật khẩu xác nhận không khớp.';
+        } else {
+            // Get current user to check if they have a password
+            $currentUser = $usersModel->find($userId);
+            
+            if ($currentUser && !empty($currentUser['password'])) {
+                // User has a password - verify current password
+                if (!password_verify($currentPassword, $currentUser['password'])) {
+                    // Try MD5 for legacy accounts
+                    if (md5($currentPassword) !== $currentUser['password']) {
+                        $error_message = 'Mật khẩu hiện tại không đúng.';
+                    }
+                }
+            }
+            
+            // If no error, update password
+            if (empty($error_message)) {
+                $result = $usersModel->updatePasswordSecure($userId, $newPassword, false);
+                if ($result) {
+                    $success_message = 'Mật khẩu đã được thay đổi thành công!';
+                } else {
+                    $error_message = 'Không thể thay đổi mật khẩu.';
+                }
+            }
+        }
     } elseif (isset($_POST['update_security'])) {
         $success_message = 'Cài đặt bảo mật đã được cập nhật!';
     }
@@ -171,6 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="profile-card-content">
                         <form method="POST" class="account-form">
+                            <?php if ($hasPassword): ?>
                             <div class="form-group">
                                 <label for="current_password" class="form-label required">Mật khẩu hiện tại</label>
                                 <div style="position: relative;">
@@ -180,6 +238,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </button>
                                 </div>
                             </div>
+                            <?php else: ?>
+                            <input type="hidden" name="current_password" value="">
+                            <?php endif; ?>
 
                             <div class="form-group">
                                 <label for="new_password" class="form-label required">Mật khẩu mới</label>

@@ -21,6 +21,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Get request method and path
 $method = $_SERVER['REQUEST_METHOD'];
 $path = $_GET['path'] ?? '';
+$action = $_GET['action'] ?? '';
 
 // Basic CORS headers for AJAX requests
 header('Access-Control-Allow-Origin: *');
@@ -34,6 +35,38 @@ if ($method === 'OPTIONS') {
 }
 
 try {
+    // Handle action-based requests (legacy format)
+    if ($action && empty($path)) {
+        switch ($action) {
+            case 'getUserData':
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                $userId = $_SESSION['user_id'] ?? 0;
+                
+                if ($userId > 0) {
+                    $accountData = $userService->getAccountData($userId);
+                    $cartData = $userService->getCartData($userId);
+                    $wishlistData = $userService->getWishlistData($userId);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'user' => $accountData['user'] ?? ['name' => 'Người dùng', 'level' => 'Basic'],
+                        'cart' => $cartData['items'] ?? [],
+                        'wishlist' => $wishlistData['items'] ?? []
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Not authenticated'
+                    ]);
+                }
+                exit;
+                
+            default:
+                throw new Exception('Unknown action: ' . $action, 404);
+        }
+    }
+    
     // Route API requests
     switch ($path) {
         case 'agent/register':
@@ -95,10 +128,6 @@ try {
                 throw new Exception('Method not allowed', 405);
             }
             break;
-            
-        // ==========================================
-        // ADMIN DASHBOARD API
-        // ==========================================
             
         case 'admin/dashboard/revenue':
             if ($method === 'GET') {
@@ -207,21 +236,21 @@ try {
                 $deviceSessionId = $_SESSION['pending_device_session_id'] ?? ($input['device_session_id'] ?? 0);
                 $result = $service->verifyOTP($userId, $input['code'] ?? '', (int)$deviceSessionId);
                 
-                // Nếu xác thực thành công, tạo session đầy đủ
+                // Nếu xác thực thành công, hoàn tất đăng nhập đúng cách
                 if ($result['success']) {
-                    if (isset($_SESSION['pending_user_data'])) {
-                        $userData = $_SESSION['pending_user_data'];
-                        $_SESSION['user_id'] = $userData['id'];
-                        $_SESSION['user_name'] = $userData['name'];
-                        $_SESSION['username'] = $userData['username'] ?? '';
-                        $_SESSION['user_email'] = $userData['email'];
-                        $_SESSION['user_role'] = $userData['role'];
-                        $_SESSION['is_logged_in'] = true;
-                        // Clear pending data
-                        unset($_SESSION['pending_user_id']);
-                        unset($_SESSION['pending_user_data']);
-                        unset($_SESSION['pending_device_session_id']);
+                    require_once __DIR__ . '/app/services/AuthService.php';
+                    $authService = new AuthService();
+                    $completeResult = $authService->completePendingLogin($userId);
+                    
+                    if ($completeResult['success']) {
+                        $result['login_completed'] = true;
+                        $result['redirect_url'] = '?page=users';
                     }
+                    
+                    // Clear pending data
+                    unset($_SESSION['pending_user_id']);
+                    unset($_SESSION['pending_user_data']);
+                    unset($_SESSION['pending_device_session_id']);
                 }
                 
                 echo json_encode($result);
@@ -250,6 +279,22 @@ try {
                 $service = new DeviceAccessService();
                 $deviceSessionId = $_GET['device_session_id'] ?? ($_SESSION['pending_device_session_id'] ?? 0);
                 $result = $service->pollDeviceStatus((int)$deviceSessionId);
+                
+                // Nếu thiết bị đã được duyệt và có pending_user_id, hoàn tất đăng nhập
+                if ($result['success'] && $result['status'] === 'active' && !empty($_SESSION['pending_user_id'])) {
+                    require_once __DIR__ . '/app/services/AuthService.php';
+                    $authService = new AuthService();
+                    $completeResult = $authService->completePendingLogin($_SESSION['pending_user_id']);
+                    if ($completeResult['success']) {
+                        $result['login_completed'] = true;
+                        $result['redirect_url'] = '?page=users';
+                        // Xóa pending data
+                        unset($_SESSION['pending_user_id']);
+                        unset($_SESSION['pending_user_data']);
+                        unset($_SESSION['pending_device_session_id']);
+                    }
+                }
+                
                 echo json_encode($result);
             } else {
                 throw new Exception('Method not allowed', 405);
@@ -342,44 +387,143 @@ try {
             break;
 
         // ==========================================
-        // WEBHOOK ENDPOINTS
+        // CART MANAGEMENT API
         // ==========================================
         
-        case 'webhook/sepay':
+        case 'cart/add':
             if ($method === 'POST') {
-                require_once __DIR__ . '/app/controllers/WebhookController.php';
-                $controller = new WebhookController();
-                $controller->handleSepayWebhook();
+                $input = json_decode(file_get_contents('php://input'), true);
+                $productId = (int)($input['product_id'] ?? 0);
+                $quantity = (int)($input['quantity'] ?? 1);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                
+                // Get product price first
+                require_once __DIR__ . '/app/models/ProductsModel.php';
+                $productsModel = new ProductsModel();
+                $product = $productsModel->find($productId);
+                
+                if (!$product) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Không tìm thấy sản phẩm'
+                    ]);
+                    exit;
+                }
+                
+                $price = $product['price'] ?? 0;
+                
+                try {
+                    $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);
+                    
+                    echo json_encode([
+                        'success' => $result,
+                        'message' => $result ? 'Đã thêm sản phẩm vào giỏ hàng' : 'Thêm vào giỏ hàng thất bại'
+                    ]);
+                } catch (Exception $e) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Lỗi: ' . $e->getMessage()
+                    ]);
+                }
             } else {
                 throw new Exception('Method not allowed', 405);
             }
             break;
-            
-        case 'webhook/test':
-            if ($method === 'GET') {
-                require_once __DIR__ . '/app/controllers/WebhookController.php';
-                $controller = new WebhookController();
-                $controller->test();
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-            
-        // ==========================================
-        // DEMO WEBHOOK ENDPOINTS
-        // ==========================================
-        
-        case 'webhook/sepay_demo':
+
+        case 'cart/checkout':
             if ($method === 'POST') {
-                require_once __DIR__ . '/app/controllers/WebhookDemoController.php';
-                $controller = new WebhookDemoController();
-                $result = $controller->handleWebhook();
-                echo json_encode($result);
+                $input = json_decode(file_get_contents('php://input'), true);
+                $productId = (int)($input['product_id'] ?? 0);
+                $quantity = (int)($input['quantity'] ?? 1);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để đặt hàng'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                
+                // Get product price first
+                require_once __DIR__ . '/app/models/ProductsModel.php';
+                $productsModel = new ProductsModel();
+                $product = $productsModel->find($productId);
+                
+                if (!$product) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Không tìm thấy sản phẩm'
+                    ]);
+                    exit;
+                }
+                
+                $price = $product['price'] ?? 0;
+                
+                // Add to cart first
+                $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);
+                
+                if ($result) {
+                    // Redirect to checkout page
+                    echo json_encode([
+                        'success' => true,
+                        'redirect' => '?page=payment&action=checkout'
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Có lỗi xảy ra, vui lòng thử lại'
+                    ]);
+                }
             } else {
                 throw new Exception('Method not allowed', 405);
             }
             break;
-            
+
+        case 'wishlist/add':
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $productId = (int)($input['product_id'] ?? 0);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào yêu thích'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                $result = $userService->addToWishlist($_SESSION['user_id'], $productId);
+                
+                echo json_encode([
+                    'success' => $result,
+                    'message' => $result ? 'Đã thêm sản phẩm vào yêu thích' : 'Thêm vào yêu thích thất bại'
+                ]);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
         default:
             throw new Exception('Endpoint not found', 404);
     }

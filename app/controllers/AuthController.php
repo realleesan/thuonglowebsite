@@ -60,14 +60,19 @@ class AuthController {
         
         $login = $_POST['login'] ?? '';
         $password = $_POST['password'] ?? '';
+        $redirect = $_POST['redirect'] ?? '';
         
         try {
             $result = $this->authService->authenticate($login, $password);
             
             if ($result['success']) {
-                // Successful login - redirect to user dashboard
+                // Successful login - redirect to user dashboard or specified page
                 $this->setFlashMessage('success', $result['message']);
-                $this->redirect('?page=users'); // Redirect to user dashboard
+                if (!empty($redirect) && strpos($redirect, '?page=') === 0) {
+                    $this->redirect($redirect); // Redirect to original page
+                } else {
+                    $this->redirect('?page=users'); // Default redirect to user dashboard
+                }
             } elseif (!empty($result['requires_device_verification'])) {
                 // Device limit reached - show verification popup
                 $_SESSION['device_verify_message'] = $result['message'];
@@ -320,13 +325,19 @@ class AuthController {
         $result = $this->authService->logout();
         
         if ($result) {
-            $this->setFlashMessage('success', 'Đăng xuất thành công');
+            // Kiểm tra nếu logout do duyệt thiết bị
+            $deviceApproved = $_GET['device_approved'] ?? 0;
+            if ($deviceApproved) {
+                $this->setFlashMessage('success', 'Thiết bị mới đã được phê duyệt. Vui lòng đăng nhập lại.');
+            } else {
+                $this->setFlashMessage('success', 'Đăng xuất thành công');
+            }
         }
         
         // Regenerate CSRF token for new session
         $this->authService->getCsrfToken();
         
-        $this->redirect(''); // Redirect to home page after logout
+        $this->redirect('?page=login'); // Redirect to login page after logout
     }
     
     /**

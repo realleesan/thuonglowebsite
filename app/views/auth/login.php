@@ -7,6 +7,8 @@
                 <form method="POST" action="<?php echo $viewData['form_action']; ?>" class="auth-form">
                     <!-- CSRF Protection -->
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($viewData['csrf_token'] ?? ''); ?>">
+                    <!-- Redirect after login -->
+                    <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($_GET['redirect'] ?? ''); ?>">
                     
                     <div class="form-group">
                         <label for="login" class="form-label">Tài khoản</label>
