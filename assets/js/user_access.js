@@ -605,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div id="verifyEmailStep" class="modal-body-custom d-none-custom">
                         <h6 class="modal-title-custom"><i class="fas fa-envelope me-2"></i>Xác thực Email</h6>
                         
-                        <div id="emailInputStep">
+                        <div id="emailInputStep" class="d-flex-custom">
                             <div class="mb-3-custom">
                                 <label for="deviceVerifyEmail" class="form-label-custom">Email đã đăng ký</label>
                                 <input type="email" id="deviceVerifyEmail" class="form-input-custom" placeholder="example@gmail.com">
@@ -613,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <button id="btnSendOtp" class="btn-modal-primary">Gửi mã xác thực</button>
                         </div>
                         
-                        <div id="otpInputStep" class="d-none-custom">
+                        <div id="otpInputStep" class="d-none-custom d-flex-custom">
                             <div class="alert-custom">
                                 <i class="fas fa-check-circle"></i> Mã đã gửi đến: <strong id="displayMaskedEmail"></strong>
                             </div>
