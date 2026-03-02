@@ -161,38 +161,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Footer visibility animation
-    function animateFooterOnScroll() {
-        const footer = document.querySelector('.site-footer');
-        const footerTop = footer.offsetTop;
-        const windowHeight = window.innerHeight;
-        const scrollTop = window.pageYOffset;
-        
-        if (scrollTop + windowHeight >= footerTop) {
-            footer.classList.add('footer-visible');
-        }
+    // Footer visibility - removed animation
+    const footer = document.querySelector('.site-footer');
+    if (footer) {
+        footer.classList.add('footer-visible');
     }
-    
-    // Add CSS class for animation
-    const footerStyles = document.createElement('style');
-    footerStyles.textContent = `
-        .site-footer {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .site-footer.footer-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    `;
-    document.head.appendChild(footerStyles);
-    
-    // Initial check
-    animateFooterOnScroll();
-    
-    // Check on scroll
-    window.addEventListener('scroll', debounce(animateFooterOnScroll, 100));
     
     // Accessibility improvements
     const focusableElements = document.querySelectorAll('.site-footer a, .site-footer button');

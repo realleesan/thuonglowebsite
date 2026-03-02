@@ -1,30 +1,54 @@
 // Header JavaScript functionality
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Categories dropdown functionality
+    // Categories dropdown functionality - Click on arrow to toggle
     const categoriesDropdown = document.querySelector('.categories-dropdown');
     const categoriesBtn = document.querySelector('.categories-btn');
     const categoriesMenu = document.querySelector('.categories-menu');
+    const categoriesSvg = categoriesBtn ? categoriesBtn.querySelector('svg') : null;
     
     if (categoriesDropdown && categoriesBtn && categoriesMenu) {
-        // Show dropdown on hover
-        categoriesDropdown.addEventListener('mouseenter', function() {
-            categoriesMenu.style.opacity = '1';
-            categoriesMenu.style.visibility = 'visible';
-            categoriesMenu.style.transform = 'translateY(0px)';
-        });
+        // Ensure dropdown is hidden on page load
+        categoriesMenu.style.opacity = '0';
+        categoriesMenu.style.visibility = 'hidden';
+        categoriesMenu.style.transform = 'translateY(-10px)';
+        categoriesMenu.style.pointerEvents = 'none';
         
-        // Hide dropdown on mouse leave
-        categoriesDropdown.addEventListener('mouseleave', function() {
-            categoriesMenu.style.opacity = '0';
-            categoriesMenu.style.visibility = 'hidden';
-            categoriesMenu.style.transform = 'translateY(-10px)';
-        });
+        let isOpen = false;
         
-        // Handle click on categories button - allow navigation to categories page
+        // Function to toggle dropdown
+        const toggleCategoriesDropdown = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            isOpen = !isOpen;
+            
+            if (isOpen) {
+                categoriesMenu.style.opacity = '1';
+                categoriesMenu.style.visibility = 'visible';
+                categoriesMenu.style.transform = 'translateY(0px)';
+                categoriesMenu.style.pointerEvents = 'auto';
+            } else {
+                categoriesMenu.style.opacity = '0';
+                categoriesMenu.style.visibility = 'hidden';
+                categoriesMenu.style.transform = 'translateY(-10px)';
+                categoriesMenu.style.pointerEvents = 'none';
+            }
+        };
+        
+        // Click on SVG arrow to toggle
+        if (categoriesSvg) {
+            categoriesSvg.style.cursor = 'pointer';
+            categoriesSvg.addEventListener('click', toggleCategoriesDropdown);
+        }
+        
+        // Click on button text should navigate to categories page
         categoriesBtn.addEventListener('click', function(e) {
-            // Allow normal navigation to categories page
-            // Dropdown will show on hover anyway
+            // Only toggle if clicking on SVG
+            if (e.target.tagName.toLowerCase() === 'svg' || e.target.tagName.toLowerCase() === 'path') {
+                toggleCategoriesDropdown(e);
+            }
+            // Otherwise allow normal navigation to categories page
         });
         
         // Close dropdown when clicking outside
@@ -33,51 +57,98 @@ document.addEventListener('DOMContentLoaded', function() {
                 categoriesMenu.style.opacity = '0';
                 categoriesMenu.style.visibility = 'hidden';
                 categoriesMenu.style.transform = 'translateY(-10px)';
+                categoriesMenu.style.pointerEvents = 'none';
+                isOpen = false;
             }
         });
     }
     
-    // Main menu dropdown functionality
+    // Main menu dropdown functionality - Click on arrow to toggle
     const dropdownItems = document.querySelectorAll('.has-dropdown');
     
     dropdownItems.forEach(function(item) {
         const dropdownMenu = item.querySelector('.dropdown-menu');
-        const dropdownBtn = item.querySelector('.dropdown-btn');
+        const link = item.querySelector('a');
+        const button = item.querySelector('.dropdown-btn');
+        const svg = item.querySelector('svg');
         
         if (dropdownMenu) {
-            // Show dropdown on hover
-            item.addEventListener('mouseenter', function() {
-                dropdownMenu.style.opacity = '1';
-                dropdownMenu.style.visibility = 'visible';
-                dropdownMenu.style.transform = 'translateY(0)';
-            });
+            // Ensure dropdown is hidden on page load
+            dropdownMenu.style.opacity = '0';
+            dropdownMenu.style.visibility = 'hidden';
+            dropdownMenu.style.transform = 'translateY(-10px)';
+            dropdownMenu.style.pointerEvents = 'none';
             
-            // Hide dropdown on mouse leave
-            item.addEventListener('mouseleave', function() {
-                dropdownMenu.style.opacity = '0';
-                dropdownMenu.style.visibility = 'hidden';
-                dropdownMenu.style.transform = 'translateY(-10px)';
-            });
+            // Track dropdown state
+            let isOpen = false;
             
-            // Handle click on dropdown button - toggle dropdown
-            if (dropdownBtn) {
-                dropdownBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const isVisible = dropdownMenu.style.opacity === '1';
-                    
-                    if (isVisible) {
-                        dropdownMenu.style.opacity = '0';
-                        dropdownMenu.style.visibility = 'hidden';
-                        dropdownMenu.style.transform = 'translateY(-10px)';
-                    } else {
-                        dropdownMenu.style.opacity = '1';
-                        dropdownMenu.style.visibility = 'visible';
-                        dropdownMenu.style.transform = 'translateY(0px)';
+            // Function to toggle dropdown
+            const toggleDropdown = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Close all other dropdowns first
+                document.querySelectorAll('.has-dropdown .dropdown-menu').forEach(function(menu) {
+                    if (menu !== dropdownMenu) {
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                        menu.style.pointerEvents = 'none';
                     }
                 });
+                
+                // Toggle current dropdown
+                isOpen = !isOpen;
+                
+                if (isOpen) {
+                    dropdownMenu.style.opacity = '1';
+                    dropdownMenu.style.visibility = 'visible';
+                    dropdownMenu.style.transform = 'translateY(0)';
+                    dropdownMenu.style.pointerEvents = 'auto';
+                } else {
+                    dropdownMenu.style.opacity = '0';
+                    dropdownMenu.style.visibility = 'hidden';
+                    dropdownMenu.style.transform = 'translateY(-10px)';
+                    dropdownMenu.style.pointerEvents = 'none';
+                }
+            };
+            
+            // Click on SVG arrow to toggle
+            if (svg) {
+                svg.style.cursor = 'pointer';
+                svg.addEventListener('click', toggleDropdown);
             }
+            
+            // Click on button to toggle (for "Hướng dẫn" which uses button)
+            if (button) {
+                button.addEventListener('click', toggleDropdown);
+            }
+            
+            // Click on link text should navigate, not toggle dropdown
+            if (link && !button) {
+                // Allow normal navigation
+                link.addEventListener('click', function(e) {
+                    // Only prevent default if clicking on the SVG
+                    if (e.target.tagName.toLowerCase() === 'svg' || e.target.tagName.toLowerCase() === 'path') {
+                        e.preventDefault();
+                        toggleDropdown(e);
+                    }
+                    // Otherwise allow normal navigation
+                });
+            }
+        }
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const isDropdownClick = e.target.closest('.has-dropdown');
+        if (!isDropdownClick) {
+            document.querySelectorAll('.has-dropdown .dropdown-menu').forEach(function(menu) {
+                menu.style.opacity = '0';
+                menu.style.visibility = 'hidden';
+                menu.style.transform = 'translateY(-10px)';
+                menu.style.pointerEvents = 'none';
+            });
         }
     });
     

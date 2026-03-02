@@ -1,3 +1,5 @@
+/* Header CSS - Updated 2026-02-28 00:15 */
+
 /* Font Face Declarations */
 @font-face {
     font-family: 'eduma-icon';
@@ -12,6 +14,20 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+/* Remove blue outline on focus for all elements */
+*:focus {
+    outline: none !important;
+}
+
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Prevent horizontal scroll globally */
@@ -33,6 +49,16 @@ body {
     color: #374151;
 }
 
+/* Container - High specificity to prevent override */
+.top-banner .container,
+.main-header .container,
+.main-nav .container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Fallback for other containers */
 .container {
     max-width: 1320px;
     margin: 0 auto;
@@ -141,13 +167,10 @@ body {
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 1000;
+    pointer-events: none;
 }
 
-.categories-dropdown:hover .categories-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
+/* Remove all hover effects - only click on arrow works */
 
 .categories-menu a {
     display: block;
@@ -308,13 +331,10 @@ body {
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 1000;
+    pointer-events: none;
 }
 
-.has-dropdown:hover .dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
+/* Remove all hover effects - only click on arrow works */
 
 /* Ensure dropdown still works when parent has button */
 .has-dropdown > a,

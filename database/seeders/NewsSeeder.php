@@ -15,12 +15,12 @@ class NewsSeeder extends BaseSeeder {
         // Truncate table first
         $this->truncateTable();
         
-        // Load fake data
+        // Try to load from JSON first
         $fakeData = $this->loadJsonData(__DIR__ . '/../../app/views/admin/data/fake_data.json');
         
         $insertedCount = 0;
         
-        if (isset($fakeData['news'])) {
+        if (isset($fakeData['news']) && !empty($fakeData['news'])) {
             foreach ($fakeData['news'] as $news) {
                 $newsData = [
                     'title' => $news['title'],
@@ -30,7 +30,7 @@ class NewsSeeder extends BaseSeeder {
                     'image' => $news['image'] ?? null,
                     'status' => $news['status'] ?? 'published',
                     'featured' => $news['featured'] ?? false,
-                    'author_id' => 1, // Admin user
+                    'author_id' => 1,
                     'views' => $news['views'] ?? 0,
                     'meta_title' => $news['title'],
                     'meta_description' => $news['excerpt'] ?? null,

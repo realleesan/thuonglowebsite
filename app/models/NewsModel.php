@@ -10,8 +10,8 @@ class NewsModel extends BaseModel {
     protected $table = 'news';
     protected $fillable = [
         'title', 'slug', 'excerpt', 'content', 'image', 'status',
-        'featured', 'author_id', 'category_id', 'meta_title', 
-        'meta_description', 'published_at'
+        'featured', 'author_id', 'author_name', 'category_id', 'tags', 'views',
+        'meta_title', 'meta_description', 'published_at'
     ];
     
     /**

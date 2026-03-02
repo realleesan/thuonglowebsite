@@ -90,6 +90,12 @@ mb_http_output('UTF-8');
             echo '<link rel="stylesheet" href="' . versioned_css('agent_registration.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('agent_registration_page.css') . '">';
             break;
+        case 'news': 
+            echo '<link rel="stylesheet" href="' . versioned_css('news.css') . '">';
+            break;
+        case 'news-details':
+            echo '<link rel="stylesheet" href="' . versioned_css('news_details.css') . '">';
+            break;
         case 'checkout':
         case 'payment':
         case 'payment_success':
@@ -253,6 +259,15 @@ mb_http_output('UTF-8');
             break;
         case 'agent':
             echo '<script src="' . versioned_js('agent_registration.js') . '"></script>';
+            break;
+        case 'news':
+            echo '<script src="' . versioned_js('news.js') . '"></script>';
+            break;
+        case 'news-details':
+            echo '<script src="' . versioned_js('news_details.js') . '"></script>';
+            break;
+            echo '<script src="' . versioned_js('news_detail.js') . '"></script>';
+            echo '<script src="' . versioned_js('news_related.js') . '"></script>';
             break;
         default:
             echo '<script src="' . versioned_js('home.js') . '"></script>';

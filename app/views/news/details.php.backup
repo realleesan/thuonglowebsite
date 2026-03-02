@@ -389,12 +389,3 @@ if (!function_exists('truncateText')) {
         </div>
     </div>
 </div>
-
-<?php
-// Flush output buffer to ensure content is sent
-$content = ob_get_clean();
-echo $content;
-
-// Log completion
-error_log("News details page rendered successfully. Content length: " . strlen($content));
-?>

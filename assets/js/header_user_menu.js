@@ -77,38 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Handle hover for desktop
-    const hasDropdowns = document.querySelectorAll('.has-dropdown');
-    
-    hasDropdowns.forEach(dropdown => {
-        let hoverTimeout;
-        
-        dropdown.addEventListener('mouseenter', function() {
-            clearTimeout(hoverTimeout);
-            
-            // Close other dropdowns first
-            closeAllDropdowns();
-            
-            // Show current dropdown
-            const menu = this.querySelector('.dropdown-menu');
-            if (menu) {
-                menu.classList.add('show');
-                this.classList.add('active');
-            }
-        });
-        
-        dropdown.addEventListener('mouseleave', function() {
-            const menu = this.querySelector('.dropdown-menu');
-            const parent = this;
-            
-            hoverTimeout = setTimeout(() => {
-                if (menu) {
-                    menu.classList.remove('show');
-                    parent.classList.remove('active');
-                }
-            }, 300); // Small delay to prevent flickering
-        });
-    });
+    // Remove all hover effects - only click on arrow works
     
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {

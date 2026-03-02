@@ -94,14 +94,10 @@
     transform: translateY(-10px);
     transition: all 0.3s ease;
     margin-top: 8px;
+    pointer-events: none;
 }
 
-.has-dropdown:hover .dropdown-menu,
-.has-dropdown.active .dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
+/* Remove hover effect - only click on arrow works */
 
 .has-dropdown .dropdown-menu a {
     display: block;

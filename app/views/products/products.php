@@ -298,10 +298,6 @@ $toCount = min($page * $limit, $totalProducts);
                                         </div>
                                     </div>
 
-                                    <!-- Reset Button -->
-                                    <div class="filter-section">
-                                        <button class="reset-filters-btn" onclick="window.location.href='?page=products'">Đặt lại</button>
-                                    </div>
 
                                     <!-- Author Filter -->
                                     <div class="filter-section">
@@ -322,6 +318,11 @@ $toCount = min($page * $limit, $totalProducts);
                                                 <li><a href="#">Có phí</a></li>
                                             </ul>
                                         </div>
+                                    </div>
+
+                                    <!-- Reset Button -->
+                                    <div class="filter-section">
+                                        <button class="reset-filters-btn" onclick="window.location.href='?page=products'">Đặt lại</button>
                                     </div>
 
                                     <!-- Apply Button -->

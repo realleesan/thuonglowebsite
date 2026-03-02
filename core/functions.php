@@ -196,7 +196,50 @@ if (!function_exists('get_news_breadcrumb_from_db')) {
      * @return array
      */
     function get_news_breadcrumb_from_db($news_id) {
-        return generate_news_breadcrumb('Tin tức', 'Chi tiết tin tức');
+        try {
+            require_once __DIR__ . '/../app/models/NewsModel.php';
+            require_once __DIR__ . '/../app/models/CategoriesModel.php';
+            
+            $newsModel = new NewsModel();
+            $news = $newsModel->find($news_id);
+            
+            if (!$news) {
+                return [
+                    ['title' => 'Trang chủ', 'url' => './'],
+                    ['title' => 'Tin tức', 'url' => '?page=news'],
+                    ['title' => 'Chi tiết tin tức']
+                ];
+            }
+            
+            $breadcrumbs = [
+                ['title' => 'Trang chủ', 'url' => './'],
+                ['title' => 'Tin tức', 'url' => '?page=news']
+            ];
+            
+            // Get category name if exists and different from "Tin tức"
+            if (!empty($news['category_id'])) {
+                $categoriesModel = new CategoriesModel();
+                $category = $categoriesModel->find($news['category_id']);
+                if ($category && !empty($category['name']) && $category['name'] !== 'Tin tức') {
+                    $breadcrumbs[] = [
+                        'title' => $category['name'], 
+                        'url' => '?page=news&category=' . $news['category_id']
+                    ];
+                }
+            }
+            
+            // Add news title
+            $breadcrumbs[] = ['title' => $news['title']];
+            
+            return $breadcrumbs;
+        } catch (Exception $e) {
+            error_log('Breadcrumb error: ' . $e->getMessage());
+            return [
+                ['title' => 'Trang chủ', 'url' => './'],
+                ['title' => 'Tin tức', 'url' => '?page=news'],
+                ['title' => 'Chi tiết tin tức']
+            ];
+        }
     }
 }
 
