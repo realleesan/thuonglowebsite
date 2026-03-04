@@ -35,17 +35,19 @@ try {
     ];
     
     // Get product listing data từ PublicService
-    $productData = method_exists($service, 'getProductListingData')
-        ? $service->getProductListingData($filters)
-        : [];
+    $productData = [];
+    if ($service && method_exists($service, 'getProductListingData')) {
+        $productData = $service->getProductListingData($filters);
+    }
     $products = $productData['products'] ?? [];
     $pagination = $productData['pagination'] ?? [];
     $totalProducts = $pagination['total'] ?? 0;
     
     // Get categories for sidebar
-    $categoriesData = method_exists($service, 'getCategoriesWithProductCounts')
-        ? $service->getCategoriesWithProductCounts()
-        : [];
+    $categoriesData = [];
+    if ($service && method_exists($service, 'getCategoriesWithProductCounts')) {
+        $categoriesData = $service->getCategoriesWithProductCounts();
+    }
     $categories = $categoriesData['categories'] ?? [];
     
 } catch (Exception $e) {
@@ -81,6 +83,19 @@ if (!function_exists('getSortOptions')) {
             'popular' => 'Phổ biến',
             'rating' => 'Đánh giá trung bình'
         ];
+    }
+}
+
+// Helper function to format record count
+if (!function_exists('formatRecordCount')) {
+    function formatRecordCount($count) {
+        if (!$count || $count == 0) {
+            return 'Liên hệ';
+        }
+        if ($count >= 1000) {
+            return number_format($count, 0, ',', '.') . ' records';
+        }
+        return number_format($count, 0, ',', '.') . ' records';
     }
 }
 
@@ -182,30 +197,33 @@ $toCount = min($page * $limit, $totalProducts);
                                                     <?php echo $product['short_description'] ?: 'Sản phẩm chất lượng cao từ ThuongLo.com'; ?>
                                                 </div>
                                                 <div class="course-instructor">
-                                                    <a href="#" class="instructor-name">ThuongLo.com</a>
+                                                    <a href="#" class="instructor-name"><?php echo $product['supplier_name'] ?? 'ThuongLo.com'; ?></a>
                                                 </div>
                                                 <div class="course-meta">
                                                     <div class="course-lessons">
-                                                        <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M5.33333 6.49992H8M5.33333 9.16659H10.6667M5.33333 11.8333H10.6667M10.6663 1.83325V3.83325M5.33301 1.83325V3.83325M4.66667 2.83325H11.3333C12.8061 2.83325 14 4.02716 14 5.49992V12.4999C14 13.9727 12.8061 15.1666 11.3333 15.1666H4.66667C3.19391 15.1666 2 13.9727 2 12.4999V5.49992C2 4.02716 3.19391 2.83325 4.66667 2.83325Z" stroke="#444444" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <!-- Database icon for logistics data -->
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <ellipse cx="12" cy="6" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
+                                                            <path d="M3 6V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V6" stroke="#356DF1" stroke-width="2"/>
+                                                            <path d="M3 12V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V12" stroke="#356DF1" stroke-width="2"/>
+                                                            <path d="M21 6V18" stroke="#356DF1" stroke-width="2"/>
+                                                            <ellipse cx="12" cy="12" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
                                                         </svg>
-                                                        <span><?php echo $product['in_stock'] ? 'Còn hàng' : 'Hết hàng'; ?></span>
+                                                        <!-- Display record count for logistics data -->
+                                                        <span><?php echo formatRecordCount($product['record_count'] ?? $product['in_stock'] ?? 0); ?></span>
                                                     </div>
                                                 </div>
                                                 <div class="course-price">
                                                     <?php if ($product['sale_price']): ?>
                                                         <span class="price"><?php echo $product['formatted_sale_price']; ?></span>
                                                         <span class="old-price"><?php echo $product['formatted_price']; ?></span>
-                                                        <?php if ($product['discount_percent']): ?>
-                                                            <span class="discount">-<?php echo $product['discount_percent']; ?>%</span>
-                                                        <?php endif; ?>
                                                     <?php else: ?>
                                                         <span class="price"><?php echo $product['formatted_price']; ?></span>
                                                     <?php endif; ?>
                                                 </div>
                                                 <div class="course-button">
                                                     <a href="?page=details&id=<?php echo $product['id']; ?>" class="btn-start-learning">
-                                                        <i class="fas fa-play"></i>
+                                                        <i class="fas fa-database"></i>
                                                         <span>Xem chi tiết</span>
                                                     </a>
                                                 </div>

@@ -223,14 +223,97 @@ class PublicService extends BaseService
                 }
             }
 
+            // Get reviews for this product
+            $reviews = $this->getProductReviews($productId);
+
+            // Parse JSON fields for Logistics/Data data
+            $benefits = [];
+            if (!empty($product['benefits'])) {
+                $decoded = json_decode($product['benefits'], true);
+                if (is_array($decoded)) {
+                    $benefits = $decoded;
+                }
+            }
+
+            $dataStructure = [];
+            if (!empty($product['data_structure'])) {
+                $decoded = json_decode($product['data_structure'], true);
+                if (is_array($decoded)) {
+                    $dataStructure = $decoded;
+                }
+            }
+
+            // Parse supplier social
+            $supplierSocial = [];
+            if (!empty($product['supplier_social'])) {
+                $decoded = json_decode($product['supplier_social'], true);
+                if (is_array($decoded)) {
+                    $supplierSocial = $decoded;
+                }
+            }
+
+            // Build supplier data
+            $supplier = null;
+            if (!empty($product['supplier_name'])) {
+                $supplier = [
+                    'name' => $product['supplier_name'],
+                    'title' => $product['supplier_title'] ?? 'Nhà cung cấp',
+                    'bio' => $product['supplier_bio'] ?? '',
+                    'avatar' => $product['supplier_avatar'] ?? '',
+                    'social' => $supplierSocial
+                ];
+            }
+
             return [
                 'product' => $this->transformer->transformProduct($product),
                 'category' => $category ? $this->transformer->transformCategory($category) : null,
                 'related_products' => $this->transformer->transformProducts($relatedProducts),
+                'benefits' => $benefits,
+                'data_structure' => $dataStructure,
+                'supplier' => $supplier,
+                'reviews' => $reviews,
+                'product_meta' => [
+                    'record_count' => $product['record_count'] ?? 0,
+                    'data_size' => $product['data_size'] ?? '',
+                    'data_type' => $product['data_type'] ?? '',
+                    'data_format' => $product['data_format'] ?? '',
+                    'data_source' => $product['data_source'] ?? '',
+                    'reliability' => $product['reliability'] ?? ''
+                ]
             ];
         } catch (\Exception $e) {
             return $this->handleError($e, ['page' => 'product_details', 'product_id' => $productId]);
         }
+    }
+
+    /**
+     * Get product reviews
+     */
+    private function getProductReviews(int $productId): array
+    {
+        try {
+            $reviews = $this->callModelMethod(
+                'ProductsModel',
+                'getProductReviews',
+                [$productId],
+                []
+            );
+            return is_array($reviews) ? $reviews : [];
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Calculate average rating from reviews
+     */
+    private function calculateAverageRating(array $reviews): float
+    {
+        if (empty($reviews)) {
+            return 0.0;
+        }
+        $total = array_sum(array_column($reviews, 'rating'));
+        return round($total / count($reviews), 1);
     }
 
     /**

@@ -331,4 +331,12 @@ class ProductsModel extends BaseModel {
         
         return $slug;
     }
+    
+    /**
+     * Get product reviews
+     */
+    public function getProductReviews($productId): array {
+        $sql = "SELECT * FROM product_reviews WHERE product_id = ? AND status = 'approved' ORDER BY created_at DESC";
+        return $this->db->query($sql, [$productId]) ?: [];
+    }
 }

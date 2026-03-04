@@ -618,6 +618,34 @@ body {
     margin-bottom: 20px;
 }
 
+.course-price {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+}
+
+/* Giá giảm (sale price) - màu xanh, bold, lớn hơn */
+.course-price .price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #28a745;
+}
+
+/* Giá gốc (original price) - màu đỏ, gạch ngang, không bold */
+.course-price .old-price {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #dc3545;
+    text-decoration: line-through;
+}
+
+/* Ẩn phần trăm giảm */
+.course-price .discount {
+    display: none;
+}
+
 .price-prefix,
 .price-suffix {
     font-size: 14px;

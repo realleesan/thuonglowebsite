@@ -60,7 +60,7 @@ mb_http_output('UTF-8');
             break;
         case 'details':
         case 'course-details':
-            echo '<link rel="stylesheet" href="' . versioned_css('details.css') . '">';
+            echo '<link rel="stylesheet" href="' . versioned_css('product_details.css') . '">';
             echo '<link rel="stylesheet" href="' . versioned_css('related.css') . '">';
             break;
         case 'auth':
@@ -233,7 +233,7 @@ mb_http_output('UTF-8');
             break;
         case 'details':
         case 'course-details':
-            echo '<script src="' . versioned_js('details.js') . '"></script>';
+            echo '<script src="' . versioned_js('product_details.js') . '"></script>';
             echo '<script src="' . versioned_js('related.js') . '"></script>';
             break;
         case 'auth':

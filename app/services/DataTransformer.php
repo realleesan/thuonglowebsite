@@ -36,7 +36,10 @@ class DataTransformer {
             'discount_percent' => $this->calculateDiscountPercent($product['price'], $product['sale_price'] ?? null),
             'short_description' => $this->security->escapeHtml($product['short_description'] ?? ''),
             'stock' => (int) ($product['stock'] ?? 0),
-            'in_stock' => ($product['stock'] ?? 0) > 0
+            'in_stock' => ($product['stock'] ?? 0) > 0,
+            // Supplier information
+            'supplier_name' => $this->security->escapeHtml($product['supplier_name'] ?? 'ThuongLo.com'),
+            'record_count' => (int) ($product['record_count'] ?? $product['stock'] ?? 0)
         ];
     }
     
