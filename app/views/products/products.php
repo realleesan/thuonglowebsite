@@ -10,11 +10,29 @@ require_once __DIR__ . '/../../../core/view_init.php';
 $service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Get pagination parameters
-$page = (int) ($_GET['page'] ?? 1);
+// Get pagination parameters
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+// Ensure page is at least 1
+$page = max(1, $page);
 $limit = 12; // Products per page
 $categoryId = $_GET['category'] ?? null;
+// Handle empty string from form and convert to integer for DB query
+if ($categoryId === '' || $categoryId === 'null') {
+    $categoryId = null;
+} else {
+    $categoryId = (int) $categoryId;
+}
 $orderBy = $_GET['order_by'] ?? 'post_date';
 $search = $_GET['search'] ?? '';
+
+// Get filter parameters from sidebar
+$priceType = $_GET['price_type'] ?? ''; // Single value: 'free', 'paid', or empty
+
+// Store current filters for UI highlighting
+$currentFilters = [
+    'category' => $categoryId,
+    'price_type' => $priceType
+];
 
 // Initialize data variables
 $products = [];
@@ -31,7 +49,8 @@ try {
         'limit' => $limit,
         'category_id' => $categoryId,
         'order_by' => $orderBy,
-        'search' => $search
+        'search' => $search,
+        'price_type' => $priceType
     ];
     
     // Get product listing data từ PublicService
@@ -99,10 +118,17 @@ if (!function_exists('formatRecordCount')) {
     }
 }
 
-// Calculate display counts
-$displayedCount = count($products);
-$fromCount = ($page - 1) * $limit + 1;
-$toCount = min($page * $limit, $totalProducts);
+// Calculate display counts based on filtered products
+$totalFiltered = count($products);
+// Ensure page is at least 1
+$page = max(1, $page);
+$fromCount = $totalFiltered > 0 ? ($page - 1) * $limit + 1 : 0;
+$toCount = min($page * $limit, $totalFiltered);
+// Adjust if we're on a page beyond available products
+if ($fromCount > $totalFiltered) {
+    $fromCount = 0;
+    $toCount = 0;
+}
 ?>
 
 <!-- Main Content -->
@@ -141,14 +167,15 @@ $toCount = min($page * $limit, $totalProducts);
                                 <!-- Top Bar with Results and Sort -->
                                 <div class="products-topbar">
                                     <div class="results-count">
-                                        <?php if ($totalProducts > 0): ?>
-                                            <span>Hiển thị <?php echo $fromCount; ?>-<?php echo $toCount; ?> trong tổng số <?php echo $totalProducts; ?> kết quả</span>
+                                        <?php if ($totalFiltered > 0): ?>
+                                            <span>Hiển thị <?php echo $fromCount; ?>-<?php echo $toCount; ?> trong tổng số <?php echo $totalFiltered; ?> kết quả</span>
                                         <?php else: ?>
                                             <span>Không tìm thấy sản phẩm nào</span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">
+                                            <input type="hidden" name="page" value="products">
                                             <?php if ($categoryId): ?>
                                                 <input type="hidden" name="category" value="<?php echo htmlspecialchars($categoryId); ?>">
                                             <?php endif; ?>
@@ -274,80 +301,89 @@ $toCount = min($page * $limit, $totalProducts);
 
                             <!-- Right Column - Sidebar -->
                             <div class="products-sidebar" id="productsSidebar">
-                                <div class="sidebar-header">
-                                    <h3>Bộ lọc</h3>
-                                    <button class="sidebar-close" id="sidebarClose">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                                <div class="sidebar-content">
-                                    <!-- Categories Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Danh mục</h3>
-                                        <div class="filter-content">
-                                            <ul class="category-list">
-                                                <li>
-                                                    <a href="?<?php echo http_build_query(array_merge($_GET, ['category' => null])); ?>" 
-                                                       class="<?php echo !$categoryId ? 'active' : ''; ?>">
-                                                        Tìm kiếm nhiều nhất
-                                                    </a>
-                                                    <span class="count">(14)</span>
-                                                </li>
-                                                <?php if (!empty($categories)): ?>
-                                                    <?php foreach ($categories as $category): ?>
-                                                        <li>
-                                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['category' => $category['id']])); ?>" 
-                                                               class="<?php echo $categoryId == $category['id'] ? 'active' : ''; ?>">
-                                                                <?php echo $category['name']; ?>
-                                                            </a>
-                                                            <span class="count">(<?php echo $category['product_count']; ?>)</span>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                <?php else: ?>
-                                                    <!-- Fallback categories matching original design -->
-                                                    <li><a href="#">Gói Data Nguồn Hàng</a> <span class="count">(8)</span></li>
-                                                    <li><a href="#">Vận Chuyển</a> <span class="count">(6)</span></li>
-                                                    <li><a href="#">Mua Hàng Trọn Gói</a> <span class="count">(4)</span></li>
-                                                    <li><a href="#">Thanh Toán Quốc Tế</a> <span class="count">(3)</span></li>
-                                                    <li><a href="#">Đánh Hàng</a> <span class="count">(2)</span></li>
-                                                    <li><a href="#">Sản Phẩm Khác</a> <span class="count">(5)</span></li>
-                                                <?php endif; ?>
-                                            </ul>
+                                <form method="get" action="" class="filter-form">
+                                    <input type="hidden" name="page" value="products">
+                                    <?php if ($search): ?>
+                                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                    <?php endif; ?>
+                                    <?php if ($orderBy): ?>
+                                        <input type="hidden" name="order_by" value="<?php echo htmlspecialchars($orderBy); ?>">
+                                    <?php endif; ?>
+                                    <div class="sidebar-header">
+                                        <h3>Bộ lọc</h3>
+                                        <button type="button" class="sidebar-close" id="sidebarClose">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="sidebar-content">
+                                        <!-- Categories Filter (radio buttons, submit on Apply) -->
+                                        <div class="filter-section">
+                                            <h3 class="filter-title">Danh mục</h3>
+                                            <div class="filter-content">
+                                                <ul class="category-list">
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="category" value="" 
+                                                                   <?php echo empty($categoryId) ? 'checked' : ''; ?>>
+                                                            <span>Tìm kiếm nhiều nhất</span>
+                                                        </label>
+                                                        <span class="count">(<?php echo $totalProducts; ?>)</span>
+                                                    </li>
+                                                    <?php if (!empty($categories)): ?>
+                                                        <?php foreach ($categories as $category): ?>
+                                                            <li>
+                                                                <label>
+                                                                    <input type="radio" name="category" value="<?php echo $category['id']; ?>" 
+                                                                           <?php echo $categoryId == $category['id'] ? 'checked' : ''; ?>>
+                                                                        <span><?php echo htmlspecialchars($category['name']); ?></span>
+                                                                </label>
+                                                                <span class="count">(<?php echo $category['product_count']; ?>)</span>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price Filter (radio buttons: Tất cả/Miễn phí/Có phí) -->
+                                        <div class="filter-section">
+                                            <h3 class="filter-title">Giá</h3>
+                                            <div class="filter-content">
+                                                <ul class="price-list">
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="price_type" value="" 
+                                                                   <?php echo empty($priceType) ? 'checked' : ''; ?>>
+                                                            <span>Tất cả</span>
+                                                        </label>
+                                                    </li>
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="price_type" value="free" 
+                                                                   <?php echo $priceType === 'free' ? 'checked' : ''; ?>>
+                                                            <span>Miễn phí</span>
+                                                        </label>
+                                                    </li>
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="price_type" value="paid" 
+                                                                   <?php echo $priceType === 'paid' ? 'checked' : ''; ?>>
+                                                            <span>Có phí</span>
+                                                        </label>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <!-- Apply and Reset Buttons -->
+                                        <div class="filter-section">
+                                            <button type="submit" class="apply-filters-btn">Áp dụng</button>
+                                        </div>
+                                        <div class="filter-section">
+                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=products'">Đặt lại</button>
                                         </div>
                                     </div>
-
-
-                                    <!-- Author Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Nhà cung cấp</h3>
-                                        <div class="filter-content">
-                                            <ul class="author-list">
-                                                <li><a href="#">ThuongLo.com</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!-- Price Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Giá</h3>
-                                        <div class="filter-content">
-                                            <ul class="price-list">
-                                                <li><a href="#">Miễn phí</a></li>
-                                                <li><a href="#">Có phí</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!-- Reset Button -->
-                                    <div class="filter-section">
-                                        <button class="reset-filters-btn" onclick="window.location.href='?page=products'">Đặt lại</button>
-                                    </div>
-
-                                    <!-- Apply Button -->
-                                    <div class="filter-section">
-                                        <button class="apply-filters-btn">Áp dụng</button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>

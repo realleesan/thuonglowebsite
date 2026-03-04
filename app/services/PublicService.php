@@ -92,22 +92,52 @@ class PublicService extends BaseService
             $categoryId = $filters['category_id'] ?? null;
             $orderBy = $filters['order_by'] ?? 'post_date';
             $search = $filters['search'] ?? '';
+            $priceType = $filters['price_type'] ?? ''; // 'free', 'paid', or empty string
+            $supplier = $filters['supplier'] ?? '';
 
-            // Lấy danh sách sản phẩm theo filter
+            // Lấy danh sách sản phẩm (lấy tất cả rồi lọc thủ công)
+            $products = $this->callModelMethod(
+                'ProductsModel',
+                'getWithCategory',
+                [$limit * 10],
+                []
+            );
+
+            // Apply filters manually (in-memory filtering)
+            if (!is_array($products)) {
+                $products = [];
+            }
+
+            // Filter by category
             if ($categoryId) {
-                $products = $this->callModelMethod(
-                    'ProductsModel',
-                    'getByCategory',
-                    [$categoryId, $limit * 10],
-                    []
-                );
-            } else {
-                $products = $this->callModelMethod(
-                    'ProductsModel',
-                    'getWithCategory',
-                    [$limit * 10],
-                    []
-                );
+                $catId = (int) $categoryId;
+                $products = array_filter($products, function ($product) use ($catId) {
+                    return (int) ($product['category_id'] ?? 0) === $catId;
+                });
+            }
+
+            // Filter by price type (single value: 'free', 'paid', or empty)
+            if ($priceType === 'free') {
+                // Miễn phí: price = 0 hoặc sale_price = 0
+                $products = array_filter($products, function ($product) {
+                    $price = floatval($product['price'] ?? 0);
+                    $salePrice = floatval($product['sale_price'] ?? 0);
+                    return $price == 0 || $salePrice == 0;
+                });
+            } elseif ($priceType === 'paid') {
+                // Có phí: price > 0 hoặc sale_price > 0
+                $products = array_filter($products, function ($product) {
+                    $price = floatval($product['price'] ?? 0);
+                    $salePrice = floatval($product['sale_price'] ?? 0);
+                    return $price > 0 || $salePrice > 0;
+                });
+            }
+
+            // Filter by supplier
+            if ($supplier) {
+                $products = array_filter($products, function ($product) use ($supplier) {
+                    return stripos($product['supplier_name'] ?? '', $supplier) !== false;
+                });
             }
 
             // Search
@@ -119,9 +149,6 @@ class PublicService extends BaseService
             }
 
             // Sorting
-            if (!is_array($products)) {
-                $products = [];
-            }
             $products = $this->sortProducts($products, $orderBy);
 
             // Pagination

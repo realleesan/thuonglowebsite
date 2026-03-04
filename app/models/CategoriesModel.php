@@ -34,7 +34,7 @@ class CategoriesModel extends BaseModel {
      */
     public function getWithProductCount() {
         $sql = "
-            SELECT c.*, COUNT(p.id) as products_count
+            SELECT c.*, COUNT(p.id) as product_count
             FROM {$this->table} c
             LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
             WHERE c.status = 'active'
