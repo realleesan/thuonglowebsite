@@ -391,7 +391,10 @@ $averageRating = round($averageRating, 1);
 
                         <!-- Right Column - Product Sidebar (Sticky) -->
                         <div class="product-sidebar">
-                            <div class="product-card">
+                            <div class="product-card" style="position: relative;">
+                                <button class="wishlist-icon-btn" onclick="toggleWishlist(<?php echo $product['id']; ?>, this)" title="Thêm vào yêu thích" style="position: absolute; top: 12px; right: 12px; z-index: 100;">
+                                    <i class="far fa-heart"></i>
+                                </button>
                                 <div class="product-image">
                                     <img src="<?php echo getProductImage($product); ?>" 
                                          alt="<?php echo htmlspecialchars($product['name']); ?>" 

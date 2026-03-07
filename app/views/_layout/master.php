@@ -230,11 +230,13 @@ mb_http_output('UTF-8');
         case 'products':
         case 'courses':
             echo '<script src="' . versioned_js('products.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_wishlist.js') . '"></script>';
             break;
         case 'details':
         case 'course-details':
             echo '<script src="' . versioned_js('product_details.js') . '"></script>';
             echo '<script src="' . versioned_js('related.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_wishlist.js') . '"></script>';
             break;
         case 'auth':
         case 'login':
@@ -251,6 +253,7 @@ mb_http_output('UTF-8');
             echo '<script src="' . versioned_js('user_dashboard.js') . '"></script>';
             echo '<script src="' . versioned_js('user_account.js') . '"></script>';
             echo '<script src="' . versioned_js('user_orders.js') . '"></script>';
+            echo '<script src="' . versioned_js('user_cart.js') . '"></script>';
             echo '<script src="' . versioned_js('user_access.js') . '"></script>';
             break;
         case 'access':

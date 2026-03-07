@@ -334,6 +334,14 @@ body {
     pointer-events: none;
 }
 
+/* Show dropdown on hover */
+.has-dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
 /* Remove all hover effects - only click on arrow works */
 
 /* Ensure dropdown still works when parent has button */
@@ -370,6 +378,184 @@ body {
     display: flex;
     align-items: center;
     gap: 24px;
+}
+
+/* Cart Icon in Header */
+.header-cart-wrapper {
+    position: relative;
+}
+
+.header-cart-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.header-cart-icon:hover {
+    background-color: #f3f4f6;
+    color: #356DF1;
+}
+
+.cart-count-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background-color: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+    border-radius: 9px;
+    border: 2px solid white;
+}
+
+.header-cart-wrapper:hover .cart-dropdown,
+.header-cart-wrapper:focus-within .cart-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.cart-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-dropdown-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.cart-dropdown-count {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.cart-dropdown-content {
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 6px;
+}
+
+.cart-dropdown-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #6b7280;
+}
+
+.cart-dropdown-empty {
+    text-align: center;
+    padding: 30px 15px;
+    color: #6b7280;
+}
+
+.cart-dropdown-empty svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+    color: #d1d5db;
+}
+
+.cart-dropdown-empty p {
+    margin: 0 0 12px;
+    font-size: 13px;
+}
+
+.cart-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.cart-dropdown-item:hover {
+    background-color: #f9fafb;
+}
+
+.cart-dropdown-item-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #f3f4f6;
+}
+
+.cart-dropdown-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cart-dropdown-item-info {
+    flex: 1;
+    margin-left: 10px;
+    min-width: 0;
+}
+
+.cart-dropdown-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+    margin: 0 0 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cart-dropdown-item-price {
+    font-size: 12px;
+    color: #356DF1;
+    font-weight: 600;
+}
+
+.cart-dropdown-item-quantity {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.cart-dropdown-footer {
+    padding: 14px;
+    border-top: 1px solid #e5e7eb;
+    background-color: #f9fafb;
+}
+
+.btn-view-cart {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #356DF1;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-view-cart:hover {
+    background-color: #2563eb;
+    color: white;
 }
 
 .btn-get-started {

@@ -40,6 +40,9 @@ try {
     
     // Debug: Data extracted
     echo "<!-- Debug: Extracted " . count($categories) . " categories, total: $totalCategories -->";
+    foreach ($categories as $cat) {
+        echo "<!-- DEBUG cat: {$cat['name']} = {$cat['product_count']} -->";
+    }
     error_log("Categories page: Extracted " . count($categories) . " categories, total: $totalCategories");
     
 } catch (Exception $e) {
@@ -98,7 +101,8 @@ $displayedCategories = $categories; // Already paginated by service
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">
-                                            <?php if (isset($_GET['page'])): ?>
+                                            <input type="hidden" name="page" value="categories">
+                                            <?php if (isset($_GET['page']) && $_GET['page'] > 1): ?>
                                                 <input type="hidden" name="page" value="<?php echo $page; ?>">
                                             <?php endif; ?>
                                             <select name="order_by" class="sort-select" onchange="this.form.submit()">
@@ -149,7 +153,7 @@ $displayedCategories = $categories; // Already paginated by service
                                                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
                                                         </svg>
-                                                        <span><?php echo ($category['products_count'] ?? 0); ?> Sản phẩm</span>
+                                                        <span><?php echo ($category['product_count'] ?? 0); ?> Sản phẩm</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -197,64 +201,80 @@ $displayedCategories = $categories; // Already paginated by service
 
                             <!-- Right Column - Sidebar -->
                             <div class="categories-sidebar" id="categoriesSidebar">
-                                <div class="sidebar-header">
-                                    <h3>Bộ Lọc</h3>
-                                    <button class="sidebar-close" id="sidebarClose">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                                <div class="sidebar-content">
-                                    <!-- Category Type Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Loại Danh Mục</h3>
-                                        <div class="filter-content">
-                                            <ul class="category-type-list">
-                                                <li><a href="?page=categories">Tất Cả Danh Mục</a> <span class="count">(<?php echo $categoryStats['total']; ?>)</span></li>
-                                                <li><a href="?page=categories&order_by=popular">Phổ Biến Nhất</a> <span class="count">(<?php echo $categoryStats['with_products']; ?>)</span></li>
-                                                <li><a href="?page=categories&order_by=course_count">Nhiều Sản Phẩm</a> <span class="count">(<?php echo $categoryStats['with_products']; ?>)</span></li>
-                                                <li><a href="?page=categories&status=active">Danh Mục Hoạt Động</a> <span class="count">(<?php echo $categoryStats['active']; ?>)</span></li>
-                                                <li><a href="?page=categories&parent_only=1">Danh Mục Chính</a> <span class="count">(<?php echo $categoryStats['parent_categories']; ?>)</span></li>
-                                            </ul>
+                                <form method="get" action="?page=categories">
+                                    <input type="hidden" name="page" value="categories">
+                                    <div class="sidebar-header">
+                                        <h3>Bộ Lọc</h3>
+                                        <button type="button" class="sidebar-close" id="sidebarClose">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="sidebar-content">
+                                        <!-- Course Count Filter (Radio Buttons) -->
+                                        <div class="filter-section">
+                                            <h3 class="filter-title">Số Lượng Sản Phẩm</h3>
+                                            <div class="filter-content">
+                                                <ul class="course-count-list">
+                                                    <?php
+                                                    // Get current min_products filter
+                                                    $currentMinProducts = $_GET['min_products'] ?? '';
+                                                    
+                                                    // Count categories by product ranges using service data
+                                                    $ranges = [
+                                                        '10+' => 0,
+                                                        '20+' => 0,
+                                                        '30+' => 0
+                                                    ];
+                                                    
+                                                    foreach ($categories as $cat) {
+                                                        $count = $cat['product_count'] ?? 0;
+                                                        if ($count >= 30) $ranges['30+']++;
+                                                        if ($count >= 20) $ranges['20+']++;
+                                                        if ($count >= 10) $ranges['10+']++;
+                                                    }
+                                                    ?>
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="min_products" value="" <?php echo empty($currentMinProducts) ? 'checked' : ''; ?>>
+                                                            <span>Tất cả</span>
+                                                        </label>
+                                                    </li>
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="min_products" value="10" <?php echo $currentMinProducts === '10' ? 'checked' : ''; ?>>
+                                                            <span>10+ Sản Phẩm</span>
+                                                        </label>
+                                                        <span class="count">(<?php echo $ranges['10+']; ?>)</span>
+                                                    </li>
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="min_products" value="20" <?php echo $currentMinProducts === '20' ? 'checked' : ''; ?>>
+                                                            <span>20+ Sản Phẩm</span>
+                                                        </label>
+                                                        <span class="count">(<?php echo $ranges['20+']; ?>)</span>
+                                                    </li>
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="min_products" value="30" <?php echo $currentMinProducts === '30' ? 'checked' : ''; ?>>
+                                                            <span>30+ Sản Phẩm</span>
+                                                        </label>
+                                                        <span class="count">(<?php echo $ranges['30+']; ?>)</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <!-- Apply Button -->
+                                        <div class="filter-section">
+                                            <button type="button" class="apply-filters-btn" onclick="applyCategoryFilters()">Áp Dụng</button>
+                                        </div>
+
+                                        <!-- Reset Button -->
+                                        <div class="filter-section">
+                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=categories'">Đặt Lại</button>
                                         </div>
                                     </div>
-
-                                    <!-- Reset Button -->
-                                    <div class="filter-section">
-                                        <button class="reset-filters-btn">Đặt Lại</button>
-                                    </div>
-
-                                    <!-- Course Count Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Số Lượng Sản Phẩm</h3>
-                                        <div class="filter-content">
-                                            <ul class="course-count-list">
-                                                <?php
-                                                // Count categories by product ranges using service data
-                                                $ranges = [
-                                                    '10+' => 0,
-                                                    '20+' => 0,
-                                                    '30+' => 0
-                                                ];
-                                                
-                                                foreach ($categories as $cat) {
-                                                    $count = $cat['products_count'] ?? 0;
-                                                    if ($count >= 30) $ranges['30+']++;
-                                                    if ($count >= 20) $ranges['20+']++;
-                                                    if ($count >= 10) $ranges['10+']++;
-                                                }
-                                                ?>
-                                                <li><a href="#">10+ Sản Phẩm</a> <span class="count">(<?php echo $ranges['10+']; ?>)</span></li>
-                                                <li><a href="#">20+ Sản Phẩm</a> <span class="count">(<?php echo $ranges['20+']; ?>)</span></li>
-                                                <li><a href="#">30+ Sản Phẩm</a> <span class="count">(<?php echo $ranges['30+']; ?>)</span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!-- Apply Button -->
-                                    <div class="filter-section">
-                                        <button class="apply-filters-btn">Áp Dụng</button>
-                                    </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -263,3 +283,21 @@ $displayedCategories = $categories; // Already paginated by service
         </div>
     </div>
 </div>
+
+<script>
+function applyCategoryFilters() {
+    // Get selected min products
+    const minProductsRadio = document.querySelector('input[name="min_products"]:checked');
+    const minProducts = minProductsRadio ? minProductsRadio.value : '';
+    
+    // Build URL - stay on categories page with min_products filter
+    let url = '?page=categories';
+    
+    if (minProducts) {
+        url += '&min_products=' + minProducts;
+    }
+    
+    // Redirect
+    window.location.href = url;
+}
+</script>

@@ -289,6 +289,11 @@ class UserService extends BaseService
                     $product = $productsModel->find($item['product_id']);
                 }
                 
+                // Skip if product doesn't exist
+                if (!$product || empty($product['name'])) {
+                    continue;
+                }
+                
                 $items[] = [
                     'id' => $item['id'],
                     'product_id' => $item['product_id'],

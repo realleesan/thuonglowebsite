@@ -1,36 +1,77 @@
-﻿body.about-page {
+body.about-page {
     font-family: 'Poppins', sans-serif;
     font-size: 15px;
     line-height: 1.6;
     color: #1F2937;
     background: #ffffff;
-    overflow-x: hidden;
-    overflow-y: hidden;
 }
 
-.about-page .wrapper-container {
-    min-height: 100vh;
+/* Fix content wrapper structure */
+body.about-page .content-pusher {
+    width: 100%;
+    clear: both;
 }
 
-.about-page .container {
+body.about-page #main-content,
+body.about-page .main-content {
+    width: 100% !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Fix footer alignment on about page */
+body.about-page .site-footer,
+body.about-page .footer,
+body.about-page footer#colophon {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+body.about-page .elementor-element-3683d89 {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    width: 100vw;
+}
+
+/* Also fix bottom copyright section - keep full width like other pages */
+body.about-page .elementor-element-8ffc780 {
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    width: 100vw;
+}
+
+body.about-page .elementor-element-3683d89 .elementor-container {
     max-width: 1320px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-.about-page section {
+body.about-page .container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+body.about-page section {
     width: 100%;
 }
 
 /* Hero */
-.about-page .hero-section {
+body.about-page .hero-section {
+    margin-top: 0 !important;
+    padding-top: 80px !important;
     position: relative;
-    padding: 100px 0 120px;
+    padding-bottom: 120px;
     overflow: hidden;
     color: #ffffff;
 }
 
-.about-page .hero-background {
+body.about-page .hero-background {
     position: absolute;
     inset: 0;
     background: linear-gradient(120deg, rgba(17, 24, 39, 0.78), rgba(37, 99, 235, 0.55)),
@@ -43,7 +84,7 @@
     z-index: 0;
 }
 
-.about-page .hero-content {
+body.about-page .hero-content {
     position: relative;
     z-index: 1;
     max-width: 860px;
@@ -58,11 +99,6 @@
     -webkit-backdrop-filter: blur(20px);
     border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    animation: heroGlow 3s ease-in-out infinite alternate;
 }
 
 @keyframes heroGlow {
@@ -82,37 +118,27 @@
     }
 }
 
-.about-page .hero-content h1 {
+body.about-page .hero-content h1 {
     font-size: 56px;
     font-weight: 700;
     line-height: 1.2;
     color: #ffffff;
-    text-shadow: 
-        0 2px 4px rgba(0, 0, 0, 0.3),
-        0 4px 8px rgba(0, 0, 0, 0.2),
-        0 0 20px rgba(53, 109, 241, 0.3);
     letter-spacing: -0.02em;
     position: relative;
 }
 
-.about-page .hero-content h1 .highlight {
+body.about-page .hero-content h1 .highlight {
     background: linear-gradient(135deg, #FBBF24, #F59E0B);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 
-        0 2px 4px rgba(0, 0, 0, 0.4),
-        0 0 30px rgba(251, 191, 36, 0.4);
     position: relative;
     display: inline-block;
 }
 
-.about-page .hero-content p {
+body.about-page .hero-content p {
     font-size: 18px;
     color: rgba(241, 245, 249, 0.92);
-    text-shadow: 
-        0 1px 2px rgba(0, 0, 0, 0.2),
-        0 2px 4px rgba(0, 0, 0, 0.1);
     font-weight: 400;
     line-height: 1.7;
     max-width: 700px;
@@ -122,20 +148,20 @@
 }
 
 /* Stats */
-.about-page .stats-section {
-    background: #356DF1 ;
-    color: #F9FAFB;
+body.about-page .stats-section {
+    background: #ffffff ;
+    color: #000000;
     padding: 80px 0;
 }
 
-.about-page .stats-wrapper {
+body.about-page .stats-wrapper {
     display: grid;
     grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
     gap: 48px;
     align-items: center;
 }
 
-.about-page .stats-text h2 {
+body.about-page .stats-text h2 {
     font-size: 32px;
     font-weight: 700;
     margin-bottom: 16px;
@@ -143,20 +169,20 @@
 
 }
 
-.about-page .stats-text p {
+body.about-page .stats-text p {
     font-size: 24px;
-    color: #D1D5DB;
+    color: #000000;
     line-height: 1.8;
     text-align: center;
 }
 
-.about-page .stats-grid {
+body.about-page .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
 }
 
-.about-page .stat-card {
+body.about-page .stat-card {
     background: #F9FAFB;
     border-radius: 16px;
     padding: 28px 24px;
@@ -164,84 +190,79 @@
     backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-
-    
 }
 
-.about-page .stat-card:hover {
+body.about-page .stat-card:hover {
     background: #FBBF24;
     color: #1F2937;
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(251, 191, 36, 0.3);
 }
 
-.about-page .stat-card:hover .stat-number,
-.about-page .stat-card:hover .stat-label {
+body.about-page .stat-card:hover .stat-number,
+body.about-page .stat-card:hover .stat-label {
     color: #1F2937;
 }
 
-.about-page .stat-number {
+body.about-page .stat-number {
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 6px;
     letter-spacing: 0.04em;
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum", "lnum";
-    text-shadow: 0 4px 16px rgba(15, 23, 42, 0.4);
     display: inline-flex;
     align-items: baseline;
 }
 
-.about-page .stat-label {
+body.about-page .stat-label {
     font-size: 16px;
     opacity: 0.9;
 }
 
 /* Special */
-.about-page .special-section {
+body.about-page .special-section {
     padding: 80px 0;
     background: #ffffff;
 }
 
-.about-page .special-inner {
+body.about-page .special-inner {
     text-align: center;
     max-width: 640px;
     margin: 0 auto 64px;
 }
 
-.about-page .special-inner h2 {
+body.about-page .special-inner h2 {
     font-size: 36px;
     font-weight: 700;
     color: #1F2937;
     margin-bottom: 16px;
 }
 
-.about-page .special-inner h2 .highlight {
+body.about-page .special-inner h2 .highlight {
     color: #356DF1;
 }
 
-.about-page .special-inner p {
+body.about-page .special-inner p {
     font-size: 16px;
     color: #6B7280;
 }
 
-.about-page .features-grid {
+body.about-page .features-grid {
 
     display: grid;
-    grid-template-columns: 1fr; /* Mặc định 1 cột trên điện thoại */
+    grid-template-columns: 1fr; /* M?c d?nh 1 c?t tr�n di?n tho?i */
     gap: 20px;
     padding: 0 15px;
 }
 
-.about-page .feature-card {
+body.about-page .feature-card {
     background: #F9FAFB;
     border-radius: 16px;
     padding: 32px;
     height: 100%;
 }
 
-.about-page .feature-image {
+body.about-page .feature-image {
     width: 64px;
     height: 64px;
     border-radius: 16px;
@@ -251,7 +272,7 @@
     position: relative;
 }
 
-.about-page .feature-image img {
+body.about-page .feature-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -260,36 +281,36 @@
     display: block;
 }
 
-.about-page .feature-card:hover .feature-image img {
+body.about-page .feature-card:hover .feature-image img {
     transform: scale(1.05);
 }
 
-.about-page .feature-card h3 {
+body.about-page .feature-card h3 {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 12px;
 }
 
-.about-page .feature-card p {
+body.about-page .feature-card p {
     font-size: 14px;
     color: #6B7280;
     line-height: 1.7;
 }
 
 /* Testimonial */
-.about-page .testimonial-section {
-    background: #F3F4F6;
+body.about-page .testimonial-section {
+    background: #ffffff;
     padding: 80px 0;
 }
 
-.about-page .testimonial-container {
+body.about-page .testimonial-container {
     display: grid;
     grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
     gap: 48px;
     align-items: center;
 }
 
-.about-page .testimonial-visual {
+body.about-page .testimonial-visual {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -299,285 +320,98 @@
     left: 0;
 }
 
-.about-page .testimonial-image {
+body.about-page .testimonial-image {
     position: relative;
     width: 100%;
     padding-top: 100%;
     border-radius: 24px;
     overflow: hidden;
     background: linear-gradient(180deg, #E1E9FD 0%, #C7D2FE 100%);
-    max-width: 300px; /* Giới hạn độ rộng ảnh founder trên mobile */
+    max-width: 300px; /* Gi?i h?n d? r?ng ?nh founder tr�n mobile */
     margin: 0 auto;
 }
 
-.about-page .quote-icon {
+body.about-page .quote-icon {
     font-size: 72px;
     color: #CBD5F5;
     margin-bottom: 16px;
 }
 
-.about-page .testimonial-text {
+body.about-page .testimonial-text {
     font-size: 18px;
     color: #374151;
     line-height: 1.7;
     margin-bottom: 24px;
 }
 
-.about-page .testimonial-author {
+body.about-page .testimonial-author {
     font-size: 26px;
     font-weight: 600;
     color: #1F2937;
     text-align: right;
 }
 
-/* CTA */
-.about-page .cta-section {
-    background: #ffffff;
-    padding: 80px 0;
-}
-
-.about-page .cta-container {
-    max-width: 840px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.about-page .cta-tag {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: #356DF1;
-    margin-bottom: 10px;
-}
-
-.about-page .cta-title {
-    font-size: 30px;
-    font-weight: 700;
-    color: #1F2937;
-    margin-bottom: 48px;
-    line-height: 1.3;
-}
-
-.about-page .cta-features {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 24px;
-    margin-bottom: 48px;
-}
-
-.about-page .cta-feature {
-    background: #F9FAFB;
-    border-radius: 16px;
-    padding: 24px 20px;
-    height: 100%;
-}
-
-.about-page .cta-feature-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: #EEF2FF;
-    color: #356DF1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 16px;
-}
-
-.about-page .cta-feature h4 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.about-page .cta-feature p {
-    font-size: 14px;
-    color: #6B7280;
-    line-height: 1.6;
-}
-
-.about-page .cta-button {
-    padding: 16px 32px;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: #ffffff;
-    background: #356DF1;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.about-page .cta-button:hover {
-    background-color: #000000;
-    color: white;
-    transform: translateY(-1px);
-}
-
-/* Modal */
-.about-page .modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(17, 24, 39, 0.6);
-    padding: 24px;
-    z-index: 1000;
-    overflow-y: auto;
-    align-items: center;
-    justify-content: center;
-}
-
-.about-page .modal.show {
-    display: flex;
-}
-
-.about-page .modal-content {
-    background: #ffffff;
-    border-radius: 20px;
-    max-width: 520px;
-    width: 100%;
-    margin: auto;
-    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
-    overflow: hidden;
-}
-
-.about-page .modal-header {
-    background: #111827;
-    color: #ffffff;
-    padding: 24px;
-    position: relative;
-}
-
-.about-page .modal-header h2 {
-    font-size: 24px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.about-page .close {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    font-size: 28px;
-    border: none;
-    background: transparent;
-    color: #ffffff;
-    cursor: pointer;
-}
-
-.about-page .modal-body {
-    padding: 32px;
-}
-
-.about-page .modal-body .form-group {
-    margin-bottom: 16px;
-}
-
-.about-page .modal-body label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1F2937;
-    margin-bottom: 8px;
-}
-
-.about-page .modal-body input,
-.about-page .modal-body textarea {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: 12px;
-    border: 1px solid #E5E7EB;
-    font-size: 14px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.about-page .modal-body input:focus,
-.about-page .modal-body textarea:focus {
-    border-color: #356DF1;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
-}
-
-.about-page .submit-btn {
-    margin-top: 8px;
-    width: 100%;
-    border: none;
-    padding: 14px;
-    border-radius: 12px;
-    background: #356DF1;
-    color: #ffffff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-}
-
-.about-page .submit-btn:hover {
-    background: #000000;
-    transform: translateY(-1px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-}
-
 /* Responsive */
 @media (max-width: 992px) {
-    .about-page .stats-wrapper {
+    body.about-page .stats-wrapper {
         grid-template-columns: 1fr;
         text-align: center;
     }
 
-    .about-page .stats-text p {
+    body.about-page .stats-text p {
         text-align: center;
     }
 
-    .about-page .features-grid {
+    body.about-page .features-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .about-page .testimonial-container {
+    body.about-page .testimonial-container {
         grid-template-columns: 1fr;
         text-align: center;
         gap: 30px;
         display: grid;
     }
 
-    .about-page .cta-features {
+    body.about-page .cta-features {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 640px) {
-    .about-page .hero-content {
+    body.about-page .hero-content {
         padding: 30px 20px;
         margin: 0 15px;
     }
     
-    .about-page .hero-content h1 {
+    body.about-page .hero-content h1 {
         font-size: 32px;
     }
 
-    .about-page .hero-content p {
+    body.about-page .hero-content p {
         font-size: 16px;
     }
 
-    .about-page .features-grid,
-    .about-page .cta-features {
+    body.about-page .features-grid,
+    body.about-page .cta-features {
         grid-template-columns: 1fr;
     }
 
-    .about-page .cta-title {
+    body.about-page .cta-title {
         font-size: 28px;
     }
 }
 
 
 
-/* --- Media Queries (Cho màn hình lớn hơn) --- */
+/* --- Media Queries (Cho m�n h�nh l?n hon) --- */
 @media (min-width: 992px) {
-    .about-page .features-grid {
-        grid-template-columns: repeat(3, 1fr); /* 3 cột trên Desktop */
+    body.about-page .features-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 c?t tr�n Desktop */
     }
 
-    .about-page .testimonial-container {
-        grid-template-columns: 320px 1fr; /* Ảnh bên trái, chữ bên phải */
+    body.about-page .testimonial-container {
+        grid-template-columns: 320px 1fr; /* ?nh b�n tr�i, ch? b�n ph?i */
         text-align: left;
     }
 }

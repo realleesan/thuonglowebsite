@@ -478,25 +478,29 @@ body {
 
 /* Course Item */
 .course-item {
-    background: white;
+    background: #f5f7f8;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
+    border: 1px solid #e9ecef;
     /* Ensure border-radius is not clipped */
     transform: translateZ(0);
     /* Force hardware acceleration */
 }
 
+.course-item:hover {
+    border-color: #356df1;
+}
+
 /* Course Item */
 .course-item {
-    background: white;
+    background: #f5f7f8;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
+    border: 1px solid #e9ecef;
     /* Ensure border-radius is not clipped */
     transform: translateZ(0);
     /* Force hardware acceleration */
@@ -952,13 +956,12 @@ body {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
 }
 
 .thim-widget-course-categories-grid li:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .thim-widget-course-categories-grid li a {
@@ -994,7 +997,7 @@ body {
     left: 20px;
     right: 20px;
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff;
     margin: 0;
     font-weight: 500;
 }
@@ -1072,7 +1075,7 @@ body {
 /* Mission Section */
 .mission-section {
     padding: 80px 0;
-    background-color: #f8fafc;
+    background-color: #ffffff;
 }
 
 .mission-section .container {
@@ -1110,17 +1113,16 @@ body {
 .mission-item {
     text-align: center;
     padding: 40px 20px;
-    background: white;
+    background: #f5f7f8;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    border: 1px solid #e9ecef;
 }
 
 .mission-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 .mission-item::before {
@@ -1740,7 +1742,6 @@ body {
     background: white;
     border-radius: 12px;
     padding: 80px 60px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     gap: 60px;
@@ -2313,7 +2314,6 @@ body {
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
     transform: translateZ(0);
@@ -2321,7 +2321,6 @@ body {
 
 .event-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .event-date-badge {
@@ -2809,7 +2808,6 @@ body {
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
     transform: translateZ(0);
@@ -2817,7 +2815,6 @@ body {
 
 .news-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .news-image {

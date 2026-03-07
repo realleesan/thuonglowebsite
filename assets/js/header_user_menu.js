@@ -53,14 +53,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Close all dropdowns
+    // Close all dropdowns (only hide the dropdown menu, don't remove active class for current page)
     function closeAllDropdowns() {
         dropdownMenus.forEach(menu => {
             menu.classList.remove('show');
-            const parent = menu.closest('.has-dropdown');
-            if (parent) {
-                parent.classList.remove('active');
-            }
+            // Note: We don't remove 'active' class here because it's used for highlighting current page
+            // The 'active' class should only be managed by PHP/JS for page highlighting, not dropdown state
         });
         
         if (userDropdown) {

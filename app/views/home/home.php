@@ -38,6 +38,11 @@ try {
     $featuredCategories = $homeData['featured_categories'] ?? [];
     $latestNews = $homeData['latest_news'] ?? [];
     
+    // Use latest products as fallback if no featured products
+    if (empty($featuredProducts)) {
+        $featuredProducts = $latestProducts;
+    }
+    
 } catch (Exception $e) {
     if (isset($errorHandler)) {
         $result = $errorHandler->handleViewError($e, 'home', []);
@@ -199,7 +204,7 @@ try {
         <div class="section-header">
             <h2 class="section-title">Danh mục <span class="highlight">Nổi bật</span></h2>
             <a href="?page=categories" class="see-more-btn">
-                Xem tất cả
+                Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -211,7 +216,7 @@ try {
                 <?php if (!empty($featuredCategories)): ?>
                     <?php foreach ($featuredCategories as $category): ?>
                         <li>
-                            <a href="?page=categories&id=<?php echo $category['id']; ?>">
+                            <a href="?page=products&category=<?php echo $category['id']; ?>">
                                 <img loading="lazy" decoding="async" 
                                      src="<?php echo getCategoryImage($category); ?>" 
                                      alt="<?php echo htmlspecialchars($category['name']); ?>" 
@@ -327,6 +332,16 @@ try {
                             </div>
                         <?php endif; ?>
                     </div>
+                    
+                    <div class="slider-pagination">
+                        <?php 
+                        $latestProductCount = count($latestProducts);
+                        $maxBullets = min(5, max(1, ceil($latestProductCount / 4))); 
+                        for ($i = 0; $i < $maxBullets; $i++): 
+                        ?>
+                            <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
+                        <?php endfor; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -368,6 +383,20 @@ try {
                 </div>
                 <h3 class="mission-title">Giá cả cạnh tranh</h3>
                 <p class="mission-description">Cam kết mang đến giá cả tốt nhất thị trường với chất lượng dịch vụ cao nhất</p>
+            </div>
+            <div class="mission-item">
+                <div class="mission-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="39" height="39" viewBox="0 0 39 39"><path d="M38.4,17.1l-1.2-1.1c-0.4-0.5-0.7-1.5-0.5-2.2l0.4-1.6c0.2-0.9,0.1-1.8-0.3-2.5c-0.5-0.8-1.2-1.3-2-1.6L33.2,7.7 c-0.6-0.2-1.4-0.9-1.6-1.6l-0.4-1.6c-0.5-1.7-2.4-2.8-4.1-2.4L25.5,2.5c-0.7,0.3-1.8,0-2.3-0.4l-1.2-1.1c-1.3-1.3-3.5-1.3-4.8,0 L16,2.1c-0.3,0.4-1.4,0.7-2,0.6l-1.6-0.4c-1.8-0.5-3.7,0.6-4.1,2.3l-0.4,1.6c-0.2,0.6-1,1.4-1.6,1.5l-1.6,0.5 c-0.9,0.2-1.6,0.8-2,1.6c-0.5,0.8-0.6,1.7-0.3,2.5L2.7,13.8c0.2,0.7-0.1,1.7-0.6,2.2l-1.1,1.1c-0.6,0.6-1,1.5-1,2.4 c0,0.9,0.3,1.8,1,2.4l1.1,1.1c0.5,0.5,0.8,1.5,0.6,2.1l-0.4,1.6c-0.2,0.9-0.1,1.8,0.3,2.5c0.5,0.8,1.2,1.3,2,1.6l1.6,0.4 c0.6,0.2,1.4,0.9,1.6,1.6l0.4,1.6c0.5,1.7,2.4,2.8,4.1,2.4l1.6-0.4c0.6-0.2,1.7,0.1,2.2,0.6l1.2,1.1c0.6,0.6,1.5,1,2.4,1 s1.8-0.3,2.4-1l1.2-1.1c0.5-0.4,1.6-0.7,2.2-0.6l1.6,0.4c0.3,0.1,0.6,0.1,0.9,0.1c1.5,0,2.9-1,3.3-2.5l0.4-1.6 c0.2-0.6,1-1.4,1.6-1.6l1.6-0.4c1.8-0.5,2.9-2.3,2.4-4.1l-0.6-1.6c-0.2-0.6,0.1-1.7,0.6-2.2l1.2-1.1C39.7,20.5,39.7,18.4,38.4,17.1z" fill="#356DF1"></path><path d="M28.5,15.2L18,25.6c-0.3,0.3-0.6,0.4-0.9,0.4s-0.7-0.1-0.9-0.4l-5.3-5.2c-0.5-0.5-0.5-1.3,0-1.8s1.3-0.5,1.9,0l4.3,4.3 l9.6-9.5c0.5-0.5,1.3-0.5,1.9,0C29.1,13.9,28.9,14.7,28.5,15.2z" fill="#FFFFFF"></path></svg>
+                </div>
+                <h3 class="mission-title">Đội ngũ chuyên nghiệp</h3>
+                <p class="mission-description">Đội ngũ nhân viên giàu kinh nghiệm, nhiệt tình và tận tâm với khách hàng</p>
+            </div>
+            <div class="mission-item">
+                <div class="mission-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="39" height="39" viewBox="0 0 39 39"><path d="M38.4,17.1l-1.2-1.1c-0.4-0.5-0.7-1.5-0.5-2.2l0.4-1.6c0.2-0.9,0.1-1.8-0.3-2.5c-0.5-0.8-1.2-1.3-2-1.6L33.2,7.7 c-0.6-0.2-1.4-0.9-1.6-1.6l-0.4-1.6c-0.5-1.7-2.4-2.8-4.1-2.4L25.5,2.5c-0.7,0.3-1.8,0-2.3-0.4l-1.2-1.1c-1.3-1.3-3.5-1.3-4.8,0 L16,2.1c-0.3,0.4-1.4,0.7-2,0.6l-1.6-0.4c-1.8-0.5-3.7,0.6-4.1,2.3l-0.4,1.6c-0.2,0.6-1,1.4-1.6,1.5l-1.6,0.5 c-0.9,0.2-1.6,0.8-2,1.6c-0.5,0.8-0.6,1.7-0.3,2.5L2.7,13.8c0.2,0.7-0.1,1.7-0.6,2.2l-1.1,1.1c-0.6,0.6-1,1.5-1,2.4 c0,0.9,0.3,1.8,1,2.4l1.1,1.1c0.5,0.5,0.8,1.5,0.6,2.1l-0.4,1.6c-0.2,0.9-0.1,1.8,0.3,2.5c0.5,0.8,1.2,1.3,2,1.6l1.6,0.4 c0.6,0.2,1.4,0.9,1.6,1.6l0.4,1.6c0.5,1.7,2.4,2.8,4.1,2.4l1.6-0.4c0.6-0.2,1.7,0.1,2.2,0.6l1.2,1.1c0.6,0.6,1.5,1,2.4,1 s1.8-0.3,2.4-1l1.2-1.1c0.5-0.4,1.6-0.7,2.2-0.6l1.6,0.4c0.3,0.1,0.6,0.1,0.9,0.1c1.5,0,2.9-1,3.3-2.5l0.4-1.6 c0.2-0.6,1-1.4,1.6-1.6l1.6-0.4c1.8-0.5,2.9-2.3,2.4-4.1l-0.6-1.6c-0.2-0.6,0.1-1.7,0.6-2.2l1.2-1.1C39.7,20.5,39.7,18.4,38.4,17.1z" fill="#356DF1"></path><path d="M28.5,15.2L18,25.6c-0.3,0.3-0.6,0.4-0.9,0.4s-0.7-0.1-0.9-0.4l-5.3-5.2c-0.5-0.5-0.5-1.3,0-1.8s1.3-0.5,1.9,0l4.3,4.3 l9.6-9.5c0.5-0.5,1.3-0.5,1.9,0C29.1,13.9,28.9,14.7,28.5,15.2z" fill="#FFFFFF"></path></svg>
+                </div>
+                <h3 class="mission-title"> Uy tín và đáng tin cậy</h3>
+                <p class="mission-description">Được hàng ngàn khách hàng tin tưởng và lựa chọn trong nhiều năm</p>
             </div>
         </div>
     </div>

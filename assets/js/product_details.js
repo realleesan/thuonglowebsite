@@ -58,17 +58,23 @@ function buyNow(productId, quantity = 1) {
 }
 
 function updateCartCount() {
-    const cartCountEl = document.getElementById('cart-count');
-    if (cartCountEl) {
-        fetch('api.php?action=getUserData')
+    const cartBadge = document.getElementById('cart-count-badge');
+    if (!cartBadge) return;
+    
+    fetch('api.php?action=getUserData')
         .then(response => response.json())
         .then(data => {
             if (data.success && data.cart) {
-                cartCountEl.textContent = data.cart.length;
+                const count = data.cart.length;
+                cartBadge.textContent = count;
+                if (count > 0) {
+                    cartBadge.style.display = 'inline-block';
+                } else {
+                    cartBadge.style.display = 'none';
+                }
             }
         })
         .catch(error => console.error('Error updating cart count:', error));
-    }
 }
 
 // Tab switching functionality

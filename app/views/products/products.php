@@ -69,6 +69,15 @@ try {
     }
     $categories = $categoriesData['categories'] ?? [];
     
+    // Debug: Hiển thị categories để kiểm tra
+    echo "<!-- DEBUG: categories count = " . count($categories) . " -->";
+    foreach ($categories as $cat) {
+        echo "<!-- DEBUG cat: {$cat['name']} = {$cat['product_count']} -->";
+    }
+    
+    // Debug: Log categories data
+    error_log('DEBUG products.php categories: ' . print_r($categories, true));
+    
 } catch (Exception $e) {
     // Handle errors gracefully
     $result = $errorHandler->handleViewError($e, 'products', []);
@@ -213,6 +222,9 @@ if ($fromCount > $totalFiltered) {
                                                     <img src="<?php echo getProductImage($product); ?>" 
                                                          alt="<?php echo $product['name']; ?>" loading="lazy">
                                                 </a>
+                                                <button class="wishlist-icon-btn" onclick="toggleWishlist(<?php echo $product['id']; ?>, this)" title="Thêm vào yêu thích" style="position: absolute; top: 8px; right: 8px; z-index: 100;">
+                                                    <i class="far fa-heart"></i>
+                                                </button>
                                             </div>
                                             <div class="course-content">
                                                 <h4 class="course-title">

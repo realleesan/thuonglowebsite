@@ -16,6 +16,28 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let isOpen = false;
         
+        // Add hover handler for categories dropdown
+        let categoriesTimeout;
+        
+        categoriesDropdown.addEventListener('mouseenter', function() {
+            clearTimeout(categoriesTimeout);
+            categoriesMenu.style.opacity = '1';
+            categoriesMenu.style.visibility = 'visible';
+            categoriesMenu.style.transform = 'translateY(0px)';
+            categoriesMenu.style.pointerEvents = 'auto';
+            isOpen = true;
+        });
+        
+        categoriesDropdown.addEventListener('mouseleave', function() {
+            categoriesTimeout = setTimeout(function() {
+                categoriesMenu.style.opacity = '0';
+                categoriesMenu.style.visibility = 'hidden';
+                categoriesMenu.style.transform = 'translateY(-10px)';
+                categoriesMenu.style.pointerEvents = 'none';
+                isOpen = false;
+            }, 200); // 200ms delay before hiding
+        });
+        
         // Function to toggle dropdown
         const toggleCategoriesDropdown = function(e) {
             e.preventDefault();
@@ -81,6 +103,39 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Track dropdown state
             let isOpen = false;
+            let dropdownTimeout;
+            
+            // Add hover handler for dropdown
+            item.addEventListener('mouseenter', function() {
+                clearTimeout(dropdownTimeout);
+                // Close all other dropdowns first
+                document.querySelectorAll('.has-dropdown .dropdown-menu').forEach(function(menu) {
+                    if (menu !== dropdownMenu) {
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                        menu.style.pointerEvents = 'none';
+                    }
+                });
+                
+                // Show dropdown on hover
+                dropdownMenu.style.opacity = '1';
+                dropdownMenu.style.visibility = 'visible';
+                dropdownMenu.style.transform = 'translateY(0)';
+                dropdownMenu.style.pointerEvents = 'auto';
+                isOpen = true;
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                // Hide dropdown on mouse leave with delay
+                dropdownTimeout = setTimeout(function() {
+                    dropdownMenu.style.opacity = '0';
+                    dropdownMenu.style.visibility = 'hidden';
+                    dropdownMenu.style.transform = 'translateY(-10px)';
+                    dropdownMenu.style.pointerEvents = 'none';
+                    isOpen = false;
+                }, 200); // 200ms delay before hiding
+            });
             
             // Function to toggle dropdown
             const toggleDropdown = function(e) {
@@ -240,10 +295,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const newsPages = ['news'];
     const productPages = ['products', 'details', 'course-details']; // Removed 'categories' from here
     
-    // First, remove all active classes to ensure clean state
-    document.querySelectorAll('.main-menu > li').forEach(function(li) {
-        li.classList.remove('active');
-    });
+    // Note: We don't remove active classes here because PHP already sets them correctly based on current page
+    // Just ensure the correct menu item is highlighted based on URL
     
     // Check if current page belongs to any dropdown group
     let isInGuideGroup = guidePages.includes(currentPage);
@@ -261,8 +314,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Handle home page (root link)
-            if (linkHref === './' || linkHref === '/') {
-                if (currentPage === 'home') {
+            if (linkHref === './' || linkHref === '/' || linkHref === '' || linkHref.endsWith('index.php')) {
+                if (currentPage === 'home' || currentPage === '' || window.location.pathname.endsWith('index.php') || window.location.pathname.endsWith('/')) {
                     link.parentElement.classList.add('active');
                 }
                 return;

@@ -263,6 +263,25 @@ ob_start();
                                     <h1 class="page-title">Tin tức</h1>
                                 </div>
 
+                                <!-- Top Bar with Results and Sort -->
+                                <div class="news-topbar">
+                                    <div class="results-count">
+                                        Hiển thị <?php echo min(($pagination['current_page'] - 1) * $limit + 1, $totalNews); ?>-<?php echo min($pagination['current_page'] * $limit, $totalNews); ?> trong tổng số <?php echo $totalNews; ?> kết quả
+                                    </div>
+                                    <form method="get" action="" class="sort-form">
+                                        <input type="hidden" name="page" value="news">
+                                        <?php if (!empty($categoryId)): ?>
+                                        <input type="hidden" name="category" value="<?php echo htmlspecialchars($categoryId); ?>">
+                                        <?php endif; ?>
+                                        <select name="sort" class="sort-select" onchange="this.form.submit()">
+                                            <option value="newest" <?php echo $sort === 'newest' ? 'selected' : ''; ?>>Mới nhất</option>
+                                            <option value="oldest" <?php echo $sort === 'oldest' ? 'selected' : ''; ?>>Cũ nhất</option>
+                                            <option value="this-week" <?php echo $sort === 'this-week' ? 'selected' : ''; ?>>Tuần này</option>
+                                            <option value="this-month" <?php echo $sort === 'this-month' ? 'selected' : ''; ?>>Tháng này</option>
+                                        </select>
+                                    </form>
+                                </div>
+
                                 <!-- News List -->
                                 <div class="news-list">
                                     <?php if (empty($newsList)): ?>
@@ -373,119 +392,78 @@ ob_start();
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
-                                <div class="sidebar-content">
-                                    <!-- Categories Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Danh mục</h3>
-                                        <div class="filter-content">
-                                            <ul class="category-list">
-                                                <li>
-                                                    <a href="#" 
-                                                       data-filter-type="category" 
-                                                       data-filter-value=""
-                                                       class="<?php echo empty($categoryId) ? 'filter-active' : ''; ?>">
-                                                        Tất cả
-                                                    </a>
-                                                </li>
-                                                <?php if (!empty($categories)): ?>
-                                                    <?php foreach ($categories as $cat): ?>
+                                <form method="get" action="" class="filter-form">
+                                    <input type="hidden" name="page" value="news">
+                                    <div class="sidebar-content">
+                                        <!-- Categories Filter (radio buttons) -->
+                                        <div class="filter-section">
+                                            <h3 class="filter-title">Danh mục</h3>
+                                            <div class="filter-content">
+                                                <ul class="category-list">
                                                     <li>
-                                                        <a href="#" 
-                                                           data-filter-type="category" 
-                                                           data-filter-value="<?php echo $cat['id']; ?>"
-                                                           class="<?php echo $categoryId == $cat['id'] ? 'filter-active' : ''; ?>">
-                                                            <?php echo htmlspecialchars($cat['name']); ?>
-                                                        </a>
+                                                        <label>
+                                                            <input type="radio" name="category" value="" 
+                                                                   <?php echo empty($categoryId) ? 'checked' : ''; ?>>
+                                                            <span>Tất cả</span>
+                                                        </label>
                                                     </li>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!-- Date Filter -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Ngày đăng</h3>
-                                        <div class="filter-content">
-                                            <ul class="links-list">
-                                                <li>
-                                                    <a href="#" 
-                                                       data-filter-type="sort" 
-                                                       data-filter-value="newest"
-                                                       class="<?php echo $sort === 'newest' ? 'filter-active' : ''; ?>">
-                                                        Mới nhất
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" 
-                                                       data-filter-type="sort" 
-                                                       data-filter-value="oldest"
-                                                       class="<?php echo $sort === 'oldest' ? 'filter-active' : ''; ?>">
-                                                        Cũ nhất
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" 
-                                                       data-filter-type="sort" 
-                                                       data-filter-value="this-week"
-                                                       class="<?php echo $sort === 'this-week' ? 'filter-active' : ''; ?>">
-                                                        Tuần này
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#" 
-                                                       data-filter-type="sort" 
-                                                       data-filter-value="this-month"
-                                                       class="<?php echo $sort === 'this-month' ? 'filter-active' : ''; ?>">
-                                                        Tháng này
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tags Section -->
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">Tags</h3>
-                                        <div class="filter-content">
-                                            <div class="tags-cloud">
-                                                <?php
-                                                // Get all unique tags from news
-                                                $allTags = [];
-                                                foreach ($allNewsRaw as $newsItem) {
-                                                    if (!empty($newsItem['tags'])) {
-                                                        $itemTags = array_map('trim', explode(',', $newsItem['tags']));
-                                                        $allTags = array_merge($allTags, $itemTags);
-                                                    }
-                                                }
-                                                $allTags = array_unique($allTags);
-                                                sort($allTags);
-                                                
-                                                foreach ($allTags as $tagItem):
-                                                    if (empty($tagItem)) continue;
-                                                    $tagLabel = ucfirst(str_replace('-', ' ', $tagItem));
-                                                ?>
-                                                <a href="#" 
-                                                   data-filter-type="tag" 
-                                                   data-filter-value="<?php echo htmlspecialchars($tagItem); ?>"
-                                                   class="tag <?php echo in_array($tagItem, $tags) ? 'filter-active' : ''; ?>">
-                                                    <?php echo htmlspecialchars($tagLabel); ?>
-                                                </a>
-                                                <?php endforeach; ?>
+                                                    <?php if (!empty($categories)): ?>
+                                                        <?php foreach ($categories as $cat): ?>
+                                                        <li>
+                                                            <label>
+                                                                <input type="radio" name="category" value="<?php echo $cat['id']; ?>" 
+                                                                       <?php echo $categoryId == $cat['id'] ? 'checked' : ''; ?>>
+                                                                <span><?php echo htmlspecialchars($cat['name']); ?></span>
+                                                            </label>
+                                                        </li>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </ul>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Reset Button -->
-                                    <div class="filter-section">
-                                        <button class="reset-filters-btn">Đặt lại</button>
-                                    </div>
+                                        <?php
+                                        // Get all unique tags from news for filter
+                                        $filterTags = [];
+                                        if (!empty($allNewsRaw)) {
+                                            foreach ($allNewsRaw as $newsItem) {
+                                                if (!empty($newsItem['tags'])) {
+                                                    $itemTags = array_map('trim', explode(',', $newsItem['tags']));
+                                                    $filterTags = array_merge($filterTags, $itemTags);
+                                                }
+                                            }
+                                            $filterTags = array_unique($filterTags);
+                                            sort($filterTags);
+                                        }
+                                        ?>
 
-                                    <!-- Apply Button -->
-                                    <div class="filter-section">
-                                        <button class="apply-filters-btn">Áp dụng</button>
+                                        <!-- Tags Section -->
+                                        <div class="filter-section">
+                                            <h3 class="filter-title">Tags</h3>
+                                            <div class="filter-content">
+                                                <div class="tags-inline">
+                                                    <?php if (!empty($filterTags)): ?>
+                                                        <?php foreach ($filterTags as $tagItem): ?>
+                                                        <label class="tag-checkbox">
+                                                            <input type="checkbox" name="tag[]" value="<?php echo htmlspecialchars($tagItem); ?>"
+                                                                   <?php echo in_array($tagItem, $tags) ? 'checked' : ''; ?>>
+                                                            <span><?php echo htmlspecialchars(ucfirst(str_replace('-', ' ', $tagItem))); ?></span>
+                                                        </label>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Apply and Reset Buttons -->
+                                        <div class="filter-section">
+                                            <button type="submit" class="apply-filters-btn">Áp dụng</button>
+                                        </div>
+                                        <div class="filter-section">
+                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=news'">Đặt lại</button>
+                                        </div>
                                     </div>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>

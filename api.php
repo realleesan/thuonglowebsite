@@ -61,7 +61,171 @@ try {
                     ]);
                 }
                 exit;
-                
+            
+            case 'cart/add':
+                if ($method === 'POST') {
+                    $input = json_decode(file_get_contents('php://input'), true);
+                    $productId = (int)($input['product_id'] ?? 0);
+                    $quantity = (int)($input['quantity'] ?? 1);
+                    
+                    if (empty($_SESSION['user_id'])) {
+                        echo json_encode([
+                            'success' => false,
+                            'require_login' => true,
+                            'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng'
+                        ]);
+                        exit;
+                    }
+                    
+                    require_once __DIR__ . '/app/services/UserService.php';
+                    $userService = new UserService();
+                    
+                    require_once __DIR__ . '/app/models/ProductsModel.php';
+                    $productsModel = new ProductsModel();
+                    $product = $productsModel->find($productId);
+                    
+                    if (!$product) {
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Không tìm thấy sản phẩm'
+                        ]);
+                        exit;
+                    }
+                    
+                    $price = $product['price'] ?? 0;
+                    
+                    try {
+                        $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);
+                        
+                        echo json_encode([
+                            'success' => $result,
+                            'message' => $result ? 'Đã thêm sản phẩm vào giỏ hàng' : 'Thêm vào giỏ hàng thất bại'
+                        ]);
+                    } catch (Exception $e) {
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Lỗi: ' . $e->getMessage()
+                        ]);
+                    }
+                } else {
+                    throw new Exception('Method not allowed', 405);
+                }
+                exit;
+            
+            case 'wishlist/add':
+                if ($method === 'POST') {
+                    $input = json_decode(file_get_contents('php://input'), true);
+                    $productId = (int)($input['product_id'] ?? 0);
+                    
+                    if (empty($_SESSION['user_id'])) {
+                        echo json_encode([
+                            'success' => false,
+                            'require_login' => true,
+                            'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào yêu thích'
+                        ]);
+                        exit;
+                    }
+                    
+                    require_once __DIR__ . '/app/services/UserService.php';
+                    $userService = new UserService();
+                    $result = $userService->addToWishlist($_SESSION['user_id'], $productId);
+                    
+                    echo json_encode([
+                        'success' => $result,
+                        'message' => $result ? 'Đã thêm sản phẩm vào yêu thích' : 'Thêm vào yêu thích thất bại'
+                    ]);
+                } else {
+                    throw new Exception('Method not allowed', 405);
+                }
+                exit;
+            
+            case 'wishlist/remove':
+                if ($method === 'POST') {
+                    $input = json_decode(file_get_contents('php://input'), true);
+                    $productId = (int)($input['product_id'] ?? 0);
+                    
+                    if (empty($_SESSION['user_id'])) {
+                        echo json_encode([
+                            'success' => false,
+                            'require_login' => true,
+                            'message' => 'Vui lòng đăng nhập để xóa sản phẩm khỏi yêu thích'
+                        ]);
+                        exit;
+                    }
+                    
+                    require_once __DIR__ . '/app/services/UserService.php';
+                    $userService = new UserService();
+                    $result = $userService->removeFromWishlist($_SESSION['user_id'], $productId);
+                    
+                    echo json_encode([
+                        'success' => $result,
+                        'message' => $result ? 'Đã xóa sản phẩm khỏi yêu thích' : 'Xóa khỏi yêu thích thất bại'
+                    ]);
+                } else {
+                    throw new Exception('Method not allowed', 405);
+                }
+                exit;
+            
+            case 'wishlist/clear':
+                if ($method === 'POST') {
+                    if (empty($_SESSION['user_id'])) {
+                        echo json_encode([
+                            'success' => false,
+                            'require_login' => true,
+                            'message' => 'Vui lòng đăng nhập'
+                        ]);
+                        exit;
+                    }
+                    
+                    require_once __DIR__ . '/app/services/UserService.php';
+                    $userService = new UserService();
+                    $wishlistData = $userService->getWishlistData($_SESSION['user_id']);
+                    $items = $wishlistData['items'] ?? [];
+                    
+                    $allRemoved = true;
+                    foreach ($items as $item) {
+                        $result = $userService->removeFromWishlist($_SESSION['user_id'], $item['id']);
+                        if (!$result) $allRemoved = false;
+                    }
+                    
+                    echo json_encode([
+                        'success' => $allRemoved,
+                        'message' => $allRemoved ? 'Đã xóa tất cả sản phẩm khỏi yêu thích' : 'Xóa thất bại'
+                    ]);
+                } else {
+                    throw new Exception('Method not allowed', 405);
+                }
+                exit;
+            
+            case 'wishlist/check':
+                if ($method === 'GET') {
+                    if (empty($_SESSION['user_id'])) {
+                        echo json_encode([
+                            'success' => false,
+                            'logged_in' => false,
+                            'wishlist_products' => []
+                        ]);
+                        exit;
+                    }
+                    
+                    require_once __DIR__ . '/app/services/UserService.php';
+                    $userService = new UserService();
+                    $wishlistData = $userService->getWishlistData($_SESSION['user_id']);
+                    
+                    $productIds = array_map(function($item) {
+                        return $item['product_id'];
+                    }, $wishlistData['items'] ?? []);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'logged_in' => true,
+                        'wishlist_products' => $productIds
+                    ]);
+                } else {
+                    throw new Exception('Method not allowed', 405);
+                }
+                exit;
+            
             default:
                 throw new Exception('Unknown action: ' . $action, 404);
         }
@@ -496,6 +660,79 @@ try {
             }
             break;
 
+        case 'cart/update':
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $itemId = (int)($input['item_id'] ?? 0);
+                $quantity = (int)($input['quantity'] ?? 1);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để cập nhật giỏ hàng'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                
+                try {
+                    $result = $userService->updateCartItem($_SESSION['user_id'], $itemId, $quantity);
+                    
+                    echo json_encode([
+                        'success' => $result,
+                        'message' => $result ? 'Đã cập nhật số lượng' : 'Cập nhật thất bại'
+                    ]);
+                } catch (Exception $e) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Lỗi: ' . $e->getMessage()
+                    ]);
+                }
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        case 'cart/remove':
+            if ($method === 'POST') {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $itemId = (int)($input['item_id'] ?? 0);
+                
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để xóa sản phẩm khỏi giỏ hàng'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                
+                try {
+                    $result = $userService->removeFromCart($_SESSION['user_id'], $itemId);
+                    
+                    echo json_encode([
+                        'success' => $result,
+                        'message' => $result ? 'Đã xóa sản phẩm khỏi giỏ hàng' : 'Xóa sản phẩm thất bại'
+                    ]);
+                } catch (Exception $e) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Lỗi: ' . $e->getMessage()
+                    ]);
+                }
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
         case 'wishlist/add':
             if ($method === 'POST') {
                 $input = json_decode(file_get_contents('php://input'), true);
@@ -518,6 +755,47 @@ try {
                 echo json_encode([
                     'success' => $result,
                     'message' => $result ? 'Đã thêm sản phẩm vào yêu thích' : 'Thêm vào yêu thích thất bại'
+                ]);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+            
+        case 'wishlist/check':
+            if ($method === 'GET') {
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'logged_in' => false,
+                        'wishlist_products' => []
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/services/UserService.php';
+                $userService = new UserService();
+                $wishlistData = $userService->getWishlistData($_SESSION['user_id']);
+                
+                $productIds = array_map(function($item) {
+                    return $item['id'];
+                }, $wishlistData['items'] ?? []);
+                
+                echo json_encode([
+                    'success' => true,
+                    'logged_in' => true,
+                    'wishlist_products' => $productIds
+                ]);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+            
+        case 'check_session':
+            if ($method === 'GET') {
+                echo json_encode([
+                    'logged_in' => !empty($_SESSION['user_id']),
+                    'user_id' => $_SESSION['user_id'] ?? null
                 ]);
             } else {
                 throw new Exception('Method not allowed', 405);

@@ -390,10 +390,14 @@ class PublicService extends BaseService
                 []
             );
 
+            // Debug: Log categories data
+            error_log('DEBUG getCategoriesWithProductCounts: ' . print_r($categories, true));
+
             return [
                 'categories' => $this->transformer->transformCategories($categories),
             ];
         } catch (\Exception $e) {
+            error_log('ERROR getCategoriesWithProductCounts: ' . $e->getMessage());
             return [
                 'categories' => [],
             ];

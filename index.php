@@ -54,11 +54,9 @@ switch($page) {
         $title = 'Giới thiệu - Thuong Lo';
         $content = 'app/views/about/about.php';
         $showPageHeader = true;
-        $showCTA = false;
+        $showCTA = true;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('about');
-        $additionalCSS = ['assets/css/about.css?v=' . time()];
-        $additionalJS = ['assets/js/about.js?v=' . time()];
         $currentService = $publicService ?? $currentService;
         break;
         
@@ -327,23 +325,7 @@ switch($page) {
                 break;
                 
             case 'cart':
-                switch($action) {
-                    case 'add':
-                        $content = 'app/views/users/cart/add.php';
-                        break;
-                    case 'edit':
-                        $content = 'app/views/users/cart/edit.php';
-                        break;
-                    case 'view':
-                        $content = 'app/views/users/cart/view.php';
-                        break;
-                    case 'delete':
-                        $content = 'app/views/users/cart/delete.php';
-                        break;
-                    default:
-                        $content = 'app/views/users/cart/index.php';
-                        break;
-                }
+                $content = 'app/views/users/cart/index.php';
                 $title = 'Giỏ hàng - Thuong Lo';
                 $breadcrumbs = [
                     ['title' => 'Trang chủ', 'url' => './'],
@@ -440,23 +422,7 @@ switch($page) {
         ];
         break;
     
-    // ==================== DEMO ROUTES ====================
-    case 'products_demo':
-        $title = 'Sản phẩm Demo - Thuong Lo';
-        $content = 'app/views/products/products_demo.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = false;
-        break;
-        
-    case 'details_demo':
-        $title = 'Chi tiết sản phẩm Demo - Thuong Lo';
-        $content = 'app/views/products/details_demo.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = false;
-        break;
-        
+    // ==================== DEMO ROUTES ====================        
     case 'checkout_demo':
         $title = 'Thanh toán Demo - Thuong Lo';
         $content = 'app/views/payment/checkout_demo.php';
