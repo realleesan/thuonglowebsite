@@ -525,6 +525,7 @@ class PublicService extends BaseService
 
     /**
      * Data cho trang checkout (đơn giản, phục vụ demo/order 1 sản phẩm).
+     * Lưu ý: Nên sử dụng checkout.php với UserService để lấy giỏ hàng thực tế.
      *
      * @param mixed $productId
      */
@@ -554,18 +555,8 @@ class PublicService extends BaseService
                 }
             }
 
-            // Fallback demo item nếu không có productId hoặc không tìm được
-            if (empty($items)) {
-                $items[] = [
-                    'id' => 1,
-                    'name' => 'Khóa học: Lập trình Web Fullstack (Demo)',
-                    'price' => 250000,
-                    'image' => 'home/home-banner-top.png',
-                    'quantity' => 1,
-                ];
-                $total = 250000;
-            }
-
+            // Không còn fallback sản phẩm demo - nếu không có sản phẩm, trả về mảng rỗng
+            // Hệ thống sẽ chuyển về trang giỏ hàng nếu không có sản phẩm
             return [
                 'cart_items' => $items,
                 'total_amount' => $total,

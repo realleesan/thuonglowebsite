@@ -53,7 +53,9 @@ usort($filteredOrders, function($a, $b) {
 // Calculate statistics
 $totalOrders = count($orders);
 $completedOrders = count(array_filter($orders, function($order) { return $order['status'] === 'completed'; }));
-$processingOrders = count(array_filter($orders, function($order) { return $order['status'] === 'processing'; }));
+// Processing includes both 'processing' and 'pending' statuses
+$processingOrders = count(array_filter($orders, function($order) { return in_array($order['status'], ['processing', 'pending']); }));
+$cancelledOrders = count(array_filter($orders, function($order) { return $order['status'] === 'cancelled'; }));
 $totalSpent = array_sum(array_column($orders, 'amount'));
 
 // Status and type mappings
@@ -130,6 +132,16 @@ $paymentLabels = [
                 <div class="orders-stat-content">
                     <h3><?php echo $processingOrders; ?></h3>
                     <p>Đang xử lý</p>
+                </div>
+            </div>
+            
+            <div class="orders-stat-card">
+                <div class="orders-stat-icon orders-stat-icon-danger">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="orders-stat-content">
+                    <h3><?php echo $cancelledOrders; ?></h3>
+                    <p>Đã hủy</p>
                 </div>
             </div>
             
@@ -246,7 +258,7 @@ $paymentLabels = [
                         <?php if ($order['status'] === 'processing' || $order['status'] === 'pending'): ?>
                         <a href="?page=users&module=orders&action=delete&id=<?php echo $order['id']; ?>" 
                            class="orders-action-btn orders-action-delete"
-                           onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+                           onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
                             <i class="fas fa-times"></i>
                             Hủy đơn hàng
                         </a>

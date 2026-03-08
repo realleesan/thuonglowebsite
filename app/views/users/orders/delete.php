@@ -1,4 +1,7 @@
 <?php
+// Turn on output buffering to prevent header issues
+ob_start();
+
 // User Orders Delete - Cancel Order
 require_once __DIR__ . '/../../../services/UserService.php';
 
@@ -24,8 +27,9 @@ try {
 // Find the specific order
 $order = null;
 $orderIndex = null;
+$orderIdInt = (int) $orderId;
 foreach ($orders as $index => $orderItem) {
-    if ($orderItem['id'] === $orderId) {
+    if ((int)$orderItem['id'] === $orderIdInt) {
         $order = $orderItem;
         $orderIndex = $index;
         break;
@@ -43,13 +47,52 @@ $message = '';
 $messageType = '';
 $cancelSuccess = false;
 
+error_log('Delete page: REQUEST_METHOD=' . $_SERVER['REQUEST_METHOD']);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_cancel'])) {
-    // In a real app, this would update the database
-    $order['status'] = 'cancelled';
-    
-    $message = 'Đơn hàng #' . htmlspecialchars($order['id']) . ' đã được hủy thành công!';
-    $messageType = 'success';
-    $cancelSuccess = true;
+    // Update order status in database
+    try {
+        $modelPath = __DIR__ . '/../../../models/OrdersModel.php';
+        error_log('Delete page: modelPath=' . $modelPath);
+        error_log('Delete page: model exists=' . (file_exists($modelPath) ? 'yes' : 'no'));
+        
+        if (!file_exists($modelPath)) {
+            $message = 'Lỗi: File OrdersModel không tồn tại.';
+            $messageType = 'error';
+        } else {
+            require_once $modelPath;
+            $ordersModel = new OrdersModel();
+            error_log('Delete page: order id to update=' . $order['id']);
+            $updateResult = $ordersModel->update($order['id'], [
+                'status' => 'cancelled'
+            ]);
+            error_log('Delete page: updateResult=' . ($updateResult ? 'success' : 'failed'));
+            
+            if ($updateResult) {
+                $message = 'Đơn hàng #' . htmlspecialchars($order['id']) . ' đã được hủy thành công!';
+                $messageType = 'success';
+                $cancelSuccess = true;
+                
+                // Redirect using JavaScript
+                echo '<script>window.location.href = "?page=users&module=orders";</script>';
+                echo '<noscript><meta http-equiv="refresh" content="0;url=?page=users&module=orders"></noscript>';
+                exit;
+            } else {
+                $message = 'Không thể hủy đơn hàng. Vui lòng thử lại.';
+                $messageType = 'error';
+            }
+        }
+    } catch (Exception $e) {
+        $message = 'Lỗi: ' . $e->getMessage();
+        $messageType = 'error';
+        error_log('Delete page error: ' . $e->getMessage());
+    }
+}
+
+// Check if order was already cancelled after update
+if ($order && $order['status'] === 'cancelled') {
+    echo '<script>window.location.href = "?page=users&module=orders";</script>';
+    exit;
 }
 
 // Status and type mappings
@@ -293,7 +336,8 @@ $paymentLabels = [
                         <button type="submit" 
                                 name="confirm_cancel" 
                                 class="orders-btn orders-btn-danger"
-                                id="confirmCancelBtn">
+                                id="confirmCancelBtn"
+                                onclick="return confirmCancelOrder();">
                             <i class="fas fa-times"></i>
                             Xác nhận hủy đơn hàng
                         </button>
@@ -308,6 +352,16 @@ $paymentLabels = [
 <!-- Include Orders JavaScript -->
 <script src="assets/js/user_orders.js"></script>
 <script>
+// Confirm cancel order function
+function confirmCancelOrder() {
+    var checkbox = document.querySelector('input[name="confirm_understanding"]');
+    if (!checkbox || !checkbox.checked) {
+        alert('Vui lòng xác nhận rằng bạn hiểu việc hủy đơn hàng không thể hoàn tác!');
+        return false;
+    }
+    return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');
+}
+
 // Handle other reason visibility
 document.addEventListener('DOMContentLoaded', function() {
     const reasonOptions = document.querySelectorAll('input[name="cancel_reason"]');
@@ -370,37 +424,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Form submission confirmation
+    // Form submission - allow form to submit normally
     document.getElementById('cancelForm').addEventListener('submit', function(e) {
         const confirmCheckbox = document.querySelector('input[name="confirm_understanding"]');
         
         if (!confirmCheckbox.checked) {
             e.preventDefault();
             showMessage('Vui lòng xác nhận bạn đã hiểu về việc hủy đơn hàng', 'error');
-            return;
+            return false;
         }
         
-        // Final confirmation
-        if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này? Hành động này không thể hoàn tác.')) {
-            e.preventDefault();
-            return;
-        }
-        
-        // Show loading state
-        const submitBtn = document.getElementById('confirmCancelBtn');
-        const originalContent = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang hủy đơn hàng...';
-        submitBtn.disabled = true;
-        
-        // Disable form to prevent double submission
-        const form = document.getElementById('cancelForm');
-        const formElements = form.querySelectorAll('input, textarea, button');
-        formElements.forEach(element => {
-            element.disabled = true;
-        });
-        
-        // Show processing message
-        showMessage('Đang xử lý yêu cầu hủy đơn hàng...', 'info');
+        // Allow normal form submission
+        return true;
     });
 });
 </script>

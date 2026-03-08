@@ -132,10 +132,15 @@ class DataTransformer {
             'order_number' => $this->security->escapeHtml($order['order_number'] ?? ''),
             'status' => $order['status'],
             'total' => (float) $order['total'],
+            'amount' => (float) ($order['total'] ?? 0),
             'formatted_total' => $this->security->formatMoney($order['total']),
             'user_name' => $this->security->escapeHtml($order['user_name'] ?? ''),
             'created_at' => $this->formatDate($order['created_at']),
-            'status_label' => $this->getOrderStatusLabel($order['status'])
+            'date' => $order['created_at'] ?? date('Y-m-d H:i:s'),
+            'status_label' => $this->getOrderStatusLabel($order['status']),
+            'payment_method' => $order['payment_method'] ?? 'bank_transfer',
+            'product_name' => $order['product_name'] ?? 'Sản phẩm',
+            'type' => $order['type'] ?? 'data_nguon_hang'
         ];
     }
     

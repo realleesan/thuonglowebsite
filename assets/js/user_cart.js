@@ -28,7 +28,11 @@ function initCartFunctionality() {
 // Initialize checkbox functionality
 function initCartCheckboxes() {
     const selectAllCheckbox = document.getElementById('selectAllCart');
-    const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+    // Only select desktop checkboxes (not mobile duplicates)
+    const itemCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox');
+    
+    // Also get mobile checkboxes for syncing
+    const mobileCheckboxes = document.querySelectorAll('.cart-item-select-mobile .cart-item-checkbox');
     
     // Select all checkbox
     if (selectAllCheckbox) {
@@ -47,12 +51,25 @@ function initCartCheckboxes() {
                 }
             });
             
+            // Sync mobile checkboxes with desktop checkboxes
+            mobileCheckboxes.forEach((mobileCheckbox, index) => {
+                mobileCheckbox.checked = isChecked;
+                const cartItem = mobileCheckbox.closest('.cart-item');
+                if (cartItem) {
+                    if (isChecked) {
+                        cartItem.classList.add('selected');
+                    } else {
+                        cartItem.classList.remove('selected');
+                    }
+                }
+            });
+            
             updateSelectedCount();
             updateCheckoutButton();
         });
     }
     
-    // Individual item checkboxes
+    // Individual item checkboxes (desktop)
     itemCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const cartItem = this.closest('.cart-item');
@@ -62,6 +79,45 @@ function initCartCheckboxes() {
                 } else {
                     cartItem.classList.remove('selected');
                 }
+            }
+            
+            // Sync corresponding mobile checkbox
+            const itemId = this.value;
+            const mobileCheckbox = document.querySelector(`.cart-item-select-mobile .cart-item-checkbox[value="${itemId}"]`);
+            if (mobileCheckbox) {
+                mobileCheckbox.checked = this.checked;
+            }
+            
+            // Update select all checkbox state
+            updateSelectAllCheckbox();
+            updateSelectedCount();
+            updateCheckoutButton();
+        });
+        
+        // Initial state
+        const cartItem = checkbox.closest('.cart-item');
+        if (cartItem && checkbox.checked) {
+            cartItem.classList.add('selected');
+        }
+    });
+    
+    // Individual item checkboxes (mobile) - sync with desktop
+    mobileCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const cartItem = this.closest('.cart-item');
+            if (cartItem) {
+                if (this.checked) {
+                    cartItem.classList.add('selected');
+                } else {
+                    cartItem.classList.remove('selected');
+                }
+            }
+            
+            // Sync corresponding desktop checkbox
+            const itemId = this.value;
+            const desktopCheckbox = document.querySelector(`.cart-item-select .cart-item-checkbox[value="${itemId}"]`);
+            if (desktopCheckbox) {
+                desktopCheckbox.checked = this.checked;
             }
             
             // Update select all checkbox state
@@ -84,7 +140,8 @@ function initCartCheckboxes() {
 // Update select all checkbox state
 function updateSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAllCart');
-    const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+    // Only count desktop checkboxes
+    const itemCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox');
     
     if (selectAllCheckbox && itemCheckboxes.length > 0) {
         const allChecked = Array.from(itemCheckboxes).every(checkbox => checkbox.checked);
@@ -94,7 +151,8 @@ function updateSelectAllCheckbox() {
 
 // Update selected count display
 function updateSelectedCount() {
-    const checkedCheckboxes = document.querySelectorAll('.cart-item-checkbox:checked');
+    // Only count desktop checkboxes to avoid double counting
+    const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
     const countElement = document.getElementById('selectedCount');
     
     if (countElement) {
@@ -104,7 +162,7 @@ function updateSelectedCount() {
     // Update select all checkbox
     const selectAllCheckbox = document.getElementById('selectAllCart');
     if (selectAllCheckbox) {
-        const totalCheckboxes = document.querySelectorAll('.cart-item-checkbox').length;
+        const totalCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox').length;
         selectAllCheckbox.checked = checkedCheckboxes.length === totalCheckboxes && totalCheckboxes > 0;
         selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < totalCheckboxes;
     }
@@ -112,12 +170,19 @@ function updateSelectedCount() {
 
 // Update checkout button with selected count and total
 function updateCheckoutButton() {
-    const checkedCheckboxes = document.querySelectorAll('.cart-item-checkbox:checked');
+    // Only count desktop checkboxes to avoid double counting
+    const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
     const checkoutButton = document.getElementById('checkoutSelected');
     const checkoutCount = document.getElementById('checkoutCount');
+    const clearCartButton = document.getElementById('clearCart');
+    const deleteCount = document.getElementById('deleteCount');
     
     if (checkoutCount) {
         checkoutCount.textContent = checkedCheckboxes.length;
+    }
+    
+    if (deleteCount) {
+        deleteCount.textContent = checkedCheckboxes.length;
     }
     
     // Calculate selected total
@@ -155,6 +220,19 @@ function updateCheckoutButton() {
             checkoutButton.style.cursor = 'pointer';
         }
     }
+    
+    // Disable clearCart button if no items selected
+    if (clearCartButton) {
+        if (checkedCheckboxes.length === 0) {
+            clearCartButton.disabled = true;
+            clearCartButton.style.opacity = '0.5';
+            clearCartButton.style.cursor = 'not-allowed';
+        } else {
+            clearCartButton.disabled = false;
+            clearCartButton.style.opacity = '1';
+            clearCartButton.style.cursor = 'pointer';
+        }
+    }
 }
 
 // Checkout selected items
@@ -165,7 +243,8 @@ function initCheckoutSelected() {
         checkoutButton.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const checkedCheckboxes = document.querySelectorAll('.cart-item-checkbox:checked');
+            // Only get desktop checkboxes to avoid duplicates
+            const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
             
             if (checkedCheckboxes.length === 0) {
                 showFlashMessage('Vui lòng chọn ít nhất một sản phẩm để thanh toán', 'warning');
@@ -175,12 +254,9 @@ function initCheckoutSelected() {
             // Get selected item IDs
             const selectedIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
             
-            // Redirect to checkout with selected items
-            const params = new URLSearchParams();
-            params.set('page', 'checkout');
-            params.set('selected_items', selectedIds.join(','));
-            
-            window.location.href = '?' + params.toString();
+            // Redirect to checkout - URL sẽ hiển thị tất cả giỏ hàng
+            // selected_items chỉ để tham chiếu, checkout sẽ lấy tất cả giỏ hàng
+            window.location.href = '?page=checkout';
         });
     }
 }
@@ -333,7 +409,14 @@ function initClearCart() {
             e.preventDefault();
             e.stopPropagation();
             
-            if (confirm('Bạn có chắc chắn muốn xóa tất cả sản phẩm trong giỏ hàng?')) {
+            // Check if there are selected items (only desktop checkboxes)
+            const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
+            if (checkedCheckboxes.length === 0) {
+                showFlashMessage('Vui lòng chọn sản phẩm để xóa', 'warning');
+                return;
+            }
+            
+            if (confirm('Bạn có chắc chắn muốn xóa ' + checkedCheckboxes.length + ' sản phẩm đã chọn?')) {
                 clearCart();
             }
         });
@@ -437,12 +520,19 @@ function updateHeaderCartCountAfterRemove(newCount) {
     }
 }
 
-// Clear entire cart
+// Clear selected items from cart
 function clearCart() {
-    const cartItems = document.querySelectorAll('.cart-item');
-    const itemIds = Array.from(cartItems).map(item => item.dataset.itemId);
+    // Only get desktop checkboxes to avoid duplicates
+    const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
     
-    // Call API for each item
+    if (checkedCheckboxes.length === 0) {
+        showFlashMessage('Vui lòng chọn sản phẩm để xóa', 'warning');
+        return;
+    }
+    
+    const itemIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
+    
+    // Call API for each selected item
     const removePromises = itemIds.map(itemId => 
         fetch('api.php?path=cart/remove', {
             method: 'POST',
@@ -455,25 +545,31 @@ function clearCart() {
     
     Promise.all(removePromises)
         .then(() => {
-            cartItems.forEach((item, index) => {
-                setTimeout(() => {
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateX(-100%)';
-                    
+            checkedCheckboxes.forEach((checkbox, index) => {
+                const cartItem = checkbox.closest('.cart-item');
+                if (cartItem) {
                     setTimeout(() => {
-                        item.remove();
-                        if (index === cartItems.length - 1) {
-                            showEmptyCart();
-                            showFlashMessage('Đã xóa tất cả sản phẩm khỏi giỏ hàng', 'success');
-                            // Update header cart count to 0
-                            updateHeaderCartCountAfterRemove(0);
-                            
-                            // Update selected count display
-                            updateSelectedCount();
-                            updateCheckoutButton();
-                        }
-                    }, 300);
-                }, index * 100);
+                        cartItem.style.opacity = '0';
+                        cartItem.style.transform = 'translateX(-100%)';
+                        
+                        setTimeout(() => {
+                            cartItem.remove();
+                            if (index === checkedCheckboxes.length - 1) {
+                                // Check if cart is empty
+                                const remainingItems = document.querySelectorAll('.cart-item');
+                                if (remainingItems.length === 0) {
+                                    showEmptyCart();
+                                }
+                                showFlashMessage('Đã xóa ' + itemIds.length + ' sản phẩm khỏi giỏ hàng', 'success');
+                                // Update header cart count
+                                updateHeaderCartCountAfterRemove(0);
+                                // Update selected count display
+                                updateSelectedCount();
+                                updateCheckoutButton();
+                            }
+                        }, 300);
+                    }, index * 100);
+                }
             });
         })
         .catch(error => {

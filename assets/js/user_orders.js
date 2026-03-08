@@ -91,16 +91,6 @@ function initOrdersActions() {
         });
     });
     
-    // Handle delete confirmations
-    const deleteButtons = document.querySelectorAll('.orders-action-delete');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            if (!confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
-                e.preventDefault();
-            }
-        });
-    });
-    
     // Handle order item clicks (for mobile)
     const orderItems = document.querySelectorAll('.orders-item');
     orderItems.forEach(item => {

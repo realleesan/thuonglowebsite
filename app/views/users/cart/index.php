@@ -153,8 +153,8 @@ try {
                         <span class="cart-summary-count" id="cartItemCount">(0 sản phẩm)</span>
                     </div>
                     <div class="cart-summary-actions">
-                        <button type="button" class="cart-btn cart-btn-secondary" id="clearCart">
-                            <i class="fas fa-trash-alt"></i> Xóa tất cả
+                        <button type="button" class="cart-btn cart-btn-danger" id="clearCart" disabled>
+                            <i class="fas fa-trash-alt"></i> Xóa (<span id="deleteCount">0</span>)
                         </button>
                         <button type="button" class="cart-btn cart-btn-primary" id="checkoutSelected" disabled>
                             <i class="fas fa-credit-card"></i> Thanh toán (<span id="checkoutCount">0</span>)

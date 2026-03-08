@@ -24,10 +24,11 @@ try {
     $user = [];
 }
 
-// Find the specific order
+// Find the specific order - convert both to int for comparison
 $order = null;
+$orderIdInt = (int) $orderId;
 foreach ($orders as $orderItem) {
-    if ($orderItem['id'] === $orderId) {
+    if ((int)$orderItem['id'] === $orderIdInt) {
         $order = $orderItem;
         break;
     }
@@ -354,8 +355,7 @@ $orderDetails = [
         <div class="order-detail-footer">
             <?php if ($order['status'] === 'processing' || $order['status'] === 'pending'): ?>
             <a href="?page=users&module=orders&action=delete&id=<?php echo $order['id']; ?>" 
-               class="orders-btn orders-btn-secondary"
-               onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">
+               class="orders-btn orders-btn-secondary">
                 <i class="fas fa-times"></i>
                 Hủy đơn hàng
             </a>

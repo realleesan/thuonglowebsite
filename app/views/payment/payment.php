@@ -6,40 +6,133 @@
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
-// Chọn service phù hợp cho payment (ưu tiên inject từ routing)
-$service = isset($currentService) ? $currentService : ($publicService ?? null);
+// Debug: Bật hiển thị lỗi
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Kiểm tra đăng nhập
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    header('Location: ?page=login');
+    exit;
+}
 
 // 2. Khởi tạo biến dữ liệu
 $paymentData = [];
 $orderId = "ORD_" . bin2hex(random_bytes(4));
 $amount = 0;
+$orderItems = [];
 $showErrorMessage = false;
 $errorMessage = '';
 
-try {
-    // Get payment processing data từ PublicService
-    if ($service && method_exists($service, 'getPaymentProcessingData')) {
-        $paymentData = $service->getPaymentProcessingData();
-    } else {
-        $paymentData = [];
-    }
-    
-    $orderId = $paymentData['order_id'] ?? $orderId;
-    $amount = $paymentData['amount'] ?? $amount;
-    
-} catch (Exception $e) {
-    if (isset($errorHandler)) {
-        $result = $errorHandler->handleViewError($e, 'payment_processing', []);
-        $showErrorMessage = true;
-        $errorMessage = $result['message'];
+// Xử lý dữ liệu từ form checkout (POST)
+$items = $_POST['items'] ?? [];
+$totalAmount = $_POST['total_amount'] ?? 0;
+
+// Lấy payment_method từ form, mặc định là bank_transfer cho sepay
+$paymentMethod = $_POST['payment_method'] ?? 'bank_transfer';
+
+// Map sepay sang bank_transfer vì database chưa có sepay trong ENUM
+if ($paymentMethod === 'sepay') {
+    $paymentMethod = 'bank_transfer';
+}
+
+// Debug: log what we're about to insert
+error_log('Order data payment_method: ' . $paymentMethod . ' length: ' . strlen($paymentMethod));
+
+// Nếu không có dữ liệu từ POST, thử lấy từ session (nếu user quay lại sau khi thanh toán thất bại)
+if (empty($items) && isset($_SESSION['checkout_items'])) {
+    $items = $_SESSION['checkout_items'];
+    $totalAmount = $_SESSION['checkout_total'] ?? 0;
+    // Map sepay to bank_transfer for database compatibility
+    $paymentMethod = isset($_SESSION['checkout_payment_method']) ? $_SESSION['checkout_payment_method'] : 'bank_transfer';
+    if ($paymentMethod === 'sepay') {
+        $paymentMethod = 'bank_transfer';
     }
 }
 
-// Payment configuration
-$bankAcc = "0389654785";
+// Kiểm tra dữ liệu hợp lệ
+if (empty($items)) {
+    header('Location: ?page=users&module=cart');
+    exit;
+}
+
+try {
+    // Lưu dữ liệu vào session để sử dụng khi cần
+    $_SESSION['checkout_items'] = $items;
+    $_SESSION['checkout_total'] = $totalAmount;
+    $_SESSION['checkout_payment_method'] = $paymentMethod;
+    
+    // Chuyển đổi items sang định dạng phù hợp cho database
+    $orderItems = [];
+    foreach ($items as $itemData) {
+        if (isset($itemData['product_id'])) {
+            $orderItems[] = [
+                'product_id' => $itemData['product_id'],
+                'quantity' => $itemData['quantity'] ?? 1,
+                'price' => $itemData['price'] ?? 0,
+            ];
+        }
+    }
+    
+    // Tạo đơn hàng trong database
+    require_once __DIR__ . '/../../models/OrdersModel.php';
+    require_once __DIR__ . '/../../services/UserService.php';
+    
+    $ordersModel = new OrdersModel();
+    $userService = new UserService();
+    
+    // Lấy thông tin user
+    $userData = $userService->getAccountData($userId);
+    $userEmail = $userData['email'] ?? '';
+    $userName = $userData['name'] ?? $userData['username'] ?? 'Khách hàng';
+    
+    // Chuẩn bị dữ liệu đơn hàng
+    $orderData = [
+        'user_id' => $userId,
+        'order_number' => $orderId,
+        'status' => 'pending',
+        'payment_status' => 'pending',
+        'payment_method' => $paymentMethod,
+        'total' => $totalAmount,
+        'subtotal' => $totalAmount,
+        'items' => json_encode($orderItems, JSON_UNESCAPED_UNICODE),
+        'shipping_name' => substr($userName, 0, 100),
+        'shipping_email' => substr($userEmail, 0, 100),
+        'shipping_phone' => substr($userData['phone'] ?? '', 0, 20),
+    ];
+    
+    // Lưu đơn hàng vào database
+    $orderCreated = $ordersModel->create($orderData);
+    
+    if ($orderCreated) {
+        $amount = (float) $totalAmount;
+    } else {
+        $showErrorMessage = true;
+        $errorMessage = 'Không thể tạo đơn hàng. Vui lòng thử lại.';
+    }
+    
+} catch (Exception $e) {
+    // Log error chi tiết
+    error_log('Payment Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+    
+    if (isset($errorHandler)) {
+        $result = $errorHandler->handleViewError($e, 'payment_processing', []);
+        $showErrorMessage = true;
+        $errorMessage = $result['message'] . ' (' . $e->getMessage() . ')';
+    } else {
+        $showErrorMessage = true;
+        $errorMessage = 'Lỗi: ' . $e->getMessage();
+    }
+    // Sử dụng dữ liệu từ form khi có lỗi
+    $amount = (float) $totalAmount;
+}
+
+// Payment configuration - lấy từ settings nếu có
+$bankAcc = "0389654785"; // Có thể lấy từ SettingsModel
 $bankName = "MBBank";
 $content = "THANHTOAN " . $orderId;
-$qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=compact&amount={$amount}&des={$content}";
+$qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=compact&amount={$amount}&des=" . urlencode($content);
 ?>
 
 <!-- Error Message -->
@@ -55,8 +148,8 @@ $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=co
 
         <div class="qr-container">
             <p class="payment-instructions">
-                Mở ứng dụng ngân hàng quét mã QR bên dưới.<br>
-                (Lưu ý: Đây là chế độ <strong>DEMO</strong>, hệ thống sẽ tự động xác nhận sau 5 giây mà không cần chuyển khoản)
+                Mở ứng dụng ngân hàng quét mã QR bên dưới để thanh toán.<br>
+                <strong style="color: #d32f2f;">Lưu ý: Vui lòng chuyển khoản đúng số tiền để hệ thống tự động xác nhận.</strong>
             </p>
 
             <img src="<?php echo $qrSource; ?>" alt="SePay QR Code" class="qr-image">
@@ -74,6 +167,15 @@ $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=co
                 <span id="status-text">Đang chờ tín hiệu từ ngân hàng...</span>
             </div>
             
+            <!-- Demo: Button to bypass payment -->
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="color: #666; font-size: 12px;">Chưa có tiền? Nhấn nút bên dưới để test:</p>
+                <a href="?page=payment_success&order_id=<?php echo $orderId; ?>" 
+                   style="display: inline-block; padding: 12px 24px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                   ✓ Xác nhận đã thanh toán (Demo)
+                </a>
+            </div>
+            
             <div style="width: 100%; background: #eee; height: 5px; margin-top: 15px; border-radius: 3px; overflow: hidden;">
                 <div id="progress-bar" style="width: 0%; height: 100%; background: #2563EB; transition: width 5s linear;"></div>
             </div>
@@ -83,24 +185,82 @@ $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=co
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const progressBar = document.getElementById('progress-bar');
-    const statusText = document.getElementById('status-text');
     const orderId = '<?php echo $orderId; ?>';
-
-    // 1. Bắt đầu chạy thanh tiến trình (giả vờ đang kết nối)
-    setTimeout(() => {
-        progressBar.style.width = '100%';
-    }, 100);
-
-    // 2. Sau 2 giây: Đổi thông báo
-    setTimeout(() => {
-        statusText.textContent = "Đã nhận được tín hiệu! Đang xử lý đơn hàng...";
-        statusText.style.color = "#2563EB";
-    }, 2500);
-
-    // 3. Sau 5 giây: Chuyển hướng sang trang Success (Thành công)
-    setTimeout(() => {
-        window.location.href = '<?php echo page_url('payment_success', ['order_id' => '']); ?>' + orderId;
-    }, 5000);
+    const statusText = document.getElementById('status-text');
+    const progressBar = document.getElementById('progress-bar');
+    let checkCount = 0;
+    const maxChecks = 60; // Tối đa 60 lần kiểm tra (5 phút)
+    
+    // Hàm kiểm tra trạng thái thanh toán
+    function checkPaymentStatus() {
+        fetch('api.php?action=check_payment_status&order_id=' + orderId)
+            .then(response => response.json())
+            .then(data => {
+                checkCount++;
+                
+                if (data.success && data.payment_status === 'paid') {
+                    // Thanh toán thành công
+                    statusText.textContent = '✓ Đã xác nhận thanh toán! Đang chuyển hướng...';
+                    statusText.style.color = '#28a745';
+                    
+                    if (progressBar) {
+                        progressBar.style.background = '#28a745';
+                        progressBar.style.width = '100%';
+                    }
+                    
+                    // Chuyển đến trang thành công
+                    setTimeout(() => {
+                        window.location.href = '?page=payment_success&order_id=' + orderId;
+                    }, 1500);
+                    
+                    return;
+                }
+                
+                // Tiếp tục kiểm tra nếu chưa quá số lần tối đa
+                if (checkCount < maxChecks) {
+                    // Hiển thị trạng thái
+                    if (checkCount < 10) {
+                        statusText.textContent = 'Đang chờ thanh toán... (' + checkCount + ')';
+                    } else {
+                        statusText.textContent = 'Vui lòng hoàn tất thanh toán... Đang kiểm tra...';
+                    }
+                    
+                    // Tiếp tục kiểm tra sau 5 giây
+                    setTimeout(checkPaymentStatus, 5000);
+                } else {
+                    // Quá thời gian chờ
+                    statusText.textContent = '⏳ Chờ quá lâu. Bạn có thể kiểm tra lại sau.';
+                    statusText.style.color = '#ffc107';
+                    
+                    // Hiển nút thử lại
+                    const retryBtn = document.createElement('button');
+                    retryBtn.className = 'btn btn-primary mt-2';
+                    retryBtn.textContent = 'Kiểm tra lại';
+                    retryBtn.onclick = function() {
+                        checkCount = 0;
+                        checkPaymentStatus();
+                    };
+                    statusText.parentNode.appendChild(retryBtn);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi kiểm tra thanh toán:', error);
+                checkCount++;
+                
+                if (checkCount < maxChecks) {
+                    setTimeout(checkPaymentStatus, 5000);
+                }
+            });
+    }
+    
+    // Bắt đầu kiểm tra sau 3 giây
+    setTimeout(checkPaymentStatus, 3000);
+    
+    // Cập nhật progress bar
+    if (progressBar) {
+        setTimeout(() => {
+            progressBar.style.width = '30%';
+        }, 500);
+    }
 });
 </script>

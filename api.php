@@ -37,6 +37,8 @@ if ($method === 'OPTIONS') {
 try {
     // Handle action-based requests (legacy format)
     if ($action && empty($path)) {
+        // Debug: log action
+        error_log('API action received: ' . $action);
         switch ($action) {
             case 'getUserData':
                 require_once __DIR__ . '/app/services/UserService.php';
@@ -224,6 +226,59 @@ try {
                 } else {
                     throw new Exception('Method not allowed', 405);
                 }
+                exit;
+            
+            case 'check_payment_status':
+                // Kiểm tra trạng thái thanh toán đơn hàng
+                $orderId = $_GET['order_id'] ?? '';
+                
+                if (empty($orderId)) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Thiếu mã đơn hàng'
+                    ]);
+                    exit;
+                }
+                
+                // Kiểm tra user đăng nhập
+                $userId = $_SESSION['user_id'] ?? 0;
+                if (empty($userId)) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Vui lòng đăng nhập'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/models/OrdersModel.php';
+                $ordersModel = new OrdersModel();
+                
+                // Tìm đơn hàng
+                $order = $ordersModel->findBy('order_number', $orderId);
+                
+                if (!$order) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Không tìm thấy đơn hàng'
+                    ]);
+                    exit;
+                }
+                
+                // Kiểm tra đơn hàng thuộc về user
+                if ($order['user_id'] != $userId) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Đơn hàng không thuộc về bạn'
+                    ]);
+                    exit;
+                }
+                
+                // Trả về trạng thái thanh toán
+                echo json_encode([
+                    'success' => true,
+                    'payment_status' => $order['payment_status'] ?? 'pending',
+                    'order_status' => $order['status'] ?? 'pending'
+                ]);
                 exit;
             
             default:
@@ -697,6 +752,61 @@ try {
             }
             break;
 
+        case 'check_payment_status':
+            // Kiểm tra trạng thái thanh toán đơn hàng
+            $orderId = $_GET['order_id'] ?? '';
+            
+            if (empty($orderId)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Thiếu mã đơn hàng'
+                ]);
+                exit;
+            }
+            
+            // Kiểm tra user đăng nhập
+            $userId = $_SESSION['user_id'] ?? 0;
+            if (empty($userId)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Vui lòng đăng nhập'
+                ]);
+                exit;
+            }
+            
+            require_once __DIR__ . '/app/models/OrdersModel.php';
+            $ordersModel = new OrdersModel();
+            
+            // Tìm đơn hàng
+            $order = $ordersModel->findBy('order_number', $orderId);
+            
+            if (!$order) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Không tìm thấy đơn hàng'
+                ]);
+                exit;
+            }
+            
+            // Kiểm tra đơn hàng thuộc về user
+            if ($order['user_id'] != $userId) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Đơn hàng không thuộc về bạn'
+                ]);
+                exit;
+            }
+            
+            // Trả về trạng thái thanh toán
+            echo json_encode([
+                'success' => true,
+                'payment_status' => $order['payment_status'] ?? 'pending',
+                'order_status' => $order['status'] ?? 'pending',
+                'message' => 'OK'
+            ]);
+            exit;
+            break;
+            
         case 'cart/remove':
             if ($method === 'POST') {
                 $input = json_decode(file_get_contents('php://input'), true);

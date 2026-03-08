@@ -299,11 +299,15 @@ if (!function_exists('js_url')) {
 
 if (!function_exists('img_url')) {
     /**
-     * Get image URL
-     * @param string $file Image filename
+     * Get image URL - handles both full URLs and relative paths
+     * @param string $file Image filename or full URL
      * @return string Full image URL
      */
     function img_url($file) {
+        // Nếu đã là URL đầy đủ (http/https), trả về ngay
+        if (!empty($file) && (strpos($file, 'http://') === 0 || strpos($file, 'https://') === 0)) {
+            return $file;
+        }
         return asset_url('images/' . ltrim($file, '/'));
     }
 }

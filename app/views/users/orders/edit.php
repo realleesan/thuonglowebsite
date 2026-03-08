@@ -23,8 +23,9 @@ try {
 
 // Find the specific order
 $order = null;
+$orderIdInt = (int) $orderId;
 foreach ($orders as $orderItem) {
-    if ($orderItem['id'] === $orderId) {
+    if ((int)$orderItem['id'] === $orderIdInt) {
         $order = $orderItem;
         break;
     }
