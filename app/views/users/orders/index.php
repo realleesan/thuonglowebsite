@@ -169,15 +169,15 @@ $paymentLabels = [
             </div>
             
             <div class="orders-filters-right">
-                <select class="orders-filter-select" id="statusFilter">
+                <select class="orders-filter-select" id="statusFilter" onchange="applyFilters()">
                     <option value="all" <?php echo $statusFilter === 'all' ? 'selected' : ''; ?>>Tất cả trạng thái</option>
                     <option value="completed" <?php echo $statusFilter === 'completed' ? 'selected' : ''; ?>>Hoàn thành</option>
                     <option value="processing" <?php echo $statusFilter === 'processing' ? 'selected' : ''; ?>>Đang xử lý</option>
                     <option value="pending" <?php echo $statusFilter === 'pending' ? 'selected' : ''; ?>>Chờ xử lý</option>
                     <option value="cancelled" <?php echo $statusFilter === 'cancelled' ? 'selected' : ''; ?>>Đã hủy</option>
                 </select>
-                
-                <select class="orders-filter-select" id="typeFilter">
+
+                <select class="orders-filter-select" id="typeFilter" onchange="applyFilters()">
                     <option value="all" <?php echo $typeFilter === 'all' ? 'selected' : ''; ?>>Tất cả loại</option>
                     <option value="data_nguon_hang" <?php echo $typeFilter === 'data_nguon_hang' ? 'selected' : ''; ?>>Data Nguồn Hàng</option>
                     <option value="van_chuyen" <?php echo $typeFilter === 'van_chuyen' ? 'selected' : ''; ?>>Vận Chuyển</option>
@@ -306,3 +306,28 @@ $paymentLabels = [
 
 <!-- Include Orders JavaScript -->
 <script src="assets/js/user_orders.js"></script>
+<script>
+// Apply filters when select changes
+function applyFilters() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
+    
+    // Build URL with filter parameters
+    const url = new URL(window.location.href);
+    url.searchParams.set('status', statusFilter);
+    url.searchParams.set('type', typeFilter);
+    
+    // Redirect to filtered page
+    window.location.href = url.toString();
+}
+
+// Handle search input
+document.getElementById('ordersSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const searchQuery = this.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('search', searchQuery);
+        window.location.href = url.toString();
+    }
+});
+</script>

@@ -26,8 +26,10 @@ class OrdersModel extends BaseModel {
         $this->beginTransaction();
         
         try {
-            // Generate order number
-            $orderData['order_number'] = $this->generateOrderNumber();
+            // Generate order number only if not provided
+            if (empty($orderData['order_number'])) {
+                $orderData['order_number'] = $this->generateOrderNumber();
+            }
             
             // Calculate totals
             $subtotal = 0;
@@ -40,19 +42,22 @@ class OrdersModel extends BaseModel {
                                  ($orderData['shipping_amount'] ?? 0) - 
                                  ($orderData['discount_amount'] ?? 0);
             
-            // Create order
-            $order = $this->create($orderData);
+            // Create order - create() returns the insert ID
+            $orderId = $this->create($orderData);
             
-            if (!$order) {
+            if (!$orderId) {
                 throw new Exception('Failed to create order');
             }
+            
+            // Get the order ID (could be int or string)
+            $orderId = (int) $orderId;
             
             // Create order items
             foreach ($items as $item) {
                 $itemData = [
-                    'order_id' => $order['id'],
+                    'order_id' => $orderId,
                     'product_id' => $item['product_id'],
-                    'product_name' => $item['product_name'],
+                    'product_name' => $item['product_name'] ?? 'Sản phẩm',
                     'product_sku' => $item['product_sku'] ?? null,
                     'product_type' => $item['product_type'] ?? null,
                     'quantity' => $item['quantity'],
@@ -65,7 +70,7 @@ class OrdersModel extends BaseModel {
                 
                 // Update product sales count and stock
                 if (isset($item['product_id'])) {
-                    $this->db->execute(
+                    $this->db->query(
                         "UPDATE products SET sales_count = sales_count + ?, stock = stock - ? WHERE id = ?",
                         [$item['quantity'], $item['quantity'], $item['product_id']]
                     );
@@ -73,7 +78,7 @@ class OrdersModel extends BaseModel {
             }
             
             $this->commit();
-            return $this->getOrderWithItems($order['id']);
+            return $this->getOrderWithItems($orderId);
             
         } catch (Exception $e) {
             $this->rollback();
@@ -118,7 +123,10 @@ class OrdersModel extends BaseModel {
      */
     public function getByUser($userId, $limit = null) {
         $sql = "
-            SELECT o.*, COUNT(oi.id) as items_count
+            SELECT o.*, 
+                   oi.product_name,
+                   oi.product_type as type,
+                   COUNT(oi.id) as items_count
             FROM {$this->table} o
             LEFT JOIN order_items oi ON o.id = oi.order_id
             WHERE o.user_id = ?

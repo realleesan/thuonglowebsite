@@ -78,9 +78,11 @@ try {
     // Tạo đơn hàng trong database
     require_once __DIR__ . '/../../models/OrdersModel.php';
     require_once __DIR__ . '/../../services/UserService.php';
+    require_once __DIR__ . '/../../models/ProductsModel.php';
     
     $ordersModel = new OrdersModel();
     $userService = new UserService();
+    $productsModel = new ProductsModel();
     
     // Lấy thông tin user
     $userData = $userService->getAccountData($userId);
@@ -94,18 +96,32 @@ try {
         'status' => 'pending',
         'payment_status' => 'pending',
         'payment_method' => $paymentMethod,
-        'total' => $totalAmount,
         'subtotal' => $totalAmount,
-        'items' => json_encode($orderItems, JSON_UNESCAPED_UNICODE),
+        'total' => $totalAmount,
         'shipping_name' => substr($userName, 0, 100),
         'shipping_email' => substr($userEmail, 0, 100),
         'shipping_phone' => substr($userData['phone'] ?? '', 0, 20),
     ];
     
-    // Lưu đơn hàng vào database
-    $orderCreated = $ordersModel->create($orderData);
+    // Chu�n bị items với đầy đủ thông tin sản phẩm
+    $items = [];
+    foreach ($orderItems as $itemData) {
+        $product = $productsModel->find($itemData['product_id']);
+        $items[] = [
+            'product_id' => $itemData['product_id'],
+            'product_name' => $product['name'] ?? 'Sản phẩm',
+            'product_sku' => $product['sku'] ?? null,
+            'product_type' => $product['type'] ?? 'data_nguon_hang',
+            'quantity' => $itemData['quantity'] ?? 1,
+            'price' => $itemData['price'] ?? 0,
+            'product_data' => $product ?? []
+        ];
+    }
     
-    if ($orderCreated) {
+    // Lưu đơn hàng vào database (bao gồm cả order_items)
+    $order = $ordersModel->createOrder($orderData, $items);
+    
+    if ($order) {
         $amount = (float) $totalAmount;
     } else {
         $showErrorMessage = true;
