@@ -227,7 +227,7 @@ class OrdersModel extends BaseModel {
      */
     public function getPurchasedProducts($userId) {
         $sql = "
-            SELECT DISTINCT oi.product_id, p.name, p.image, p.type
+            SELECT DISTINCT oi.product_id, oi.expiry_date, p.name, p.image, p.type
             FROM {$this->table} o
             INNER JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
@@ -236,6 +236,25 @@ class OrdersModel extends BaseModel {
         ";
         
         return $this->db->query($sql, [$userId]);
+    }
+    
+    /**
+     * Get expiry date for a specific purchased product
+     */
+    public function getProductExpiryDate($userId, $productId) {
+        $sql = "
+            SELECT oi.expiry_date
+            FROM {$this->table} o
+            INNER JOIN order_items oi ON o.id = oi.order_id
+            WHERE o.user_id = ? 
+              AND oi.product_id = ?
+              AND o.status = 'completed'
+            ORDER BY o.created_at DESC
+            LIMIT 1
+        ";
+        
+        $result = $this->db->query($sql, [$userId, $productId]);
+        return !empty($result) ? $result[0]['expiry_date'] : null;
     }
     
     /**

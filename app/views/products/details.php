@@ -51,15 +51,18 @@ try {
     
     // Check if user has purchased this product
     $hasPurchased = false;
+    $productExpiryDate = null;
     $isUserLoggedIn = isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
     if ($isUserLoggedIn) {
         require_once __DIR__ . '/../../models/OrdersModel.php';
         $ordersModel = new OrdersModel();
         $hasPurchased = $ordersModel->hasUserPurchasedProduct($_SESSION['user_id'], $productId);
+        $productExpiryDate = $ordersModel->getProductExpiryDate($_SESSION['user_id'], $productId);
     }
     
     // Add purchased flag to product array for use in template
     $product['has_purchased'] = $hasPurchased;
+    $product['expiry_date'] = $productExpiryDate;
     
 } catch (Exception $e) {
     // Handle errors gracefully
@@ -447,6 +450,39 @@ $averageRating = round($averageRating, 1);
                                         <button class="btn-order disabled" disabled>
                                             <?php echo ($product['stock'] <= 0) ? 'Hết hàng' : 'Ngừng bán'; ?>
                                         </button>
+                                    <?php endif; ?>
+                                    
+                                    <!-- Expiry Countdown for purchased products -->
+                                    <?php if (!empty($product['has_purchased']) && !empty($product['expiry_date'])): ?>
+                                        <?php 
+                                            $expiry = strtotime($product['expiry_date']);
+                                            $now = time();
+                                            $daysLeft = floor(($expiry - $now) / (60 * 60 * 24));
+                                            $hoursLeft = floor((($expiry - $now) % (60 * 60 * 24)) / (60 * 60));
+                                            
+                                            $countdownStyle = 'background: #28a745;';
+                                            $countdownText = 'Còn ' . $daysLeft . ' ngày';
+                                            
+                                            if ($daysLeft <= 0) {
+                                                if ($hoursLeft > 0) {
+                                                    $countdownText = 'Còn ' . $hoursLeft . ' giờ';
+                                                    $countdownStyle = 'background: #ff971a;';
+                                                } else {
+                                                    $countdownText = 'Hết hạn';
+                                                    $countdownStyle = 'background: #dc3545;';
+                                                }
+                                            } elseif ($daysLeft <= 7) {
+                                                $countdownStyle = 'background: #ff971a;';
+                                            }
+                                        ?>
+                                        <div class="expiry-countdown" style="margin-top: 12px; padding: 10px 15px; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; text-align: center; <?php echo $countdownStyle; ?>">
+                                            <i class="fas fa-clock"></i> 
+                                            <?php if ($daysLeft > 0 || $hoursLeft > 0): ?>
+                                                Sản phẩm của bạn: <?php echo $countdownText; ?>
+                                            <?php else: ?>
+                                                Sản phẩm đã hết hạn - Vui lòng gia hạn để tiếp tục sử dụng
+                                            <?php endif; ?>
+                                        </div>
                                     <?php endif; ?>
                                     
                                     <!-- Meta Info - Logistics Specific -->

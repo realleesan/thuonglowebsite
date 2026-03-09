@@ -64,19 +64,24 @@ try {
     
     // Get purchased products for current user (if logged in)
     $purchasedProductIds = [];
+    $purchasedProductExpiry = []; // Array of product_id => expiry_date
     $isUserLoggedIn = isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
     if ($isUserLoggedIn) {
         require_once __DIR__ . '/../../models/OrdersModel.php';
         $ordersModel = new OrdersModel();
         $purchasedProducts = $ordersModel->getPurchasedProducts($_SESSION['user_id']);
         if (!empty($purchasedProducts)) {
-            $purchasedProductIds = array_column($purchasedProducts, 'product_id');
+            foreach ($purchasedProducts as $pp) {
+                $purchasedProductIds[] = $pp['product_id'];
+                $purchasedProductExpiry[$pp['product_id']] = $pp['expiry_date'];
+            }
         }
     }
     
-    // Add is_purchased flag to each product
+    // Add is_purchased flag and expiry_date to each product
     foreach ($products as &$product) {
         $product['is_purchased'] = in_array($product['id'], $purchasedProductIds);
+        $product['expiry_date'] = $product['is_purchased'] ? ($purchasedProductExpiry[$product['id']] ?? null) : null;
     }
     unset($product); // Important: break the reference
     
@@ -270,8 +275,26 @@ if ($fromCount > $totalFiltered) {
                                                         <span><?php echo formatRecordCount($product['record_count'] ?? $product['in_stock'] ?? 0); ?></span>
                                                     </div>
                                                     <?php if (!empty($product['is_purchased'])): ?>
-                                                    <div class="purchased-badge" style="display: inline-flex; align-items: center; gap: 4px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px;">
-                                                        <i class="fas fa-check-circle"></i> Đã mua
+                                                    <?php 
+                                                        $expiryText = '';
+                                                        $badgeStyle = 'background: #28a745;';
+                                                        if (!empty($product['expiry_date'])) {
+                                                            $expiry = strtotime($product['expiry_date']);
+                                                            $now = time();
+                                                            $daysLeft = floor(($expiry - $now) / (60 * 60 * 24));
+                                                            if ($daysLeft > 0) {
+                                                                $expiryText = ' - Còn ' . $daysLeft . ' ngày';
+                                                            } elseif ($daysLeft == 0) {
+                                                                $expiryText = ' - Hết hôm nay';
+                                                                $badgeStyle = 'background: #ff971a;';
+                                                            } else {
+                                                                $expiryText = ' - Đã hết hạn';
+                                                                $badgeStyle = 'background: #dc3545;';
+                                                            }
+                                                        }
+                                                    ?>
+                                                    <div class="purchased-badge" style="display: inline-flex; align-items: center; gap: 4px; <?php echo $badgeStyle; ?> color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px;">
+                                                        <i class="fas fa-check-circle"></i> Đã mua<?php echo $expiryText; ?>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>
