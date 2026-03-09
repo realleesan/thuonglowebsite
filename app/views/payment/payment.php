@@ -10,11 +10,11 @@ require_once __DIR__ . '/../../../core/view_init.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Kiểm tra đăng nhập
+// Kiểm tra đăng nhập - dùng JavaScript redirect thay vì header vì header đã được gửi
 $userId = $_SESSION['user_id'] ?? null;
+$authRedirect = "";
 if (!$userId) {
-    header('Location: ?page=login');
-    exit;
+    $authRedirect = "<script>window.location.href = '?page=login';</script>";
 }
 
 // 2. Khởi tạo biến dữ liệu
@@ -51,10 +51,10 @@ if (empty($items) && isset($_SESSION['checkout_items'])) {
     }
 }
 
-// Kiểm tra dữ liệu hợp lệ
+// Kiểm tra dữ liệu hợp lệ - dùng JavaScript redirect thay vì header
+$emptyItemsRedirect = "";
 if (empty($items)) {
-    header('Location: ?page=users&module=cart');
-    exit;
+    $emptyItemsRedirect = "<script>window.location.href = '?page=users&module=cart';</script>";
 }
 
 try {
@@ -105,6 +105,8 @@ try {
     
     // Chu�n bị items với đầy đủ thông tin sản phẩm
     $items = [];
+    $isRenewal = false; // Check if this is a renewal purchase
+    
     foreach ($orderItems as $itemData) {
         $product = $productsModel->find($itemData['product_id']);
         $items[] = [
@@ -116,10 +118,19 @@ try {
             'price' => $itemData['price'] ?? 0,
             'product_data' => $product ?? []
         ];
+        
+        // Check if user has already purchased this product for renewal
+        if (!$isRenewal && isset($itemData['product_id']) && $userId) {
+            $hasPurchased = $ordersModel->hasUserPurchasedProduct($userId, $itemData['product_id']);
+            if ($hasPurchased) {
+                $isRenewal = true;
+            }
+        }
     }
     
     // Lưu đơn hàng vào database (bao gồm cả order_items)
-    $order = $ordersModel->createOrder($orderData, $items);
+    // Pass $isRenewal to extend expiry date for existing purchases
+    $order = $ordersModel->createOrder($orderData, $items, $isRenewal);
     
     if ($order) {
         $amount = (float) $totalAmount;
@@ -150,6 +161,14 @@ $bankName = "MBBank";
 $content = "THANHTOAN " . $orderId;
 $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=compact&amount={$amount}&des=" . urlencode($content);
 ?>
+
+<!-- Redirect messages if needed -->
+<?php if (!empty($authRedirect)): ?>
+<?php echo $authRedirect; ?>
+<?php endif; ?>
+<?php if (!empty($emptyItemsRedirect)): ?>
+<?php echo $emptyItemsRedirect; ?>
+<?php endif; ?>
 
 <!-- Error Message -->
 <?php if ($showErrorMessage): ?>

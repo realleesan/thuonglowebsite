@@ -19,10 +19,13 @@ class OrdersModel extends BaseModel {
         'coupon_code', 'affiliate_id', 'commission_amount'
     ];
     
+    // Default expiry days for products (30 days)
+    const DEFAULT_EXPIRY_DAYS = 30;
+    
     /**
      * Create new order with items
      */
-    public function createOrder($orderData, $items) {
+    public function createOrder($orderData, $items, $isRenewal = false) {
         $this->beginTransaction();
         
         try {
@@ -52,8 +55,29 @@ class OrdersModel extends BaseModel {
             // Get the order ID (could be int or string)
             $orderId = (int) $orderId;
             
+            // Get user_id from order data
+            $userId = $orderData['user_id'] ?? null;
+            
             // Create order items
             foreach ($items as $item) {
+                // Calculate expiry date
+                $expiryDate = null;
+                
+                if ($isRenewal && $userId && isset($item['product_id'])) {
+                    // For renewal, extend the existing expiry date
+                    $existingExpiry = $this->getProductExpiryDate($userId, $item['product_id']);
+                    if ($existingExpiry) {
+                        // Add 30 days to existing expiry
+                        $expiryDate = date('Y-m-d H:i:s', strtotime($existingExpiry . ' +' . self::DEFAULT_EXPIRY_DAYS . ' days'));
+                    } else {
+                        // No existing expiry, start from now + 30 days
+                        $expiryDate = date('Y-m-d H:i:s', strtotime('+' . self::DEFAULT_EXPIRY_DAYS . ' days'));
+                    }
+                } else {
+                    // New purchase: expiry = now + 30 days
+                    $expiryDate = date('Y-m-d H:i:s', strtotime('+' . self::DEFAULT_EXPIRY_DAYS . ' days'));
+                }
+                
                 $itemData = [
                     'order_id' => $orderId,
                     'product_id' => $item['product_id'],
@@ -63,6 +87,7 @@ class OrdersModel extends BaseModel {
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'total' => $item['price'] * $item['quantity'],
+                    'expiry_date' => $expiryDate,
                     'product_data' => json_encode($item['product_data'] ?? [])
                 ];
                 
