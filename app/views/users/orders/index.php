@@ -222,12 +222,25 @@ $paymentLabels = [
                     
                     <div class="orders-item-content">
                         <div class="orders-item-product">
+                            <?php if (!empty($order['product_image'])): ?>
+                            <div class="orders-product-image">
+                                <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                            </div>
+                            <?php else: ?>
+                            <div class="orders-product-image">
+                                <div class="orders-product-placeholder">
+                                    <i class="fas fa-<?php echo $order['type'] === 'data_nguon_hang' ? 'database' : ($order['type'] === 'van_chuyen' ? 'truck' : ($order['type'] === 'dich_vu_tt' ? 'credit-card' : ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); ?>"></i>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                             <div class="orders-product-info">
                                 <h4><?php echo htmlspecialchars($order['product_name']); ?></h4>
+                                <?php if (!empty($order['category_name'])): ?>
                                 <p class="orders-product-type">
-                                    <i class="fas fa-tag"></i>
-                                    <?php echo $typeLabels[$order['type']] ?? $order['type']; ?>
+                                    <i class="fas fa-folder"></i>
+                                    <?php echo htmlspecialchars($order['category_name']); ?>
                                 </p>
+                                <?php endif; ?>
                             </div>
                         </div>
                         

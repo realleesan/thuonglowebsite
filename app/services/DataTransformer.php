@@ -128,10 +128,17 @@ class DataTransformer {
         }
         
         // Get product name from order_items (joined in query) or use default
-        $productName = !empty($order['product_name']) ? $order['product_name'] : 'Sản phẩm';
+        $productName = !empty($order['product_name']) ? $order['product_name'] : 
+                       (!empty($order['product_name_db']) ? $order['product_name_db'] : 'Sản phẩm');
         
         // Get type from order_items (joined in query) - may be product_type or type depending on query
-        $orderType = $order['type'] ?? $order['product_type'] ?? 'data_nguon_hang';
+        $orderType = $order['type'] ?? $order['product_type_db'] ?? 'data_nguon_hang';
+        
+        // Get product image
+        $productImage = !empty($order['product_image']) ? $order['product_image'] : '';
+        
+        // Get category name
+        $categoryName = !empty($order['category_name']) ? $order['category_name'] : '';
         
         return [
             'id' => (int) $order['id'],
@@ -146,7 +153,10 @@ class DataTransformer {
             'status_label' => $this->getOrderStatusLabel($order['status']),
             'payment_method' => $order['payment_method'] ?? 'bank_transfer',
             'product_name' => $this->security->escapeHtml($productName),
-            'type' => $orderType
+            'type' => $orderType,
+            'product_image' => $productImage,
+            'product_id' => $order['product_id'] ?? null,
+            'category_name' => $this->security->escapeHtml($categoryName)
         ];
     }
     

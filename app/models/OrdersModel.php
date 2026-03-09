@@ -126,9 +126,16 @@ class OrdersModel extends BaseModel {
             SELECT o.*, 
                    oi.product_name,
                    oi.product_type as type,
+                   oi.product_id,
+                   p.name as product_name_db,
+                   p.image as product_image,
+                   p.type as product_type_db,
+                   c.name as category_name,
                    COUNT(oi.id) as items_count
             FROM {$this->table} o
             LEFT JOIN order_items oi ON o.id = oi.order_id
+            LEFT JOIN products p ON oi.product_id = p.id
+            LEFT JOIN categories c ON p.category_id = c.id
             WHERE o.user_id = ?
             GROUP BY o.id
             ORDER BY o.created_at DESC
@@ -195,6 +202,40 @@ class OrdersModel extends BaseModel {
         }
         
         return $this->update($orderId, $updateData);
+    }
+    
+    /**
+     * Check if user has purchased a product (has completed order for this product)
+     */
+    public function hasUserPurchasedProduct($userId, $productId) {
+        $sql = "
+            SELECT COUNT(*) as count
+            FROM {$this->table} o
+            INNER JOIN order_items oi ON o.id = oi.order_id
+            WHERE o.user_id = ? 
+              AND oi.product_id = ? 
+              AND o.status = 'completed'
+        ";
+        
+        $result = $this->db->query($sql, [$userId, $productId]);
+        
+        return !empty($result) && $result[0]['count'] > 0;
+    }
+    
+    /**
+     * Get purchased products by user
+     */
+    public function getPurchasedProducts($userId) {
+        $sql = "
+            SELECT DISTINCT oi.product_id, p.name, p.image, p.type
+            FROM {$this->table} o
+            INNER JOIN order_items oi ON o.id = oi.order_id
+            LEFT JOIN products p ON oi.product_id = p.id
+            WHERE o.user_id = ? 
+              AND o.status = 'completed'
+        ";
+        
+        return $this->db->query($sql, [$userId]);
     }
     
     /**

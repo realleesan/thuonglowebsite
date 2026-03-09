@@ -63,49 +63,6 @@ $paymentLabels = [
     'zalopay' => 'ZaloPay',
     'vnpay' => 'VNPay'
 ];
-
-// Mock additional order details
-$orderDetails = [
-    'customer_info' => [
-        'name' => $user['name'] ?? 'Nguyễn Văn An',
-        'email' => $user['email'] ?? 'nguyenvanan@example.com',
-        'phone' => $user['phone'] ?? '0123456789',
-        'address' => $user['address'] ?? '123 Đường ABC, Quận 1, TP.HCM'
-    ],
-    'order_timeline' => [
-        [
-            'status' => 'Đặt hàng',
-            'date' => $order['date'],
-            'description' => 'Đơn hàng được tạo thành công',
-            'completed' => true
-        ],
-        [
-            'status' => 'Xác nhận',
-            'date' => date('Y-m-d H:i:s', strtotime($order['date'] . ' +30 minutes')),
-            'description' => 'Đơn hàng đã được xác nhận',
-            'completed' => true
-        ],
-        [
-            'status' => 'Xử lý',
-            'date' => date('Y-m-d H:i:s', strtotime($order['date'] . ' +2 hours')),
-            'description' => $order['status'] === 'completed' ? 'Đơn hàng đang được xử lý' : 'Đang xử lý đơn hàng',
-            'completed' => in_array($order['status'], ['processing', 'completed'])
-        ],
-        [
-            'status' => 'Hoàn thành',
-            'date' => $order['status'] === 'completed' ? date('Y-m-d H:i:s', strtotime($order['date'] . ' +1 day')) : null,
-            'description' => 'Đơn hàng đã hoàn thành',
-            'completed' => $order['status'] === 'completed'
-        ]
-    ],
-    'payment_info' => [
-        'subtotal' => $order['amount'],
-        'discount' => 0,
-        'tax' => 0,
-        'total' => $order['amount'],
-        'transaction_id' => 'TXN' . strtoupper(substr(md5($order['id']), 0, 8))
-    ]
-];
 ?>
 
 <div class="user-content-with-sidebar">
@@ -211,6 +168,11 @@ $orderDetails = [
                 </div>
                 <div class="order-card-content">
                     <div class="order-product-detail">
+                        <?php if (!empty($order['product_image'])): ?>
+                        <div class="order-product-image">
+                            <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                        </div>
+                        <?php else: ?>
                         <div class="order-product-image">
                             <div class="order-product-placeholder">
                                 <i class="fas fa-<?php 
@@ -221,12 +183,15 @@ $orderDetails = [
                                 ?>"></i>
                             </div>
                         </div>
+                        <?php endif; ?>
                         <div class="order-product-info">
                             <h4><?php echo htmlspecialchars($order['product_name']); ?></h4>
+                            <?php if (!empty($order['category_name'])): ?>
                             <p class="order-product-category">
-                                <i class="fas fa-tag"></i>
-                                <?php echo $typeLabels[$order['type']] ?? $order['type']; ?>
+                                <i class="fas fa-folder"></i>
+                                <?php echo htmlspecialchars($order['category_name']); ?>
                             </p>
+                            <?php endif; ?>
                             <div class="order-product-price">
                                 <?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ
                             </div>

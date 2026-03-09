@@ -49,6 +49,18 @@ try {
         throw new Exception('Không tìm thấy sản phẩm');
     }
     
+    // Check if user has purchased this product
+    $hasPurchased = false;
+    $isUserLoggedIn = isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
+    if ($isUserLoggedIn) {
+        require_once __DIR__ . '/../../models/OrdersModel.php';
+        $ordersModel = new OrdersModel();
+        $hasPurchased = $ordersModel->hasUserPurchasedProduct($_SESSION['user_id'], $productId);
+    }
+    
+    // Add purchased flag to product array for use in template
+    $product['has_purchased'] = $hasPurchased;
+    
 } catch (Exception $e) {
     // Handle errors gracefully
     $result = $errorHandler->handleViewError($e, 'product_details', ['id' => $productId]);
@@ -414,12 +426,23 @@ $averageRating = round($averageRating, 1);
                                     
                                     <!-- Action Buttons -->
                                     <?php if ($product['status'] === 'active' && $product['stock'] > 0): ?>
-                                        <button class="btn-order" onclick="buyNow(<?php echo $product['id']; ?>)">
-                                            Mua ngay
-                                        </button>
-                                        <button class="btn-cart" onclick="addToCart(<?php echo $product['id']; ?>)">
-                                            Thêm vào giỏ hàng
-                                        </button>
+                                        <?php if (!empty($product['has_purchased'])): ?>
+                                            <!-- Purchased product buttons -->
+                                            <button class="btn-order" onclick="viewMyOrder(<?php echo $product['id']; ?>)">
+                                                <i class="fas fa-eye"></i> Xem ngay
+                                            </button>
+                                            <button class="btn-cart" onclick="renewProduct(<?php echo $product['id']; ?>)">
+                                                <i class="fas fa-sync-alt"></i> Gia hạn
+                                            </button>
+                                        <?php else: ?>
+                                            <!-- Normal purchase buttons -->
+                                            <button class="btn-order" onclick="buyNow(<?php echo $product['id']; ?>)">
+                                                Mua ngay
+                                            </button>
+                                            <button class="btn-cart" onclick="addToCart(<?php echo $product['id']; ?>)">
+                                                Thêm vào giỏ hàng
+                                            </button>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <button class="btn-order disabled" disabled>
                                             <?php echo ($product['stock'] <= 0) ? 'Hết hàng' : 'Ngừng bán'; ?>

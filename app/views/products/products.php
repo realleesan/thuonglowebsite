@@ -62,6 +62,24 @@ try {
     $pagination = $productData['pagination'] ?? [];
     $totalProducts = $pagination['total'] ?? 0;
     
+    // Get purchased products for current user (if logged in)
+    $purchasedProductIds = [];
+    $isUserLoggedIn = isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
+    if ($isUserLoggedIn) {
+        require_once __DIR__ . '/../../models/OrdersModel.php';
+        $ordersModel = new OrdersModel();
+        $purchasedProducts = $ordersModel->getPurchasedProducts($_SESSION['user_id']);
+        if (!empty($purchasedProducts)) {
+            $purchasedProductIds = array_column($purchasedProducts, 'product_id');
+        }
+    }
+    
+    // Add is_purchased flag to each product
+    foreach ($products as &$product) {
+        $product['is_purchased'] = in_array($product['id'], $purchasedProductIds);
+    }
+    unset($product); // Important: break the reference
+    
     // Get categories for sidebar
     $categoriesData = [];
     if ($service && method_exists($service, 'getCategoriesWithProductCounts')) {
@@ -251,6 +269,11 @@ if ($fromCount > $totalFiltered) {
                                                         <!-- Display record count for logistics data -->
                                                         <span><?php echo formatRecordCount($product['record_count'] ?? $product['in_stock'] ?? 0); ?></span>
                                                     </div>
+                                                    <?php if (!empty($product['is_purchased'])): ?>
+                                                    <div class="purchased-badge" style="display: inline-flex; align-items: center; gap: 4px; background: #28a745; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px;">
+                                                        <i class="fas fa-check-circle"></i> Đã mua
+                                                    </div>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div class="course-price">
                                                     <?php if ($product['sale_price']): ?>

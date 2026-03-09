@@ -57,6 +57,21 @@ function buyNow(productId, quantity = 1) {
     });
 }
 
+// View my order - redirect to user's orders page
+function viewMyOrder(productId) {
+    window.location.href = '?page=orders';
+}
+
+// Renew/Extend product - redirect to product detail page for renewal
+function renewProduct(productId) {
+    // For now, redirect to the product detail page - could add a renewal flow later
+    // Or show an alert about renewal options
+    if (confirm('Bạn có muốn gia hạn/ghi mới sản phẩm này không? Giá sẽ được áp dụng theo chính sách hiện tại.')) {
+        // Proceed with adding to cart as a new purchase (for renewal)
+        buyNow(productId, 1);
+    }
+}
+
 function updateCartCount() {
     const cartBadge = document.getElementById('cart-count-badge');
     if (!cartBadge) return;
