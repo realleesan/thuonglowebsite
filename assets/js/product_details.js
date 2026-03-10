@@ -57,9 +57,50 @@ function buyNow(productId, quantity = 1) {
     });
 }
 
-// View my order - redirect to user's orders page
+// View my order - redirect to user's orders page after deducting quota
 function viewMyOrder(productId) {
-    window.location.href = '?page=orders';
+    // First check if user is logged in
+    fetch('api.php?action=getUserData')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success || !data.user) {
+                // Not logged in, redirect to login
+                window.location.href = '?page=login&redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+            
+            // Deduct quota first, then redirect with token
+            fetch('api.php?action=deductQuota&product_id=' + productId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(res => res.json())
+            .then(quotaResult => {
+                console.log('Quota result:', quotaResult);
+                
+                if (quotaResult.success && quotaResult.access_token) {
+                    // Redirect to data list page with token
+                    window.location.href = '?page=product-data&id=' + productId + '&token=' + quotaResult.access_token;
+                } else if (quotaResult.success) {
+                    // Fallback: redirect to orders page
+                    window.location.href = '?page=orders';
+                } else {
+                    // Show error
+                    alert(quotaResult.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(err => {
+                console.error('Error deducting quota:', err);
+                // Still redirect even if quota deduction fails
+                window.location.href = '?page=orders';
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.location.href = '?page=orders';
+        });
 }
 
 // Renew/Extend product - redirect to product detail page for renewal

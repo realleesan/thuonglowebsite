@@ -6,6 +6,11 @@
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
+// Prevent caching
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // Debug: Bật hiển thị lỗi
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -28,6 +33,13 @@ $errorMessage = '';
 // Xử lý dữ liệu từ form checkout (POST)
 $items = $_POST['items'] ?? [];
 $totalAmount = $_POST['total_amount'] ?? 0;
+$checkoutToken = $_POST['checkout_token'] ?? '';
+
+// Verify checkout token exists (prevents cached form submissions)
+if (empty($checkoutToken)) {
+    // No token - might be cached form, redirect to cart
+    $emptyItemsRedirect = "<script>window.location.href = '?page=users&module=cart';</script>";
+}
 
 // Lấy payment_method từ form, mặc định là bank_transfer cho sepay
 $paymentMethod = $_POST['payment_method'] ?? 'bank_transfer';
@@ -41,19 +53,31 @@ if ($paymentMethod === 'sepay') {
 error_log('Order data payment_method: ' . $paymentMethod . ' length: ' . strlen($paymentMethod));
 
 // Nếu không có dữ liệu từ POST, thử lấy từ session (nếu user quay lại sau khi thanh toán thất bại)
+// NHƯNG chỉ khi session còn hợp lệ (có order_number gần đây)
 if (empty($items) && isset($_SESSION['checkout_items'])) {
-    $items = $_SESSION['checkout_items'];
-    $totalAmount = $_SESSION['checkout_total'] ?? 0;
-    // Map sepay to bank_transfer for database compatibility
-    $paymentMethod = isset($_SESSION['checkout_payment_method']) ? $_SESSION['checkout_payment_method'] : 'bank_transfer';
-    if ($paymentMethod === 'sepay') {
-        $paymentMethod = 'bank_transfer';
+    // Kiểm tra xem session có order mới không, nếu quá cũ thì clear
+    $sessionTime = $_SESSION['checkout_session_time'] ?? 0;
+    $currentTime = time();
+    
+    // Chỉ sử dụng session data nếu trong vòng 30 phút
+    if (($currentTime - $sessionTime) < 1800) {
+        $items = $_SESSION['checkout_items'];
+        $totalAmount = $_SESSION['checkout_total'] ?? 0;
+        // Map sepay to bank_transfer for database compatibility
+        $paymentMethod = isset($_SESSION['checkout_payment_method']) ? $_SESSION['checkout_payment_method'] : 'bank_transfer';
+        if ($paymentMethod === 'sepay') {
+            $paymentMethod = 'bank_transfer';
+        }
+    } else {
+        // Session quá cũ, clear nó
+        unset($_SESSION['checkout_items'], $_SESSION['checkout_total'], $_SESSION['checkout_payment_method'], $_SESSION['checkout_session_time']);
     }
 }
 
 // Kiểm tra dữ liệu hợp lệ - dùng JavaScript redirect thay vì header
 $emptyItemsRedirect = "";
-if (empty($items)) {
+if (empty($items) || empty($checkoutToken)) {
+    // No items or no token - redirect to cart (prevents cached form submissions)
     $emptyItemsRedirect = "<script>window.location.href = '?page=users&module=cart';</script>";
 }
 
@@ -62,6 +86,7 @@ try {
     $_SESSION['checkout_items'] = $items;
     $_SESSION['checkout_total'] = $totalAmount;
     $_SESSION['checkout_payment_method'] = $paymentMethod;
+    $_SESSION['checkout_session_time'] = time();
     
     // Chuyển đổi items sang định dạng phù hợp cho database
     $orderItems = [];

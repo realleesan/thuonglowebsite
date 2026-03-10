@@ -103,6 +103,18 @@ switch($page) {
         $currentService = $publicService ?? $currentService;
         break;
         
+    case 'product-data':
+        $title = 'Danh sách dữ liệu - Thuong Lo';
+        $content = 'app/views/products/data_list.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = [
+            ['title' => 'Trang chủ', 'url' => './'],
+            ['title' => 'Danh sách dữ liệu']
+        ];
+        break;
+        
     case 'news':
         $title = 'Tin tức - Thuong Lo';
         $content = 'app/views/news/news.php';
@@ -420,41 +432,6 @@ switch($page) {
             ['title' => 'Trang chủ', 'url' => './'],
             ['title' => 'Thanh toán thành công']
         ];
-        break;
-    
-    // ==================== DEMO ROUTES ====================        
-    case 'checkout_demo':
-        $title = 'Thanh toán Demo - Thuong Lo';
-        $content = 'app/views/payment/checkout_demo.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = false;
-        break;
-        
-    case 'payment_demo':
-        $title = 'Xử lý thanh toán Demo - Thuong Lo';
-        $content = 'app/views/payment/payment_demo.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = false;
-        break;
-        
-    case 'payment_success_demo':
-        $title = 'Thanh toán thành công Demo - Thuong Lo';
-        $content = 'app/views/payment/success_demo.php';
-        $showPageHeader = false;
-        $showCTA = false;
-        $showBreadcrumb = false;
-        break;
-        
-    case 'check_payment_demo':
-        // AJAX endpoint to check payment status
-        require_once 'app/controllers/PaymentDemoController.php';
-        $controller = new PaymentDemoController();
-        $result = $controller->checkPaymentStatus();
-        header('Content-Type: application/json');
-        echo json_encode($result);
-        exit;
         break;
         
     case 'admin':

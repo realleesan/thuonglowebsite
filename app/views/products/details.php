@@ -52,17 +52,20 @@ try {
     // Check if user has purchased this product
     $hasPurchased = false;
     $productExpiryDate = null;
+    $productQuotaInfo = null;
     $isUserLoggedIn = isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
     if ($isUserLoggedIn) {
         require_once __DIR__ . '/../../models/OrdersModel.php';
         $ordersModel = new OrdersModel();
         $hasPurchased = $ordersModel->hasUserPurchasedProduct($_SESSION['user_id'], $productId);
         $productExpiryDate = $ordersModel->getProductExpiryDate($_SESSION['user_id'], $productId);
+        $productQuotaInfo = $ordersModel->getProductQuotaInfo($_SESSION['user_id'], $productId);
     }
     
     // Add purchased flag to product array for use in template
     $product['has_purchased'] = $hasPurchased;
     $product['expiry_date'] = $productExpiryDate;
+    $product['quota_info'] = $productQuotaInfo;
     
 } catch (Exception $e) {
     // Handle errors gracefully
@@ -483,6 +486,27 @@ $averageRating = round($averageRating, 1);
                                                 Sản phẩm đã hết hạn - Vui lòng gia hạn để tiếp tục sử dụng
                                             <?php endif; ?>
                                         </div>
+                                        
+                                        <!-- Quota display for purchased products -->
+                                        <?php if (!empty($product['quota_info'])): ?>
+                                            <?php 
+                                                $qi = $product['quota_info'];
+                                                $quotaPercent = $qi['total'] > 0 ? round(($qi['remaining'] / $qi['total']) * 100) : 0;
+                                                $quotaStyle = 'background: #17a2b8;';
+                                                if ($quotaPercent <= 20) {
+                                                    $quotaStyle = 'background: #dc3545;';
+                                                } elseif ($quotaPercent <= 50) {
+                                                    $quotaStyle = 'background: #ff971a;';
+                                                }
+                                            ?>
+                                            <div class="quota-display" style="margin-top: 8px; padding: 10px 15px; border-radius: 8px; color: white; font-size: 14px; font-weight: 600; text-align: center; <?php echo $quotaStyle; ?>">
+                                                <i class="fas fa-bolt"></i> 
+                                                Quota của bạn còn: <?php echo $qi['remaining']; ?>/<?php echo $qi['total']; ?>
+                                                <?php if ($qi['remaining'] <= 0): ?>
+                                                    - Hết quota! Vui lòng gia hạn
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                     
                                     <!-- Meta Info - Logistics Specific -->
@@ -532,6 +556,37 @@ $averageRating = round($averageRating, 1);
                                             <span class="label">Nguồn gốc:</span>
                                             <span class="value"><?php echo $productMeta['data_source'] ?? 'Việt Nam'; ?></span>
                                         </div>
+                                        <?php 
+                                            $expiryDays = $product['expiry_days'] ?? 30;
+                                            if ($expiryDays > 0): 
+                                        ?>
+                                        <div class="meta-row">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                                <path d="M16 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                <path d="M8 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                <path d="M3 10H21" stroke="currentColor" stroke-width="1.5"/>
+                                                <path d="M8 14H8.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                <path d="M12 14H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                <path d="M16 14H16.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                <path d="M8 18H8.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            </svg>
+                                            <span class="label">Hạn sử dụng:</span>
+                                            <span class="value"><?php echo $expiryDays; ?> ngày</span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php 
+                                            $quota = $product['quota'] ?? 100;
+                                            if ($quota > 0): 
+                                        ?>
+                                        <div class="meta-row">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <span class="label">Quota:</span>
+                                            <span class="value"><?php echo $quota; ?></span>
+                                        </div>
+                                        <?php endif; ?>
                                         <div class="meta-row">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M8 2L10.09 6.26L15 7L11 10.74L12.18 15.74L8 13.27L3.82 15.74L5 10.74L1 7L5.91 6.26L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

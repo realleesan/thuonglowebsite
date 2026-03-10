@@ -21,6 +21,142 @@ class OrdersModel extends BaseModel {
     
     // Default expiry days for products (30 days)
     const DEFAULT_EXPIRY_DAYS = 30;
+    // Default quota for products (100)
+    const DEFAULT_QUOTA = 100;
+    // Default quota per usage (10)
+    const DEFAULT_QUOTA_PER_USAGE = 10;
+    
+    /**
+     * Get expiry days for a product
+     */
+    private function getProductExpiryDays($productId) {
+        if (!$productId) {
+            return self::DEFAULT_EXPIRY_DAYS;
+        }
+        
+        $product = $this->db->query("SELECT expiry_days FROM products WHERE id = ?", [$productId]);
+        if (!empty($product) && !empty($product[0]['expiry_days'])) {
+            return (int) $product[0]['expiry_days'];
+        }
+        return self::DEFAULT_EXPIRY_DAYS;
+    }
+    
+    /**
+     * Get quota for a product
+     */
+    private function getProductQuota($productId) {
+        if (!$productId) {
+            return self::DEFAULT_QUOTA;
+        }
+        
+        $product = $this->db->query("SELECT quota FROM products WHERE id = ?", [$productId]);
+        if (!empty($product) && !empty($product[0]['quota'])) {
+            return (int) $product[0]['quota'];
+        }
+        return self::DEFAULT_QUOTA;
+    }
+    
+    /**
+     * Get quota per usage for a product
+     */
+    private function getProductQuotaPerUsage($productId) {
+        if (!$productId) {
+            return self::DEFAULT_QUOTA_PER_USAGE;
+        }
+        
+        $product = $this->db->query("SELECT quota_per_usage FROM products WHERE id = ?", [$productId]);
+        if (!empty($product) && !empty($product[0]['quota_per_usage'])) {
+            return (int) $product[0]['quota_per_usage'];
+        }
+        return self::DEFAULT_QUOTA_PER_USAGE;
+    }
+    
+    /**
+     * Get used quota for a specific purchased product
+     */
+    public function getProductUsedQuota($userId, $productId) {
+        $sql = "
+            SELECT oi.used_quota
+            FROM {$this->table} o
+            INNER JOIN order_items oi ON o.id = oi.order_id
+            WHERE o.user_id = ? 
+              AND oi.product_id = ?
+              AND o.status = 'completed'
+              AND (oi.expiry_date IS NULL OR oi.expiry_date > NOW())
+            ORDER BY oi.expiry_date DESC
+            LIMIT 1
+        ";
+        
+        $result = $this->db->query($sql, [$userId, $productId]);
+        return !empty($result) ? (int) $result[0]['used_quota'] : 0;
+    }
+    
+    /**
+     * Update used quota for a purchased product (deduct quota when viewing)
+     */
+    public function deductQuota($userId, $productId) {
+        // Fixed quota deduction: 10 per click
+        $quotaPerUsage = 10;
+        
+        // Get quota info from all valid orders (same logic as getProductQuotaInfo)
+        $quotaInfo = $this->getProductQuotaInfo($userId, $productId);
+        $productQuota = $quotaInfo['total'];
+        $currentUsed = $quotaInfo['used'];
+        $remainingQuota = $quotaInfo['remaining'];
+        
+        // Only deduct if there's remaining quota
+        if ($remainingQuota <= 0) {
+            return ['success' => false, 'message' => 'Quota đã hết', 'remaining' => 0];
+        }
+        
+        // Check if remaining quota is enough for deduction
+        if ($remainingQuota < $quotaPerUsage) {
+            return [
+                'success' => false, 
+                'message' => 'Không đủ quota. Cần ít nhất ' . $quotaPerUsage . ' quota', 
+                'remaining' => $remainingQuota
+            ];
+        }
+        
+        // Determine how much to deduct (can't exceed remaining)
+        $toDeduct = min($quotaPerUsage, $remainingQuota);
+        
+        // Update the order_item with highest expiry (most recent valid purchase)
+        $sql = "
+            UPDATE order_items oi
+            INNER JOIN {$this->table} o ON o.id = oi.order_id
+            SET oi.used_quota = oi.used_quota + ?
+            WHERE o.user_id = ? 
+              AND oi.product_id = ?
+              AND o.status = 'completed'
+              AND (oi.expiry_date IS NULL OR oi.expiry_date > NOW())
+            ORDER BY oi.expiry_date DESC
+            LIMIT 1
+        ";
+        
+        $this->db->query($sql, [$toDeduct, $userId, $productId]);
+        
+        // Create access token for data viewing
+        require_once __DIR__ . '/ProductDataModel.php';
+        $productDataModel = new ProductDataModel();
+        
+        // Get view duration from product (default 15 minutes)
+        $productsModel = new ProductsModel();
+        $product = $productsModel->find($productId);
+        $viewDuration = !empty($product['data_view_duration']) ? (int)$product['data_view_duration'] : 15;
+        
+        // Create access token
+        $access = $productDataModel->createAccess($userId, $productId, $viewDuration);
+        
+        return [
+            'success' => true,
+            'message' => "Đã sử dụng {$toDeduct} quota",
+            'deducted' => $toDeduct,
+            'remaining' => $remainingQuota - $toDeduct,
+            'access_token' => $access['access_token'],
+            'expires_at' => $access['expires_at']
+        ];
+    }
     
     /**
      * Create new order with items
@@ -60,6 +196,11 @@ class OrdersModel extends BaseModel {
             
             // Create order items
             foreach ($items as $item) {
+                // Get product's expiry days setting
+                $expiryDays = $this->getProductExpiryDays($item['product_id'] ?? null);
+                // Get product's quota setting
+                $quota = $this->getProductQuota($item['product_id'] ?? null);
+                
                 // Calculate expiry date
                 $expiryDate = null;
                 
@@ -67,15 +208,15 @@ class OrdersModel extends BaseModel {
                     // For renewal, extend the existing expiry date
                     $existingExpiry = $this->getProductExpiryDate($userId, $item['product_id']);
                     if ($existingExpiry) {
-                        // Add 30 days to existing expiry
-                        $expiryDate = date('Y-m-d H:i:s', strtotime($existingExpiry . ' +' . self::DEFAULT_EXPIRY_DAYS . ' days'));
+                        // Add product's expiry days to existing expiry
+                        $expiryDate = date('Y-m-d H:i:s', strtotime($existingExpiry . ' +' . $expiryDays . ' days'));
                     } else {
-                        // No existing expiry, start from now + 30 days
-                        $expiryDate = date('Y-m-d H:i:s', strtotime('+' . self::DEFAULT_EXPIRY_DAYS . ' days'));
+                        // No existing expiry, start from now + product's expiry days
+                        $expiryDate = date('Y-m-d H:i:s', strtotime('+' . $expiryDays . ' days'));
                     }
                 } else {
-                    // New purchase: expiry = now + 30 days
-                    $expiryDate = date('Y-m-d H:i:s', strtotime('+' . self::DEFAULT_EXPIRY_DAYS . ' days'));
+                    // New purchase: expiry = now + product's expiry days
+                    $expiryDate = date('Y-m-d H:i:s', strtotime('+' . $expiryDays . ' days'));
                 }
                 
                 $itemData = [
@@ -88,6 +229,7 @@ class OrdersModel extends BaseModel {
                     'price' => $item['price'],
                     'total' => $item['price'] * $item['quantity'],
                     'expiry_date' => $expiryDate,
+                    'used_quota' => 0, // Start with 0 used quota
                     'product_data' => json_encode($item['product_data'] ?? [])
                 ];
                 
@@ -252,7 +394,8 @@ class OrdersModel extends BaseModel {
      */
     public function getPurchasedProducts($userId) {
         $sql = "
-            SELECT DISTINCT oi.product_id, oi.expiry_date, p.name, p.image, p.type
+            SELECT DISTINCT oi.product_id, oi.expiry_date, oi.used_quota, 
+                   p.name, p.image, p.type, p.quota, p.quota_per_usage
             FROM {$this->table} o
             INNER JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
@@ -261,6 +404,34 @@ class OrdersModel extends BaseModel {
         ";
         
         return $this->db->query($sql, [$userId]);
+    }
+    
+    /**
+     * Get quota info for a purchased product (total and used)
+     */
+    public function getProductQuotaInfo($userId, $productId) {
+        $sql = "
+            SELECT 
+                SUM(p.quota) as total_quota,
+                SUM(COALESCE(oi.used_quota, 0)) as used_quota
+            FROM {$this->table} o
+            INNER JOIN order_items oi ON o.id = oi.order_id
+            LEFT JOIN products p ON oi.product_id = p.id
+            WHERE o.user_id = ? 
+              AND oi.product_id = ?
+              AND o.status = 'completed'
+              AND (oi.expiry_date IS NULL OR oi.expiry_date > NOW())
+        ";
+        
+        $result = $this->db->query($sql, [$userId, $productId]);
+        if (!empty($result)) {
+            return [
+                'total' => (int) ($result[0]['total_quota'] ?? 0),
+                'used' => (int) ($result[0]['used_quota'] ?? 0),
+                'remaining' => (int) (($result[0]['total_quota'] ?? 0) - ($result[0]['used_quota'] ?? 0))
+            ];
+        }
+        return ['total' => 0, 'used' => 0, 'remaining' => 0];
     }
     
     /**
@@ -274,7 +445,8 @@ class OrdersModel extends BaseModel {
             WHERE o.user_id = ? 
               AND oi.product_id = ?
               AND o.status = 'completed'
-            ORDER BY o.created_at DESC
+              AND (oi.expiry_date IS NULL OR oi.expiry_date > NOW())
+            ORDER BY oi.expiry_date DESC
             LIMIT 1
         ";
         

@@ -64,6 +64,25 @@ try {
                 }
                 exit;
             
+            case 'deductQuota':
+                $productId = (int)($_GET['product_id'] ?? 0);
+                $userId = $_SESSION['user_id'] ?? 0;
+                
+                if (empty($userId) || empty($productId)) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Missing user or product'
+                    ]);
+                    exit;
+                }
+                
+                require_once __DIR__ . '/app/models/OrdersModel.php';
+                $ordersModel = new OrdersModel();
+                $result = $ordersModel->deductQuota($userId, $productId);
+                
+                echo json_encode($result);
+                exit;
+            
             case 'cart/add':
                 if ($method === 'POST') {
                     $input = json_decode(file_get_contents('php://input'), true);
@@ -667,6 +686,14 @@ try {
                 $productId = (int)($input['product_id'] ?? 0);
                 $quantity = (int)($input['quantity'] ?? 1);
                 
+                // Clear previous checkout session data to prevent old product data from being used
+                unset($_SESSION['checkout_items'], $_SESSION['checkout_total'], $_SESSION['checkout_payment_method']);
+                
+                // Clear cart before adding new item to ensure clean state
+                require_once __DIR__ . '/app/models/CartModel.php';
+                $cartModel = new CartModel();
+                $cartModel->clearCart($_SESSION['user_id']);
+                
                 // Check if user is logged in
                 if (empty($_SESSION['user_id'])) {
                     echo json_encode([
@@ -699,10 +726,11 @@ try {
                 $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);
                 
                 if ($result) {
-                    // Redirect to checkout page
+                    // Redirect to checkout page with product_id and timestamp to prevent caching
+                    $timestamp = time();
                     echo json_encode([
                         'success' => true,
-                        'redirect' => '?page=payment&action=checkout'
+                        'redirect' => '?page=checkout&product_id=' . $productId . '&t=' . $timestamp
                     ]);
                 } else {
                     echo json_encode([

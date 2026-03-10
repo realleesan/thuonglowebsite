@@ -65,6 +65,7 @@ try {
     // Get purchased products for current user (if logged in)
     $purchasedProductIds = [];
     $purchasedProductExpiry = []; // Array of product_id => expiry_date
+    $purchasedProductQuota = []; // Array of product_id => ['total' => x, 'used' => y, 'remaining' => z]
     $isUserLoggedIn = isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0;
     if ($isUserLoggedIn) {
         require_once __DIR__ . '/../../models/OrdersModel.php';
@@ -74,14 +75,19 @@ try {
             foreach ($purchasedProducts as $pp) {
                 $purchasedProductIds[] = $pp['product_id'];
                 $purchasedProductExpiry[$pp['product_id']] = $pp['expiry_date'];
+                
+                // Calculate quota info for this product
+                $quotaInfo = $ordersModel->getProductQuotaInfo($_SESSION['user_id'], $pp['product_id']);
+                $purchasedProductQuota[$pp['product_id']] = $quotaInfo;
             }
         }
     }
     
-    // Add is_purchased flag and expiry_date to each product
+    // Add is_purchased flag, expiry_date and quota to each product
     foreach ($products as &$product) {
         $product['is_purchased'] = in_array($product['id'], $purchasedProductIds);
         $product['expiry_date'] = $product['is_purchased'] ? ($purchasedProductExpiry[$product['id']] ?? null) : null;
+        $product['quota_info'] = $product['is_purchased'] ? ($purchasedProductQuota[$product['id']] ?? ['total' => 0, 'used' => 0, 'remaining' => 0]) : null;
     }
     unset($product); // Important: break the reference
     
@@ -277,6 +283,7 @@ if ($fromCount > $totalFiltered) {
                                                     <?php if (!empty($product['is_purchased'])): ?>
                                                     <?php 
                                                         $expiryText = '';
+                                                        $quotaText = '';
                                                         $badgeStyle = 'background: #28a745;';
                                                         if (!empty($product['expiry_date'])) {
                                                             $expiry = strtotime($product['expiry_date']);
@@ -292,9 +299,15 @@ if ($fromCount > $totalFiltered) {
                                                                 $badgeStyle = 'background: #dc3545;';
                                                             }
                                                         }
+                                                        
+                                                        // Add quota info
+                                                        if (!empty($product['quota_info'])) {
+                                                            $qi = $product['quota_info'];
+                                                            $quotaText = ' - Quota ' . $qi['remaining'] . '/' . $qi['total'];
+                                                        }
                                                     ?>
                                                     <div class="purchased-badge" style="display: inline-flex; align-items: center; gap: 4px; <?php echo $badgeStyle; ?> color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px;">
-                                                        <i class="fas fa-check-circle"></i> Đã mua<?php echo $expiryText; ?>
+                                                        <i class="fas fa-check-circle"></i> Đã mua<?php echo $expiryText; ?><?php echo $quotaText; ?>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>

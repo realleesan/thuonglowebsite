@@ -6,6 +6,11 @@
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
+// Prevent caching to ensure fresh checkout data
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // Kiểm tra đăng nhập - user phải đăng nhập mới thanh toán được
 $userId = $_SESSION['user_id'] ?? null;
 
@@ -92,6 +97,9 @@ try {
         $quantity = $item['quantity'] ?? 1;
         $totalAmount += $price * $quantity;
     }
+    
+    // Generate unique checkout token to prevent form caching issues
+    $checkoutToken = bin2hex(random_bytes(16));
     
     // Nếu không có sản phẩm nào, chuyển về giỏ hàng
     if (empty($cartItems)) {
@@ -187,6 +195,7 @@ try {
                 <input type="hidden" name="items[<?php echo $item['product_id'] ?? $item['id']; ?>][price]" value="<?php echo $item['price'] ?? 0; ?>">
                 <?php endforeach; ?>
                 <input type="hidden" name="total_amount" value="<?php echo $totalAmount; ?>">
+                <input type="hidden" name="checkout_token" value="<?php echo $checkoutToken; ?>">
 
                 <h3 class="mb-3">Phương thức thanh toán</h3>
                 <div class="payment-method-box">

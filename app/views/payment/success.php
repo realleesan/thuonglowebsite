@@ -17,6 +17,9 @@ if (!$userId) {
     exit;
 }
 
+// Clear checkout session data after successful payment
+unset($_SESSION['checkout_items'], $_SESSION['checkout_total'], $_SESSION['checkout_payment_method'], $_SESSION['checkout_session_time']);
+
 // 2. Khởi tạo biến dữ liệu
 $successData = [];
 $order = null;
