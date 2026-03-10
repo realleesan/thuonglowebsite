@@ -98,6 +98,11 @@ class OrdersModel extends BaseModel {
         // Fixed quota deduction: 10 per click
         $quotaPerUsage = 10;
         
+        // Load ProductsModel if not already loaded
+        if (!class_exists('ProductsModel')) {
+            require_once __DIR__ . '/ProductsModel.php';
+        }
+        
         // Get quota info from all valid orders (same logic as getProductQuotaInfo)
         $quotaInfo = $this->getProductQuotaInfo($userId, $productId);
         $productQuota = $quotaInfo['total'];

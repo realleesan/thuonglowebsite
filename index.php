@@ -5,6 +5,26 @@ define('THUONGLO_INIT', true);
 // Start session early
 session_start();
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
+// Set custom error handler
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    return false;
+});
+
+// Set exception handler
+set_exception_handler(function($e) {
+    error_log('Uncaught exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    echo '<h1>Lỗi hệ thống</h1>';
+    echo '<p>' . htmlspecialchars($e->getMessage()) . '</p>';
+    echo '<pre>' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+    exit;
+});
+
 // Load basic configuration
 $base_dir = __DIR__;
 $config = require_once $base_dir . '/config.php';

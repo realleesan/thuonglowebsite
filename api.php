@@ -12,6 +12,20 @@ session_start();
 
 // Load configuration
 require_once __DIR__ . '/config.php';
+
+// Set custom error handler to catch PHP errors
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
+    return true;
+});
+
+// Set exception handler
+set_exception_handler(function($e) {
+    error_log('Uncaught exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+    exit;
+});
+
 require_once __DIR__ . '/core/security.php';
 require_once __DIR__ . '/core/functions.php';
 
@@ -65,6 +79,7 @@ try {
                 exit;
             
             case 'deductQuota':
+                header('Content-Type: application/json');
                 $productId = (int)($_GET['product_id'] ?? 0);
                 $userId = $_SESSION['user_id'] ?? 0;
                 
@@ -76,11 +91,25 @@ try {
                     exit;
                 }
                 
-                require_once __DIR__ . '/app/models/OrdersModel.php';
-                $ordersModel = new OrdersModel();
-                $result = $ordersModel->deductQuota($userId, $productId);
-                
-                echo json_encode($result);
+                try {
+                    require_once __DIR__ . '/app/models/OrdersModel.php';
+                    $ordersModel = new OrdersModel();
+                    $result = $ordersModel->deductQuota($userId, $productId);
+                    
+                    echo json_encode($result);
+                } catch (Exception $e) {
+                    error_log('deductQuota error: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Lỗi: ' . $e->getMessage()
+                    ]);
+                } catch (Error $e) {
+                    error_log('deductQuota fatal error: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Lỗi nghiêm trọng: ' . $e->getMessage()
+                    ]);
+                }
                 exit;
             
             case 'cart/add':

@@ -59,6 +59,9 @@ try {
         throw new Exception('Bạn không có quyền truy cập dữ liệu này');
     }
     
+    // Load ProductsModel
+    require_once __DIR__ . '/../../models/ProductsModel.php';
+    
     // Get product info
     $productsModel = new ProductsModel();
     $product = $productsModel->find($productId);
