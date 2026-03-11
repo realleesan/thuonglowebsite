@@ -1,14 +1,11 @@
 <?php
 /**
  * Admin Products View - Dynamic Version
- * Sử dụng AdminService thông qua ServiceManager
+ * Sử dụng direct queries thay vì service để tránh lỗi
  */
 
 // Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
-
-// Chọn service admin (được inject từ index.php)
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 // Get product ID from URL
 $product_id = (int)($_GET['id'] ?? 0);
@@ -16,6 +13,13 @@ $product_id = (int)($_GET['id'] ?? 0);
 // Initialize data variables
 $product = null;
 $categories = [];
+$product_orders = [];
+$reviews = [];
+$total_sold = 0;
+$total_revenue = 0;
+$avg_rating = 0;
+$total_reviews = 0;
+$category = null;
 $showErrorMessage = false;
 $errorMessage = '';
 
@@ -24,15 +28,68 @@ try {
         throw new Exception('ID sản phẩm không hợp lệ');
     }
     
-    // Get admin product details data
-    $productData = $service->getProductDetailsData($product_id);
+    // Direct query to get product
+    require_once __DIR__ . '/../../../models/ProductsModel.php';
+    require_once __DIR__ . '/../../../models/CategoriesModel.php';
     
-    // Extract data
-    $product = $productData['product'] ?? null;
-    $categories = $productData['categories'] ?? [];
+    $productsModel = new ProductsModel();
+    $categoriesModel = new CategoriesModel();
+    
+    // Get product
+    $products = $productsModel->query("SELECT * FROM products WHERE id = ?", [$product_id]);
+    $product = !empty($products) ? $products[0] : null;
     
     if (!$product) {
         throw new Exception('Không tìm thấy sản phẩm');
+    }
+    
+    // Get categories
+    $categories = $categoriesModel->getActive();
+    
+    // Find category
+    foreach ($categories as $c) {
+        if ($c['id'] == $product['category_id']) {
+            $category = $c;
+            break;
+        }
+    }
+    
+    // Get orders for this product
+    require_once __DIR__ . '/../../../models/OrdersModel.php';
+    $ordersModel = new OrdersModel();
+    
+    $product_orders = $ordersModel->query("
+        SELECT o.*, oi.quantity, oi.price as unit_price, oi.total as item_total
+        FROM orders o
+        INNER JOIN order_items oi ON o.id = oi.order_id
+        WHERE oi.product_id = ?
+        ORDER BY o.created_at DESC
+    ", [$product_id]);
+    
+    $total_sold = !empty($product_orders) ? array_sum(array_column($product_orders, 'quantity')) : 0;
+    $total_revenue = !empty($product_orders) ? array_sum(array_column($product_orders, 'item_total')) : 0;
+    
+    // Get reviews - wrap in try-catch in case table doesn't exist
+    try {
+        $reviews = $ordersModel->query("
+            SELECT r.*, u.name as customer_name, u.email as customer_email
+            FROM reviews r
+            LEFT JOIN users u ON r.user_id = u.id
+            WHERE r.product_id = ?
+            ORDER BY r.created_at DESC
+            LIMIT 10
+        ", [$product_id]);
+        
+        $ratingData = $ordersModel->query("
+            SELECT AVG(rating) as avg_rating, COUNT(*) as total_reviews
+            FROM reviews WHERE product_id = ?
+        ", [$product_id]);
+        
+        $avg_rating = !empty($ratingData[0]['avg_rating']) ? round($ratingData[0]['avg_rating'], 1) : 0;
+        $total_reviews = !empty($ratingData[0]['total_reviews']) ? (int)$ratingData[0]['total_reviews'] : 0;
+    } catch (Exception $e) {
+        // Reviews table might not exist
+        $reviews = [];
     }
     
 } catch (Exception $e) {
@@ -65,57 +122,6 @@ function getStatusBadge($status) {
         'out_of_stock' => '<span class="status-badge status-out">Hết hàng</span>',
     ];
     return $badges[$status] ?? '<span class="status-badge">' . htmlspecialchars($status) . '</span>';
-}
-?>
-if (!$product) {
-    header('Location: ?page=admin&module=products&error=not_found');
-    exit;
-}
-
-// Find category
-$category = null;
-foreach ($categories as $c) {
-    if ($c['id'] == $product['category_id']) {
-        $category = $c;
-        break;
-    }
-}
-
-// Get orders for this product
-$product_orders = array_filter($orders, function($order) use ($product_id) {
-    return $order['product_id'] == $product_id;
-});
-
-// Calculate stats
-$total_sold = array_sum(array_column($product_orders, 'quantity'));
-$total_revenue = array_sum(array_column($product_orders, 'total'));
-$avg_rating = 0;
-$total_reviews = 0;
-
-// Get real rating from service if available
-if ($service && method_exists($service, 'getProductRating')) {
-    $ratingData = $service->getProductRating($productId ?? 0);
-    $avg_rating = $ratingData['avg_rating'] ?? 0;
-    $total_reviews = $ratingData['total_reviews'] ?? 0;
-}
-
-// Format functions
-function formatPrice($price) {
-    return number_format($price, 0, ',', '.') . ' VNĐ';
-}
-
-function formatDate($date) {
-    return date('d/m/Y H:i', strtotime($date));
-}
-
-function getStatusBadge($status) {
-    $badges = [
-        'active' => '<span class="status-badge status-active">Hoạt động</span>',
-        'inactive' => '<span class="status-badge status-inactive">Không hoạt động</span>',
-        'draft' => '<span class="status-badge status-draft">Nháp</span>',
-        'archived' => '<span class="status-badge status-archived">Lưu trữ</span>'
-    ];
-    return $badges[$status] ?? '<span class="status-badge status-unknown">Không xác định</span>';
 }
 ?>
 
@@ -155,7 +161,7 @@ function getStatusBadge($status) {
                          onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 </div>
                 <div class="product-image-info">
-                    <p><strong>Hình ảnh:</strong> <?= basename($product['image']) ?></p>
+                    <p><strong>Hình ảnh:</strong> <?= basename($product['image'] ?? '') ?></p>
                     <p><strong>Kích thước:</strong> <?= $product['width'] ?? 0 ?>x<?= $product['height'] ?? 0 ?>px</p>
                 </div>
             </div>
@@ -198,7 +204,7 @@ function getStatusBadge($status) {
 
                 <div class="product-description">
                     <h4>Mô tả sản phẩm:</h4>
-                    <p><?= nl2br(htmlspecialchars($product['description'])) ?></p>
+                    <p><?= nl2br(htmlspecialchars($product['description'] ?? '')) ?></p>
                 </div>
 
                 <!-- Product Stats - Moved here -->
@@ -344,7 +350,7 @@ function getStatusBadge($status) {
                                             <td>#<?= $order['id'] ?></td>
                                             <td>Khách hàng #<?= $order['user_id'] ?></td>
                                             <td><?= $order['quantity'] ?></td>
-                                            <td><?= formatPrice($order['total']) ?></td>
+                                            <td><?= formatPrice($order['item_total'] ?? $order['total']) ?></td>
                                             <td>
                                                 <span class="status-badge status-<?= $order['status'] ?>">
                                                     <?= ucfirst($order['status']) ?>
@@ -385,13 +391,7 @@ function getStatusBadge($status) {
 
                     <h4>Đánh Giá Gần Đây</h4>
                     <div class="reviews-list">
-                        <?php
-                        // Get real reviews from service if available
-                        $reviews = [];
-                        if ($service && method_exists($service, 'getProductReviews')) {
-                            $reviews = $service->getProductReviews($productId ?? 0, 3);
-                        }
-                        foreach ($reviews as $review): ?>
+                        <?php foreach ($reviews as $review): ?>
                             <div class="review-item">
                                 <div class="review-header">
                                     <div class="reviewer-info">
@@ -425,11 +425,11 @@ function getStatusBadge($status) {
                     <table class="details-table">
                         <tr>
                             <td><strong>Tiêu đề SEO:</strong></td>
-                            <td><?= htmlspecialchars($product['name']) ?></td>
+                            <td><?= htmlspecialchars($product['meta_title'] ?? $product['name']) ?></td>
                         </tr>
                         <tr>
                             <td><strong>Mô tả SEO:</strong></td>
-                            <td><?= htmlspecialchars(substr($product['description'], 0, 160)) ?>...</td>
+                            <td><?= htmlspecialchars(substr($product['meta_description'] ?? $product['description'] ?? '', 0, 160)) ?>...</td>
                         </tr>
                         <tr>
                             <td><strong>URL:</strong></td>
@@ -469,7 +469,7 @@ function getStatusBadge($status) {
                                     <strong>Cập nhật giá</strong>
                                     <span class="timeline-date"><?= date('d/m/Y H:i', strtotime('-5 days')) ?></span>
                                 </div>
-                                <p>Giá được cập nhật từ <?= formatPrice($product['price'] - 500000) ?> thành <?= formatPrice($product['price']) ?></p>
+                                <p>Giá được cập nhật từ <?= formatPrice(($product['price'] ?? 0) - 500000) ?> thành <?= formatPrice($product['price'] ?? 0) ?></p>
                             </div>
                         </div>
                         <div class="timeline-item">
@@ -479,7 +479,7 @@ function getStatusBadge($status) {
                                     <strong>Cập nhật tồn kho</strong>
                                     <span class="timeline-date"><?= date('d/m/Y H:i', strtotime('-2 days')) ?></span>
                                 </div>
-                                <p>Tồn kho được cập nhật từ <?= $product['stock'] + 20 ?> thành <?= $product['stock'] ?></p>
+                                <p>Tồn kho được cập nhật từ <?= ($product['stock'] ?? 0) + 20 ?> thành <?= $product['stock'] ?? 0 ?></p>
                             </div>
                         </div>
                     </div>
@@ -498,17 +498,25 @@ function getStatusBadge($status) {
         </div>
         <div class="modal-body">
             <p>Bạn có chắc chắn muốn xóa sản phẩm <strong id="deleteProductName"></strong>?</p>
-            <div class="warning-box">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div>
-                    <p><strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!</p>
-                    <p>Sản phẩm sẽ bị xóa khỏi hệ thống và tất cả dữ liệu liên quan sẽ bị mất.</p>
-                </div>
-            </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" id="cancelDelete">Hủy</button>
-            <button type="button" class="btn btn-danger" id="confirmDelete">Xóa sản phẩm</button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
         </div>
     </div>
 </div>
+
+<script>
+function deleteProduct(id, name) {
+    document.getElementById('deleteProductName').textContent = name;
+    document.getElementById('deleteModal').style.display = 'flex';
+    
+    document.getElementById('confirmDelete').onclick = function() {
+        window.location.href = '?page=admin&module=products&action=delete&id=' + id;
+    };
+    
+    document.getElementById('cancelDelete').onclick = function() {
+        document.getElementById('deleteModal').style.display = 'none';
+    };
+}
+</script>

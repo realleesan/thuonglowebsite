@@ -1,27 +1,31 @@
 <?php
 /**
  * Admin Products Delete - Dynamic Version
- * Sử dụng AdminService thông qua ServiceManager
+ * Sử dụng direct queries thay vì service để tránh lỗi
  */
 
 // Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
 
-// Chọn service admin (được inject từ index.php)
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
+// Get product ID from URL
+$product_id = (int)($_GET['id'] ?? 0);
+
+if (!$product_id) {
+    header('Location: ?page=admin&module=products&error=invalid_id');
+    exit;
+}
 
 try {
-    // Get product ID from URL
-    $product_id = (int)($_GET['id'] ?? 0);
+    // Direct query to get product
+    require_once __DIR__ . '/../../../models/ProductsModel.php';
+    require_once __DIR__ . '/../../../models/OrdersModel.php';
     
-    if (!$product_id) {
-        header('Location: ?page=admin&module=products&error=invalid_id');
-        exit;
-    }
+    $productsModel = new ProductsModel();
+    $ordersModel = new OrdersModel();
     
-    // Get product data using AdminService
-    $productData = $service->getProductDetailsData($product_id);
-    $product = $productData['product'];
+    // Get product
+    $products = $productsModel->query("SELECT * FROM products WHERE id = ?", [$product_id]);
+    $product = !empty($products) ? $products[0] : null;
     
     // Redirect if product not found
     if (!$product) {
@@ -29,10 +33,19 @@ try {
         exit;
     }
     
-    // Check if product has orders using AdminService
-    $hasOrdersData = $service->checkProductHasOrders($product_id);
-    $has_orders = $hasOrdersData['has_orders'] ?? false;
+    // Check if product has orders
+    $orderCount = $ordersModel->query("SELECT COUNT(*) as count FROM order_items WHERE product_id = ?", [$product_id]);
+    $has_orders = !empty($orderCount[0]['count']);
     $can_delete = !$has_orders;
+    
+    // Get product orders for display
+    $product_orders = $ordersModel->query("
+        SELECT o.*, oi.quantity, oi.price as unit_price, oi.total as item_total
+        FROM orders o
+        INNER JOIN order_items oi ON o.id = oi.order_id
+        WHERE oi.product_id = ?
+        ORDER BY o.created_at DESC
+    ", [$product_id]);
     
 } catch (Exception $e) {
     $errorHandler->logError('Admin Products Delete View Error', $e);
@@ -48,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_delete'])) {
     if (!$can_delete) {
         $error = 'Không thể xóa sản phẩm này vì đã có đơn hàng liên quan.';
     } else {
-        // Delete product using AdminService
-        $deleted = $service->deleteProduct($product_id);
+        // Delete product
+        $deleted = $productsModel->delete($product_id);
         if ($deleted) {
             header('Location: ?page=admin&module=products&success=deleted');
             exit;
@@ -118,21 +131,21 @@ function formatDate($date) {
         <div class="delete-confirmation-container">
             <div class="product-summary">
                 <div class="product-summary-image">
-                    <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
+                    <img src="<?= $product['image'] ?? '' ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
                          onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
                 </div>
                 <div class="product-summary-info">
                     <h3><?= htmlspecialchars($product['name']) ?></h3>
                     <div class="product-meta">
                         <p><strong>ID:</strong> #<?= $product['id'] ?></p>
-                        <p><strong>Giá:</strong> <?= formatPrice($product['price']) ?></p>
-                        <p><strong>Tồn kho:</strong> <?= $product['stock'] ?> sản phẩm</p>
+                        <p><strong>Giá:</strong> <?= formatPrice($product['price'] ?? 0) ?></p>
+                        <p><strong>Tồn kho:</strong> <?= $product['stock'] ?? 0 ?> sản phẩm</p>
                         <p><strong>Trạng thái:</strong> 
                             <span class="status-badge status-<?= $product['status'] ?>">
                                 <?= $product['status'] == 'active' ? 'Hoạt động' : 'Không hoạt động' ?>
                             </span>
                         </p>
-                        <p><strong>Ngày tạo:</strong> <?= formatDate($product['created_at']) ?></p>
+                        <p><strong>Ngày tạo:</strong> <?= formatDate($product['created_at'] ?? 'now') ?></p>
                     </div>
                 </div>
             </div>
@@ -156,7 +169,7 @@ function formatDate($date) {
                                 <?php foreach (array_slice($product_orders, 0, 5) as $order): ?>
                                     <li>
                                         Đơn hàng #<?= $order['id'] ?> - 
-                                        <?= formatPrice($order['total']) ?> - 
+                                        <?= formatPrice($order['item_total'] ?? $order['total'] ?? 0) ?> - 
                                         <?= formatDate($order['created_at']) ?>
                                     </li>
                                 <?php endforeach; ?>
@@ -254,3 +267,21 @@ function formatDate($date) {
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('confirm-checkbox').addEventListener('change', function() {
+    document.getElementById('delete-btn').disabled = !this.checked;
+});
+
+function deactivateProduct() {
+    document.getElementById('deactivateModal').style.display = 'flex';
+}
+
+document.getElementById('cancelDeactivate').addEventListener('click', function() {
+    document.getElementById('deactivateModal').style.display = 'none';
+});
+
+document.querySelector('.modal-close').addEventListener('click', function() {
+    document.getElementById('deactivateModal').style.display = 'none';
+});
+</script>

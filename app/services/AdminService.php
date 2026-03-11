@@ -881,12 +881,16 @@ class AdminService extends BaseService
                 return ['product' => null, 'categories' => []];
             }
 
-            $product = $this->callModelMethod('ProductsModel', 'findById', [$productId]);
+            // Get product by ID using direct query
+            $products = $productsModel->query("SELECT * FROM products WHERE id = ?", [$productId]);
+            $product = !empty($products) ? $products[0] : null;
+            
             if (!$product) {
                 return ['product' => null, 'categories' => []];
             }
 
-            $categories = $this->callModelMethod('CategoriesModel', 'getActive', [], []);
+            // Get categories
+            $categories = $categoriesModel ? $categoriesModel->getActive() : [];
 
             return [
                 'product' => $this->transformer->transformProduct($product),
@@ -958,10 +962,110 @@ class AdminService extends BaseService
             if (!$ordersModel) {
                 return ['has_orders' => false];
             }
-            $orders = $ordersModel->findBy('product_id', $productId);
-            return ['has_orders' => !empty($orders)];
+            
+            // Query order_items table for product using direct query
+            $result = $ordersModel->query("SELECT COUNT(*) as count FROM order_items WHERE product_id = ?", [$productId]);
+            return ['has_orders' => !empty($result[0]['count'])];
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'checkProductHasOrders', 'product_id' => $productId]);
+        }
+    }
+
+    /**
+     * Get orders for a specific product
+     */
+    public function getProductOrders(int $productId): array
+    {
+        try {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$ordersModel) {
+                return ['orders' => [], 'total_sold' => 0, 'total_revenue' => 0];
+            }
+            
+            $orders = $ordersModel->query("
+                SELECT o.*, oi.quantity, oi.price as unit_price, oi.total as item_total
+                FROM orders o
+                INNER JOIN order_items oi ON o.id = oi.order_id
+                WHERE oi.product_id = ?
+                ORDER BY o.created_at DESC
+            ", [$productId]);
+            
+            return [
+                'orders' => $orders ?? [],
+                'total_sold' => !empty($orders) ? array_sum(array_column($orders, 'quantity')) : 0,
+                'total_revenue' => !empty($orders) ? array_sum(array_column($orders, 'item_total')) : 0,
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getProductOrders', 'product_id' => $productId]);
+        }
+    }
+
+    /**
+     * Get a single product by ID
+     */
+    public function getProductById(int $productId): ?array
+    {
+        try {
+            $productsModel = $this->getModel('ProductsModel');
+            if (!$productsModel) {
+                return null;
+            }
+            
+            $products = $productsModel->query("SELECT * FROM products WHERE id = ?", [$productId]);
+            return !empty($products) ? $products[0] : null;
+        } catch (\Exception $e) {
+            $this->handleError($e, ['method' => 'getProductById', 'product_id' => $productId]);
+            return null;
+        }
+    }
+
+    /**
+     * Get reviews for a specific product
+     */
+    public function getProductReviews(int $productId, int $limit = 10): array
+    {
+        try {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$ordersModel) {
+                return ['reviews' => [], 'avg_rating' => 0, 'total_reviews' => 0];
+            }
+            
+            // Check if reviews table exists
+            $tables = $ordersModel->query("SHOW TABLES LIKE 'reviews'");
+            
+            if (empty($tables)) {
+                return [
+                    'reviews' => [],
+                    'avg_rating' => 0,
+                    'total_reviews' => 0
+                ];
+            }
+            
+            $reviews = $ordersModel->query("
+                SELECT r.*, u.name as customer_name, u.email as customer_email
+                FROM reviews r
+                LEFT JOIN users u ON r.user_id = u.id
+                WHERE r.product_id = ?
+                ORDER BY r.created_at DESC
+                LIMIT ?
+            ", [$productId, $limit]);
+            
+            // Get rating stats
+            $ratingData = $ordersModel->query("
+                SELECT 
+                    AVG(rating) as avg_rating,
+                    COUNT(*) as total_reviews
+                FROM reviews
+                WHERE product_id = ?
+            ", [$productId]);
+            
+            return [
+                'reviews' => $reviews ?? [],
+                'avg_rating' => !empty($ratingData[0]['avg_rating']) ? round($ratingData[0]['avg_rating'], 1) : 0,
+                'total_reviews' => !empty($ratingData[0]['total_reviews']) ? (int)$ratingData[0]['total_reviews'] : 0
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getProductReviews', 'product_id' => $productId]);
         }
     }
 

@@ -70,6 +70,12 @@ switch($page) {
         $currentService = $publicService ?? $currentService;
         break;
         
+    case 'test_debug':
+        // Test debug page
+        require_once __DIR__ . '/test_debug.php';
+        exit;
+        break;
+        
     case 'about':
         $title = 'Giới thiệu - Thuong Lo';
         $content = 'app/views/about/about.php';

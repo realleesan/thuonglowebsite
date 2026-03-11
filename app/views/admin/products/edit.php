@@ -7,22 +7,28 @@
 // Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
 
-// Chọn service admin (được inject từ index.php)
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
+// Get product ID from URL
+$product_id = (int)($_GET['id'] ?? 0);
+
+if (!$product_id) {
+    header('Location: ?page=admin&module=products&error=invalid_id');
+    exit;
+}
 
 try {
-    // Get product ID from URL
-    $product_id = (int)($_GET['id'] ?? 0);
+    // Direct query to get product
+    require_once __DIR__ . '/../../../models/ProductsModel.php';
+    require_once __DIR__ . '/../../../models/CategoriesModel.php';
     
-    if (!$product_id) {
-        header('Location: ?page=admin&module=products&error=invalid_id');
-        exit;
-    }
+    $productsModel = new ProductsModel();
+    $categoriesModel = new CategoriesModel();
     
-    // Get product data using AdminService
-    $productData = $service->getProductDetailsData($product_id);
-    $product = $productData['product'];
-    $categories = $productData['categories'];
+    // Get product
+    $products = $productsModel->query("SELECT * FROM products WHERE id = ?", [$product_id]);
+    $product = !empty($products) ? $products[0] : null;
+    
+    // Get categories
+    $categories = $categoriesModel->getActive();
     
     // Redirect if product not found
     if (!$product) {
@@ -31,8 +37,13 @@ try {
     }
     
 } catch (Exception $e) {
-    $errorHandler->logError('Admin Products Edit View Error', $e);
-    header('Location: ?page=admin&module=products&error=system_error');
+    // Log error
+    error_log('Admin Products Edit Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+    echo '<div style="padding:20px;background:#ffebee;color:#c62828;">';
+    echo '<h2>Lỗi tải sản phẩm</h2>';
+    echo '<p>' . htmlspecialchars($e->getMessage()) . '</p>';
+    echo '<pre>' . $e->getTraceAsString() . '</pre>';
+    echo '</div>';
     exit;
 }
 
@@ -71,7 +82,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no errors, update database
     if (empty($errors)) {
-        $updated = $service->updateProduct($product_id, $_POST);
+        // Use direct update to avoid service issues
+        try {
+            $updateData = [
+                'name' => $name,
+                'category_id' => $category_id,
+                'price' => $price,
+                'stock' => $stock,
+                'description' => $description,
+                'status' => $status,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+            $updated = $productsModel->update($product_id, $updateData);
+        } catch (Exception $e) {
+            $errors[] = 'Lỗi cập nhật: ' . $e->getMessage();
+            $updated = false;
+        }
+        
         if ($updated) {
             header('Location: ?page=admin&module=products&action=view&id=' . $product_id . '&success=updated');
             exit;
@@ -109,21 +136,21 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
 
     <!-- Success/Error Messages -->
     <?php if ($success): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            Cập nhật sản phẩm thành công!
-        </div>
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        Cập nhật sản phẩm thành công!
+    </div>
     <?php endif; ?>
 
     <?php if (!empty($errors)): ?>
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-triangle"></i>
-            <ul class="error-list">
-                <?php foreach ($errors as $error): ?>
-                    <li><?= htmlspecialchars($error) ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <ul class="error-list">
+            <?php foreach ($errors as $error): ?>
+                <li><?= htmlspecialchars($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
     <?php endif; ?>
 
     <!-- Edit Product Form -->
@@ -252,7 +279,7 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                         <div class="form-group">
                             <label for="meta_title">Tiêu đề SEO</label>
                             <input type="text" id="meta_title" name="meta_title" 
-                                   value="<?= htmlspecialchars($form_data['meta_title'] ?? $product['name']) ?>" 
+                                   value="<?= htmlspecialchars($form_data['meta_title'] ?? $product['name'] ?? '') ?>" 
                                    placeholder="Tiêu đề tối ưu cho SEO">
                             <small>Tối đa 60 ký tự</small>
                         </div>
@@ -260,7 +287,7 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                         <div class="form-group">
                             <label for="meta_description">Mô tả SEO</label>
                             <textarea id="meta_description" name="meta_description" rows="3" 
-                                      placeholder="Mô tả ngắn gọn cho SEO"><?= htmlspecialchars($form_data['meta_description'] ?? substr($product['description'], 0, 160)) ?></textarea>
+                                      placeholder="Mô tả ngắn gọn cho SEO"><?= htmlspecialchars($form_data['meta_description'] ?? substr($product['description'] ?? '', 0, 160)) ?></textarea>
                             <small>Tối đa 160 ký tự</small>
                         </div>
 

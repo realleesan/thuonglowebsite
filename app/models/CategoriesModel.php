@@ -17,9 +17,8 @@ class CategoriesModel extends BaseModel {
      * Get all active categories
      */
     public function getActive() {
-        return $this->where('status', 'active')
-                   ->orderBy('sort_order', 'ASC')
-                   ->get();
+        // Use direct query to avoid query builder issues
+        return $this->query("SELECT * FROM categories WHERE status = 'active' ORDER BY id ASC") ?? [];
     }
     
     /**

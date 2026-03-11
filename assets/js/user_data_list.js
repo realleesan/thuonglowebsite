@@ -45,6 +45,10 @@ function updateCountdownFromTimestamp(countdownEl, expiresAt) {
             countdownEl.innerHTML = '<i class="fas fa-clock"></i> Phiên đã hết hạn!';
             countdownEl.classList.add('expired');
             countdownEl.classList.remove('warning');
+            // Auto reload page after 2 seconds to show expired message
+            setTimeout(function() {
+                window.location.reload();
+            }, 2000);
             return;
         }
         
