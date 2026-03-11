@@ -81,171 +81,36 @@ try {
 }
 ?>
 
-<?php include __DIR__ . '/../_layout/header.php'; ?>
-
-<style>
-.data-list-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-.page-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 30px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-.page-title {
-    font-size: 28px;
-    margin-bottom: 10px;
-}
-.product-name {
-    font-size: 18px;
-    opacity: 0.9;
-}
-.token-info {
-    background: rgba(255,255,255,0.2);
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-    font-size: 14px;
-}
-.token-timer {
-    font-weight: 600;
-    font-size: 16px;
-}
-.alert {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-.alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-.alert-warning {
-    background: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeaa7;
-}
-.data-table-container {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    overflow: hidden;
-}
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.data-table th {
-    background: #f8f9fa;
-    padding: 15px;
-    text-align: left;
-    font-weight: 600;
-    color: #333;
-    border-bottom: 2px solid #dee2e6;
-}
-.data-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #dee2e6;
-}
-.data-table tr:hover {
-    background: #f8f9fa;
-}
-.data-table tr:last-child td {
-    border-bottom: none;
-}
-.qr-cell {
-    max-width: 80px;
-}
-.qr-thumb {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 1px solid #ddd;
-}
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    gap: 5px;
-}
-.pagination-link {
-    padding: 8px 14px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #333;
-    transition: all 0.2s;
-}
-.pagination-link:hover {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-.pagination-current {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-.pagination-info {
-    text-align: center;
-    padding: 10px;
-    color: #666;
-}
-.back-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background: white;
-    color: #667eea;
-    text-decoration: none;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-weight: 500;
-}
-.back-btn:hover {
-    background: #f8f9fa;
-}
-.empty-state {
-    text-align: center;
-    padding: 50px;
-    color: #666;
-}
-</style>
-
-<div class="data-list-page">
+<div class="data-list-page user-data-list">
     <?php if (!$success): ?>
     <div class="alert alert-error">
-        <h3>❌ Lỗi</h3>
+        <h3><i class="fas fa-exclamation-circle"></i> Lỗi</h3>
         <p><?php echo htmlspecialchars($error); ?></p>
-        <a href="?page=products" class="back-btn">← Quay lại trang sản phẩm</a>
+        <a href="?page=products" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại trang sản phẩm</a>
     </div>
     <?php else: ?>
     
-    <a href="?page=product&id=<?php echo $productId; ?>" class="back-btn">← Quay lại sản phẩm</a>
+    <a href="?page=product&id=<?php echo $productId; ?>" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại sản phẩm</a>
     
     <div class="page-header">
-        <h1 class="page-title">📋 Danh sách dữ liệu</h1>
-        <p class="product-name"><?php echo htmlspecialchars($product['name'] ?? ''); ?></p>
-        
-        <div class="token-info">
-            <div>⏰ Phiên xem data sẽ hết hạn sau:</div>
-            <div class="token-timer" id="countdown">
-                <?php 
-                $remaining = strtotime($expiresAt) - time();
-                $minutes = floor($remaining / 60);
-                $seconds = $remaining % 60;
-                echo "{$minutes} phút {$seconds} giây";
-                ?>
+        <div class="page-header-inner">
+            <div class="page-header-left">
+                <h1 class="page-title"><i class="fas fa-list"></i> Danh sách dữ liệu</h1>
+                <p class="product-name"><?php echo htmlspecialchars($product['name'] ?? ''); ?></p>
             </div>
-            <div style="margin-top: 5px; font-size: 12px; opacity: 0.8;">
-                (Hết hạn lúc: <?php echo date('H:i:s d/m/Y', strtotime($expiresAt)); ?>)
+            <div class="token-info">
+                <div class="token-info-label"><i class="fas fa-clock"></i> Phiên xem data sẽ hết hạn sau:</div>
+                <div class="token-timer" id="countdown" data-expires-at="<?php echo strtotime($expiresAt); ?>">
+                    <?php 
+                    $remaining = strtotime($expiresAt) - time();
+                    $minutes = floor($remaining / 60);
+                    $seconds = $remaining % 60;
+                    echo "{$minutes} phút {$seconds} giây";
+                    ?>
+                </div>
+                <div class="token-expire-time">
+                    (Hết hạn lúc: <?php echo date('H:i:s d/m/Y', strtotime($expiresAt)); ?>)
+                </div>
             </div>
         </div>
     </div>
@@ -253,6 +118,7 @@ try {
     <?php if (empty($dataList)): ?>
     <div class="data-table-container">
         <div class="empty-state">
+            <i class="fas fa-inbox"></i>
             <h3>Chưa có dữ liệu</h3>
             <p>Admin chưa upload dữ liệu cho sản phẩm này.</p>
         </div>
@@ -335,34 +201,3 @@ try {
     
     <?php endif; ?>
 </div>
-
-<script>
-// Countdown timer
-function updateCountdown() {
-    const countdownEl = document.getElementById('countdown');
-    if (!countdownEl) return;
-    
-    let timeRemaining = <?php echo strtotime($expiresAt) - time(); ?>;
-    
-    if (timeRemaining <= 0) {
-        countdownEl.innerHTML = '⏰ Phiên đã hết hạn!';
-        countdownEl.style.color = '#dc3545';
-        return;
-    }
-    
-    const minutes = Math.floor(timeRemaining / 60);
-    const seconds = timeRemaining % 60;
-    countdownEl.innerHTML = `${minutes} phút ${seconds} giây`;
-    
-    if (timeRemaining <= 60) {
-        countdownEl.style.color = '#dc3545';
-    } else if (timeRemaining <= 300) {
-        countdownEl.style.color = '#ffc107';
-    }
-}
-
-setInterval(updateCountdown, 1000);
-updateCountdown();
-</script>
-
-<?php include __DIR__ . '/../_layout/footer.php'; ?>

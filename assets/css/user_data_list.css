@@ -1,0 +1,345 @@
+/* User Data List Styles - Clean & Professional */
+/* Follows design pattern of user_cart.css, user_orders.css */
+
+/* ========================================
+   Data List Container
+   ======================================== */
+.user-data-list {
+    background: #ffffff;
+    min-height: 500px;
+    width: 100%;
+    overflow: hidden;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    flex: 1;
+    min-width: 0;
+}
+
+/* ========================================
+   Page Header
+   ======================================== */
+.page-header {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+}
+
+.page-header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .page-header-inner {
+        flex-direction: column;
+    }
+}
+
+.page-header-left h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.page-header-left .product-name {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Token Info */
+.token-info {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 180px;
+}
+
+.token-info-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.token-timer {
+    font-size: 18px;
+    font-weight: 600;
+    color: #059669;
+}
+
+.token-timer.expired {
+    color: #dc2626;
+}
+
+.token-timer.warning {
+    color: #d97706;
+}
+
+.token-expire-time {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+/* ========================================
+   Alert/Error Messages
+   ======================================== */
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.alert-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.alert-error h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alert-error p {
+    font-size: 14px;
+    margin: 0 0 16px 0;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.back-btn:hover {
+    background: #356df1;
+    color: #ffffff;
+    text-decoration: none;
+    border-color: #356df1;
+}
+
+.back-btn i {
+    font-size: 12px;
+}
+
+/* ========================================
+   Table Container
+   ======================================== */
+.data-table-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+/* ========================================
+   Data Table
+   ======================================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead {
+    background: #f9fafb;
+}
+
+.data-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #374151;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr:hover {
+    background: #f9fafb;
+}
+
+/* QR Cell */
+.qr-cell {
+    width: 80px;
+    text-align: center;
+}
+
+.qr-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+    transition: transform 0.2s ease;
+}
+
+.qr-thumb:hover {
+    transform: scale(1.1);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #9ca3af;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* ========================================
+   Pagination
+   ======================================== */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    text-align: center;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #6b7280;
+    width: 100%;
+}
+
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+    text-decoration: none;
+}
+
+.pagination-link.active {
+    background: #356df1;
+    color: #ffffff;
+    border-color: #356df1;
+}
+
+.pagination-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-link i {
+    font-size: 12px;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 640px) {
+    .user-data-list {
+        padding: 16px;
+    }
+    
+    .page-header {
+        padding: 16px;
+    }
+    
+    .page-header-left h1 {
+        font-size: 20px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .qr-cell {
+        width: 60px;
+    }
+    
+    .qr-thumb {
+        width: 40px;
+        height: 40px;
+    }
+}

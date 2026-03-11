@@ -101,6 +101,9 @@ mb_http_output('UTF-8');
         case 'payment_success':
             echo '<link rel="stylesheet" href="' . versioned_css('payment.css') . '">';
             break;
+        case 'product-data':
+            echo '<link rel="stylesheet" href="' . versioned_css('user_data_list.css') . '">';
+            break;
         default:
             echo '<link rel="stylesheet" href="' . versioned_css('home.css') . '">';
             break;
@@ -271,6 +274,9 @@ mb_http_output('UTF-8');
             break;
             echo '<script src="' . versioned_js('news_detail.js') . '"></script>';
             echo '<script src="' . versioned_js('news_related.js') . '"></script>';
+            break;
+        case 'product-data':
+            echo '<script src="' . versioned_js('user_data_list.js') . '"></script>';
             break;
         default:
             echo '<script src="' . versioned_js('home.js') . '"></script>';
