@@ -2,7 +2,7 @@
 /**
  * Admin Products Edit - Tái cấu trúc cho sản phẩm số (Data Nguồn Hàng)
  * Designed for digital products / data products
- * Using Tab Layout
+ * Using 2-layer tab layout (tabs container + tab-pane)
  */
 
 // Khởi tạo View & ServiceManager
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'type' => $_POST['type'] ?? 'data_nguon_hang',
                 'sale_price' => !empty($_POST['sale_price']) ? $_POST['sale_price'] : null,
                 'expiry_days' => !empty($_POST['expiry_days']) ? (int)$_POST['expiry_days'] : 30,
-                'sku' => $_POST['sku'] ?? '',
+                'sku' => !empty($_POST['sku']) ? $_POST['sku'] : null,
                 'short_description' => $_POST['short_description'] ?? '',
                 'meta_title' => $_POST['meta_title'] ?? '',
                 'meta_description' => $_POST['meta_description'] ?? '',
@@ -104,9 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'supplier_bio' => $_POST['supplier_bio'] ?? '',
                 'supplier_avatar' => $_POST['supplier_avatar'] ?? '',
                 'supplier_social' => $_POST['supplier_social'] ?? '',
-                // JSON fields
-                'benefits' => $_POST['benefits'] ?? '',
-                'data_structure' => $_POST['data_structure'] ?? '',
                 // Digital product
                 'featured' => isset($_POST['featured']) ? 1 : 0,
                 'downloadable' => isset($_POST['downloadable']) ? 1 : 0,
@@ -119,7 +116,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         if ($updated) {
-            header('Location: ?page=admin&module=products&action=view&id=' . $product_id . '&success=updated');
+            // Use HTML redirect for reliable redirect after form submission
+            ?>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta http-equiv="refresh" content="0;url=?page=admin&module=products">
+            </head>
+            <body>
+                <p>Đang chuyển hướng...</p>
+                <script>window.location.href = "?page=admin&module=products";</script>
+            </body>
+            </html>
+            <?php
             exit;
         } else {
             $errors[] = 'Không thể cập nhật data';
@@ -172,46 +181,36 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
     </div>
     <?php endif; ?>
 
-    <!-- Tab Navigation -->
-    <div class="form-tabs">
-        <button type="button" class="tab-button active" data-tab="tab-basic">
-            <i class="fas fa-info-circle"></i>
-            Thông Tin Cơ Bản
-        </button>
-        <button type="button" class="tab-button" data-tab="tab-data">
-            <i class="fas fa-database"></i>
-            Thông Tin Data
-        </button>
-        <button type="button" class="tab-button" data-tab="tab-supplier">
-            <i class="fas fa-building"></i>
-            Nhà Cung Cấp
-        </button>
-        <button type="button" class="tab-button" data-tab="tab-benefits">
-            <i class="fas fa-gift"></i>
-            Lợi Ích & Cấu Trúc
-        </button>
-        <button type="button" class="tab-button" data-tab="tab-image">
-            <i class="fas fa-image"></i>
-            Hình Ảnh
-        </button>
-        <button type="button" class="tab-button" data-tab="tab-seo">
-            <i class="fas fa-search"></i>
-            SEO
-        </button>
-    </div>
+    <!-- Form -->
+    <form method="POST" action="?page=admin&module=products&action=edit&id=<?= $product_id ?>" enctype="multipart/form-data" class="admin-form" novalidate>
+        <!-- Tab Navigation -->
+        <div class="product-details-tabs">
+            <div class="tabs-header">
+                <button type="button" class="tab-btn active" data-tab="tab-basic">
+                    <i class="fas fa-info-circle"></i>
+                    Thông Tin Cơ Bản
+                </button>
+                <button type="button" class="tab-btn" data-tab="tab-data">
+                    <i class="fas fa-database"></i>
+                    Thông Tin Data
+                </button>
+                <button type="button" class="tab-btn" data-tab="tab-supplier">
+                    <i class="fas fa-building"></i>
+                    Nhà Cung Cấp
+                </button>
+                <button type="button" class="tab-btn" data-tab="tab-image">
+                    <i class="fas fa-image"></i>
+                    Hình Ảnh
+                </button>
+                <button type="button" class="tab-btn" data-tab="tab-seo">
+                    <i class="fas fa-search"></i>
+                    SEO
+                </button>
+            </div>
 
-    <!-- Edit Product Form -->
-    <div class="form-container">
-        <form method="POST" enctype="multipart/form-data" class="admin-form" id="productForm">
-            
-            <!-- Tab 1: Thông Tin Cơ Bản -->
-            <div class="tab-content active" id="tab-basic">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-info-circle"></i>
-                        Thông Tin Cơ Bản
-                    </h3>
-                    
+            <div class="tabs-content">
+                <!-- Tab 1: Thông Tin Cơ Bản -->
+                <div class="tab-pane active" id="tab-basic">
                     <div class="form-row">
                         <div class="form-group form-group-8">
                             <label for="name" class="required">Tên Data</label>
@@ -296,31 +295,24 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                     <div class="form-group">
                         <label for="short_description">Mô tả ngắn</label>
                         <textarea id="short_description" name="short_description" rows="2" 
-                                  placeholder="Mô tả ngắn gọn về data"></textarea>
+                                  placeholder="Mô tả ngắn gọn về data"><?= htmlspecialchars($form_data['short_description'] ?? '') ?></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="description" class="required">Mô tả chi tiết</label>
-                        <textarea id="description" name="description" rows="8" 
+                        <textarea id="description" name="description" rows="6" 
                                   placeholder="Nhập mô tả chi tiết về data nguồn hàng..." required><?= htmlspecialchars($form_data['description'] ?? '') ?></textarea>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tab 2: Thông Tin Data -->
-            <div class="tab-content" id="tab-data">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-database"></i>
-                        Thông Tin Data
-                    </h3>
-                    
+                <!-- Tab 2: Thông Tin Data -->
+                <div class="tab-pane" id="tab-data">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="record_count">Số lượng Record</label>
                             <input type="number" id="record_count" name="record_count" 
                                    value="<?= htmlspecialchars($form_data['record_count'] ?? '100') ?>" 
-                                   placeholder="100" min="1">
+                                   placeholder="100">
                             <small>Số lượng thông tin trong data</small>
                         </div>
 
@@ -375,16 +367,9 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tab 3: Nhà Cung Cấp -->
-            <div class="tab-content" id="tab-supplier">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-building"></i>
-                        Thông Tin Nhà Cung Cấp
-                    </h3>
-                    
+                <!-- Tab 3: Nhà Cung Cấp -->
+                <div class="tab-pane" id="tab-supplier">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="supplier_name">Tên Nhà Cung Cấp</label>
@@ -422,74 +407,20 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tab 4: Lợi Ích & Cấu Trúc -->
-            <div class="tab-content" id="tab-benefits">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-gift"></i>
-                        Lợi Ích & Cấu Trúc Data
-                    </h3>
-                    
-                    <div class="form-group">
-                        <label for="benefits">Lợi Ích (JSON Array)</label>
-                        <textarea id="benefits" name="benefits" rows="4" 
-                                  placeholder='["Lợi ích 1","Lợi ích 2","Lợi ích 3"]'><?= htmlspecialchars($form_data['benefits'] ?? '') ?></textarea>
-                        <small>Danh sách các lợi ích khi mua data</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="data_structure">Cấu Trúc Data (JSON)</label>
-                        <textarea id="data_structure" name="data_structure" rows="8" 
-                                  placeholder='[{"title":"Thông tin cơ bản","items":[{"title":"Tên nhà phân phối"},{"title":"Địa chỉ"}]}]'><?= htmlspecialchars($form_data['data_structure'] ?? '') ?></textarea>
-                        <small>Cấu trúc chi tiết của data</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab 5: Hình Ảnh -->
-            <div class="tab-content" id="tab-image">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-image"></i>
-                        Hình Ảnh Data
-                    </h3>
-                    
+                <!-- Tab 4: Hình Ảnh -->
+                <div class="tab-pane" id="tab-image">
                     <div class="form-group">
                         <label for="image">Hình Ảnh Chính</label>
-                        <div class="image-upload-container">
-                            <div class="image-preview" id="imagePreview">
-                                <?php if (!empty($product['image'])): ?>
-                                    <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>">
-                                <?php else: ?>
-                                    <i class="fas fa-image"></i>
-                                    <p>Chọn hình ảnh</p>
-                                <?php endif; ?>
-                            </div>
-                            <input type="file" id="image" name="image" accept="image/*" class="image-input">
-                            <input type="hidden" id="image_url" name="image" value="<?= htmlspecialchars($product['image'] ?? '') ?>">
-                            <div class="image-upload-info">
-                                <small>Định dạng: JPG, PNG, GIF</small>
-                                <div class="url-input-wrapper">
-                                    <label>Hoặc nhập URL:</label>
-                                    <input type="url" id="imageUrlInput" placeholder="https://..." 
-                                           value="<?= htmlspecialchars($product['image'] ?? '') ?>">
-                                </div>
-                            </div>
-                        </div>
+                        <input type="url" id="image" name="image" 
+                               value="<?= htmlspecialchars($form_data['image'] ?? '') ?>" 
+                               placeholder="https://...">
+                        <small>Nhập URL hình ảnh</small>
                     </div>
                 </div>
-            </div>
 
-            <!-- Tab 6: SEO -->
-            <div class="tab-content" id="tab-seo">
-                <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-search"></i>
-                        SEO & Metadata
-                    </h3>
-                    
+                <!-- Tab 5: SEO -->
+                <div class="tab-pane" id="tab-seo">
                     <div class="form-group">
                         <label for="meta_title">Tiêu Đề SEO</label>
                         <input type="text" id="meta_title" name="meta_title" 
@@ -502,34 +433,24 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                         <textarea id="meta_description" name="meta_description" rows="3" 
                                   placeholder="Mô tả ngắn gọn cho SEO"><?= htmlspecialchars($form_data['meta_description'] ?? '') ?></textarea>
                     </div>
-
-                    <div class="form-group">
-                        <label for="tags">Tags</label>
-                        <input type="text" id="tags" name="tags" 
-                               value="<?= htmlspecialchars($form_data['tags'] ?? '') ?>" 
-                               placeholder="data, nguon-hang, logistics">
-                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Form Actions -->
-            <div class="form-actions sticky-form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i>
-                    Lưu Thay Đổi
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                    <i class="fas fa-undo"></i>
-                    Đặt lại
-                </button>
-                <a href="?page=admin&module=products" class="btn btn-outline">
-                    <i class="fas fa-times"></i>
-                    Hủy
-                </a>
-            </div>
-        </form>
-    </div>
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Lưu Thay Đổi
+            </button>
+            <button type="reset" class="btn btn-secondary">
+                <i class="fas fa-undo"></i>
+                Đặt lại
+            </button>
+            <a href="?page=admin&module=products" class="btn btn-outline">
+                <i class="fas fa-times"></i>
+                Hủy
+            </a>
+        </div>
+    </form>
 </div>
-
-<!-- Include JavaScript for tabs -->
-<script src="assets/js/admin_products.js"></script>

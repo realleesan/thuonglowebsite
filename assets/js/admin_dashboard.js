@@ -36,21 +36,30 @@
      * Thực hiện fetch đến API và trả về dữ liệu.
      * @param {string} path - Đường dẫn sau API_BASE
      * @param {Object} params - Query params
+     * @param {number} timeout - Timeout in milliseconds (default 10000)
      * @returns {Promise<Object>}
      */
-    async function fetchApi(path, params = {}) {
+    async function fetchApi(path, params = {}, timeout = 10000) {
         const url = new URL(API_BASE + path, window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/'));
         Object.entries(params).forEach(([k, v]) => v && url.searchParams.set(k, v));
 
-        const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+        try {
+            const response = await fetch(url.toString(), {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: controller.signal
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        } finally {
+            clearTimeout(timeoutId);
         }
-        return response.json();
     }
 
     /**

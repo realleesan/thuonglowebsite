@@ -12,53 +12,63 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Table sorting functionality
     function initTableSorting() {
-        const sortableHeaders = document.querySelectorAll('.table th[data-sort]');
-        
-        sortableHeaders.forEach(header => {
-            header.style.cursor = 'pointer';
-            header.addEventListener('click', function() {
-                const column = this.dataset.sort;
-                const table = this.closest('table');
-                const tbody = table.querySelector('tbody');
-                const rows = Array.from(tbody.querySelectorAll('tr'));
-                
-                // Determine sort direction
-                const currentDirection = this.dataset.direction || 'asc';
-                const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-                
-                // Clear all sort indicators
-                sortableHeaders.forEach(h => {
-                    h.classList.remove('sort-asc', 'sort-desc');
-                    delete h.dataset.direction;
+        try {
+            const sortableHeaders = document.querySelectorAll('.table th[data-sort]');
+            
+            if (!sortableHeaders.length) return;
+            
+            sortableHeaders.forEach(header => {
+                header.style.cursor = 'pointer';
+                header.addEventListener('click', function() {
+                    const column = this.dataset.sort;
+                    const table = this.closest('table');
+                    if (!table) return;
+                    
+                    const tbody = table.querySelector('tbody');
+                    if (!tbody) return;
+                    
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    
+                    // Determine sort direction
+                    const currentDirection = this.dataset.direction || 'asc';
+                    const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+                    
+                    // Clear all sort indicators
+                    sortableHeaders.forEach(h => {
+                        h.classList.remove('sort-asc', 'sort-desc');
+                        delete h.dataset.direction;
+                    });
+                    
+                    // Set new sort indicator
+                    this.classList.add(`sort-${newDirection}`);
+                    this.dataset.direction = newDirection;
+                    
+                    // Sort rows
+                    rows.sort((a, b) => {
+                        const aValue = a.children[column] ? a.children[column].textContent.trim() : '';
+                        const bValue = b.children[column] ? b.children[column].textContent.trim() : '';
+                        
+                        // Try to parse as numbers
+                        const aNum = parseFloat(aValue.replace(/[^\d.-]/g, ''));
+                        const bNum = parseFloat(bValue.replace(/[^\d.-]/g, ''));
+                        
+                        if (!isNaN(aNum) && !isNaN(bNum)) {
+                            return newDirection === 'asc' ? aNum - bNum : bNum - aNum;
+                        }
+                        
+                        // String comparison
+                        return newDirection === 'asc' 
+                            ? aValue.localeCompare(bValue)
+                            : bValue.localeCompare(aValue);
+                    });
+                    
+                    // Reorder DOM
+                    rows.forEach(row => tbody.appendChild(row));
                 });
-                
-                // Set new sort indicator
-                this.classList.add(`sort-${newDirection}`);
-                this.dataset.direction = newDirection;
-                
-                // Sort rows
-                rows.sort((a, b) => {
-                    const aValue = a.children[column].textContent.trim();
-                    const bValue = b.children[column].textContent.trim();
-                    
-                    // Try to parse as numbers
-                    const aNum = parseFloat(aValue.replace(/[^\d.-]/g, ''));
-                    const bNum = parseFloat(bValue.replace(/[^\d.-]/g, ''));
-                    
-                    if (!isNaN(aNum) && !isNaN(bNum)) {
-                        return newDirection === 'asc' ? aNum - bNum : bNum - aNum;
-                    }
-                    
-                    // String comparison
-                    return newDirection === 'asc' 
-                        ? aValue.localeCompare(bValue)
-                        : bValue.localeCompare(aValue);
-                });
-                
-                // Reorder DOM
-                rows.forEach(row => tbody.appendChild(row));
             });
-        });
+        } catch (e) {
+            console.warn('Table sorting init error:', e);
+        }
     }
     
     // Search and filter functionality

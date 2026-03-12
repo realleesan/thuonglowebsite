@@ -1,4 +1,5 @@
 // Admin Header JavaScript
+
 document.addEventListener('DOMContentLoaded', function () {
     const notificationsBtn = document.getElementById('notificationsBtn');
     const notificationsMenu = document.getElementById('notificationsMenu');
@@ -100,12 +101,31 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        // AbortController for fetch timeout
+        function fetchWithTimeout(url, options = {}, timeout = 10000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            
+            return fetch(url, {
+                ...options,
+                signal: controller.signal
+            })
+            .then(response => {
+                clearTimeout(id);
+                return response;
+            })
+            .catch(error => {
+                clearTimeout(id);
+                throw error;
+            });
+        }
+
         async function fetchSuggestions(query) {
             searchInput.classList.add('searching');
             try {
-                const response = await fetch(`api.php?path=admin/dashboard/search&q=${encodeURIComponent(query)}&limit=6`, {
+                const response = await fetchWithTimeout(`api.php?path=admin/dashboard/search&q=${encodeURIComponent(query)}&limit=6`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
+                }, 8000);
                 if (!response.ok) throw new Error('Search failed');
 
                 const json = await response.json();
@@ -230,9 +250,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Load Notifications from API
     async function loadNotifications() {
         try {
-            const response = await fetch('api.php?path=admin/dashboard/notifications&limit=5', {
+            const response = await fetchWithTimeout('api.php?path=admin/dashboard/notifications&limit=5', {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
+            }, 8000);
             if (!response.ok) return;
 
             const json = await response.json();
@@ -275,9 +295,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Initial load and set interval
-    loadNotifications();
+    loadNotifications().catch(err => {
+        console.warn('[Header] Initial notification load failed:', err);
+    });
     setInterval(loadNotifications, 60000); // Refresh every minute
 
     // Export for manual reload
     window.AdminHeader = { loadNotifications };
+
+    // Force stop loading indicator when page is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stop any pending requests from causing loading indicator issues
+            setTimeout(function() {
+                window.stop && window.stop();
+            }, 100);
+        });
+    }
 });

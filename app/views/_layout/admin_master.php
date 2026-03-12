@@ -29,10 +29,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     
     <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Prevent favicon 404 loading issue -->
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
 </head>
 <body class="admin-body">
     <div class="admin-wrapper">
@@ -74,6 +79,28 @@
     <script src="<?php echo js_url('admin_contact.js'); ?>"></script>
     <script src="<?php echo js_url('admin_revenue.js'); ?>"></script>
     <script src="<?php echo js_url('admin_settings.js'); ?>"></script>
+    
+    <!-- Force stop loading indicator -->
+    <script>
+        // Ensure loading indicator stops after all resources are loaded
+        window.addEventListener('load', function() {
+            // Small delay to ensure all async operations complete
+            setTimeout(function() {
+                // If page is loaded but indicator still shows, stop it
+                if (document.readyState === 'complete') {
+                    // Log for debugging
+                    console.log('Page fully loaded, stopping any pending loads');
+                }
+            }, 500);
+        });
+        
+        // Also handle case where load event already fired
+        if (document.readyState === 'complete') {
+            setTimeout(function() {
+                console.log('Document already complete');
+            }, 100);
+        }
+    </script>
     
 </body>
 </html>

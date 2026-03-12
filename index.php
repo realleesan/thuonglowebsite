@@ -512,6 +512,33 @@ switch($page) {
                 
             case 'products':
                 $page_title = 'Quản lý Sản phẩm';
+                
+                // Handle delete action (redirect to delete_direct for direct deletion)
+                if ($action === 'delete' && isset($_GET['id'])) {
+                    require_once __DIR__ . '/app/models/ProductsModel.php';
+                    $productsModel = new ProductsModel();
+                    $product_id = (int)$_GET['id'];
+                    if ($product_id > 0) {
+                        $productsModel->delete($product_id);
+                    }
+                    // Redirect to products list
+                    header('Location: ?page=admin&module=products');
+                    exit;
+                }
+                
+                // Handle delete_direct action (no view, just process and redirect)
+                if ($action === 'delete_direct' && isset($_GET['id'])) {
+                    require_once __DIR__ . '/app/models/ProductsModel.php';
+                    $productsModel = new ProductsModel();
+                    $product_id = (int)$_GET['id'];
+                    if ($product_id > 0) {
+                        $productsModel->delete($product_id);
+                    }
+                    // Redirect to products list
+                    header('Location: ?page=admin&module=products');
+                    exit;
+                }
+                
                 switch($action) {
                     case 'add':
                         $content = 'app/views/admin/products/add.php';
@@ -521,9 +548,6 @@ switch($page) {
                         break;
                     case 'view':
                         $content = 'app/views/admin/products/view.php';
-                        break;
-                    case 'delete':
-                        $content = 'app/views/admin/products/delete.php';
                         break;
                     default:
                         $content = 'app/views/admin/products/index.php';

@@ -1,22 +1,116 @@
 // Admin Products Module JavaScript
 // Tái cấu trúc cho sản phẩm số (Data Nguồn Hàng)
 
+// Global functions - accessible from HTML
+function handleImageFileSelect(input) {
+    const imagePreview = document.getElementById('imagePreview');
+    const imageUrlInput = document.getElementById('image_url');
+    
+    if (!imagePreview) {
+        console.log('Image preview element not found');
+        return;
+    }
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+            // Clear the URL input when file is selected
+            if (imageUrlInput) imageUrlInput.value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Legacy function name for compatibility
+function previewImage(input) {
+    handleImageFileSelect(input);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOM Content Loaded - initializing products page');
     initProductsPage();
+    
+    // Fallback: Direct event delegation for delete buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+            console.log('Delete button clicked via delegation');
+            const btn = e.target.classList.contains('delete-btn') ? e.target : e.target.closest('.delete-btn');
+            const modal = document.getElementById('deleteModal');
+            const nameElement = document.getElementById('deleteProductName');
+            
+            if (modal && btn.dataset.id) {
+                e.preventDefault();
+                if (nameElement) {
+                    nameElement.textContent = btn.dataset.name || 'sản phẩm này';
+                }
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                
+                // Store ID for confirmation
+                modal.dataset.deleteId = btn.dataset.id;
+            }
+        }
+        
+        // Handle confirm delete - delete directly via AJAX
+        if (e.target.id === 'confirmDeleteBtn') {
+            const modal = document.getElementById('deleteModal');
+            const deleteId = modal ? modal.dataset.deleteId : null;
+            if (deleteId) {
+                if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                    // Create and submit a form to delete
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '?page=admin&module=products&action=delete_direct&id=' + deleteId;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        }
+        
+        // Handle modal close
+        if (e.target.classList.contains('modal-close') || e.target.onclick === 'closeDeleteModal()') {
+            const modal = document.getElementById('deleteModal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+                delete modal.dataset.deleteId;
+            }
+        }
+    });
 });
 
 function initProductsPage() {
     // Check if we're on products page
     if (!document.querySelector('.products-page')) {
+        console.log('Not on products page, skipping initialization');
         return;
     }
 
+    console.log('Initializing products page...');
+
+    // AGGRESSIVE: Completely disable beforeunload
+    window.onbeforeunload = null;
+    window.formChanged = false;
+    
+    // Move modal to body to avoid admin layout conflicts
+    const modal = document.getElementById('deleteModal');
+    if (modal && modal.parentNode !== document.body) {
+        document.body.appendChild(modal);
+        console.log('Modal moved to body');
+    }
+    
     // Initialize all components
     initTabs();
     initDeleteModal();
     initJsonPreview();
     initImagePreview();
-    initFormValidation();
+    
+    // Also try to initialize delete modal after a short delay
+    setTimeout(function() {
+        console.log('Re-initializing delete modal after delay...');
+        initDeleteModal();
+    }, 500);
 }
 
 // Tab Switching
@@ -73,47 +167,10 @@ function initViewTabs() {
     });
 }
 
-// Delete Modal
+// Remove debug logs from console
 function initDeleteModal() {
-    const deleteBtns = document.querySelectorAll('.delete-btn');
-    const deleteModal = document.getElementById('deleteModal');
-    const deleteProductName = document.getElementById('deleteProductName');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-    
-    if (!deleteBtns.length || !deleteModal) return;
-    
-    let currentDeleteId = null;
-    
-    deleteBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            currentDeleteId = this.dataset.id;
-            deleteProductName.textContent = this.dataset.name;
-            deleteModal.style.display = 'flex';
-        });
-    });
-    
-    window.closeDeleteModal = function() {
-        if (deleteModal) {
-            deleteModal.style.display = 'none';
-        }
-        currentDeleteId = null;
-    };
-    
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', function() {
-            if (currentDeleteId) {
-                window.location.href = '?page=admin&module=products&action=delete&id=' + currentDeleteId;
-            }
-        });
-    }
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(e) {
-        if (e.target === deleteModal) {
-            closeDeleteModal();
-        }
-    });
+    // Old modal functionality removed - using new productDeleteModal instead
+    return;
 }
 
 // JSON Preview
@@ -171,26 +228,23 @@ function initJsonPreview() {
 
 // Image Preview
 function initImagePreview() {
-    const imageInput = document.getElementById('image');
+    const imageInput = document.getElementById('imageFile');
     const imageUrlInput = document.getElementById('imageUrlInput');
     const imagePreview = document.getElementById('imagePreview');
     const imageUrl = document.getElementById('image_url');
     
-    if (!imagePreview) return;
-    
-    // URL input handler
-    if (imageUrlInput) {
-        imageUrlInput.addEventListener('input', function() {
-            if (this.value) {
-                imagePreview.innerHTML = '<img src="' + this.value + '" alt="Preview" onerror="this.parentElement.innerHTML=\'<i class=\'fas fa-image\'></i><p>Lỗi hình ảnh</p>\'">';
-                if (imageUrl) imageUrl.value = this.value;
-            }
-        });
+    if (!imagePreview) {
+        console.log('Image preview element not found');
+        return;
     }
     
-    // File input handler
+    console.log('Image preview initialized');
+    
+    // File input handler - add event listener directly
     if (imageInput) {
+        console.log('Image file input found, adding change listener');
         imageInput.addEventListener('change', function(e) {
+            console.log('File selected:', this.files);
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -199,86 +253,40 @@ function initImagePreview() {
                 reader.readAsDataURL(this.files[0]);
             }
         });
+    } else {
+        console.log('Image file input NOT found');
     }
     
-    // Click to upload
-    imagePreview.addEventListener('click', function() {
+    // URL input handler
+    if (imageUrlInput) {
+        imageUrlInput.addEventListener('input', function() {
+            if (this.value) {
+                // Create image element with proper error handling
+                const img = document.createElement('img');
+                img.src = this.value;
+                img.alt = 'Preview';
+                img.onerror = function() {
+                    imagePreview.innerHTML = '<i class="fas fa-image"></i><p>Lỗi hình ảnh</p>';
+                };
+                imagePreview.innerHTML = '';
+                imagePreview.appendChild(img);
+                // Clear the hidden URL input when URL is entered - but we want to keep the value
+                // Actually, let's set the hidden input to the URL
+                if (imageUrl) imageUrl.value = this.value;
+            }
+        });
+    }
+    
+    // Click to upload - ensure this works
+    imagePreview.style.cursor = 'pointer';
+    imagePreview.onclick = function(e) {
+        e.preventDefault();
+        console.log('Image preview clicked');
         if (imageInput) {
+            console.log('Clicking file input');
             imageInput.click();
-        }
-    });
-}
-
-// Form Validation
-function initFormValidation() {
-    const productForm = document.getElementById('productForm');
-    
-    if (!productForm) return;
-    
-    productForm.addEventListener('submit', function(e) {
-        const name = document.getElementById('name');
-        const categoryId = document.getElementById('category_id');
-        const price = document.getElementById('price');
-        const description = document.getElementById('description');
-        
-        let isValid = true;
-        let errors = [];
-        
-        // Validate required fields
-        if (name && !name.value.trim()) {
-            name.style.borderColor = '#dc2626';
-            isValid = false;
-        } else if (name) {
-            name.style.borderColor = '#d1d5db';
-        }
-        
-        if (categoryId && !categoryId.value) {
-            categoryId.style.borderColor = '#dc2626';
-            isValid = false;
-        } else if (categoryId) {
-            categoryId.style.borderColor = '#d1d5db';
-        }
-        
-        if (price && (!price.value || price.value <= 0)) {
-            price.style.borderColor = '#dc2626';
-            isValid = false;
-        } else if (price) {
-            price.style.borderColor = '#d1d5db';
-        }
-        
-        if (description && !description.value.trim()) {
-            description.style.borderColor = '#dc2626';
-            isValid = false;
-        } else if (description) {
-            description.style.borderColor = '#d1d5db';
-        }
-        
-        if (!isValid) {
-            e.preventDefault();
-            alert('Vui lòng điền đầy đủ các trường bắt buộc!');
-        }
-    });
-    
-    // Reset form
-    window.resetForm = function() {
-        if (confirm('Bạn có chắc chắn muốn đặt lại form?')) {
-            productForm.reset();
-            
-            // Reset preview areas
-            const benefitsPreview = document.getElementById('benefitsPreview');
-            if (benefitsPreview) {
-                benefitsPreview.innerHTML = '<p class="preview-empty">Nhập JSON để xem trước</p>';
-            }
-            
-            const dataStructurePreview = document.getElementById('dataStructurePreview');
-            if (dataStructurePreview) {
-                dataStructurePreview.innerHTML = '<p class="preview-empty">Nhập JSON để xem trước</p>';
-            }
-            
-            const imagePreview = document.getElementById('imagePreview');
-            if (imagePreview) {
-                imagePreview.innerHTML = '<i class="fas fa-image"></i><p>Chọn hình ảnh</p>';
-            }
+        } else {
+            console.log('Image input not found');
         }
     };
 }

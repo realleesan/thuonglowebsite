@@ -529,21 +529,30 @@ function getBulkActionText(action) {
 
 // Validate Event Form
 function validateEventForm() {
-    const title = document.getElementById('title').value.trim();
-    const startDate = document.getElementById('start_date').value;
-    const endDate = document.getElementById('end_date').value;
-    const location = document.getElementById('location').value.trim();
-    const maxParticipants = document.getElementById('max_participants').value;
+    const titleEl = document.getElementById('title');
+    const startDateEl = document.getElementById('start_date');
+    const endDateEl = document.getElementById('end_date');
+    const locationEl = document.getElementById('location');
+    const maxParticipantsEl = document.getElementById('max_participants');
+    
+    // Return early if not on events page
+    if (!titleEl || !startDateEl) return true;
+    
+    const title = titleEl.value.trim();
+    const startDate = startDateEl.value;
+    const endDate = endDateEl ? endDateEl.value : '';
+    const location = locationEl ? locationEl.value.trim() : '';
+    const maxParticipants = maxParticipantsEl ? maxParticipantsEl.value : '';
 
     if (!title) {
         alert('Vui lòng nhập tên sự kiện');
-        document.getElementById('title').focus();
+        if (titleEl) titleEl.focus();
         return false;
     }
 
     if (!startDate) {
         alert('Vui lòng chọn thời gian bắt đầu');
-        document.getElementById('start_date').focus();
+        if (startDateEl) startDateEl.focus();
         return false;
     }
 

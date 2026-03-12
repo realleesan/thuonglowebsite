@@ -124,7 +124,7 @@ function getTypeLabel($type) {
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="stat-content-simple">
-                <div class="stat-number-simple"><?= array_sum(array_column($products, 'sales_count')) ?></div>
+                <div class="stat-number-simple"><?= is_array($products) && !empty($products) ? array_sum(array_column($products, 'sales_count')) : 0 ?></div>
                 <div class="stat-label-simple">Đã Bán</div>
             </div>
         </div>
@@ -142,7 +142,7 @@ function getTypeLabel($type) {
                 <i class="fas fa-eye"></i>
             </div>
             <div class="stat-content-simple">
-                <div class="stat-number-simple"><?= number_format(array_sum(array_column($products, 'view_count'))) ?></div>
+                <div class="stat-number-simple"><?= is_array($products) && !empty($products) ? number_format(array_sum(array_column($products, 'view_count'))) : 0 ?></div>
                 <div class="stat-label-simple">Lượt Xem</div>
             </div>
         </div>
@@ -223,7 +223,7 @@ function getTypeLabel($type) {
                         <div class="product-image-wrapper">
                             <img src="<?= htmlspecialchars($product['image'] ?? '') ?>" 
                                  alt="<?= htmlspecialchars($product['name']) ?>" 
-                                 onerror="this.src='assets/images/placeholder.jpg'">
+                                 onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f3f4f6%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22>No Image</text></svg>'">
                             <span class="product-type-badge"><?= getTypeLabel($product['type'] ?? 'data_nguon_hang') ?></span>
                         </div>
                     </div>
@@ -297,6 +297,7 @@ function getTypeLabel($type) {
                         </a>
                         <button type="button" class="btn btn-sm btn-danger delete-btn" 
                                 data-id="<?= $product['id'] ?>" data-name="<?= htmlspecialchars($product['name']) ?>" 
+                                onclick="showProductDeleteModal('<?= $product['id'] ?>', '<?= htmlspecialchars($product['name']) ?>')"
                                 title="Xóa">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -344,351 +345,160 @@ function getTypeLabel($type) {
     <?php endif; ?>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
+<!-- Delete Confirmation Modal - New Implementation -->
+<div id="productDeleteModal" style="display: none;">
+    <div class="product-modal-overlay"></div>
+    <div class="product-modal-container">
+        <div class="product-modal-header">
             <h3>Xác nhận xóa</h3>
-            <span class="modal-close" onclick="closeDeleteModal()">&times;</span>
+            <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
         </div>
-        <div class="modal-body">
-            <p>Bạn có chắc chắn muốn xóa data "<strong id="deleteProductName"></strong>"?</p>
-            <p class="text-warning">Hành động này không thể hoàn tác!</p>
+        <div class="product-modal-body">
+            <p>Bạn có chắc chắn muốn xóa data "<strong id="productDeleteName"></strong>"?</p>
+            <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Hủy</button>
-            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+        <div class="product-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+            <button type="button" class="btn btn-danger" id="productConfirmDeleteBtn">Xóa</button>
         </div>
     </div>
 </div>
 
 <style>
-/* Stats Row */
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
+#productDeleteModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999999;
 }
 
-.stat-card-simple {
+.product-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.product-modal-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.product-modal-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 16px;
     padding: 20px;
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.stat-icon-simple {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    font-size: 20px;
-}
-
-.stat-blue { background: #dbeafe; color: #1e40af; }
-.stat-green { background: #d1fae5; color: #065f46; }
-.stat-orange { background: #fef3c7; color: #92400e; }
-.stat-purple { background: #f3e8ff; color: #7c3aed; }
-
-.stat-content-simple {
-    flex: 1;
-}
-
-.stat-number-simple {
-    font-size: 24px;
-    font-weight: 700;
+.product-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
     color: #111827;
 }
 
-.stat-label-simple {
-    font-size: 13px;
-    color: #6b7280;
+.product-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
 }
 
-/* Products Grid */
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
-}
-
-.product-card {
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.product-card:hover {
-    border-color: #356DF1;
-    box-shadow: 0 4px 12px rgba(53, 109, 241, 0.15);
-    transform: translateY(-2px);
-}
-
-.product-card-header {
-    position: relative;
-    height: 160px;
-    overflow: hidden;
+.product-modal-close:hover {
+    color: #374151;
     background: #f3f4f6;
 }
 
-.product-image-wrapper {
-    width: 100%;
-    height: 100%;
+.product-modal-body {
+    padding: 20px;
 }
 
-.product-image-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.product-type-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 4px 10px;
-    background: rgba(53, 109, 241, 0.9);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 6px;
-    text-transform: uppercase;
-}
-
-.product-card-body {
-    padding: 16px;
-}
-
-.product-category {
-    font-size: 12px;
-    color: #6b7280;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.product-category i {
-    color: #356DF1;
-}
-
-.product-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #111827;
+.product-modal-body p {
     margin: 0 0 8px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.product-description {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 0 0 12px 0;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.product-data-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
-    padding: 10px;
-    background: #f9fafb;
-    border-radius: 8px;
-}
-
-.data-info-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
     color: #374151;
 }
 
-.data-info-item i {
-    color: #356DF1;
-    width: 14px;
-}
-
-.product-supplier {
-    font-size: 12px;
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.product-supplier i {
-    color: #9ca3af;
-}
-
-.product-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
-}
-
-.product-price {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-}
-
-.price-current {
-    font-size: 18px;
-    font-weight: 700;
-    color: #dc2626;
-}
-
-.price-original {
+.product-modal-warning {
+    color: #dc2626 !important;
     font-size: 13px;
-    color: #9ca3af;
-    text-decoration: line-through;
+    font-weight: 500;
 }
 
-.product-stats-mini {
+.product-modal-footer {
     display: flex;
+    justify-content: flex-end;
     gap: 12px;
-}
-
-.stat-mini {
-    font-size: 12px;
-    color: #6b7280;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.stat-mini i {
-    font-size: 11px;
-}
-
-.product-status {
-    flex-shrink: 0;
-}
-
-.product-card-actions {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px;
+    padding: 16px 20px;
     border-top: 1px solid #e5e7eb;
-}
-
-/* Empty State */
-.empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-}
-
-.empty-state i {
-    font-size: 64px;
-    color: #d1d5db;
-    margin-bottom: 16px;
-}
-
-.empty-state h3 {
-    font-size: 20px;
-    color: #374151;
-    margin: 0 0 8px 0;
-}
-
-.empty-state p {
-    color: #6b7280;
-    margin: 0 0 20px 0;
-}
-
-/* Search Input */
-.search-input-wrapper {
-    position: relative;
-}
-
-.search-input-wrapper i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9ca3af;
-}
-
-.search-input-wrapper input {
-    padding-left: 40px;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .stats-row {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .stats-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .products-grid {
-        grid-template-columns: 1fr;
-    }
+    background: #f9fafb;
+    border-radius: 0 0 12px 12px;
 }
 </style>
 
 <script>
-// Delete Modal Functions
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteBtns = document.querySelectorAll('.delete-btn');
-    const deleteModal = document.getElementById('deleteModal');
-    const deleteProductName = document.getElementById('deleteProductName');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+window.showProductDeleteModal = function(id, name) {
+    const modal = document.getElementById('productDeleteModal');
+    const nameElement = document.getElementById('productDeleteName');
     
-    let currentDeleteId = null;
-    
-    deleteBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            currentDeleteId = this.dataset.id;
-            deleteProductName.textContent = this.dataset.name;
-            deleteModal.style.display = 'flex';
-        });
-    });
-    
-    window.closeDeleteModal = function() {
-        deleteModal.style.display = 'none';
-        currentDeleteId = null;
-    };
-    
-    confirmDeleteBtn.addEventListener('click', function() {
-        if (currentDeleteId) {
-            window.location.href = '?page=admin&module=products&action=delete&id=' + currentDeleteId;
+    if (modal) {
+        if (nameElement) {
+            nameElement.textContent = name || 'sản phẩm này';
         }
-    });
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(e) {
-        if (e.target === deleteModal) {
-            closeDeleteModal();
+        modal.style.display = 'block';
+        modal.dataset.deleteId = id;
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeProductDeleteModal = function() {
+    const modal = document.getElementById('productDeleteModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        delete modal.dataset.deleteId;
+    }
+};
+
+// Handle confirm delete
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'productConfirmDeleteBtn') {
+        const modal = document.getElementById('productDeleteModal');
+        const deleteId = modal ? modal.dataset.deleteId : null;
+        if (deleteId) {
+            window.location.href = '?page=admin&module=products&action=delete&id=' + deleteId;
         }
-    });
+    }
+});
+
+// Close on overlay click
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('product-modal-overlay')) {
+        closeProductDeleteModal();
+    }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('productDeleteModal');
+        if (modal && modal.style.display === 'block') {
+            closeProductDeleteModal();
+        }
+    }
 });
 </script>

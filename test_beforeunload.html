@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Beforeunload</title>
+</head>
+<body>
+    <h1>Test Form - Beforeunload</h1>
+    
+    <form id="testForm">
+        <input type="text" name="name" value="Test Product">
+        <button type="submit">Submit</button>
+    </form>
+    
+    <script>
+        // Test 1: Basic beforeunload null
+        window.onbeforeunload = null;
+        
+        // Test 2: Add event listener
+        window.addEventListener('beforeunload', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        });
+        
+        // Test 3: Override
+        Object.defineProperty(window, 'onbeforeunload', {
+            get: function() { return null; },
+            set: function() {},
+            configurable: true
+        });
+        
+        console.log('onbeforeunload:', window.onbeforeunload);
+    </script>
+</body>
+</html>
