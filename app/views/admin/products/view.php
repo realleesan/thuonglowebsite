@@ -529,6 +529,9 @@ if (!empty($product['supplier_social'])) {
     </div>
 </div>
 
+<!-- Include JavaScript for tabs -->
+<script src="assets/js/admin_products.js"></script>
+
 <style>
 .benefits-list {
     display: grid;

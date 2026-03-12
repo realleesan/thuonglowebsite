@@ -530,3 +530,6 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
         </form>
     </div>
 </div>
+
+<!-- Include JavaScript for tabs -->
+<script src="assets/js/admin_products.js"></script>

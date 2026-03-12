@@ -523,3 +523,6 @@ function createSlug($str) {
         </form>
     </div>
 </div>
+
+<!-- Include JavaScript for tabs -->
+<script src="assets/js/admin_products.js"></script>
