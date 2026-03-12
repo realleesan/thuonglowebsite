@@ -40,21 +40,35 @@ class DataTransformer {
             'stock' => (int) ($product['stock'] ?? 0),
             'in_stock' => ($product['stock'] ?? 0) > 0,
             // Admin view fields
-            'view_count' => (int) ($product['view_count'] ?? 0),
-            'sold_count' => (int) ($product['sold_count'] ?? 0),
-            'weight' => (float) ($product['weight'] ?? 0),
-            'width' => (float) ($product['width'] ?? 0),
-            'height' => (float) ($product['height'] ?? 0),
-            'depth' => (float) ($product['depth'] ?? 0),
+            'view_count' => (int) ($product['view_count'] ?? $product['views'] ?? 0),
+            'sales_count' => (int) ($product['sales_count'] ?? $product['sold_count'] ?? 0),
+            // Data product fields (for digital products)
+            'record_count' => (int) ($product['record_count'] ?? $product['stock'] ?? 0),
+            'data_size' => $product['data_size'] ?? '',
+            'data_format' => $product['data_format'] ?? '',
+            'data_source' => $product['data_source'] ?? '',
+            'reliability' => $product['reliability'] ?? '',
+            'quota' => (int) ($product['quota'] ?? 100),
+            'quota_per_usage' => (int) ($product['quota_per_usage'] ?? 10),
+            'expiry_days' => (int) ($product['expiry_days'] ?? 30),
+            // Supplier information
+            'supplier_name' => $this->security->escapeHtml($product['supplier_name'] ?? 'ThuongLo.com'),
+            'supplier_title' => $this->security->escapeHtml($product['supplier_title'] ?? ''),
+            'supplier_bio' => $this->security->escapeHtml($product['supplier_bio'] ?? ''),
+            'supplier_avatar' => $product['supplier_avatar'] ?? '',
+            'supplier_social' => $product['supplier_social'] ?? '',
+            // Type
+            'type' => $product['type'] ?? 'data_nguon_hang',
+            // JSON fields
+            'benefits' => $product['benefits'] ?? '',
+            'data_structure' => $product['data_structure'] ?? '',
+            // Metadata
             'sku' => $product['sku'] ?? '',
             'meta_title' => $product['meta_title'] ?? '',
             'meta_description' => $product['meta_description'] ?? '',
             'tags' => $product['tags'] ?? '',
             'created_at' => $product['created_at'] ?? date('Y-m-d H:i:s'),
             'updated_at' => $product['updated_at'] ?? date('Y-m-d H:i:s'),
-            // Supplier information
-            'supplier_name' => $this->security->escapeHtml($product['supplier_name'] ?? 'ThuongLo.com'),
-            'record_count' => (int) ($product['record_count'] ?? $product['stock'] ?? 0)
         ];
     }
     

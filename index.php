@@ -76,6 +76,12 @@ switch($page) {
         exit;
         break;
         
+    case 'test_table':
+        // Test table structure
+        require_once __DIR__ . '/test_table_structure.php';
+        exit;
+        break;
+        
     case 'about':
         $title = 'Giới thiệu - Thuong Lo';
         $content = 'app/views/about/about.php';

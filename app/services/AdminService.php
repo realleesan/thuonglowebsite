@@ -828,30 +828,33 @@ class AdminService extends BaseService
             $bindings = [];
 
             if (!empty($filters['search'])) {
-                $conditions[] = "(name LIKE ? OR description LIKE ?)";
+                $conditions[] = "(p.name LIKE ? OR p.description LIKE ?)";
                 $searchTerm = "%{$filters['search']}%";
                 $bindings = array_merge($bindings, [$searchTerm, $searchTerm]);
             }
 
             if (!empty($filters['category_id'])) {
-                $conditions[] = "category_id = ?";
+                $conditions[] = "p.category_id = ?";
                 $bindings[] = $filters['category_id'];
             }
 
             if (!empty($filters['status'])) {
-                $conditions[] = "status = ?";
+                $conditions[] = "p.status = ?";
                 $bindings[] = $filters['status'];
             }
 
             // Get total count
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
-            $countSql = "SELECT COUNT(*) as total FROM products {$whereClause}";
+            $countSql = "SELECT COUNT(*) as total FROM products p {$whereClause}";
             $totalResult = $productsModel->query($countSql, $bindings);
             $total = $totalResult[0]['total'] ?? 0;
 
-            // Get products with pagination
+            // Get products with pagination (join with categories to get category_name)
             $offset = ($page - 1) * $perPage;
-            $productsSql = "SELECT * FROM products {$whereClause} ORDER BY created_at DESC LIMIT {$perPage} OFFSET {$offset}";
+            $productsSql = "SELECT p.*, c.name as category_name 
+                FROM products p 
+                LEFT JOIN categories c ON p.category_id = c.id 
+                {$whereClause} ORDER BY p.created_at DESC LIMIT {$perPage} OFFSET {$offset}";
             $products = $productsModel->query($productsSql, $bindings);
 
             $transformedProducts = [];
