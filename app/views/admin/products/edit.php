@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'sale_price'       => isset($_POST['sale_price']) && $_POST['sale_price'] !== '' ? (float)$_POST['sale_price'] : null,
                 // FIX: use isset so that value 0 is still saved
                 'expiry_days'      => isset($_POST['expiry_days']) && $_POST['expiry_days'] !== '' ? (int)$_POST['expiry_days'] : 30,
-                'sku'              => $_POST['sku'] ?? '',
+                'sku'              => !empty($_POST['sku']) ? $_POST['sku'] : null,
                 'short_description'=> $_POST['short_description'] ?? '',
                 'meta_title'       => $_POST['meta_title'] ?? '',
                 'meta_description' => $_POST['meta_description'] ?? '',
@@ -126,14 +126,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'quota'            => isset($_POST['quota']) && $_POST['quota'] !== '' ? (int)$_POST['quota'] : 100,
                 'quota_per_usage'  => isset($_POST['quota_per_usage']) && $_POST['quota_per_usage'] !== '' ? (int)$_POST['quota_per_usage'] : 10,
                 // Supplier fields
-                'supplier_name'    => $_POST['supplier_name'] ?? '',
-                'supplier_title'   => $_POST['supplier_title'] ?? '',
-                'supplier_bio'     => $_POST['supplier_bio'] ?? '',
-                'supplier_avatar'  => $_POST['supplier_avatar'] ?? '',
-                'supplier_social'  => $_POST['supplier_social'] ?? '',
+                'supplier_name'    => !empty($_POST['supplier_name']) ? $_POST['supplier_name'] : null,
+                'supplier_title'   => !empty($_POST['supplier_title']) ? $_POST['supplier_title'] : null,
+                'supplier_bio'     => !empty($_POST['supplier_bio']) ? $_POST['supplier_bio'] : null,
+                'supplier_avatar'  => !empty($_POST['supplier_avatar']) ? $_POST['supplier_avatar'] : null,
+                'supplier_social'  => !empty($_POST['supplier_social']) ? $_POST['supplier_social'] : null,
                 // JSON fields
-                'benefits'         => $_POST['benefits'] ?? '',
-                'data_structure'   => $_POST['data_structure'] ?? '',
+                'benefits'         => !empty($_POST['benefits']) ? $_POST['benefits'] : null,
+                'data_structure'   => !empty($_POST['data_structure']) ? $_POST['data_structure'] : null,
                 // Digital product
                 'featured'         => isset($_POST['featured']) ? 1 : 0,
                 'downloadable'     => isset($_POST['downloadable']) ? 1 : 0,
@@ -440,20 +440,34 @@ $data_structure_json = $form_data['data_structure'] ?? '';
                     </div>
 
                     <div class="form-group">
-                        <label for="supplier_social">Liên Hệ (JSON)</label>
-                        <textarea id="supplier_social" name="supplier_social" rows="3" 
-                                  placeholder='{"website":"https://...","hotline":"19001234","zalo":"..."}'><?= htmlspecialchars($form_data['supplier_social'] ?? '') ?></textarea>
-                        <small>Nhập theo định dạng JSON. Ví dụ: {"website":"https://example.com","hotline":"0901234567","zalo":"0901234567"}</small>
+                        <label>Liên Hệ</label>
+                        <p class="text-muted" style="font-size:13px;margin-bottom:12px;">Thêm các thông tin liên hệ như website, hotline, zalo...</p>
+                        
+                        <div id="supplier-social-container">
+                        </div>
+                        
+                        <button type="button" class="btn btn-sm btn-success" onclick="addSupplierSocial()" style="margin-top:8px;">
+                            <i class="fas fa-plus"></i> Thêm liên hệ
+                        </button>
+                        
+                        <input type="hidden" id="supplier_social" name="supplier_social" value="<?= htmlspecialchars($form_data['supplier_social'] ?? '') ?>">
                     </div>
                 </div>
 
                 <!-- Tab 4: Lợi Ích -->
                 <div class="tab-pane" id="tab-benefits">
                     <div class="form-group">
-                        <label for="benefits">Danh sách lợi ích (JSON Array)</label>
-                        <textarea id="benefits" name="benefits" rows="8" 
-                                  placeholder='["Lợi ích 1","Lợi ích 2","Lợi ích 3"]'><?= htmlspecialchars($benefits_json) ?></textarea>
-                        <small>Nhập dạng mảng JSON. Ví dụ: ["Tiết kiệm thời gian","Dữ liệu chính xác cao","Cập nhật thường xuyên"]</small>
+                        <label>Danh sách lợi ích</label>
+                        <p class="text-muted" style="font-size:13px;margin-bottom:12px;">Thêm các lợi ích của sản phẩm. Click nút "+" để thêm dòng mới.</p>
+                        
+                        <div id="benefits-container">
+                        </div>
+                        
+                        <button type="button" class="btn btn-sm btn-success" onclick="addBenefit()" style="margin-top:8px;">
+                            <i class="fas fa-plus"></i> Thêm lợi ích
+                        </button>
+                        
+                        <input type="hidden" id="benefits" name="benefits" value="<?= htmlspecialchars($benefits_json) ?>">
                     </div>
                     <div class="benefits-preview" id="benefitsPreview" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;min-height:60px;">
                         <p class="preview-empty" style="color:#999;margin:0;">Xem trước lợi ích sẽ hiển thị ở đây...</p>
@@ -463,10 +477,17 @@ $data_structure_json = $form_data['data_structure'] ?? '';
                 <!-- Tab 5: Cấu Trúc Data -->
                 <div class="tab-pane" id="tab-structure">
                     <div class="form-group">
-                        <label for="data_structure">Cấu Trúc Data (JSON Array)</label>
-                        <textarea id="data_structure" name="data_structure" rows="10" 
-                                  placeholder='[{"title":"Nhóm thông tin 1","items":[{"title":"Trường 1"},{"title":"Trường 2"}]},{"title":"Nhóm 2","items":[{"title":"Trường 3"}]}]'><?= htmlspecialchars($data_structure_json) ?></textarea>
-                        <small>Mô tả cấu trúc các trường dữ liệu theo nhóm. Định dạng: [{"title":"Tên nhóm","items":[{"title":"Tên trường"}]}]</small>
+                        <label>Cấu Trúc Data</label>
+                        <p class="text-muted" style="font-size:13px;margin-bottom:12px;">Thêm các nhóm thông tin và trường dữ liệu. Mỗi nhóm có thể chứa nhiều trường.</p>
+                        
+                        <div id="structure-container">
+                        </div>
+                        
+                        <button type="button" class="btn btn-sm btn-success" onclick="addStructureGroup()" style="margin-top:8px;">
+                            <i class="fas fa-plus"></i> Thêm nhóm
+                        </button>
+                        
+                        <input type="hidden" id="data_structure" name="data_structure" value="<?= htmlspecialchars($data_structure_json) ?>">
                     </div>
                     <div class="structure-preview" id="dataStructurePreview" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;min-height:60px;">
                         <p class="preview-empty" style="color:#999;margin:0;">Xem trước cấu trúc sẽ hiển thị ở đây...</p>
@@ -583,5 +604,294 @@ if (uploadZone) {
             previewUploadedImage(document.getElementById('image_file'));
         }
     });
+}
+
+// ========== DYNAMIC FORM FOR BENEFITS ==========
+var benefitCounter = 0;
+
+function addBenefit(value = '') {
+    benefitCounter++;
+    var container = document.getElementById('benefits-container');
+    var div = document.createElement('div');
+    div.className = 'benefit-row';
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+    div.innerHTML = `
+        <input type="text" class="benefit-input" value="${escapeHtml(value)}" 
+               placeholder="Nhập lợi ích..." 
+               style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;"
+               oninput="updateBenefits()">
+        <button type="button" onclick="removeBenefit(this)" style="padding:8px 12px;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;border-radius:6px;cursor:pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(div);
+    updateBenefits();
+}
+
+function removeBenefit(btn) {
+    btn.parentElement.remove();
+    updateBenefits();
+}
+
+function updateBenefits() {
+    var inputs = document.querySelectorAll('.benefit-input');
+    var benefits = [];
+    inputs.forEach(function(input) {
+        if (input.value.trim()) {
+            benefits.push(input.value.trim());
+        }
+    });
+    document.getElementById('benefits').value = JSON.stringify(benefits);
+    updateBenefitsPreview();
+}
+
+function updateBenefitsPreview() {
+    var benefits = [];
+    try {
+        var val = document.getElementById('benefits').value;
+        if (val) benefits = JSON.parse(val);
+    } catch(e) {}
+    
+    var preview = document.getElementById('benefitsPreview');
+    if (benefits.length > 0) {
+        preview.innerHTML = '<ul style="margin:0;padding-left:20px;">' + 
+            benefits.map(function(b) { return '<li>' + escapeHtml(b) + '</li>'; }).join('') + 
+            '</ul>';
+    } else {
+        preview.innerHTML = '<p class="preview-empty" style="color:#999;margin:0;">Xem trước lợi ích sẽ hiển thị ở đây...</p>';
+    }
+}
+
+// Initialize benefits
+(function() {
+    var existingBenefits = document.getElementById('benefits').value || '';
+    if (existingBenefits) {
+        try {
+            var benefits = JSON.parse(existingBenefits);
+            benefits.forEach(function(b) { addBenefit(b); });
+        } catch(e) { addBenefit(''); }
+    } else {
+        addBenefit('');
+    }
+})();
+
+// ========== DYNAMIC FORM FOR DATA STRUCTURE ==========
+var structureCounter = 0;
+
+function addStructureGroup(title = '', items = []) {
+    structureCounter++;
+    var container = document.getElementById('structure-container');
+    var groupId = 'group-' + structureCounter;
+    
+    var div = document.createElement('div');
+    div.className = 'structure-group';
+    div.style.cssText = 'border:1px solid #e5e7eb;border-radius:8px;margin-bottom:16px;overflow:hidden;';
+    
+    var itemsHtml = '';
+    if (items.length > 0) {
+        items.forEach(function(item) {
+            itemsHtml += createStructureItemHtml(item.title || '');
+        });
+    } else {
+        itemsHtml = createStructureItemHtml('');
+    }
+    
+    div.innerHTML = `
+        <div style="background:#f9fafb;padding:12px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px;">
+            <input type="text" class="group-title" value="${escapeHtml(title)}" 
+                   placeholder="Tên nhóm..." 
+                   style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;"
+                   oninput="updateDataStructure()">
+            <button type="button" onclick="removeStructureGroup(this)" style="padding:8px 12px;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;border-radius:6px;cursor:pointer;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="group-items" style="padding:12px;">
+            ${itemsHtml}
+        </div>
+        <div style="padding:8px 12px;border-top:1px solid #e5e7eb;">
+            <button type="button" onclick="addStructureItem()" style="padding:6px 12px;background:#eff6ff;border:1px solid #bfdbfe;color:#2563eb;border-radius:6px;cursor:pointer;font-size:13px;">
+                <i class="fas fa-plus"></i> Thêm trường
+            </button>
+        </div>
+    `;
+    container.appendChild(div);
+    updateDataStructure();
+}
+
+function createStructureItemHtml(value = '') {
+    return `
+        <div class="item-row" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <input type="text" value="${escapeHtml(value)}" 
+                   placeholder="Tên trường..." 
+                   style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;"
+                   oninput="updateDataStructure()">
+            <button type="button" onclick="removeStructureItem(this)" style="padding:8px 12px;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;border-radius:6px;cursor:pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+}
+
+function addStructureItem() {
+    var containers = document.querySelectorAll('.group-items');
+    var lastContainer = containers[containers.length - 1];
+    if (lastContainer) {
+        var temp = document.createElement('div');
+        temp.innerHTML = createStructureItemHtml('');
+        lastContainer.appendChild(temp.firstElementChild);
+    }
+    updateDataStructure();
+}
+
+function removeStructureItem(btn) {
+    var groupItems = btn.closest('.group-items');
+    btn.parentElement.remove();
+    if (groupItems.querySelectorAll('.item-row').length === 0) {
+        groupItems.innerHTML = createStructureItemHtml('');
+    }
+    updateDataStructure();
+}
+
+function removeStructureGroup(btn) {
+    btn.closest('.structure-group').remove();
+    updateDataStructure();
+}
+
+function updateDataStructure() {
+    var groups = [];
+    var groupElements = document.querySelectorAll('.structure-group');
+    groupElements.forEach(function(group) {
+        var title = group.querySelector('.group-title').value.trim();
+        if (title) {
+            var items = [];
+            group.querySelectorAll('.item-row input').forEach(function(input) {
+                if (input.value.trim()) {
+                    items.push({title: input.value.trim()});
+                }
+            });
+            groups.push({title: title, items: items});
+        }
+    });
+    document.getElementById('data_structure').value = JSON.stringify(groups);
+    updateDataStructurePreview();
+}
+
+function updateDataStructurePreview() {
+    var structure = [];
+    try {
+        var val = document.getElementById('data_structure').value;
+        if (val) structure = JSON.parse(val);
+    } catch(e) {}
+    
+    var preview = document.getElementById('dataStructurePreview');
+    if (structure.length > 0) {
+        var html = '';
+        structure.forEach(function(group) {
+            html += '<div style="margin-bottom:12px;">';
+            html += '<strong style="color:#1f2937;">' + escapeHtml(group.title) + '</strong>';
+            if (group.items && group.items.length > 0) {
+                html += '<ul style="margin:4px 0 0 16px;color:#4b5563;">';
+                group.items.forEach(function(item) {
+                    html += '<li>' + escapeHtml(item.title) + '</li>';
+                });
+                html += '</ul>';
+            }
+            html += '</div>';
+        });
+        preview.innerHTML = html;
+    } else {
+        preview.innerHTML = '<p class="preview-empty" style="color:#999;margin:0;">Xem trước cấu trúc sẽ hiển thị ở đây...</p>';
+    }
+}
+
+// Initialize data structure
+(function() {
+    var existingStructure = document.getElementById('data_structure').value || '';
+    if (existingStructure) {
+        try {
+            var structure = JSON.parse(existingStructure);
+            structure.forEach(function(group) { 
+                addStructureGroup(group.title, group.items || []); 
+            });
+        } catch(e) { addStructureGroup('', []); }
+    } else {
+        addStructureGroup('', []);
+    }
+})();
+
+// ========== DYNAMIC FORM FOR SUPPLIER SOCIAL ==========
+var socialCounter = 0;
+
+function addSupplierSocial(key = '', value = '') {
+    socialCounter++;
+    var container = document.getElementById('supplier-social-container');
+    var div = document.createElement('div');
+    div.className = 'social-row';
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+    div.innerHTML = `
+        <select class="social-key" onchange="updateSupplierSocial()" style="padding:8px;border:1px solid #d1d5db;border-radius:6px;width:140px;">
+            <option value="website" ${key === 'website' ? 'selected' : ''}>Website</option>
+            <option value="hotline" ${key === 'hotline' ? 'selected' : ''}>Hotline</option>
+            <option value="zalo" ${key === 'zalo' ? 'selected' : ''}>Zalo</option>
+            <option value="email" ${key === 'email' ? 'selected' : ''}>Email</option>
+            <option value="facebook" ${key === 'facebook' ? 'selected' : ''}>Facebook</option>
+            <option value="address" ${key === 'address' ? 'selected' : ''}>Địa chỉ</option>
+            <option value="other" ${key === 'other' ? 'selected' : ''}>Khác</option>
+        </select>
+        <input type="text" class="social-value" value="${escapeHtml(value)}" 
+               placeholder="Giá trị..." 
+               style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;"
+               oninput="updateSupplierSocial()">
+        <button type="button" onclick="removeSupplierSocial(this)" style="padding:8px 12px;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;border-radius:6px;cursor:pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(div);
+    updateSupplierSocial();
+}
+
+function removeSupplierSocial(btn) {
+    btn.parentElement.remove();
+    updateSupplierSocial();
+}
+
+function updateSupplierSocial() {
+    var social = {};
+    var rows = document.querySelectorAll('.social-row');
+    rows.forEach(function(row) {
+        var key = row.querySelector('.social-key').value;
+        var value = row.querySelector('.social-value').value.trim();
+        if (value) {
+            social[key] = value;
+        }
+    });
+    document.getElementById('supplier_social').value = Object.keys(social).length > 0 ? JSON.stringify(social) : '';
+}
+
+// Initialize supplier social
+(function() {
+    var existingSocial = document.getElementById('supplier_social').value || '';
+    if (existingSocial) {
+        try {
+            var social = JSON.parse(existingSocial);
+            Object.keys(social).forEach(function(key) { 
+                addSupplierSocial(key, social[key]); 
+            });
+        } catch(e) { addSupplierSocial('website', ''); }
+    } else {
+        addSupplierSocial('website', '');
+    }
+})();
+
+// Helper to escape HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 </script>

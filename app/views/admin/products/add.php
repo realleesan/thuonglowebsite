@@ -416,10 +416,19 @@ if (!function_exists('createSlugProduct')) {
                     </div>
 
                     <div class="form-group">
-                        <label for="supplier_social">Liên Hệ (JSON)</label>
-                        <textarea id="supplier_social" name="supplier_social" rows="3" 
-                                  placeholder='{"website":"https://...","hotline":"19001234","zalo":"..."}'><?= htmlspecialchars($_POST['supplier_social'] ?? '') ?></textarea>
-                        <small>Nhập theo định dạng JSON. Ví dụ: {"website":"https://example.com","hotline":"0901234567","zalo":"0901234567"}</small>
+                        <label>Liên Hệ</label>
+                        <p class="text-muted" style="font-size:13px;margin-bottom:12px;">Thêm các thông tin liên hệ như website, hotline, zalo...</p>
+                        
+                        <div id="supplier-social-container">
+                            <!-- Social contacts will be added here dynamically -->
+                        </div>
+                        
+                        <button type="button" class="btn btn-sm btn-success" onclick="addSupplierSocial()" style="margin-top:8px;">
+                            <i class="fas fa-plus"></i> Thêm liên hệ
+                        </button>
+                        
+                        <!-- Hidden input for form submission -->
+                        <input type="hidden" id="supplier_social" name="supplier_social" value="">
                     </div>
                 </div>
 
@@ -805,4 +814,72 @@ function escapeHtml(text) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+
+// ========== DYNAMIC FORM FOR SUPPLIER SOCIAL ==========
+var socialCounter = 0;
+
+function addSupplierSocial(key = '', value = '') {
+    socialCounter++;
+    var container = document.getElementById('supplier-social-container');
+    var div = document.createElement('div');
+    div.className = 'social-row';
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+    div.innerHTML = `
+        <select class="social-key" onchange="updateSupplierSocial()" style="padding:8px;border:1px solid #d1d5db;border-radius:6px;width:140px;">
+            <option value="website" ${key === 'website' ? 'selected' : ''}>Website</option>
+            <option value="hotline" ${key === 'hotline' ? 'selected' : ''}>Hotline</option>
+            <option value="zalo" ${key === 'zalo' ? 'selected' : ''}>Zalo</option>
+            <option value="email" ${key === 'email' ? 'selected' : ''}>Email</option>
+            <option value="facebook" ${key === 'facebook' ? 'selected' : ''}>Facebook</option>
+            <option value="address" ${key === 'address' ? 'selected' : ''}>Địa chỉ</option>
+            <option value="other" ${key === 'other' ? 'selected' : ''}>Khác</option>
+        </select>
+        <input type="text" class="social-value" value="${escapeHtml(value)}" 
+               placeholder="Giá trị..." 
+               style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:6px;"
+               oninput="updateSupplierSocial()">
+        <button type="button" onclick="removeSupplierSocial(this)" style="padding:8px 12px;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;border-radius:6px;cursor:pointer;">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(div);
+    updateSupplierSocial();
+}
+
+function removeSupplierSocial(btn) {
+    btn.parentElement.remove();
+    updateSupplierSocial();
+}
+
+function updateSupplierSocial() {
+    var social = {};
+    var rows = document.querySelectorAll('.social-row');
+    rows.forEach(function(row) {
+        var key = row.querySelector('.social-key').value;
+        var value = row.querySelector('.social-value').value.trim();
+        if (value) {
+            social[key] = value;
+        }
+    });
+    document.getElementById('supplier_social').value = Object.keys(social).length > 0 ? JSON.stringify(social) : '';
+}
+
+// Initialize with existing supplier_social if any
+(function() {
+    var existingSocial = '';
+    try {
+        existingSocial = document.querySelector('input[name="supplier_social"]').value || '';
+    } catch(e) {}
+    
+    if (existingSocial) {
+        try {
+            var social = JSON.parse(existingSocial);
+            Object.keys(social).forEach(function(key) { 
+                addSupplierSocial(key, social[key]); 
+            });
+        } catch(e) { addSupplierSocial('', ''); }
+    } else {
+        addSupplierSocial('website', ''); // Add one empty row by default
+    }
+})();
 </script>
