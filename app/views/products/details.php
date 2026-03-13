@@ -535,13 +535,6 @@ $averageRating = round($averageRating, 1);
                                         </div>
                                         <div class="meta-row">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                            </svg>
-                                            <span class="label">Loại data:</span>
-                                            <span class="value"><?php echo $productMeta['data_type'] ?? 'Data'; ?></span>
-                                        </div>
-                                        <div class="meta-row">
-                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M12 5L8 9L4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <path d="M2 11V14H14V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>

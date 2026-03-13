@@ -224,7 +224,6 @@ function getTypeLabel($type) {
                             <img src="<?= htmlspecialchars($product['image'] ?? '') ?>" 
                                  alt="<?= htmlspecialchars($product['name']) ?>" 
                                  onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f3f4f6%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22>No Image</text></svg>'">
-                            <span class="product-type-badge"><?= getTypeLabel($product['type'] ?? 'data_nguon_hang') ?></span>
                         </div>
                     </div>
                     <div class="product-card-body">
@@ -254,7 +253,7 @@ function getTypeLabel($type) {
                             </div>
                             <div class="data-info-item">
                                 <i class="fas fa-download"></i>
-                                <span><?= $product['quota'] ?? 100 ?> lần tải</span>
+                                <span><?= $product['quota'] ?? 100 ?> quota</span>
                             </div>
                         </div>
                         

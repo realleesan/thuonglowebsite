@@ -125,7 +125,9 @@ if (!empty($product['supplier_social'])) {
                 Chỉnh sửa
             </a>
             <button type="button" class="btn btn-danger delete-btn" 
-                    data-id="<?= $product['id'] ?>" data-name="<?= htmlspecialchars($product['name']) ?>">
+                    data-id="<?= $product['id'] ?>" data-name="<?= htmlspecialchars($product['name']) ?>" 
+                    onclick="showProductDeleteModal('<?= $product['id'] ?>', '<?= htmlspecialchars($product['name']) ?>')"
+                    title="Xóa">
                 <i class="fas fa-trash"></i>
                 Xóa
             </button>
@@ -511,20 +513,160 @@ if (!empty($product['supplier_social'])) {
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div id="deleteModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
+<!-- Delete Confirmation Modal - New Implementation -->
+<div id="productDeleteModal" style="display: none;">
+    <div class="product-modal-overlay"></div>
+    <div class="product-modal-container">
+        <div class="product-modal-header">
             <h3>Xác nhận xóa</h3>
-            <span class="modal-close" onclick="closeDeleteModal()">&times;</span>
+            <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
         </div>
-        <div class="modal-body">
-            <p>Bạn có chắc chắn muốn xóa data "<strong id="deleteProductName"></strong>"?</p>
-            <p class="text-warning">Hành động này không thể hoàn tác!</p>
+        <div class="product-modal-body">
+            <p>Bạn có chắc chắn muốn xóa data "<strong id="productDeleteName"></strong>"?</p>
+            <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Hủy</button>
-            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+        <div class="product-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+            <button type="button" class="btn btn-danger" id="productConfirmDeleteBtn">Xóa</button>
         </div>
     </div>
-</div>    
+</div>
+
+<style>
+#productDeleteModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 999999;
+}
+
+.product-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.product-modal-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+}
+
+.product-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.product-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.product-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.product-modal-close:hover {
+    color: #374151;
+    background: #f3f4f6;
+}
+
+.product-modal-body {
+    padding: 20px;
+}
+
+.product-modal-body p {
+    margin: 0 0 8px 0;
+    color: #374151;
+}
+
+.product-modal-warning {
+    color: #dc2626 !important;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.product-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 0 0 12px 12px;
+}
+</style>
+
+<script>
+window.showProductDeleteModal = function(id, name) {
+    const modal = document.getElementById('productDeleteModal');
+    const nameElement = document.getElementById('productDeleteName');
+    
+    if (modal) {
+        if (nameElement) {
+            nameElement.textContent = name || 'sản phẩm này';
+        }
+        modal.style.display = 'block';
+        modal.dataset.deleteId = id;
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeProductDeleteModal = function() {
+    const modal = document.getElementById('productDeleteModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        delete modal.dataset.deleteId;
+    }
+};
+
+// Handle confirm delete
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'productConfirmDeleteBtn') {
+        const modal = document.getElementById('productDeleteModal');
+        const deleteId = modal ? modal.dataset.deleteId : null;
+        if (deleteId) {
+            window.location.href = '?page=admin&module=products&action=delete&id=' + deleteId;
+        }
+    }
+});
+
+// Close on overlay click
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('product-modal-overlay')) {
+        closeProductDeleteModal();
+    }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('productDeleteModal');
+        if (modal && modal.style.display === 'block') {
+            closeProductDeleteModal();
+        }
+    }
+});
+</script>

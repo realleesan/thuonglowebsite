@@ -231,16 +231,6 @@ if (!function_exists('createSlugProduct')) {
                                    value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" 
                                    placeholder="Ví dụ: Gói 100 Data Ngành Quần Áo" required>
                         </div>
-                        
-                        <div class="form-group form-group-4">
-                            <label for="type">Loại Data</label>
-                            <select id="type" name="type">
-                                <option value="data_nguon_hang" <?= (($_POST['type'] ?? 'data_nguon_hang') == 'data_nguon_hang') ? 'selected' : '' ?>>Data Nguồn Hàng</option>
-                                <option value="khoa_hoc" <?= (($_POST['type'] ?? '') == 'khoa_hoc') ? 'selected' : '' ?>>Khóa Học</option>
-                                <option value="tool" <?= (($_POST['type'] ?? '') == 'tool') ? 'selected' : '' ?>>Công Cụ</option>
-                                <option value="dich_vu" <?= (($_POST['type'] ?? '') == 'dich_vu') ? 'selected' : '' ?>>Dịch Vụ</option>
-                            </select>
-                        </div>
                     </div>
 
                     <div class="form-group">
