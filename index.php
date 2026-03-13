@@ -513,6 +513,121 @@ switch($page) {
             case 'products':
                 $page_title = 'Quản lý Sản phẩm';
                 
+                // Handle POST request for adding product (process BEFORE including layout)
+                if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    require_once __DIR__ . '/app/models/ProductsModel.php';
+                    $productsModel = new ProductsModel();
+                    
+                    // Validate
+                    $errors = [];
+                    $name = trim($_POST['name'] ?? '');
+                    $category_id = (int)($_POST['category_id'] ?? 0);
+                    $price = (float)($_POST['price'] ?? 0);
+                    $description = trim($_POST['description'] ?? '');
+                    $status = $_POST['status'] ?? 'active';
+                    
+                    if (empty($name)) {
+                        $errors[] = 'Tên data không được để trống';
+                    }
+                    if ($category_id <= 0) {
+                        $errors[] = 'Vui lòng chọn danh mục';
+                    }
+                    if ($price <= 0) {
+                        $errors[] = 'Giá data phải lớn hơn 0';
+                    }
+                    if (empty($description)) {
+                        $errors[] = 'Mô tả data không được để trống';
+                    }
+                    
+                    // Handle image
+                    $image_path = '';
+                    if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+                        $upload_dir = 'assets/images/products/';
+                        if (!is_dir($upload_dir)) {
+                            @mkdir($upload_dir, 0755, true);
+                        }
+                        $ext = strtolower(pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION));
+                        $allowed = ['jpg','jpeg','png','gif','webp'];
+                        if (in_array($ext, $allowed)) {
+                            $filename = 'product_new_' . time() . '.' . $ext;
+                            $dest = $upload_dir . $filename;
+                            if (move_uploaded_file($_FILES['image_file']['tmp_name'], $dest)) {
+                                $image_path = $dest;
+                            }
+                        }
+                    } elseif (!empty($_POST['image_url'])) {
+                        $image_path = trim($_POST['image_url']);
+                    }
+                    
+                    if (empty($errors)) {
+                        $record_count = isset($_POST['record_count']) && $_POST['record_count'] !== '' ? (int)$_POST['record_count'] : 0;
+                        
+                        // Helper function to create slug
+                        function createSlugProduct($str) {
+                            $str = strtolower($str);
+                            $str = preg_replace('/[^a-z0-9\s-]/', '', $str);
+                            $str = preg_replace('/\s+/', '-', $str);
+                            return trim($str, '-');
+                        }
+                        
+                        $insertData = [
+                            'name'             => $name,
+                            'slug'             => createSlugProduct($name),
+                            'category_id'      => $category_id,
+                            'price'            => $price,
+                            'stock'            => $record_count,
+                            'description'      => $description,
+                            'status'           => $status,
+                            'type'             => $_POST['type'] ?? 'data_nguon_hang',
+                            'sale_price'       => isset($_POST['sale_price']) && $_POST['sale_price'] !== '' ? (float)$_POST['sale_price'] : null,
+                            'expiry_days'      => isset($_POST['expiry_days']) && $_POST['expiry_days'] !== '' ? (int)$_POST['expiry_days'] : 30,
+                            'sku'              => !empty($_POST['sku']) ? $_POST['sku'] : null,
+                            'short_description'=> $_POST['short_description'] ?? '',
+                            'meta_title'       => $_POST['meta_title'] ?? '',
+                            'meta_description' => $_POST['meta_description'] ?? '',
+                            'image'            => $image_path,
+                            'record_count'     => $record_count,
+                            'data_size'        => $_POST['data_size'] ?? '',
+                            'data_format'      => $_POST['data_format'] ?? '',
+                            'data_source'      => $_POST['data_source'] ?? '',
+                            'reliability'      => $_POST['reliability'] ?? '',
+                            'quota'            => isset($_POST['quota']) && $_POST['quota'] !== '' ? (int)$_POST['quota'] : 100,
+                            'quota_per_usage'  => isset($_POST['quota_per_usage']) && $_POST['quota_per_usage'] !== '' ? (int)$_POST['quota_per_usage'] : 10,
+                            'supplier_name'    => !empty($_POST['supplier_name']) ? $_POST['supplier_name'] : null,
+                            'supplier_title'   => !empty($_POST['supplier_title']) ? $_POST['supplier_title'] : null,
+                            'supplier_bio'     => !empty($_POST['supplier_bio']) ? $_POST['supplier_bio'] : null,
+                            'supplier_avatar'  => !empty($_POST['supplier_avatar']) ? $_POST['supplier_avatar'] : null,
+                            'supplier_social'  => !empty($_POST['supplier_social']) ? $_POST['supplier_social'] : null,
+                            'benefits'         => !empty($_POST['benefits']) ? $_POST['benefits'] : null,
+                            'data_structure'   => !empty($_POST['data_structure']) ? $_POST['data_structure'] : null,
+                            'digital'          => 1,
+                            'featured'         => isset($_POST['featured']) ? 1 : 0,
+                            'downloadable'     => isset($_POST['downloadable']) ? 1 : 0,
+                            'created_at'       => date('Y-m-d H:i:s')
+                        ];
+                        
+                        try {
+                            $id = $productsModel->create($insertData);
+                            if ($id) {
+                                // Rename image if needed
+                                if (!empty($image_path) && strpos($image_path, 'product_new_') !== false) {
+                                    $ext = pathinfo($image_path, PATHINFO_EXTENSION);
+                                    $new_path = 'assets/images/products/product_' . $id . '_' . time() . '.' . $ext;
+                                    @rename($image_path, $new_path);
+                                    $productsModel->update($id, ['image' => $new_path]);
+                                }
+                                // Success - redirect
+                                header('Location: ?page=admin&module=products');
+                                exit;
+                            }
+                        } catch (Exception $e) {
+                            // Log error but continue to show form
+                            error_log('Product creation error: ' . $e->getMessage());
+                        }
+                    }
+                    // If we get here, there were errors - continue to show form
+                }
+                
                 // Handle delete action (redirect to delete_direct for direct deletion)
                 if ($action === 'delete' && isset($_GET['id'])) {
                     require_once __DIR__ . '/app/models/ProductsModel.php';

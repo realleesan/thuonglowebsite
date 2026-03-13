@@ -12,7 +12,17 @@ class ProductsModel extends BaseModel {
         'name', 'slug', 'category_id', 'price', 'sale_price', 'stock', 'sku',
         'status', 'type', 'description', 'short_description', 'image', 'gallery',
         'meta_title', 'meta_description', 'featured', 'digital', 'downloadable',
-        'download_limit', 'download_expiry', 'weight', 'dimensions'
+        'download_limit', 'download_expiry', 'weight', 'dimensions',
+        // Data fields
+        'record_count', 'data_size', 'data_type', 'data_format', 'data_source',
+        'reliability', 'quota', 'quota_per_usage',
+        // Supplier fields
+        'supplier_name', 'supplier_title', 'supplier_bio', 'supplier_avatar', 'supplier_social',
+        // JSON fields
+        'benefits', 'data_structure',
+        // Additional fields
+        'expiry_days', 'views', 'sales_count', 'rating_average', 'rating_count',
+        'created_at', 'updated_at'
     ];
     
     /**

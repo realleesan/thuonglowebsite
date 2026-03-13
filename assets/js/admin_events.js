@@ -13,6 +13,10 @@ function initializeEventsModule() {
     // Initialize based on current page
     const currentPage = getCurrentPage();
 
+    if (!currentPage) {
+        return;
+    }
+
     switch (currentPage) {
         case 'index':
             initializeIndexPage();
@@ -38,6 +42,13 @@ function initializeEventsModule() {
 // Get current page type
 function getCurrentPage() {
     const url = window.location.href;
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // STRICT CHECK: Only run if we are in the events module
+    if (urlParams.get('module') !== 'events') {
+        return null;
+    }
+
     if (url.includes('action=add')) return 'add';
     if (url.includes('action=edit')) return 'edit';
     if (url.includes('action=view')) return 'view';

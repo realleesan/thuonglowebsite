@@ -73,41 +73,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Mô tả data không được để trống';
     }
     
+    // Handle image upload
+    $image_path = $product['image'] ?? ''; // default to existing image
+    if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = 'assets/images/products/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+        $ext = strtolower(pathinfo($_FILES['image_file']['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg','jpeg','png','gif','webp'];
+        if (in_array($ext, $allowed)) {
+            $filename = 'product_' . $product_id . '_' . time() . '.' . $ext;
+            $dest = $upload_dir . $filename;
+            if (move_uploaded_file($_FILES['image_file']['tmp_name'], $dest)) {
+                $image_path = $dest;
+            } else {
+                $errors[] = 'Không thể upload hình ảnh';
+            }
+        } else {
+            $errors[] = 'Định dạng ảnh không hợp lệ (chỉ chấp nhận jpg, png, gif, webp)';
+        }
+    } elseif (!empty($_POST['image_url'])) {
+        $image_path = trim($_POST['image_url']);
+    }
+    
     // If no errors, update database
     if (empty($errors)) {
         try {
             $updateData = [
-                'name' => $name,
-                'category_id' => $category_id,
-                'price' => $price,
-                'stock' => !empty($_POST['record_count']) ? (int)$_POST['record_count'] : 100,
-                'description' => $description,
-                'status' => $status,
-                'type' => $_POST['type'] ?? 'data_nguon_hang',
-                'sale_price' => !empty($_POST['sale_price']) ? $_POST['sale_price'] : null,
-                'expiry_days' => !empty($_POST['expiry_days']) ? (int)$_POST['expiry_days'] : 30,
-                'sku' => !empty($_POST['sku']) ? $_POST['sku'] : null,
-                'short_description' => $_POST['short_description'] ?? '',
-                'meta_title' => $_POST['meta_title'] ?? '',
+                'name'             => $name,
+                'category_id'      => $category_id,
+                'price'            => $price,
+                'description'      => $description,
+                'status'           => $status,
+                'type'             => $_POST['type'] ?? 'data_nguon_hang',
+                'sale_price'       => isset($_POST['sale_price']) && $_POST['sale_price'] !== '' ? (float)$_POST['sale_price'] : null,
+                // FIX: use isset so that value 0 is still saved
+                'expiry_days'      => isset($_POST['expiry_days']) && $_POST['expiry_days'] !== '' ? (int)$_POST['expiry_days'] : 30,
+                'sku'              => $_POST['sku'] ?? '',
+                'short_description'=> $_POST['short_description'] ?? '',
+                'meta_title'       => $_POST['meta_title'] ?? '',
                 'meta_description' => $_POST['meta_description'] ?? '',
+                'image'            => $image_path,
                 // Data fields
-                'record_count' => !empty($_POST['record_count']) ? (int)$_POST['record_count'] : 100,
-                'data_size' => $_POST['data_size'] ?? '',
-                'data_format' => $_POST['data_format'] ?? '',
-                'data_source' => $_POST['data_source'] ?? '',
-                'reliability' => $_POST['reliability'] ?? '',
-                'quota' => !empty($_POST['quota']) ? (int)$_POST['quota'] : 100,
-                'quota_per_usage' => !empty($_POST['quota_per_usage']) ? (int)$_POST['quota_per_usage'] : 10,
+                'record_count'     => isset($_POST['record_count']) && $_POST['record_count'] !== '' ? (int)$_POST['record_count'] : 0,
+                'stock'            => isset($_POST['record_count']) && $_POST['record_count'] !== '' ? (int)$_POST['record_count'] : 0,
+                'data_size'        => $_POST['data_size'] ?? '',
+                'data_format'      => $_POST['data_format'] ?? '',
+                'data_source'      => $_POST['data_source'] ?? '',
+                'reliability'      => $_POST['reliability'] ?? '',
+                // FIX: use isset so 0 is a valid value
+                'quota'            => isset($_POST['quota']) && $_POST['quota'] !== '' ? (int)$_POST['quota'] : 100,
+                'quota_per_usage'  => isset($_POST['quota_per_usage']) && $_POST['quota_per_usage'] !== '' ? (int)$_POST['quota_per_usage'] : 10,
                 // Supplier fields
-                'supplier_name' => $_POST['supplier_name'] ?? '',
-                'supplier_title' => $_POST['supplier_title'] ?? '',
-                'supplier_bio' => $_POST['supplier_bio'] ?? '',
-                'supplier_avatar' => $_POST['supplier_avatar'] ?? '',
-                'supplier_social' => $_POST['supplier_social'] ?? '',
+                'supplier_name'    => $_POST['supplier_name'] ?? '',
+                'supplier_title'   => $_POST['supplier_title'] ?? '',
+                'supplier_bio'     => $_POST['supplier_bio'] ?? '',
+                'supplier_avatar'  => $_POST['supplier_avatar'] ?? '',
+                'supplier_social'  => $_POST['supplier_social'] ?? '',
+                // JSON fields
+                'benefits'         => $_POST['benefits'] ?? '',
+                'data_structure'   => $_POST['data_structure'] ?? '',
                 // Digital product
-                'featured' => isset($_POST['featured']) ? 1 : 0,
-                'downloadable' => isset($_POST['downloadable']) ? 1 : 0,
-                'updated_at' => date('Y-m-d H:i:s')
+                'featured'         => isset($_POST['featured']) ? 1 : 0,
+                'downloadable'     => isset($_POST['downloadable']) ? 1 : 0,
+                'updated_at'       => date('Y-m-d H:i:s')
             ];
             $updated = $productsModel->update($product_id, $updateData);
         } catch (Exception $e) {
@@ -131,13 +161,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php
             exit;
         } else {
-            $errors[] = 'Không thể cập nhật data';
+            if (empty($errors)) {
+                $errors[] = 'Không thể cập nhật data';
+            }
         }
     }
 }
 
 // Use POST data if available, otherwise use product data
-$form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
+$form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? array_merge($product, $_POST) : $product;
+
+// Decode JSON fields for preview
+$benefits_json = $form_data['benefits'] ?? '';
+$data_structure_json = $form_data['data_structure'] ?? '';
 ?>
 
 <div class="products-page products-edit-page">
@@ -162,18 +198,11 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
         </div>
     </div>
 
-    <!-- Success/Error Messages -->
-    <?php if ($success): ?>
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i>
-        Cập nhật data thành công!
-    </div>
-    <?php endif; ?>
-
+    <!-- Error Messages -->
     <?php if (!empty($errors)): ?>
     <div class="alert alert-danger">
         <i class="fas fa-exclamation-triangle"></i>
-        <ul class="error-list">
+        <ul class="error-list" style="margin:0;padding-left:20px;">
             <?php foreach ($errors as $error): ?>
                 <li><?= htmlspecialchars($error) ?></li>
             <?php endforeach; ?>
@@ -197,6 +226,14 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                 <button type="button" class="tab-btn" data-tab="tab-supplier">
                     <i class="fas fa-building"></i>
                     Nhà Cung Cấp
+                </button>
+                <button type="button" class="tab-btn" data-tab="tab-benefits">
+                    <i class="fas fa-gift"></i>
+                    Lợi Ích
+                </button>
+                <button type="button" class="tab-btn" data-tab="tab-structure">
+                    <i class="fas fa-sitemap"></i>
+                    Cấu Trúc Data
                 </button>
                 <button type="button" class="tab-btn" data-tab="tab-image">
                     <i class="fas fa-image"></i>
@@ -280,13 +317,14 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                             <input type="number" id="expiry_days" name="expiry_days" 
                                    value="<?= htmlspecialchars($form_data['expiry_days'] ?? '30') ?>" 
                                    placeholder="30" min="1">
+                            <small>Số ngày sản phẩm có hiệu lực sau khi mua</small>
                         </div>
 
                         <div class="form-group">
                             <label for="featured">Nổi bật</label>
                             <div class="checkbox-wrapper">
                                 <input type="checkbox" id="featured" name="featured" value="1" 
-                                       <?= (($form_data['featured'] ?? '') == '1') ? 'checked' : '' ?>>
+                                       <?= (($form_data['featured'] ?? 0) == 1) ? 'checked' : '' ?>>
                                 <label for="featured">Hiển thị trang chủ</label>
                             </div>
                         </div>
@@ -312,7 +350,7 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                             <label for="record_count">Số lượng Record</label>
                             <input type="number" id="record_count" name="record_count" 
                                    value="<?= htmlspecialchars($form_data['record_count'] ?? '100') ?>" 
-                                   placeholder="100">
+                                   placeholder="100" min="0">
                             <small>Số lượng thông tin trong data</small>
                         </div>
 
@@ -399,39 +437,97 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                                    value="<?= htmlspecialchars($form_data['supplier_avatar'] ?? '') ?>" 
                                    placeholder="https://...">
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="supplier_social">Mạng Xã Hội (JSON)</label>
-                            <textarea id="supplier_social" name="supplier_social" rows="2" 
-                                      placeholder='{"website":"https://...","hotline":"19001234"}'><?= htmlspecialchars($form_data['supplier_social'] ?? '') ?></textarea>
+                    <div class="form-group">
+                        <label for="supplier_social">Liên Hệ (JSON)</label>
+                        <textarea id="supplier_social" name="supplier_social" rows="3" 
+                                  placeholder='{"website":"https://...","hotline":"19001234","zalo":"..."}'><?= htmlspecialchars($form_data['supplier_social'] ?? '') ?></textarea>
+                        <small>Nhập theo định dạng JSON. Ví dụ: {"website":"https://example.com","hotline":"0901234567","zalo":"0901234567"}</small>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Lợi Ích -->
+                <div class="tab-pane" id="tab-benefits">
+                    <div class="form-group">
+                        <label for="benefits">Danh sách lợi ích (JSON Array)</label>
+                        <textarea id="benefits" name="benefits" rows="8" 
+                                  placeholder='["Lợi ích 1","Lợi ích 2","Lợi ích 3"]'><?= htmlspecialchars($benefits_json) ?></textarea>
+                        <small>Nhập dạng mảng JSON. Ví dụ: ["Tiết kiệm thời gian","Dữ liệu chính xác cao","Cập nhật thường xuyên"]</small>
+                    </div>
+                    <div class="benefits-preview" id="benefitsPreview" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;min-height:60px;">
+                        <p class="preview-empty" style="color:#999;margin:0;">Xem trước lợi ích sẽ hiển thị ở đây...</p>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Cấu Trúc Data -->
+                <div class="tab-pane" id="tab-structure">
+                    <div class="form-group">
+                        <label for="data_structure">Cấu Trúc Data (JSON Array)</label>
+                        <textarea id="data_structure" name="data_structure" rows="10" 
+                                  placeholder='[{"title":"Nhóm thông tin 1","items":[{"title":"Trường 1"},{"title":"Trường 2"}]},{"title":"Nhóm 2","items":[{"title":"Trường 3"}]}]'><?= htmlspecialchars($data_structure_json) ?></textarea>
+                        <small>Mô tả cấu trúc các trường dữ liệu theo nhóm. Định dạng: [{"title":"Tên nhóm","items":[{"title":"Tên trường"}]}]</small>
+                    </div>
+                    <div class="structure-preview" id="dataStructurePreview" style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:8px;min-height:60px;">
+                        <p class="preview-empty" style="color:#999;margin:0;">Xem trước cấu trúc sẽ hiển thị ở đây...</p>
+                    </div>
+                </div>
+
+                <!-- Tab 6: Hình Ảnh -->
+                <div class="tab-pane" id="tab-image">
+                    <?php $current_image = $form_data['image'] ?? ''; ?>
+                    
+                    <?php if (!empty($current_image)): ?>
+                    <div class="form-group">
+                        <label>Ảnh Hiện Tại</label>
+                        <div style="margin-bottom:12px;">
+                            <img src="<?= htmlspecialchars($current_image) ?>" alt="Ảnh hiện tại"
+                                 style="max-width:300px;max-height:200px;border-radius:8px;border:1px solid #ddd;object-fit:cover;"
+                                 onerror="this.style.display='none'">
                         </div>
                     </div>
-                </div>
+                    <?php endif; ?>
 
-                <!-- Tab 4: Hình Ảnh -->
-                <div class="tab-pane" id="tab-image">
                     <div class="form-group">
-                        <label for="image">Hình Ảnh Chính</label>
-                        <input type="url" id="image" name="image" 
-                               value="<?= htmlspecialchars($form_data['image'] ?? '') ?>" 
-                               placeholder="https://...">
-                        <small>Nhập URL hình ảnh</small>
+                        <label for="image_file">Upload Ảnh Mới</label>
+                        <div style="border:2px dashed #d1d5db;border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.3s;" 
+                             onclick="document.getElementById('image_file').click()" id="uploadZone">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:#9ca3af;margin-bottom:8px;display:block;"></i>
+                            <p style="margin:0;color:#6b7280;">Nhấp để chọn ảnh hoặc kéo thả vào đây</p>
+                            <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">JPG, PNG, GIF, WebP — Tối đa 5MB</p>
+                        </div>
+                        <input type="file" id="image_file" name="image_file" accept="image/*" style="display:none;"
+                               onchange="previewUploadedImage(this)">
+                        <div id="imagePreview" style="margin-top:12px;display:none;">
+                            <img id="previewImg" src="" alt="Preview" style="max-width:300px;max-height:200px;border-radius:8px;object-fit:cover;border:1px solid #ddd;">
+                            <p style="margin:4px 0 0;font-size:12px;color:#10B981;"><i class="fas fa-check-circle"></i> Ảnh mới đã chọn — sẽ được upload khi lưu</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:16px;">
+                        <label for="image_url">Hoặc nhập URL ảnh</label>
+                        <input type="url" id="image_url" name="image_url" 
+                               value="<?= htmlspecialchars(filter_var($current_image, FILTER_VALIDATE_URL) ? $current_image : '') ?>" 
+                               placeholder="https://example.com/image.jpg">
+                        <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
                     </div>
                 </div>
 
-                <!-- Tab 5: SEO -->
+                <!-- Tab 7: SEO -->
                 <div class="tab-pane" id="tab-seo">
                     <div class="form-group">
                         <label for="meta_title">Tiêu Đề SEO</label>
                         <input type="text" id="meta_title" name="meta_title" 
                                value="<?= htmlspecialchars($form_data['meta_title'] ?? '') ?>" 
                                placeholder="Tiêu đề tối ưu cho SEO">
+                        <small>Tối đa 60 ký tự</small>
                     </div>
 
                     <div class="form-group">
                         <label for="meta_description">Mô Tả SEO</label>
                         <textarea id="meta_description" name="meta_description" rows="3" 
                                   placeholder="Mô tả ngắn gọn cho SEO"><?= htmlspecialchars($form_data['meta_description'] ?? '') ?></textarea>
+                        <small>Tối đa 160 ký tự</small>
                     </div>
                 </div>
             </div>
@@ -443,10 +539,6 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
                 <i class="fas fa-save"></i>
                 Lưu Thay Đổi
             </button>
-            <button type="reset" class="btn btn-secondary">
-                <i class="fas fa-undo"></i>
-                Đặt lại
-            </button>
             <a href="?page=admin&module=products" class="btn btn-outline">
                 <i class="fas fa-times"></i>
                 Hủy
@@ -454,3 +546,42 @@ $form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $product;
         </div>
     </form>
 </div>
+
+<script>
+function previewUploadedImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+            // Clear URL input when file is selected
+            document.getElementById('image_url').value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Drag-and-drop support
+var uploadZone = document.getElementById('uploadZone');
+if (uploadZone) {
+    uploadZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#3B82F6';
+        this.style.background = '#EFF6FF';
+    });
+    uploadZone.addEventListener('dragleave', function() {
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+    });
+    uploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('image_file').files = files;
+            previewUploadedImage(document.getElementById('image_file'));
+        }
+    });
+}
+</script>

@@ -1,6 +1,25 @@
 // Admin Products Module JavaScript
 // Tái cấu trúc cho sản phẩm số (Data Nguồn Hàng)
 
+// ============================================================
+// GLOBAL BEFOREUNLOAD KILL-SWITCH for Products pages
+// Runs immediately (not waiting for DOMContentLoaded) so it
+// fires BEFORE any beforeunload listener added by other modules
+// (admin_events.js, admin_users.js, etc.)
+// ============================================================
+(function () {
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('module') === 'products') {
+        // Capturing phase so we run first
+        window.addEventListener('beforeunload', function (e) {
+            // Prevent any other handler from showing the dialog
+            e.stopImmediatePropagation();
+            // Remove ANY onbeforeunload assignment
+            window.onbeforeunload = null;
+        }, true); // capture = true → runs before bubbling/AT-target listeners
+    }
+})();
+
 // Global functions - accessible from HTML
 function handleImageFileSelect(input) {
     const imagePreview = document.getElementById('imagePreview');
@@ -178,53 +197,72 @@ function initJsonPreview() {
     const benefitsInput = document.getElementById('benefits');
     const benefitsPreview = document.getElementById('benefitsPreview');
     
-    if (!benefitsInput || !benefitsPreview) return;
-    
-    benefitsInput.addEventListener('input', function() {
+    function renderBenefitsPreview(val) {
+        if (!benefitsPreview) return;
+        if (!val || !val.trim()) {
+            benefitsPreview.innerHTML = '<p class="preview-empty" style="color:#999;margin:0;">Xem trước lợi ích sẽ hiển thị ở đây...</p>';
+            return;
+        }
         try {
-            const parsed = JSON.parse(this.value);
-            if (Array.isArray(parsed)) {
-                benefitsPreview.innerHTML = '<ul>' + 
-                    parsed.map(item => '<li>' + escapeHtml(item) + '</li>').join('') + 
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed) && parsed.length) {
+                benefitsPreview.innerHTML = '<ul style="margin:0;padding-left:20px;">' + 
+                    parsed.map(item => '<li style="margin-bottom:4px;">' + escapeHtml(String(item)) + '</li>').join('') + 
                     '</ul>';
             } else {
-                benefitsPreview.innerHTML = '<p class="preview-empty">JSON phải là mảng</p>';
+                benefitsPreview.innerHTML = '<p class="preview-empty" style="color:#999;margin:0;">JSON phải là mảng</p>';
             }
         } catch (e) {
-            benefitsPreview.innerHTML = '<p class="preview-empty">JSON không hợp lệ</p>';
+            benefitsPreview.innerHTML = '<p style="color:#e53e3e;margin:0;font-size:12px;">⚠ JSON không hợp lệ</p>';
         }
-    });
+    }
+    
+    if (benefitsInput) {
+        benefitsInput.addEventListener('input', function() { renderBenefitsPreview(this.value); });
+        // Trigger immediately for pre-filled data
+        renderBenefitsPreview(benefitsInput.value);
+    }
     
     // Data structure preview
     const dataStructureInput = document.getElementById('data_structure');
     const dataStructurePreview = document.getElementById('dataStructurePreview');
     
-    if (dataStructureInput && dataStructurePreview) {
-        dataStructureInput.addEventListener('input', function() {
-            try {
-                const parsed = JSON.parse(this.value);
-                if (Array.isArray(parsed)) {
-                    let html = '';
-                    parsed.forEach((section, index) => {
-                        html += '<div class="structure-section">';
-                        html += '<strong>' + (index + 1) + '. ' + escapeHtml(section.title || 'Nhóm thông tin') + '</strong>';
-                        if (section.items && Array.isArray(section.items)) {
-                            html += '<ul>';
-                            section.items.forEach(item => {
-                                html += '<li>' + escapeHtml(item.title || '') + '</li>';
-                            });
-                            html += '</ul>';
-                        }
-                        html += '</div>';
-                    });
-                    dataStructurePreview.innerHTML = html || '<p class="preview-empty">Chưa có cấu trúc</p>';
-                }
-            } catch (e) {
-                dataStructurePreview.innerHTML = '<p class="preview-empty">JSON không hợp lệ</p>';
+    function renderStructurePreview(val) {
+        if (!dataStructurePreview) return;
+        if (!val || !val.trim()) {
+            dataStructurePreview.innerHTML = '<p class="preview-empty" style="color:#999;margin:0;">Xem trước cấu trúc sẽ hiển thị ở đây...</p>';
+            return;
+        }
+        try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) {
+                let html = '';
+                parsed.forEach((section, index) => {
+                    html += '<div class="structure-section" style="margin-bottom:12px;">';
+                    html += '<strong style="color:#374151;">' + (index + 1) + '. ' + escapeHtml(section.title || 'Nhóm thông tin') + '</strong>';
+                    if (section.items && Array.isArray(section.items)) {
+                        html += '<ul style="margin-top:4px;padding-left:20px;">';
+                        section.items.forEach(item => {
+                            html += '<li style="color:#4b5563;">' + escapeHtml(item.title || '') + '</li>';
+                        });
+                        html += '</ul>';
+                    }
+                    html += '</div>';
+                });
+                dataStructurePreview.innerHTML = html || '<p class="preview-empty" style="color:#999;margin:0;">Chưa có cấu trúc</p>';
             }
-        });
+        } catch (e) {
+            dataStructurePreview.innerHTML = '<p style="color:#e53e3e;margin:0;font-size:12px;">⚠ JSON không hợp lệ</p>';
+        }
+    }
+    
+    if (dataStructureInput) {
+        dataStructureInput.addEventListener('input', function() { renderStructurePreview(this.value); });
+        // Trigger immediately for pre-filled data
+        renderStructurePreview(dataStructureInput.value);
     }
 }
+
 
 // Image Preview
 function initImagePreview() {
