@@ -95,8 +95,11 @@ class OrdersModel extends BaseModel {
      * Update used quota for a purchased product (deduct quota when viewing)
      */
     public function deductQuota($userId, $productId) {
-        // Fixed quota deduction: 10 per click
-        $quotaPerUsage = 10;
+        // Get quota_per_usage from products table
+        require_once __DIR__ . '/ProductsModel.php';
+        $productModel = new ProductsModel();
+        $product = $productModel->find($productId);
+        $quotaPerUsage = !empty($product['quota_per_usage']) ? (int)$product['quota_per_usage'] : 10;
         
         // Load ProductsModel if not already loaded
         if (!class_exists('ProductsModel')) {
