@@ -363,11 +363,11 @@ if (!function_exists('createSlugProduct')) {
                         </div>
 
                         <div class="form-group">
-                            <label for="quota_per_usage">Số Record Mỗi Lần Tải</label>
+                            <label for="quota_per_usage">Số Quota Hao Phí Mỗi Lần Tải</label>
                             <input type="number" id="quota_per_usage" name="quota_per_usage" 
                                    value="<?= htmlspecialchars($_POST['quota_per_usage'] ?? '10') ?>" 
                                    placeholder="10" min="1">
-                            <small>Số record được tải mỗi lần</small>
+                            <small>Số quota hao phí sau mỗi lần truy cập</small>
                         </div>
                     </div>
                 </div>

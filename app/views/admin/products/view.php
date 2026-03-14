@@ -354,7 +354,7 @@ if (!empty($product['supplier_social'])) {
                             <?php if (!empty($product['quota_per_usage'])): ?>
                             <tr>
                                 <td><strong>Tải mỗi lần:</strong></td>
-                                <td><?= $product['quota_per_usage'] ?> records</td>
+                                <td><?= $product['quota_per_usage'] ?> quota</td>
                             </tr>
                             <?php endif; ?>
                         </table>

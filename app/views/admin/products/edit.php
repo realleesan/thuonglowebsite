@@ -5,6 +5,11 @@
  * Using 2-layer tab layout (tabs container + tab-pane)
  */
 
+// Start session for PRG pattern
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
 
@@ -49,7 +54,14 @@ try {
 $errors = [];
 $success = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Check for success message from previous redirect (PRG pattern)
+$showSuccessMessage = false;
+if (isset($_SESSION['product_saved']) && $_SESSION['product_saved'] === $product_id) {
+    $showSuccessMessage = true;
+    unset($_SESSION['product_saved']);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST['data_action'])) {
     // Validation
     $name = trim($_POST['name'] ?? '');
     $category_id = (int)($_POST['category_id'] ?? 0);
@@ -99,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no errors, update database
     if (empty($errors)) {
+        error_log("EDIT.PHP: Validation passed, attempting to update database...");
         try {
             $updateData = [
                 'name'             => $name,
@@ -146,20 +159,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         if ($updated) {
-            // Use HTML redirect for reliable redirect after form submission
-            ?>
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta http-equiv="refresh" content="0;url=?page=admin&module=products">
-            </head>
-            <body>
-                <p>Đang chuyển hướng...</p>
-                <script>window.location.href = "?page=admin&module=products";</script>
-            </body>
-            </html>
-            <?php
-            exit;
+            // Store success in session for PRG pattern
+            $_SESSION['product_saved'] = $product_id;
+            
+            // Show success message on same page (no redirect)
+            $showSuccessMessage = true;
+            
+            // Refresh product data from database
+            $products = $productsModel->query("SELECT * FROM products WHERE id = ?", [$product_id]);
+            if (!empty($products)) {
+                $product = $products[0];
+            }
         } else {
             if (empty($errors)) {
                 $errors[] = 'Không thể cập nhật data';
@@ -168,8 +178,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Use POST data if available, otherwise use product data
-$form_data = $_SERVER['REQUEST_METHOD'] === 'POST' ? array_merge($product, $_POST) : $product;
+// Use POST data only if there's a validation error (not after successful redirect)
+// After successful save, we redirect and should show database data
+$form_data = $product;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
+    // Only show POST data if there were validation errors
+    $form_data = array_merge($product, $_POST);
+}
 
 // Decode JSON fields for preview
 $benefits_json = $form_data['benefits'] ?? '';
@@ -210,8 +225,18 @@ $data_structure_json = $form_data['data_structure'] ?? '';
     </div>
     <?php endif; ?>
 
+    <!-- Success Message -->
+    <?php if ($showSuccessMessage): ?>
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        Đã lưu thông tin sản phẩm thành công!
+    </div>
+    <?php endif; ?>
+
     <!-- Form -->
-    <form method="POST" action="?page=admin&module=products&action=edit&id=<?= $product_id ?>" enctype="multipart/form-data" class="admin-form" novalidate>
+    <form method="POST" action="?page=admin&module=products&action=edit&id=<?= $product_id ?>&tab=<?= htmlspecialchars($_GET['tab'] ?? 'tab-basic') ?>" enctype="multipart/form-data" class="admin-form" novalidate>
+        <input type="hidden" name="data_action" id="data_action" value="">
+        <input type="hidden" name="data_id" id="delete_row_id" value="">
         <!-- Tab Navigation -->
         <div class="product-details-tabs">
             <div class="tabs-header">
@@ -242,6 +267,10 @@ $data_structure_json = $form_data['data_structure'] ?? '';
                 <button type="button" class="tab-btn" data-tab="tab-seo">
                     <i class="fas fa-search"></i>
                     SEO
+                </button>
+                <button type="button" class="tab-btn" data-tab="tab-datamanagement">
+                    <i class="fas fa-database"></i>
+                    Quản Lý Dữ Liệu
                 </button>
             </div>
 
@@ -387,11 +416,11 @@ $data_structure_json = $form_data['data_structure'] ?? '';
                         </div>
 
                         <div class="form-group">
-                            <label for="quota_per_usage">Số Record Mỗi Lần Tải</label>
+                            <label for="quota_per_usage">Số Quota Hao Phí Mỗi Lần Tải</label>
                             <input type="number" id="quota_per_usage" name="quota_per_usage" 
                                    value="<?= htmlspecialchars($form_data['quota_per_usage'] ?? '10') ?>" 
                                    placeholder="10" min="1">
-                            <small>Số record được tải mỗi lần</small>
+                            <small>Số quota hao phí sau mỗi lần truy cập</small>
                         </div>
                     </div>
                 </div>
@@ -541,12 +570,288 @@ $data_structure_json = $form_data['data_structure'] ?? '';
                         <small>Tối đa 160 ký tự</small>
                     </div>
                 </div>
+
+                <!-- Tab 8: Quản Lý Dữ Liệu -->
+                <div class="tab-pane" id="tab-datamanagement">
+                    <?php
+                    // Initialize ProductDataModel for this tab
+                    require_once __DIR__ . '/../../../models/ProductDataModel.php';
+                    $productDataModel = new ProductDataModel();
+                    
+                    // Get data count
+                    $dataCount = $productDataModel->countByProduct($product_id);
+                    
+                    // Handle data management actions
+                    $dmMessage = '';
+                    $dmMessageType = '';
+                    
+                    if (isset($_POST['data_action_type'])) {
+                        // Upload Excel
+                        if ($_POST['data_action_type'] === 'upload_excel' && !empty($_FILES['excel_file']['tmp_name'])) {
+                            require_once __DIR__ . '/../../../services/ExcelParserService.php';
+                            $parser = new ExcelParserService();
+                            $result = $parser->parse($_FILES['excel_file']['tmp_name']);
+                            
+                            if ($result['success']) {
+                                $productDataModel->deleteByProduct($product_id);
+                                $inserted = $productDataModel->bulkInsert($result['data']);
+                                $dmMessage = "Đã upload thành công {$inserted} dòng dữ liệu!";
+                                $dmMessageType = 'success';
+                                if (!empty($result['warnings'])) {
+                                    $dmMessage .= " (" . count($result['warnings']) . " cảnh báo)";
+                                }
+                            } else {
+                                $dmMessage = $result['error'];
+                                $dmMessageType = 'error';
+                            }
+                        }
+                        // Add Manual Entry
+                        elseif ($_POST['data_action_type'] === 'add_manual') {
+                            $data = [
+                                'product_id' => $product_id,
+                                'supplier_name' => trim($_POST['supplier_name'] ?? ''),
+                                'address' => trim($_POST['address'] ?? ''),
+                                'wechat_account' => trim($_POST['wechat_account'] ?? ''),
+                                'phone' => trim($_POST['phone'] ?? ''),
+                                'wechat_qr' => trim($_POST['wechat_qr'] ?? '')
+                            ];
+                            
+                            // Allow empty entries - no validation required
+                            $productDataModel->create($data);
+                            $dmMessage = 'Đã thêm dữ liệu thành công!';
+                            $dmMessageType = 'success';
+                        }
+                        // Delete single row
+                        elseif ($_POST['data_action_type'] === 'delete_row' && !empty($_POST['data_id'])) {
+                            $productDataModel->delete((int)$_POST['data_id']);
+                            $dmMessage = 'Đã xóa dữ liệu!';
+                            $dmMessageType = 'success';
+                        }
+                        // Update row
+                        elseif ($_POST['data_action_type'] === 'update_row' && !empty($_POST['data_id'])) {
+                            $dataId = (int)$_POST['data_id'];
+                            $data = [
+                                'supplier_name' => trim($_POST['supplier_name'] ?? ''),
+                                'address' => trim($_POST['address'] ?? ''),
+                                'wechat_account' => trim($_POST['wechat_account'] ?? ''),
+                                'phone' => trim($_POST['phone'] ?? ''),
+                                'wechat_qr' => trim($_POST['wechat_qr'] ?? '')
+                            ];
+                            
+                            $productDataModel->update($dataId, $data);
+                            $dmMessage = 'Đã cập nhật dữ liệu!';
+                            $dmMessageType = 'success';
+                        }
+                        // Delete all data
+                        elseif ($_POST['data_action_type'] === 'delete_all') {
+                            $productDataModel->deleteByProduct($product_id);
+                            $dmMessage = 'Đã xóa tất cả dữ liệu!';
+                            $dmMessageType = 'success';
+                        }
+                        
+                        // Refresh data count
+                        $dataCount = $productDataModel->countByProduct($product_id);
+                    }
+                    
+                    // Get pagination
+                    $dmPage = max(1, (int)($_GET['dm_page'] ?? 1));
+                    $dmPerPage = 10;
+                    $dataPaginated = $productDataModel->getByProductPaginated($product_id, $dmPage, $dmPerPage);
+                    $dataList = $dataPaginated['data'];
+                    
+                    // Get edit data if requested
+                    $editDataItem = null;
+                    if (isset($_GET['dm_action']) && $_GET['dm_action'] === 'edit' && !empty($_GET['dm_data_id'])) {
+                        $editDataItem = $productDataModel->find((int)$_GET['dm_data_id']);
+                    }
+                    ?>
+                    
+                    <!-- Message -->
+                    <?php if (!empty($dmMessage)): ?>
+                    <div class="alert alert-<?= $dmMessageType === 'success' ? 'success' : 'danger' ?>">
+                        <?= htmlspecialchars($dmMessage) ?>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Stats -->
+                    <div class="data-stats" style="background:#f8f9fa;padding:15px;border-radius:8px;margin-bottom:20px;">
+                        <h4 style="margin:0 0 10px 0;"><i class="fas fa-chart-bar"></i> Thống Kê Dữ Liệu</h4>
+                        <p style="margin:0;">Tổng số dòng dữ liệu: <strong><?= (int)$dataCount ?></strong></p>
+                    </div>
+                    
+                    <!-- Upload Excel Section -->
+                    <div class="upload-section" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:20px;">
+                        <h5 style="margin:0 0 15px 0;"><i class="fas fa-file-excel"></i> Upload File Excel</h5>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" 
+                                   style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;">
+                            <button type="button" class="btn btn-primary" onclick="submitDataAction('upload_excel')">
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                        </div>
+                        <small style="color:#666;">Chấp nhận file .xlsx, .xls, .csv</small>
+                    </div>
+                    
+                    <!-- Manual Entry Section -->
+                    <div class="manual-entry-section" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:20px;">
+                        <h5 style="margin:0 0 15px 0;"><i class="fas fa-plus-circle"></i> Thêm Thủ Công</h5>
+                        <?php if ($editDataItem): ?>
+                        <div style="margin-bottom:15px;">
+                            <input type="hidden" name="data_action_type" value="update_row">
+                            <input type="hidden" name="data_id" value="<?= (int)$editDataItem['id'] ?>">
+                            <div class="form-row" style="display:flex;gap:10px;flex-wrap:wrap;">
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>Nhà Cung Cấp</label>
+                                    <input type="text" name="supplier_name" value="<?= htmlspecialchars($editDataItem['supplier_name'] ?? '') ?>" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>Địa Chỉ</label>
+                                    <input type="text" name="address" value="<?= htmlspecialchars($editDataItem['address'] ?? '') ?>" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>WeChat</label>
+                                    <input type="text" name="wechat_account" value="<?= htmlspecialchars($editDataItem['wechat_account'] ?? '') ?>" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>Điện Thoại</label>
+                                    <input type="text" name="phone" value="<?= htmlspecialchars($editDataItem['phone'] ?? '') ?>" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>QR WeChat</label>
+                                    <input type="text" name="wechat_qr" value="<?= htmlspecialchars($editDataItem['wechat_qr'] ?? '') ?>" 
+                                           class="form-control">
+                                </div>
+                                <div style="display:flex;gap:5px;align-items:flex-end;">
+                                    <button type="button" class="btn btn-success btn-sm" onclick="submitDataAction('update_row')">
+                                        <i class="fas fa-save"></i> Lưu
+                                    </button>
+                                    <a href="?page=admin&module=products&action=edit&id=<?= $product_id ?>" class="btn btn-outline btn-sm">
+                                        Hủy
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php else: ?>
+                        <div>
+                            <input type="hidden" name="data_action_type" value="add_manual">
+                            <div class="form-row" style="display:flex;gap:10px;flex-wrap:wrap;">
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>Nhà Cung Cấp</label>
+                                    <input type="text" name="supplier_name" placeholder="Tên nhà cung cấp" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>Địa Chỉ</label>
+                                    <input type="text" name="address" placeholder="Địa chỉ" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>WeChat</label>
+                                    <input type="text" name="wechat_account" placeholder="Tài khoản WeChat" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>Điện Thoại</label>
+                                    <input type="text" name="phone" placeholder="Số điện thoại" 
+                                           class="form-control">
+                                </div>
+                                <div class="form-group" style="flex:1;min-width:150px;">
+                                    <label>QR WeChat</label>
+                                    <input type="text" name="wechat_qr" placeholder="URL QR code" 
+                                           class="form-control">
+                                </div>
+                                <button type="button" class="btn btn-success" onclick="submitDataAction('add_manual')">
+                                    <i class="fas fa-plus"></i> Thêm
+                                </button>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Data Table -->
+                    <?php if (!empty($dataList)): ?>
+                    <div class="table-container" style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                            <h5 style="margin:0;"><i class="fas fa-list"></i> Danh Sách Dữ Liệu</h5>
+                            <div>
+                                <input type="hidden" name="data_action_type" value="delete_all">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="if(confirm('Bạn có chắc muốn xóa tất cả dữ liệu?')){submitDataAction('delete_all')}">
+                                    <i class="fas fa-trash"></i> Xóa Tất Cả
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <table class="data-table" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                                <tr style="background:#f8f9fa;">
+                                    <th style="padding:10px;text-align:left;border-bottom:2px solid #dee2e6;">#</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:2px solid #dee2e6;">Nhà Cung Cấp</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:2px solid #dee2e6;">Địa Chỉ</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:2px solid #dee2e6;">WeChat</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:2px solid #dee2e6;">Điện Thoại</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:2px solid #dee2e6;">QR WeChat</th>
+                                    <th style="padding:10px;text-align:left;border-bottom:2px solid #dee2e6;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($dataList as $index => $item): ?>
+                                <tr style="border-bottom:1px solid #dee2e6;">
+                                    <td style="padding:10px;"><?= ($dmPage - 1) * $dmPerPage + $index + 1 ?></td>
+                                    <td style="padding:10px;"><?= htmlspecialchars($item['supplier_name'] ?? '') ?></td>
+                                    <td style="padding:10px;"><?= htmlspecialchars($item['address'] ?? '') ?></td>
+                                    <td style="padding:10px;"><?= htmlspecialchars($item['wechat_account'] ?? '') ?></td>
+                                    <td style="padding:10px;"><?= htmlspecialchars($item['phone'] ?? '') ?></td>
+                                    <td style="padding:10px;">
+                                        <?php if (!empty($item['wechat_qr'])): ?>
+                                        <a href="<?= htmlspecialchars($item['wechat_qr']) ?>" target="_blank">Xem</a>
+                                        <?php else: ?>
+                                        -
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="padding:10px;">
+                                        <a href="?page=admin&module=products&action=edit&id=<?= $product_id ?>&dm_action=edit&dm_data_id=<?= (int)$item['id'] ?>" 
+                                           class="btn btn-primary btn-sm" style="margin-right:5px;">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <input type="hidden" name="data_id_<?= (int)$item['id'] ?>" value="<?= (int)$item['id'] ?>">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="if(confirm('Xóa dòng này?')){document.getElementById('data_action').value='delete_row';document.getElementById('delete_row_id').value='<?= (int)$item['id'] ?>';document.querySelector('.admin-form').submit()}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        
+                        <!-- Pagination -->
+                        <?php if ($dataPaginated['last_page'] > 1): ?>
+                        <div class="pagination" style="display:flex;justify-content:center;gap:5px;margin-top:20px;">
+                            <?php for ($i = 1; $i <= $dataPaginated['last_page']; $i++): ?>
+                            <a href="?page=admin&module=products&action=edit&id=<?= $product_id ?>&dm_page=<?= $i ?>" 
+                               class="<?= $i === $dmPage ? 'active' : '' ?>"
+                               style="padding:8px 12px;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333;<?= $i === $dmPage ? 'background:#007bff;color:#fff;' : '' ?>">
+                                <?= $i ?>
+                            </a>
+                            <?php endfor; ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php else: ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Chưa có dữ liệu. Hãy upload file Excel hoặc thêm thủ công.
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
 
         <!-- Form Actions -->
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" onclick="return checkRequiredFields()">
                 <i class="fas fa-save"></i>
                 Lưu Thay Đổi
             </button>
@@ -884,4 +1189,85 @@ function escapeHtml(text) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+
+// Submit form with specific action
+function submitDataAction(action) {
+    // Get current active tab
+    var activeTab = document.querySelector('.tab-btn.active');
+    var tabParam = activeTab ? '&tab=' + activeTab.dataset.tab : '';
+    
+    document.getElementById('data_action').value = action;
+    var form = document.querySelector('.admin-form');
+    form.action = '?page=admin&module=products&action=edit&id=<?= $product_id ?>' + tabParam;
+    form.submit();
+}
+
+// Submit form for saving product (main action)
+function submitProductForm() {
+    // Get current active tab
+    var activeTab = document.querySelector('.tab-btn.active');
+    var tabParam = activeTab ? '&tab=' + activeTab.dataset.tab : '';
+    
+    document.getElementById('data_action').value = '';
+    var form = document.querySelector('.admin-form');
+    form.action = '?page=admin&module=products&action=edit&id=<?= $product_id ?>' + tabParam;
+    form.submit();
+}
+
+// Check required fields before submit
+function checkRequiredFields() {
+    var name = document.getElementById('name').value.trim();
+    var category = document.getElementById('category_id').value;
+    var price = document.getElementById('price').value;
+    var description = document.getElementById('description').value;
+    
+    var errors = [];
+    
+    if (!name) {
+        errors.push('Tên sản phẩm');
+    }
+    if (!category || category === '0') {
+        errors.push('Danh mục');
+    }
+    if (!price || parseFloat(price) <= 0) {
+        errors.push('Giá sản phẩm');
+    }
+    if (!description) {
+        errors.push('Mô tả sản phẩm');
+    }
+    
+    if (errors.length > 0) {
+        alert('Vui lòng điền: ' + errors.join(', '));
+        return false;
+    }
+    
+    // Set data_action to empty for main form save
+    document.getElementById('data_action').value = '';
+    
+    return true;
+}
+
+// Initialize tab from URL parameter on page load
+document.addEventListener('DOMContentLoaded', function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var activeTab = urlParams.get('tab');
+    
+    if (activeTab) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.classList.remove('active');
+            if (btn.dataset.tab === activeTab) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Update tab panes
+        document.querySelectorAll('.tab-pane').forEach(function(pane) {
+            pane.classList.remove('active');
+            if (pane.id === activeTab) {
+                pane.classList.add('active');
+            }
+        });
+    }
+});
 </script>
