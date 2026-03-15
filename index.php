@@ -664,6 +664,268 @@ switch($page) {
                     case 'view':
                         $content = 'app/views/admin/products/view.php';
                         break;
+                    case 'data':
+                        $page_title = 'Quản lý Dữ liệu Sản phẩm';
+                        $content = 'app/views/admin/products/data/index.php';
+                        
+                        // Handle AJAX import request
+                        if (isset($_GET['subaction']) && $_GET['subaction'] === 'import' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                            // Process the import and return JSON response
+                            header('Content-Type: application/json');
+                            
+                            // Check if file was uploaded
+                            if (!isset($_FILES['import_file']) || $_FILES['import_file']['error'] !== UPLOAD_ERR_OK) {
+                                http_response_code(400);
+                                echo json_encode(['success' => false, 'message' => 'Lỗi upload file']);
+                                exit;
+                            }
+                            
+                            $productId = (int)($_POST['product_id'] ?? 0);
+                            if (!$productId) {
+                                http_response_code(400);
+                                echo json_encode(['success' => false, 'message' => 'Thiếu ID sản phẩm']);
+                                exit;
+                            }
+                            
+                            $file = $_FILES['import_file'];
+                            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                            
+                            if (!in_array($ext, ['xlsx', 'csv'])) {
+                                http_response_code(400);
+                                echo json_encode(['success' => false, 'message' => 'Định dạng file không hợp lệ']);
+                                exit;
+                            }
+                            
+                            // Include model and process import
+                            $modelPath = __DIR__ . '/app/models/ProductDataModel.php';
+                            if (file_exists($modelPath)) {
+                                require_once $modelPath;
+                                $productDataModel = new ProductDataModel();
+                                
+                                // Simple CSV parsing for now
+                                $data = [];
+                                $normalizedHeaders = [];
+                                if ($ext === 'csv') {
+                                    $handle = fopen($file['tmp_name'], 'r');
+                                    $headers = fgetcsv($handle);
+                                    // Normalize CSV headers
+                                    $normalizedHeaders = [];
+                                    foreach ($headers as $idx => $h) {
+                                        $h = strtolower(trim($h));
+                                        // Remove accents
+                                        $h = str_replace(
+                                                                    ['à','á','ạ','ả','ã','â','ầ','ấ','ậ','ẩ','ẫ','ă','ằ','ắ','ặ','ẳ','ẵ','è','é','ẹ','ẻ','ẽ','ê','ề','ế','ệ','ể','ễ','ì','í','ị','ỉ','ĩ','ò','ó','ọ','ỏ','õ','ô','ồ','ố','ộ','ổ','ỗ','ơ','ờ','ớ','ợ','ở','ỡ','ù','ú','ụ','ủ','ũ','ư','ừ','ứ','ự','ử','ữ','ỳ','ý','ỵ','ỷ','ỹ','đ','À','Á','Ạ','Ả','Ã','Â','Ầ','Ấ','Ậ','Ẩ','Ẫ','Ă','Ằ','Ắ','Ặ','Ẳ','Ẵ','È','É','Ẹ','Ẻ','Ẽ','Ê','Ề','Ế','Ệ','Ể','Ễ','Ì','Í','Ị','Ỉ','Ĩ','Ò','Ó','Ọ','Ỏ','Õ','Ô','Ồ','Ố','Ộ','Ổ','Ỗ','Ơ','Ờ','Ớ','Ợ','Ở','Ỡ','Ù','Ú','Ụ','Ủ','Ũ','Ư','Ừ','Ứ','Ự','Ử','Ữ','Ỳ','Ý','Ỵ','Ỷ','Ỹ','Đ'],
+                                                                    ['a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','e','e','e','e','e','e','e','e','e','e','e','i','i','i','i','i','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','u','u','u','u','u','u','u','u','u','u','u','u','y','y','y','y','y','d','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','E','E','E','E','E','E','E','E','E','E','E','I','I','I','I','I','O','O','O','O','O','O','O','O','O','O','O','O','O','O','O','O','U','U','U','U','U','U','U','U','U','U','U','U','Y','Y','Y','Y','Y','D'],
+                                                                    $h
+                                                                );
+                                        $h = preg_replace('/[^a-z0-9_]/', '_', $h);
+                                        $h = preg_replace('/_+/', '_', $h);
+                                        $h = trim($h, '_');
+                                        $normalizedHeaders[$idx] = $h;
+                                    }
+                                    while (($row = fgetcsv($handle)) !== false) {
+                                        $item = [];
+                                        foreach ($headers as $i => $header) {
+                                            $header = strtolower(trim($header));
+                                            $header = preg_replace('/[^a-z0-9_]/', '_', $header);
+                                            if (in_array($header, ['supplier', 'supplier_name', 'nha_cung_cap'])) {
+                                                $item['supplier_name'] = $row[$i] ?? '';
+                                            } elseif (in_array($header, ['address', 'dia_chi'])) {
+                                                $item['address'] = $row[$i] ?? '';
+                                            } elseif (in_array($header, ['wechat', 'wechat_account'])) {
+                                                $item['wechat_account'] = $row[$i] ?? '';
+                                            } elseif (in_array($header, ['phone', 'dien_thoai'])) {
+                                                $item['phone'] = $row[$i] ?? '';
+                                            } elseif (in_array($header, ['qr', 'qr_wechat', 'wechat_qr'])) {
+                                                $item['wechat_qr'] = $row[$i] ?? '';
+                                            }
+                                        }
+                                        if (!empty($item['supplier_name'])) {
+                                            $item['product_id'] = $productId;
+                                            $data[] = $item;
+                                        }
+                                    }
+                                    fclose($handle);
+                                } elseif ($ext === 'xlsx') {
+                                    // Parse xlsx without PhpSpreadsheet - using ZipArchive
+                                    if (class_exists('ZipArchive')) {
+                                        try {
+                                            $zip = new ZipArchive();
+                                            if ($zip->open($file['tmp_name']) === true) {
+                                                // Read sharedStrings.xml for string values
+                                                $sharedStrings = [];
+                                                if (($index = $zip->locateName('xl/sharedStrings.xml')) !== false) {
+                                                    $xml = simplexml_load_string($zip->getFromIndex($index));
+                                                    foreach ($xml->si as $si) {
+                                                        $sharedStrings[] = (string)$si->t;
+                                                    }
+                                                }
+                                                
+                                                // Read sheet1.xml
+                                                if (($index = $zip->locateName('xl/worksheets/sheet1.xml')) !== false) {
+                                                    $xml = simplexml_load_string($zip->getFromIndex($index));
+                                                    $rows = [];
+                                                    $rowIndex = 0;
+                                                    
+                                                    foreach ($xml->sheetData->row as $row) {
+                                                        $rowData = [];
+                                                        $colIndex = 0;
+                                                        foreach ($row->c as $cell) {
+                                                            // Calculate column index from cell reference (A, B, C, etc.)
+                                                            $cellRef = (string)$cell['r'];
+                                                            preg_match('/([A-Z]+)(\d+)/', $cellRef, $matches);
+                                                            $col = $matches[1] ?? '';
+                                                            $colNum = 0;
+                                                            for ($i = 0; $i < strlen($col); $i++) {
+                                                                $colNum = $colNum * 26 + (ord($col[$i]) - ord('A') + 1);
+                                                            }
+                                                            
+                                                            // Get value
+                                                            $value = '';
+                                                            if (isset($cell->v)) {
+                                                                $value = (string)$cell->v;
+                                                                // Check if it's a shared string
+                                                                if (isset($cell['t']) && (string)$cell['t'] === 's') {
+                                                                    $value = $sharedStrings[(int)$value] ?? '';
+                                                                }
+                                                            } elseif (isset($cell->is)) {
+                                                                $value = (string)$cell->is->t;
+                                                            }
+                                                            
+                                                            $rowData[$colNum] = $value;
+                                                            $colIndex = max($colIndex, $colNum);
+                                                        }
+                                                        
+                                                        if ($rowIndex === 0) {
+                                                            // First row is header
+                                                            $headers = $rowData;
+                                                            $normalizedHeaders = [];
+                                                            foreach ($headers as $idx => $header) {
+                                                                $header = strtolower(trim($header));
+                                                                // Remove Vietnamese accents - comprehensive approach
+                                                                // First use NFD to decompose characters
+                                                                if (function_exists('normalizer_normalize')) {
+                                                                    $header = normalizer_normalize($header, Normalizer::NFD);
+                                                                    $header = preg_replace('/\p{M}/u', '', $header);
+                                                                }
+                                                                // Also manually replace remaining vietnamese chars (in case NFD didn't work)
+                                                                $header = str_replace(
+                                                                    ['đ','Đ','à','á','ạ','ả','ã','â','ầ','ấ','ậ','ẩ','ẫ','ă','ằ','ắ','ặ','ẳ','ẵ','è','é','ẹ','ẻ','ẽ','ê','ề','ế','ệ','ể','ễ','ì','í','ị','ỉ','ĩ','ò','ó','ọ','ỏ','õ','ô','ồ','ố','ộ','ổ','ỗ','ơ','ờ','ớ','ợ','ở','ỡ','ù','ú','ụ','ủ','ũ','ư','ừ','ứ','ự','ử','ữ','ỳ','ý','ỵ','ỷ','ỹ','À','Á','Ạ','Ả','Ã','Â','Ầ','Ấ','Ậ','Ẩ','Ẫ','Ă','Ằ','Ắ','Ặ','Ẳ','Ẵ','È','É','Ẹ','Ẻ','Ẽ','Ê','Ề','Ế','Ệ','Ể','Ễ','Ì','Í','Ị','Ỉ','Ĩ','Ò','Ó','Ọ','Ỏ','Õ','Ô','Ồ','Ố','Ộ','Ổ','Ỗ','Ơ','Ờ','Ớ','Ợ','Ở','Ỡ','Ù','Ú','Ụ','Ủ','Ũ','Ư','Ừ','Ứ','Ự','Ử','Ữ','Ỳ','Ý','Ỵ','Ỷ','Ỹ','ị','ọ','ặ','ờ','ớ','ợ','ở','ỡ','ỵ','ỷ','ỹ','ỳ','ỉ','ỏ','ũ','ữ'],
+                                                                    ['d','D','a','a','a','a','a','a','a','a','a','a','a','a','a','a','a','e','e','e','e','e','e','e','e','e','e','e','i','i','i','i','i','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','u','u','u','u','u','u','u','u','u','u','u','u','y','y','y','y','y','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','A','E','E','E','E','E','E','E','E','E','E','E','I','I','I','I','I','O','O','O','O','O','O','O','O','O','O','O','O','O','O','O','O','U','U','U','U','U','U','U','U','U','U','U','U','Y','Y','Y','Y','Y','i','o','a','o','o','o','o','o','y','y','y','y','i','o','u','u'],
+                                                                    $header
+                                                                );
+                                                                $header = preg_replace('/[^a-z0-9_]/', '_', $header);
+                                                                $header = preg_replace('/_+/', '_', $header);
+                                                                $header = trim($header, '_');
+                                                                $normalizedHeaders[$idx] = $header;
+                                                            }
+                                                            // Debug: log headers
+                                                            error_log('Import debug - headers: ' . json_encode($normalizedHeaders));
+                                                        } else {
+                                                            $item = [];
+                                                            foreach ($normalizedHeaders as $idx => $header) {
+                                                                $value = $rowData[$idx] ?? '';
+                                                                // Map various header names - be more flexible
+                                                                $header = trim($header);
+                                                                
+                                                                // Debug: log header
+                                                                error_log('Processing header: ' . $header);
+                                                                
+                                                                // Supplier
+                                                                if (stripos($header, 'nha_cung') !== false || stripos($header, 'supplier') !== false || $header === 'ncc' || stripos($header, 'vendor') !== false) {
+                                                                    $item['supplier_name'] = $value;
+                                                                }
+                                                                // Address - look for 'chi' 
+                                                                elseif (stripos($header, 'chi') !== false || stripos($header, 'address') !== false || stripos($header, 'location') !== false) {
+                                                                    $item['address'] = $value;
+                                                                }
+                                                                // QR - check BEFORE wechat since qr_wechat_url contains wechat
+                                                                if (stripos($header, 'qr') !== false) {
+                                                                    $item['wechat_qr'] = $value;
+                                                                }
+                                                                // WeChat - check AFTER qr, exclude headers that have qr
+                                                                elseif ((stripos($header, 'wechat') !== false && stripos($header, 'qr') === false) || stripos($header, 'wx') !== false) {
+                                                                    $item['wechat_account'] = $value;
+                                                                }
+                                                                // Phone - look for 'dien' or 'thoai' or 'so' or 'phone'
+                                                                elseif (stripos($header, 'dien') !== false || stripos($header, 'thoai') !== false || stripos($header, 'phone') !== false || stripos($header, 'mobile') !== false || (stripos($header, 'so') !== false && stripos($header, 'dien') === false)) {
+                                                                    $item['phone'] = $value;
+                                                                }
+                                                            }
+                                                            if (!empty($item['supplier_name'])) {
+                                                                $item['product_id'] = $productId;
+                                                                $data[] = $item;
+                                                            }
+                                                        }
+                                                        $rowIndex++;
+                                                    }
+                                                }
+                                                $zip->close();
+                                            } else {
+                                                throw new Exception('Không thể mở file xlsx');
+                                            }
+                                        } catch (Exception $e) {
+                                            http_response_code(400);
+                                            echo json_encode(['success' => false, 'message' => 'Lỗi đọc file xlsx: ' . $e->getMessage()]);
+                                            exit;
+                                        }
+                                    } else {
+                                        http_response_code(400);
+                                        echo json_encode(['success' => false, 'message' => 'Thư viện ZipArchive không được hỗ trợ']);
+                                        exit;
+                                    }
+                                }
+                                
+                                // Import data
+                                $inserted = 0;
+                                
+                                // Debug: log what data we found
+                                error_log('Import debug - data count: ' . count($data));
+                                if (!empty($data)) {
+                                    error_log('Import debug - first row: ' . json_encode($data[0]));
+                                }
+                                
+                                if (empty($data)) {
+                                    http_response_code(400);
+                                    $debugInfo = '';
+                                    // Try to get header info from the file
+                                    if ($ext === 'xlsx' && class_exists('ZipArchive')) {
+                                        $debugInfo = ' Debug: có thể header không khớp. Headers nhận được: ' . json_encode($normalizedHeaders ?? []);
+                                    }
+                                    echo json_encode(['success' => false, 'message' => 'File không có dữ liệu hợp lệ. Vui lòng kiểm tra định dạng file và header cột.' . $debugInfo]);
+                                    exit;
+                                }
+                                foreach ($data as $item) {
+                                    try {
+                                        $productDataModel->create($item);
+                                        $inserted++;
+                                    } catch (Exception $e) {
+                                        error_log('Insert error: ' . $e->getMessage());
+                                    }
+                                }
+                                
+                                // Debug: log imported data
+                                error_log('Import debug - imported data: ' . json_encode($data));
+                                
+                                echo json_encode([
+                                    'success' => true, 
+                                    'message' => "Import thành công! Đã thêm {$inserted} dòng dữ liệu.",
+                                    'data' => ['inserted' => $inserted]
+                                ]);
+                            } else {
+                                echo json_encode(['success' => false, 'message' => 'Không tìm thấy model']);
+                            }
+                            exit;
+                        }
+                        break;
+                    case 'import':
+                        $page_title = 'Quản lý Dữ liệu Sản phẩm - Import';
+                        $content = 'app/views/admin/products/data/index.php';
+                        // Process import via AJAX endpoint
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['import_file'])) {
+                            // The import is handled via AJAX in the view
+                        }
+                        break;
                     default:
                         $content = 'app/views/admin/products/index.php';
                         break;

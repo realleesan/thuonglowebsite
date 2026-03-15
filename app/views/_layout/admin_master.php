@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="<?php echo css_url('admin_contact.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_revenue.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_settings.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_data.css'); ?>">
     
     <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -79,6 +80,7 @@
     <script src="<?php echo js_url('admin_contact.js'); ?>"></script>
     <script src="<?php echo js_url('admin_revenue.js'); ?>"></script>
     <script src="<?php echo js_url('admin_settings.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_data.js'); ?>"></script>
     
     <!-- Force stop loading indicator -->
     <script>
