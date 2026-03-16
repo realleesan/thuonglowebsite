@@ -58,7 +58,7 @@ echo "</style>";
 echo "</head>";
 echo "<body>";
 
-echo "<h1>📱 Quản lý phiên đăng nhập thiết bị</h1>";
+echo "<h1>Quản lý phiên đăng nhập thiết bị</h1>";
 
 // Xử lý các action
 $action = $_GET['action'] ?? '';
@@ -75,7 +75,7 @@ if ($action === 'clear_user' && isset($_GET['user_id'])) {
     $model->query("DELETE FROM device_sessions WHERE user_id = ?", [$userId]);
     $model->query("DELETE FROM device_verification_codes WHERE user_id = ?", [$userId]);
     
-    $message = "✅ Đã xóa " . count($devices) . " phiên đăng nhập của user ID: $userId";
+    $message = " Đã xóa " . count($devices) . " phiên đăng nhập của user ID: $userId";
     $messageType = 'success';
 }
 
@@ -88,7 +88,7 @@ if ($action === 'clear_all') {
     $model->query("DELETE FROM device_sessions WHERE status IN ('active', 'pending')");
     $model->query("DELETE FROM device_verification_codes");
     
-    $message = "✅ Đã xóa $count phiên đăng nhập của tất cả users";
+    $message = " Đã xóa $count phiên đăng nhập của tất cả users";
     $messageType = 'success';
 }
 
@@ -100,7 +100,7 @@ if ($action === 'deactivate_others' && isset($_GET['user_id']) && isset($_GET['e
     $model->query("DELETE FROM device_sessions WHERE user_id = ? AND session_id != ?", [$userId, $exceptSessionId]);
     $model->query("DELETE FROM device_verification_codes WHERE user_id = ?", [$userId]);
     
-    $message = "✅ Đã xóa tất cả phiên đăng nhập khác của user ID: $userId (giữ lại session hiện tại)";
+    $message = " Đã xóa tất cả phiên đăng nhập khác của user ID: $userId (giữ lại session hiện tại)";
     $messageType = 'success';
 }
 
@@ -110,7 +110,7 @@ if ($message) {
 }
 
 // Lấy danh sách tất cả thiết bị đang hoạt động
-echo "<h2>📋 Danh sách thiết bị đang đăng nhập</h2>";
+echo "<h2>Danh sách thiết bị đang đăng nhập</h2>";
 
 $allDevices = $model->query("
     SELECT ds.*, u.name as user_name, u.email as user_email 
@@ -201,10 +201,10 @@ if (empty($allDevices)) {
     echo "</table>";
 }
 
-echo "<h2>🔧 Thao tác khác</h2>";
+echo "<h2>Thao tác khác</h2>";
 
 echo "<div class='form-group'>";
-echo "<a href='?action=clear_all' class='btn btn-danger' onclick=\"return confirm('CẢNH BÁO: Điều này sẽ đăng xuất TẤT CẢ người dùng khỏi tất cả thiết bị! Tiếp tục?')\">🗑️ Xóa tất cả phiên đăng nhập</a>";
+echo "<a href='?action=clear_all' class='btn btn-danger' onclick=\"return confirm('CẢNH BÁO: Điều này sẽ đăng xuất TẤT CẢ người dùng khỏi tất cả thiết bị! Tiếp tục?')\"> Xóa tất cả phiên đăng nhập</a>";
 echo "</div>";
 
 echo "<div class='form-group'>";
@@ -216,7 +216,7 @@ echo "<button type='submit' class='btn btn-danger'>Xóa phiên của user</butto
 echo "</form>";
 echo "</div>";
 
-echo "<h2>📊 Thống kê</h2>";
+echo "<h2>Thống kê</h2>";
 
 $stats = [];
 $stats['total'] = $model->query("SELECT COUNT(*) as count FROM device_sessions")[0]['count'] ?? 0;
@@ -226,10 +226,10 @@ $stats['inactive'] = $model->query("SELECT COUNT(*) as count FROM device_session
 
 echo "<table>";
 echo "<tr><th>Trạng thái</th><th>Số lượng</th></tr>";
-echo "<tr><td>🔵 Tổng số thiết bị</td><td><strong>{$stats['total']}</strong></td></tr>";
-echo "<tr><td>🟢 Đang hoạt động</td><td><strong class='status-active'>{$stats['active']}</strong></td></tr>";
-echo "<tr><td>🟡 Chờ xác nhận</td><td><strong class='status-pending'>{$stats['pending']}</strong></td></tr>";
-echo "<tr><td>⚫ Không hoạt động</td><td><strong class='status-inactive'>{$stats['inactive']}</strong></td></tr>";
+echo "<tr><td>Tổng số thiết bị</td><td><strong>{$stats['total']}</strong></td></tr>";
+echo "<tr><td>Đang hoạt động</td><td><strong class='status-active'>{$stats['active']}</strong></td></tr>";
+echo "<tr><td>Chờ xác nhận</td><td><strong class='status-pending'>{$stats['pending']}</strong></td></tr>";
+echo "<tr><td>Không hoạt động</td><td><strong class='status-inactive'>{$stats['inactive']}</strong></td></tr>";
 echo "</table>";
 
 // Thông tin người dùng hiện tại (nếu đang đăng nhập)
@@ -238,7 +238,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (isset($_SESSION['user_id'])) {
-    echo "<h2>👤 Thông tin phiên hiện tại</h2>";
+    echo "<h2>Thông tin phiên hiện tại</h2>";
     echo "<p><strong>User ID:</strong> " . $_SESSION['user_id'] . "</p>";
     echo "<p><strong>Tên:</strong> " . ($_SESSION['user_name'] ?? 'N/A') . "</p>";
     echo "<p><strong>Email:</strong> " . ($_SESSION['user_email'] ?? 'N/A') . "</p>";

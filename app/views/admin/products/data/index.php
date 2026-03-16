@@ -242,9 +242,6 @@ function getProductDataCount($productId) {
     <?php if ($selectedProductId === 0): ?>
     <!-- VIEW 1: Product List Only -->
     <div class="section products-panel">
-        <div class="section-header">
-            <h3 style="padding-left: 20px;"><i class="fas fa-box"></i> Danh Sách Sản Phẩm</h3>
-        </div>
         
         <!-- Search & Filter -->
         <div class="filter-section">
@@ -346,23 +343,6 @@ function getProductDataCount($productId) {
     <?php else: ?>
     <!-- VIEW 2: Data Management for Selected Product -->
     <div class="section data-panel">
-        <div class="section-header">
-            <h3 style="padding-left: 20px;"><i class="fas fa-database"></i> <?= htmlspecialchars($selectedProduct['name'] ?? '') ?></h3>
-        </div>
-
-        <!-- Stats -->
-        <div class="data-stats">
-            <div class="stat-item">
-                <i class="fas fa-list-ol"></i>
-                <span class="stat-value"><?= (int)$dataCount ?></span>
-                <span class="stat-label">Tổng dữ liệu</span>
-            </div>
-            <div class="stat-item">
-                <i class="fas fa-box"></i>
-                <span class="stat-value"><?= (int)($selectedProduct['record_count'] ?? 0) ?></span>
-                <span class="stat-label">Record count</span>
-            </div>
-        </div>
 
         <!-- Tab Buttons -->
         <div class="import-tabs">

@@ -13,7 +13,7 @@ $service = isset($currentService) ? $currentService : ($publicService ?? null);
 // Get parameters
 $productId = (int)($_GET['id'] ?? $_GET['product_id'] ?? 0);
 $token = $_GET['token'] ?? '';
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page = max(1, (int)($_GET['p'] ?? $_GET['page'] ?? 1));
 $perPage = 10;
 
 // Initialize variables
@@ -90,7 +90,7 @@ try {
     </div>
     <?php else: ?>
     
-    <a href="?page=product&id=<?php echo $productId; ?>" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại sản phẩm</a>
+    <a href="?page=details&id=<?php echo $productId; ?>" class="back-btn"><i class="fas fa-arrow-left"></i> Quay lại sản phẩm</a>
     
     <div class="page-header">
         <div class="page-header-inner">
@@ -172,7 +172,7 @@ try {
         </div>
         <div class="pagination-container">
             <?php if ($pagination['current_page'] > 1): ?>
-            <a href="?page=product-data&id=<?php echo $productId; ?>&token=<?php echo htmlspecialchars($token); ?>&page=<?php echo $pagination['current_page'] - 1; ?>" 
+            <a href="?page=product-data&id=<?php echo $productId; ?>&token=<?php echo htmlspecialchars($token); ?>&p=<?php echo $pagination['current_page'] - 1; ?>" 
                class="pagination-link">← Trước</a>
             <?php endif; ?>
             
@@ -183,14 +183,14 @@ try {
             
             for ($i = $startPage; $i <= $endPage; $i++): 
             ?>
-            <a href="?page=product-data&id=<?php echo $productId; ?>&token=<?php echo htmlspecialchars($token); ?>&page=<?php echo $i; ?>" 
+            <a href="?page=product-data&id=<?php echo $productId; ?>&token=<?php echo htmlspecialchars($token); ?>&p=<?php echo $i; ?>" 
                class="pagination-link <?php echo ($i === $pagination['current_page']) ? 'pagination-current' : ''; ?>">
                 <?php echo $i; ?>
             </a>
             <?php endfor; ?>
             
             <?php if ($pagination['current_page'] < $pagination['last_page']): ?>
-            <a href="?page=product-data&id=<?php echo $productId; ?>&token=<?php echo htmlspecialchars($token); ?>&page=<?php echo $pagination['current_page'] + 1; ?>" 
+            <a href="?page=product-data&id=<?php echo $productId; ?>&token=<?php echo htmlspecialchars($token); ?>&p=<?php echo $pagination['current_page'] + 1; ?>" 
                class="pagination-link">Sau →</a>
             <?php endif; ?>
         </div>
