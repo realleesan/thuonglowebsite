@@ -997,6 +997,22 @@ switch($page) {
                 
             case 'orders':
                 $page_title = 'Quản lý Đơn hàng';
+                
+                // Handle delete action BEFORE including layout
+                if ($action === 'delete' && isset($_GET['id'])) {
+                    $delete_id = (int)$_GET['id'];
+                    if ($delete_id > 0 && $adminService) {
+                        try {
+                            $adminService->deleteOrder($delete_id);
+                        } catch (Exception $e) {
+                            error_log('Delete order error: ' . $e->getMessage());
+                        }
+                    }
+                    // Redirect after delete
+                    header('Location: ?page=admin&module=orders');
+                    exit;
+                }
+                
                 switch($action) {
                     case 'edit':
                         $content = 'app/views/admin/orders/edit.php';
@@ -1005,7 +1021,8 @@ switch($page) {
                         $content = 'app/views/admin/orders/view.php';
                         break;
                     case 'delete':
-                        $content = 'app/views/admin/orders/delete.php';
+                        // This case is now handled above
+                        $content = 'app/views/admin/orders/index.php';
                         break;
                     default:
                         $content = 'app/views/admin/orders/index.php';

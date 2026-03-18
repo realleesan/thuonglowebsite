@@ -38,7 +38,6 @@ $current_action = $_GET['action'] ?? 'index';
                     ['name' => 'Người dùng', 'url' => '?page=admin&module=users', 'icon' => 'fas fa-users'],
                     ['name' => 'Danh mục', 'url' => '?page=admin&module=categories', 'icon' => 'fas fa-tags'],
                     ['name' => 'Tin tức', 'url' => '?page=admin&module=news', 'icon' => 'fas fa-newspaper'],
-                    ['name' => 'Sự kiện', 'url' => '?page=admin&module=events', 'icon' => 'fas fa-calendar'],
                     ['name' => 'Liên hệ', 'url' => '?page=admin&module=contact', 'icon' => 'fas fa-envelope'],
                     ['name' => 'Đại lý', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-store'],
                     ['name' => 'Doanh thu', 'url' => '?page=admin&module=revenue', 'icon' => 'fas fa-chart-line'],

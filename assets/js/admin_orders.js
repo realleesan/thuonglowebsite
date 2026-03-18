@@ -99,19 +99,30 @@ function initOrdersIndex() {
     deleteButtons.forEach(button => {
         button.addEventListener('click', function () {
             const orderId = this.dataset.id;
-            const customerName = this.dataset.customer;
+            const customerName = this.dataset.customer || this.dataset.name || '';
 
-            document.getElementById('deleteCustomerName').textContent = customerName;
+            // Update modal with order info - check if elements exist first
+            const deleteNameEl = document.getElementById('deleteCustomerName') || document.getElementById('productDeleteName');
+            if (deleteNameEl) {
+                deleteNameEl.textContent = customerName;
+            }
 
-            // Store order ID for deletion
-            document.getElementById('confirmDelete').dataset.orderId = orderId;
+            // Store order ID for deletion - check if elements exist
+            const confirmDeleteEl = document.getElementById('confirmDelete') || document.getElementById('prConfirmDeleteBtn');
+            if (confirmDeleteEl) {
+                confirmDeleteEl.dataset.orderId = orderId;
+            }
 
-            showModal('deleteModal');
+            // Show modal
+            const modal = document.getElementById('deleteModal') || document.getElementById('productDeleteModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
         });
     });
 
     // Confirm delete
-    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    const confirmDeleteBtn = document.getElementById('confirmDelete') || document.getElementById('prConfirmDeleteBtn');
     if (confirmDeleteBtn) {
         confirmDeleteBtn.addEventListener('click', function () {
             const orderId = this.dataset.orderId;

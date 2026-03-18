@@ -2158,3 +2158,230 @@
         font-size: 10px;
     }
 }
+
+/* ========================================
+   Order Item Card - Product Display
+   ======================================== */
+.order-item-card {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+}
+
+.order-item-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.order-item-card .item-image {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-item-card .item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.order-item-card .item-image .no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 32px;
+}
+
+.order-item-card .item-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.order-item-card .item-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.order-item-card .item-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.order-item-card .item-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.order-item-card .item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    margin: 12px 0;
+}
+
+.order-item-card .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-item-card .meta-label {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.order-item-card .meta-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.order-item-card .meta-value.price-highlight {
+    color: #059669;
+    font-weight: 600;
+}
+
+.order-item-card .item-description {
+    margin-top: 12px;
+}
+
+.order-item-card .item-description h5 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 6px 0;
+}
+
+.order-item-card .item-description p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ============================================
+   ORDER PRODUCTS INLINE (Within Order Summary Card)
+   ============================================ */
+.order-products-inline {
+    margin: 20px 0;
+    padding: 16px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+}
+
+.products-inline-title {
+    margin: 0 0 14px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.order-products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.order-product-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #E5E7EB;
+    transition: border-color 0.2s;
+}
+
+.order-product-row:hover {
+    border-color: #356DF1;
+}
+
+.product-thumb {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-thumb .no-thumb {
+    color: #9CA3AF;
+    font-size: 16px;
+}
+
+.product-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.product-details .product-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-details .product-meta {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.product-subtotal {
+    font-size: 14px;
+    font-weight: 600;
+    color: #059669;
+    white-space: nowrap;
+}
+
+/* Total item highlight */
+.summary-item.total-item {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid #E5E7EB;
+}

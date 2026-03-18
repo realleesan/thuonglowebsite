@@ -1493,10 +1493,15 @@ class AdminService extends BaseService
             $offset = ($page - 1) * $perPage;
             $ordersSql = "
                 SELECT o.*, u.name as user_name, u.email as user_email,
+                       oi.product_name, oi.product_id, oi.price as product_price,
+                       p.image as product_image, p.category_id,
+                       c.name as category_name,
                        COUNT(oi.id) as items_count
                 FROM orders o
                 LEFT JOIN users u ON o.user_id = u.id
                 LEFT JOIN order_items oi ON o.id = oi.order_id
+                LEFT JOIN products p ON oi.product_id = p.id
+                LEFT JOIN categories c ON p.category_id = c.id
                 {$whereClause}
                 GROUP BY o.id 
                 ORDER BY o.created_at DESC 
@@ -1533,23 +1538,43 @@ class AdminService extends BaseService
                 return ['order' => null, 'user' => null, 'order_items' => []];
             }
 
-            $order = $this->callModelMethod('OrdersModel', 'getById', [$orderId]);
+            $order = $this->callModelMethod('OrdersModel', 'find', [$orderId]);
             if (!$order) {
                 return ['order' => null, 'user' => null, 'order_items' => []];
             }
 
             $user = null;
             if (!empty($order['user_id'])) {
-                $user = $this->callModelMethod('UsersModel', 'getById', [$order['user_id']]);
+                $user = $this->callModelMethod('UsersModel', 'find', [$order['user_id']]);
             }
 
-            $orderItems = $this->callModelMethod('OrdersModel', 'getOrderItems', [$orderId], []);
+            // Get order items directly from database
+            $orderItems = [];
+            try {
+                $ordersModel = $this->getModel('OrdersModel');
+                if ($ordersModel) {
+                    $itemsSql = "
+                        SELECT oi.*, p.name as product_name, p.image as product_image, 
+                               p.description as product_description, p.status as product_status,
+                               p.price as product_price, p.category_id, c.name as category_name
+                        FROM order_items oi
+                        LEFT JOIN products p ON oi.product_id = p.id
+                        LEFT JOIN categories c ON p.category_id = c.id
+                        WHERE oi.order_id = ?
+                    ";
+                    $orderItems = $ordersModel->query($itemsSql, [$orderId]);
+                }
+            } catch (Exception $e) {
+                // Log error but continue with empty orderItems
+                $this->errorHandler->logError('Error fetching order items', $e);
+                $orderItems = [];
+            }
 
             // Get product details for each item
             if ($productsModel) {
                 foreach ($orderItems as &$item) {
                     if (!empty($item['product_id'])) {
-                        $product = $this->callModelMethod('ProductsModel', 'getById', [$item['product_id']]);
+                        $product = $this->callModelMethod('ProductsModel', 'find', [$item['product_id']]);
                         $item['product'] = $product ? $this->transformer->transformProduct($product) : null;
                     }
                 }

@@ -4,11 +4,37 @@
  * Sử dụng AdminService thông qua ServiceManager
  */
 
-// Khởi tạo View & ServiceManager
-require_once __DIR__ . '/../../../../core/view_init.php';
+// Khởi tạo View & ServiceManager nếu chưa được khởi tạo
+if (!defined('VIEW_INIT_LOADED')) {
+    require_once __DIR__ . '/../../../../core/view_init.php';
+}
 
-// Chọn service admin (được inject từ index.php)
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
+// Chọn service admin - thử nhiều cách
+$service = null;
+if (isset($currentService)) {
+    $service = $currentService;
+} elseif (isset($GLOBALS['adminService'])) {
+    $service = $GLOBALS['adminService'];
+} elseif (isset($adminService)) {
+    $service = $adminService;
+} else {
+    global $serviceManager;
+    if ($serviceManager) {
+        $service = $serviceManager->getService('admin');
+    }
+}
+
+if (!$service) {
+    die('Service not available. Please ensure you are accessing this page through the admin panel.');
+}
+
+// Get error handler if available
+$errorHandler = null;
+if (isset($GLOBALS['errorHandler'])) {
+    $errorHandler = $GLOBALS['errorHandler'];
+} elseif (class_exists('ErrorHandler')) {
+    $errorHandler = new ErrorHandler();
+}
 
 try {
     // Get order ID from URL
@@ -68,24 +94,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'admin_note' => $admin_note
         ];
         
-        if ($service->updateOrder($order_id, $updateData)) {
-            $success_message = 'Cập nhật trạng thái đơn hàng thành công!';
-            
-            // Update the order status for display purposes
-            $order['status'] = $new_status;
-            
-            // TODO: Send email notification if requested
-            if ($notify_customer) {
-                // Send email notification logic here
+        $updateResult = $service->updateOrder($order_id, $updateData);
+        
+        if ($updateResult) {
+            // Use PRG pattern - redirect after successful POST
+            // Check if headers not sent yet
+            if (!headers_sent($filename, $linenum)) {
+                header('Location: ?page=admin&module=orders&action=view&id=' . $order_id . '&updated=1');
+                exit;
+            } else {
+                // Fallback: if headers sent, use JavaScript redirect
+                ?>
+                <script>
+                console.log('Redirecting via JS...');
+                window.location.href = "?page=admin&module=orders&action=view&id=<?= $order_id ?>&updated=1";
+                </script>
+                <div style="padding:20px;text-align:center;">
+                    <p>Đang chuyển hướng...</p>
+                    <a href="?page=admin&module=orders&action=view&id=<?= $order_id ?>&updated=1">Nhấn vào đây nếu không tự chuyển</a>
+                </div>
+                <?php
+                exit;
             }
-            
-            header('Location: ?page=admin&module=orders&action=view&id=' . $order_id . '&updated=1');
-            exit;
         } else {
             $error_message = 'Có lỗi xảy ra khi cập nhật đơn hàng';
         }
     } else {
-        $error_message = 'Có lỗi xảy ra khi cập nhật đơn hàng';
+        $error_message = implode(', ', $errors);
     }
 }
 
@@ -170,64 +205,6 @@ $status_info = getStatusInfo($order['status']);
         </div>
     <?php endif; ?>
 
-    <!-- Order Summary -->
-    <div class="order-summary">
-        <div class="order-summary-grid">
-            <!-- Order Info -->
-            <div class="order-info-card">
-                <h3>Thông Tin Đơn Hàng</h3>
-                <div class="order-meta">
-                    <div class="meta-item">
-                        <span class="meta-label">Mã đơn hàng:</span>
-                        <span class="meta-value">#<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Khách hàng:</span>
-                        <span class="meta-value"><?= htmlspecialchars($user['name'] ?? 'N/A') ?></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Sản phẩm:</span>
-                        <span class="meta-value"><?= htmlspecialchars($product['name'] ?? 'Sản phẩm đã xóa') ?></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Tổng tiền:</span>
-                        <span class="meta-value price-highlight"><?= formatPrice($order['total']) ?></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Trạng thái hiện tại:</span>
-                        <span class="meta-value">
-                            <span class="status-badge status-<?= $order['status'] ?> status-<?= $status_info['color'] ?>">
-                                <?= $status_info['label'] ?>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Customer Info -->
-            <div class="customer-info-card">
-                <h3>Thông Tin Khách Hàng</h3>
-                <?php if ($user): ?>
-                    <div class="customer-details">
-                        <div class="customer-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="customer-meta">
-                            <h4><?= htmlspecialchars($user['name']) ?></h4>
-                            <p><?= htmlspecialchars($user['email']) ?></p>
-                            <p><?= htmlspecialchars($user['phone'] ?? 'Chưa cập nhật') ?></p>
-                            <span class="user-role role-<?= $user['role'] ?>">
-                                <?= ucfirst($user['role']) ?>
-                            </span>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <p class="no-customer">Không tìm thấy thông tin khách hàng</p>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
     <!-- Update Form -->
     <div class="form-container">
         <form method="POST" class="admin-form">
@@ -262,16 +239,6 @@ $status_info = getStatusInfo($order['status']);
                             <textarea id="admin_note" name="admin_note" rows="4" 
                                       placeholder="Nhập ghi chú về việc cập nhật trạng thái (tùy chọn)..."><?= htmlspecialchars($_POST['admin_note'] ?? '') ?></textarea>
                             <small>Ghi chú này sẽ được lưu trong lịch sử đơn hàng</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="notify_customer" value="1" 
-                                       <?= isset($_POST['notify_customer']) ? 'checked' : '' ?>>
-                                <span class="checkmark"></span>
-                                Gửi email thông báo cho khách hàng
-                            </label>
-                            <small>Khách hàng sẽ nhận được email thông báo về việc thay đổi trạng thái</small>
                         </div>
                     </div>
                 </div>
@@ -318,19 +285,6 @@ $status_info = getStatusInfo($order['status']);
                                 </div>
                             </div>
                         </div>
-
-                        <div class="status-warning">
-                            <div class="warning-header">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <strong>Lưu ý quan trọng</strong>
-                            </div>
-                            <ul>
-                                <li>Không thể thay đổi trạng thái từ "Hoàn thành" về "Chờ xử lý"</li>
-                                <li>Đơn hàng "Đã hủy" không thể chuyển sang trạng thái khác</li>
-                                <li>Khách hàng sẽ nhận được email thông báo nếu bạn chọn tùy chọn gửi email</li>
-                                <li>Mọi thay đổi sẽ được ghi lại trong lịch sử đơn hàng</li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -345,133 +299,7 @@ $status_info = getStatusInfo($order['status']);
                     <i class="fas fa-times"></i>
                     Hủy
                 </a>
-                <button type="button" class="btn btn-info" id="preview-email">
-                    <i class="fas fa-eye"></i>
-                    Xem trước email
-                </button>
             </div>
         </form>
-    </div>
-
-    <!-- Order Timeline -->
-    <div class="order-timeline-section">
-        <h3>Lịch Sử Đơn Hàng</h3>
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="timeline-marker completed"></div>
-                <div class="timeline-content">
-                    <div class="timeline-header">
-                        <strong>Đơn hàng được tạo</strong>
-                        <span class="timeline-date"><?= formatDate($order['created_at']) ?></span>
-                    </div>
-                    <p>Khách hàng đã đặt hàng thành công</p>
-                </div>
-            </div>
-            
-            <?php if ($order['payment_method'] != 'cod'): ?>
-                <div class="timeline-item">
-                    <div class="timeline-marker completed"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <strong>Thanh toán thành công</strong>
-                            <span class="timeline-date"><?= date('d/m/Y H:i', strtotime($order['created_at']) + 1800) ?></span>
-                        </div>
-                        <p>Đã nhận được thanh toán qua <?= getPaymentMethodLabel($order['payment_method']) ?></p>
-                    </div>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (in_array($order['status'], ['processing', 'completed'])): ?>
-                <div class="timeline-item">
-                    <div class="timeline-marker completed"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <strong>Đang xử lý</strong>
-                            <span class="timeline-date"><?= date('d/m/Y H:i', strtotime($order['created_at']) + 3600) ?></span>
-                        </div>
-                        <p>Đơn hàng đang được chuẩn bị</p>
-                    </div>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($order['status'] == 'completed'): ?>
-                <div class="timeline-item">
-                    <div class="timeline-marker completed"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <strong>Hoàn thành</strong>
-                            <span class="timeline-date"><?= date('d/m/Y H:i', strtotime($order['created_at']) + 86400) ?></span>
-                        </div>
-                        <p>Đơn hàng đã được giao thành công</p>
-                    </div>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($order['status'] == 'cancelled'): ?>
-                <div class="timeline-item">
-                    <div class="timeline-marker cancelled"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <strong>Đã hủy</strong>
-                            <span class="timeline-date"><?= date('d/m/Y H:i', strtotime($order['created_at']) + 7200) ?></span>
-                        </div>
-                        <p>Đơn hàng đã được hủy</p>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <!-- Email Preview Modal -->
-    <div id="emailPreviewModal" class="modal">
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <h3>Xem trước email thông báo</h3>
-                <button type="button" class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="email-preview">
-                    <div class="email-header">
-                        <h4>Thông báo cập nhật trạng thái đơn hàng #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></h4>
-                    </div>
-                    <div class="email-content">
-                        <p>Xin chào <?= htmlspecialchars($user['name'] ?? 'Khách hàng') ?>,</p>
-                        <p>Chúng tôi xin thông báo trạng thái đơn hàng của bạn đã được cập nhật:</p>
-                        
-                        <div class="email-order-info">
-                            <table>
-                                <tr>
-                                    <td><strong>Mã đơn hàng:</strong></td>
-                                    <td>#<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Sản phẩm:</strong></td>
-                                    <td><?= htmlspecialchars($product['name'] ?? 'N/A') ?></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Trạng thái mới:</strong></td>
-                                    <td><span id="email-status-preview">Chọn trạng thái để xem</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Tổng tiền:</strong></td>
-                                    <td><?= formatPrice($order['total']) ?></td>
-                                </tr>
-                            </table>
-                        </div>
-                        
-                        <div id="email-note-preview" style="display: none;">
-                            <p><strong>Ghi chú từ admin:</strong></p>
-                            <p id="email-note-content"></p>
-                        </div>
-                        
-                        <p>Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi!</p>
-                        <p>Trân trọng,<br>Đội ngũ ThuongLo</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="closeEmailPreview">Đóng</button>
-            </div>
-        </div>
     </div>
 </div>

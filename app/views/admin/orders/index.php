@@ -4,8 +4,78 @@
  * Sử dụng AdminService thông qua ServiceManager
  */
 
-// Chọn service admin (được inject từ index.php)
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
+// Xử lý delete request (trước khi hiển thị layout)
+$action = $_GET['action'] ?? '';
+if ($action === 'delete' && isset($_GET['id'])) {
+    $delete_id = (int)$_GET['id'];
+    if ($delete_id > 0) {
+        // Debug: log what's available
+        error_log("Delete action triggered. delete_id=$delete_id");
+        error_log("currentService set: " . (isset($currentService) ? 'YES' : 'NO'));
+        error_log("GLOBALS[adminService] set: " . (isset($GLOBALS['adminService']) ? 'YES' : 'NO'));
+        error_log("serviceManager set: " . (isset($serviceManager) ? 'YES' : 'NO'));
+        
+        // Sử dụng service để xóa - thử nhiều cách để lấy service
+        $service = null;
+        
+        // Cách 1: từ $currentService (được set trong index.php chính)
+        if (isset($currentService)) {
+            $service = $currentService;
+        }
+        // Cách 2: từ global $adminService (được set trong view_init.php)
+        elseif (isset($GLOBALS['adminService'])) {
+            $service = $GLOBALS['adminService'];
+        }
+        // Cách 3: gọi ServiceManager trực tiếp
+        else {
+            global $serviceManager;
+            if ($serviceManager) {
+                $service = $serviceManager->getService('admin');
+            }
+        }
+        
+        error_log("Service obtained: " . ($service ? 'YES' : 'NO'));
+        
+        if ($service) {
+            try {
+                $result = $service->deleteOrder($delete_id);
+                error_log("Delete result: " . ($result ? 'SUCCESS' : 'FAILED'));
+            } catch (Exception $e) {
+                error_log("Delete exception: " . $e->getMessage());
+            }
+        } else {
+            error_log("Delete failed - no service available!");
+        }
+        // Redirect về danh sách
+        header('Location: ?page=admin&module=orders');
+        exit;
+    }
+}
+
+// Chọn service admin - thử nhiều cách
+$service = null;
+if (isset($currentService)) {
+    $service = $currentService;
+} elseif (isset($GLOBALS['adminService'])) {
+    $service = $GLOBALS['adminService'];
+} else {
+    global $serviceManager;
+    if ($serviceManager) {
+        $service = $serviceManager->getService('admin');
+    }
+}
+
+if (!$service) {
+    die('Service not available');
+}
+
+// Get error handler if available
+$errorHandler = null;
+if (isset($GLOBALS['errorHandler'])) {
+    $errorHandler = $GLOBALS['errorHandler'];
+} elseif (class_exists('ErrorHandler')) {
+    $errorHandler = new ErrorHandler();
+}
 
 try {
     // Get filter parameters
@@ -169,18 +239,6 @@ function getPaymentMethodLabel($method) {
         <span class="results-count">
             Hiển thị <?= count($orders) ?> trong tổng số <?= $total_orders ?> đơn hàng
         </span>
-        
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <button type="button" class="btn btn-info" id="export-orders">
-                <i class="fas fa-download"></i>
-                Xuất Excel
-            </button>
-            <button type="button" class="btn btn-warning" id="bulk-update-status">
-                <i class="fas fa-edit"></i>
-                Cập nhật hàng loạt
-            </button>
-        </div>
     </div>
 
     <!-- Orders Table -->
@@ -193,8 +251,8 @@ function getPaymentMethodLabel($method) {
                     </th>
                     <th width="80">ID</th>
                     <th width="150">Khách hàng</th>
+                    <th width="100">Ảnh</th>
                     <th>Sản phẩm</th>
-                    <th width="80">SL</th>
                     <th width="120">Tổng tiền</th>
                     <th width="120">Thanh toán</th>
                     <th width="100">Trạng thái</th>
@@ -226,13 +284,21 @@ function getPaymentMethodLabel($method) {
                                 </div>
                             </td>
                             <td>
+                                <?php $productImage = $order['product_image'] ?? ''; ?>
+                                <?php if ($productImage): ?>
+                                    <img src="<?= htmlspecialchars($productImage) ?>" alt="Product" class="product-thumbnail" onerror="this.src='<?= asset_url('images/placeholder.jpg') ?>'">
+                                <?php else: ?>
+                                    <span class="no-image"><i class="fas fa-image"></i></span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <div class="product-info">
                                     <h4 class="product-name"><?= htmlspecialchars($order['product_name'] ?? 'Sản phẩm đã xóa') ?></h4>
                                     <p class="product-price"><?= formatPrice($order['product_price'] ?? 0) ?></p>
+                                    <?php if (!empty($order['category_name'])): ?>
+                                        <p class="product-category"><?= htmlspecialchars($order['category_name']) ?></p>
+                                    <?php endif; ?>
                                 </div>
-                            </td>
-                            <td class="quantity-cell">
-                                <span class="quantity-badge"><?= $order['quantity'] ?></span>
                             </td>
                             <td class="price-cell">
                                 <?= formatPrice($order['total']) ?>
@@ -259,7 +325,7 @@ function getPaymentMethodLabel($method) {
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button type="button" class="btn btn-sm btn-danger delete-btn" 
-                                            data-id="<?= $order['id'] ?>" data-customer="<?= htmlspecialchars($order['user_name'] ?? 'N/A') ?>" 
+                                            data-id="<?= $order['id'] ?>" data-name="<?= htmlspecialchars($order['product_name'] ?? 'đơn hàng #' . $order['id']) ?>"
                                             title="Xóa">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -324,48 +390,187 @@ function getPaymentMethodLabel($method) {
         </div>
     <?php endif; ?>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Xác nhận xóa đơn hàng</h3>
-                <button type="button" class="modal-close">&times;</button>
+    <!-- Delete Confirmation Modal - New Implementation -->
+    <div id="productDeleteModal" style="display: none;">
+        <div class="product-modal-overlay"></div>
+        <div class="product-modal-container">
+            <div class="product-modal-header">
+                <h3>Xác nhận xóa</h3>
+                <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa đơn hàng của khách hàng <strong id="deleteCustomerName"></strong>?</p>
-                <p class="text-danger">Hành động này không thể hoàn tác!</p>
+                <p>Bạn có chắc chắn muốn xóa data "<strong id="productDeleteName"></strong>"?</p>
+                <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelDelete">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            <div class="product-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+                <button type="button" class="btn btn-danger" id="prConfirmDeleteBtn">Xóa</button>
             </div>
         </div>
     </div>
 
-    <!-- Bulk Update Status Modal -->
-    <div id="bulkUpdateModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Cập nhật trạng thái hàng loạt</h3>
-                <button type="button" class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="bulk-status">Trạng thái mới:</label>
-                    <select id="bulk-status" class="form-control">
-                        <option value="">Chọn trạng thái</option>
-                        <option value="pending">Chờ xử lý</option>
-                        <option value="processing">Đang xử lý</option>
-                        <option value="completed">Hoàn thành</option>
-                        <option value="cancelled">Đã hủy</option>
-                    </select>
-                </div>
-                <p class="selected-count">Đã chọn <span id="selectedCount">0</span> đơn hàng</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelBulkUpdate">Hủy</button>
-                <button type="button" class="btn btn-primary" id="confirmBulkUpdate">Cập nhật</button>
-            </div>
-        </div>
-    </div>
+    <style>
+    .product-thumbnail {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .no-image {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background: #f3f4f6;
+        border-radius: 4px;
+        color: #9ca3af;
+    }
+    
+    .product-category {
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+    
+    #productDeleteModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
+    }
+
+    .product-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .product-modal-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .product-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .product-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .product-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .product-modal-close:hover {
+        color: #374151;
+        background: #f3f4f6;
+    }
+
+    .product-modal-body {
+        padding: 20px;
+    }
+
+    .product-modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+    }
+
+    .product-modal-warning {
+        color: #dc2626 !important;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .product-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+    </style>
+
+    <script>
+    window.showProductDeleteModal = function(id, name) {
+        const modal = document.getElementById('productDeleteModal');
+        const nameElement = document.getElementById('productDeleteName');
+    
+        if (modal) {
+            if (nameElement) {
+                nameElement.textContent = name || 'đơn hàng này';
+            }
+            modal.style.display = 'block';
+            modal.dataset.deleteId = id;
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeProductDeleteModal = function() {
+        const modal = document.getElementById('productDeleteModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            delete modal.dataset.deleteId;
+        }
+    };
+
+    // Handle confirm delete
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'prConfirmDeleteBtn') {
+            const modal = document.getElementById('productDeleteModal');
+            const deleteId = modal ? modal.dataset.deleteId : null;
+            if (deleteId) {
+                window.location.href = '?page=admin&module=orders&action=delete&id=' + deleteId;
+            }
+        }
+    });
+
+    // Close on overlay click
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('product-modal-overlay')) {
+            closeProductDeleteModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('productDeleteModal');
+            if (modal && modal.style.display === 'block') {
+                closeProductDeleteModal();
+            }
+        }
+    });
+    </script>
+
 </div>

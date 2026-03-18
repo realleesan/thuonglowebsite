@@ -4,11 +4,37 @@
  * Sử dụng AdminService thông qua ServiceManager
  */
 
-// Khởi tạo View & ServiceManager
-require_once __DIR__ . '/../../../../core/view_init.php';
+// Khởi tạo View & ServiceManager nếu chưa được khởi tạo
+if (!defined('VIEW_INIT_LOADED')) {
+    require_once __DIR__ . '/../../../../core/view_init.php';
+}
 
-// Chọn service admin (được inject từ index.php)
-$service = isset($currentService) ? $currentService : ($adminService ?? null);
+// Chọn service admin - thử nhiều cách
+$service = null;
+if (isset($currentService)) {
+    $service = $currentService;
+} elseif (isset($GLOBALS['adminService'])) {
+    $service = $GLOBALS['adminService'];
+} elseif (isset($adminService)) {
+    $service = $adminService;
+} else {
+    global $serviceManager;
+    if ($serviceManager) {
+        $service = $serviceManager->getService('admin');
+    }
+}
+
+if (!$service) {
+    die('Service not available. Please ensure you are accessing this page through the admin panel.');
+}
+
+// Get error handler if available
+$errorHandler = null;
+if (isset($GLOBALS['errorHandler'])) {
+    $errorHandler = $GLOBALS['errorHandler'];
+} elseif (class_exists('ErrorHandler')) {
+    $errorHandler = new ErrorHandler();
+}
 
 try {
     // Get order ID from URL
@@ -183,306 +209,40 @@ $timeline = generateOrderTimeline($order);
                         </span>
                     </div>
                     
-                    <div class="summary-item">
+                    <!-- Products in Order -->
+                    <?php if (!empty($orderItems)): ?>
+                    <div class="order-products-inline">
+                        <h4 class="products-inline-title">Sản phẩm trong đơn (<?= count($orderItems) ?>)</h4>
+                        <div class="order-products-list">
+                            <?php foreach ($orderItems as $item): ?>
+                            <div class="order-product-row">
+                                <div class="product-thumb">
+                                    <?php if (!empty($item['product_image'])): ?>
+                                        <?php $imgUrl = strpos($item['product_image'], 'http') === 0 ? $item['product_image'] : '/uploads/products/' . $item['product_image']; ?>
+                                        <img src="<?= $imgUrl ?>" alt="<?= htmlspecialchars($item['product_name'] ?? 'Product') ?>">
+                                    <?php else: ?>
+                                        <div class="no-thumb"><i class="fas fa-image"></i></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="product-details">
+                                    <span class="product-name"><?= htmlspecialchars($item['product_name'] ?? 'Sản phẩm #' . $item['product_id']) ?></span>
+                                    <span class="product-meta">
+                                        <?= formatPrice($item['product_price'] ?? $item['price'] ?? 0) ?> × <?= $item['quantity'] ?? 1 ?>
+                                    </span>
+                                </div>
+                                <div class="product-subtotal">
+                                    <?= formatPrice(($item['product_price'] ?? $item['price'] ?? 0) * ($item['quantity'] ?? 1)) ?>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="summary-item total-item">
                         <span class="item-label">Tổng tiền:</span>
                         <span class="item-value price-highlight"><?= formatPrice($order['total']) ?></span>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Order Stats - Moved below and horizontal layout -->
-        <div class="order-stats-section">
-            <h4>Thông Tin Nhanh</h4>
-            <div class="stats-horizontal">
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Số lượng</div>
-                        <div class="stat-value"><?= $order['quantity'] ?> sản phẩm</div>
-                    </div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Tổng tiền</div>
-                        <div class="stat-value price-highlight"><?= formatPrice($order['total']) ?></div>
-                    </div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Ngày đặt</div>
-                        <div class="stat-value"><?= formatDate($order['created_at']) ?></div>
-                    </div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Thanh toán</div>
-                        <div class="stat-value"><?= getPaymentMethodLabel($order['payment_method']) ?></div>
-                    </div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon">
-                        <i class="fas fa-info-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">Trạng thái</div>
-                        <div class="stat-value">
-                            <span class="status-badge status-<?= $order['status'] ?>">
-                                <?= $status_info['label'] ?>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Order Details Tabs -->
-    <div class="order-details-tabs">
-        <div class="tabs-header">
-            <button class="tab-btn active" data-tab="details">Chi Tiết</button>
-            <button class="tab-btn" data-tab="customer">Khách Hàng</button>
-            <button class="tab-btn" data-tab="product">Sản Phẩm</button>
-            <button class="tab-btn" data-tab="timeline">Lịch Sử</button>
-        </div>
-        
-        <div class="tabs-content">
-            <!-- Details Tab -->
-            <div class="tab-content active" id="details-tab">
-                <div class="details-grid">
-                    <!-- Order Information -->
-                    <div class="details-section">
-                        <h4>Thông Tin Đơn Hàng</h4>
-                        <table class="details-table">
-                            <tr>
-                                <td>Mã đơn hàng:</td>
-                                <td><strong>#<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td>Trạng thái:</td>
-                                <td>
-                                    <span class="status-badge status-<?= $order['status'] ?>">
-                                        <?= $status_info['label'] ?>
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Ngày đặt hàng:</td>
-                                <td><?= formatDate($order['created_at']) ?></td>
-                            </tr>
-                            <tr>
-                                <td>Phương thức thanh toán:</td>
-                                <td><?= getPaymentMethodLabel($order['payment_method']) ?></td>
-                            </tr>
-                            <tr>
-                                <td>Số lượng:</td>
-                                <td><?= $order['quantity'] ?></td>
-                            </tr>
-                            <tr>
-                                <td>Tổng tiền:</td>
-                                <td class="price-highlight"><?= formatPrice($order['total']) ?></td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <!-- Shipping Information -->
-                    <div class="details-section">
-                        <h4>Thông Tin Giao Hàng</h4>
-                        <table class="details-table">
-                            <tr>
-                                <td>Địa chỉ giao hàng:</td>
-                                <td><?= htmlspecialchars($order['shipping_address']) ?></td>
-                            </tr>
-                            <tr>
-                                <td>Người nhận:</td>
-                                <td><?= htmlspecialchars($user['name'] ?? 'N/A') ?></td>
-                            </tr>
-                            <tr>
-                                <td>Số điện thoại:</td>
-                                <td><?= htmlspecialchars($user['phone'] ?? 'N/A') ?></td>
-                            </tr>
-                            <tr>
-                                <td>Email:</td>
-                                <td><?= htmlspecialchars($user['email'] ?? 'N/A') ?></td>
-                            </tr>
-                            <tr>
-                                <td>Ghi chú:</td>
-                                <td><em>Không có ghi chú</em></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Customer Tab -->
-            <div class="tab-content" id="customer-tab">
-                <?php if ($user): ?>
-                    <div class="customer-details">
-                        <div class="customer-header">
-                            <div class="customer-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="customer-info">
-                                <h3><?= htmlspecialchars($user['name']) ?></h3>
-                                <p><?= htmlspecialchars($user['email']) ?></p>
-                                <span class="user-role role-<?= $user['role'] ?>">
-                                    <?= ucfirst($user['role']) ?>
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="customer-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Tổng đơn hàng:</span>
-                                <span class="stat-value"><?= $user['orders_count'] ?? 0 ?></span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Tổng chi tiêu:</span>
-                                <span class="stat-value"><?= formatPrice($user['total_spent'] ?? 0) ?></span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Ngày tham gia:</span>
-                                <span class="stat-value"><?= formatDate($user['created_at']) ?></span>
-                            </div>
-                        </div>
-                        
-                        <div class="customer-contact">
-                            <h4>Thông Tin Liên Hệ</h4>
-                            <table class="details-table">
-                                <tr>
-                                    <td>Họ tên:</td>
-                                    <td><?= htmlspecialchars($user['name']) ?></td>
-                                </tr>
-                                <tr>
-                                    <td>Email:</td>
-                                    <td><?= htmlspecialchars($user['email']) ?></td>
-                                </tr>
-                                <tr>
-                                    <td>Số điện thoại:</td>
-                                    <td><?= htmlspecialchars($user['phone'] ?? 'Chưa cập nhật') ?></td>
-                                </tr>
-                                <tr>
-                                    <td>Địa chỉ:</td>
-                                    <td><?= htmlspecialchars($user['address'] ?? 'Chưa cập nhật') ?></td>
-                                </tr>
-                                <tr>
-                                    <td>Trạng thái:</td>
-                                    <td>
-                                        <span class="status-badge status-<?= $user['status'] ?>">
-                                            <?= $user['status'] == 'active' ? 'Hoạt động' : 'Không hoạt động' ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div class="no-data">
-                        <i class="fas fa-user-slash"></i>
-                        <p>Không tìm thấy thông tin khách hàng</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Product Tab -->
-            <div class="tab-content" id="product-tab">
-                <?php if (!empty($orderItems)): ?>
-                    <div class="order-items">
-                        <h4>Sản phẩm trong đơn hàng</h4>
-                        <?php foreach ($orderItems as $item): ?>
-                            <?php $product = $item['product'] ?? null; ?>
-                            <div class="order-item">
-                                <?php if ($product): ?>
-                                    <div class="product-details">
-                                        <div class="product-overview-grid">
-                                            <div class="product-image-section">
-                                                <div class="product-image-main">
-                                                    <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" 
-                                                         onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="product-info-section">
-                                                <div class="product-header">
-                                                    <h3 class="product-name"><?= htmlspecialchars($product['name']) ?></h3>
-                                                    <span class="status-badge status-<?= $product['status'] ?>">
-                                                        <?= $product['status'] == 'active' ? 'Hoạt động' : 'Không hoạt động' ?>
-                                                    </span>
-                                                </div>
-                                                
-                                                <div class="product-meta">
-                                                    <div class="meta-item">
-                                                        <span class="meta-label">Giá:</span>
-                                                        <span class="meta-value price-highlight"><?= formatPrice($product['price']) ?></span>
-                                                    </div>
-                                                    <div class="meta-item">
-                                                        <span class="meta-label">Số lượng:</span>
-                                                        <span class="meta-value"><?= $item['quantity'] ?></span>
-                                                    </div>
-                                                    <div class="meta-item">
-                                                        <span class="meta-label">Thành tiền:</span>
-                                                        <span class="meta-value price-highlight"><?= formatPrice($item['price'] * $item['quantity']) ?></span>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="product-description">
-                                                    <h4>Mô tả sản phẩm</h4>
-                                                    <p><?= htmlspecialchars($product['description']) ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="no-data">
-                                        <i class="fas fa-box-open"></i>
-                                        <p>Sản phẩm đã bị xóa hoặc không tồn tại</p>
-                                        <div class="item-info">
-                                            <p>Số lượng: <?= $item['quantity'] ?></p>
-                                            <p>Giá: <?= formatPrice($item['price']) ?></p>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="no-data">
-                        <i class="fas fa-box-open"></i>
-                        <p>Không có sản phẩm trong đơn hàng</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Timeline Tab -->
-            <div class="tab-content" id="timeline-tab">
-                <div class="timeline">
-                    <?php foreach ($timeline as $index => $event): ?>
-                        <div class="timeline-item">
-                            <div class="timeline-marker <?= $event['status'] ?>"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-header">
-                                    <strong><?= $event['title'] ?></strong>
-                                    <span class="timeline-date"><?= formatDate($event['time']) ?></span>
-                                </div>
-                                <p><?= $event['description'] ?></p>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
@@ -497,16 +257,9 @@ $timeline = generateOrderTimeline($order);
                     <i class="fas fa-edit"></i>
                     Cập nhật trạng thái
                 </a>
-                <button type="button" class="btn btn-info" onclick="window.print()">
-                    <i class="fas fa-print"></i>
-                    In đơn hàng
-                </button>
-                <button type="button" class="btn btn-success" id="send-email">
-                    <i class="fas fa-envelope"></i>
-                    Gửi email khách hàng
-                </button>
                 <button type="button" class="btn btn-danger delete-btn" 
-                        data-id="<?= $order['id'] ?>" data-customer="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>">
+                        data-id="<?= $order['id'] ?>" data-customer="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>"
+                        onclick="showProductDeleteModal(<?= $order['id'] ?>, '<?= htmlspecialchars($order['order_number'] ?? 'đơn hàng này') ?>')">
                     <i class="fas fa-trash"></i>
                     Xóa đơn hàng
                 </button>
@@ -514,21 +267,186 @@ $timeline = generateOrderTimeline($order);
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Xác nhận xóa đơn hàng</h3>
-                <button type="button" class="modal-close">&times;</button>
+    <!-- Delete Confirmation Modal - New Implementation -->
+    <div id="productDeleteModal" style="display: none;">
+        <div class="product-modal-overlay"></div>
+        <div class="product-modal-container">
+            <div class="product-modal-header">
+                <h3>Xác nhận xóa</h3>
+                <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa đơn hàng #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?> của khách hàng <strong id="deleteCustomerName"></strong>?</p>
-                <p class="text-danger">Hành động này không thể hoàn tác!</p>
+                <p>Bạn có chắc chắn muốn xóa data "<strong id="productDeleteName"></strong>"?</p>
+                <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelDelete">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            <div class="product-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+                <button type="button" class="btn btn-danger" id="prConfirmDeleteBtn">Xóa</button>
             </div>
         </div>
     </div>
+
+    <style>
+    .product-thumbnail {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .no-image {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background: #f3f4f6;
+        border-radius: 4px;
+        color: #9ca3af;
+    }
+    
+    .product-category {
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+    
+    #productDeleteModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
+    }
+
+    .product-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .product-modal-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .product-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .product-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .product-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .product-modal-close:hover {
+        color: #374151;
+        background: #f3f4f6;
+    }
+
+    .product-modal-body {
+        padding: 20px;
+    }
+
+    .product-modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+    }
+
+    .product-modal-warning {
+        color: #dc2626 !important;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .product-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+    </style>
+
+    <script>
+    window.showProductDeleteModal = function(id, name) {
+        const modal = document.getElementById('productDeleteModal');
+        const nameElement = document.getElementById('productDeleteName');
+    
+        if (modal) {
+            if (nameElement) {
+                nameElement.textContent = name || 'đơn hàng này';
+            }
+            modal.style.display = 'block';
+            modal.dataset.deleteId = id;
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeProductDeleteModal = function() {
+        const modal = document.getElementById('productDeleteModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            delete modal.dataset.deleteId;
+        }
+    };
+
+    // Handle confirm delete
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'prConfirmDeleteBtn') {
+            const modal = document.getElementById('productDeleteModal');
+            const deleteId = modal ? modal.dataset.deleteId : null;
+            if (deleteId) {
+                window.location.href = '?page=admin&module=orders&action=delete&id=' + deleteId;
+            }
+        }
+    });
+
+    // Close on overlay click
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('product-modal-overlay')) {
+            closeProductDeleteModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('productDeleteModal');
+            if (modal && modal.style.display === 'block') {
+                closeProductDeleteModal();
+            }
+        }
+    });
+    </script>
 </div>

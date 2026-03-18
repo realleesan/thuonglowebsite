@@ -158,7 +158,6 @@ function getTypeLabel($type) {
                 <div class="filter-item filter-search">
                     <label for="search">Tìm kiếm:</label>
                     <div class="search-input-wrapper">
-                        <i class="fas fa-search"></i>
                         <input type="text" id="search" name="search" value="<?= htmlspecialchars($search) ?>" 
                                placeholder="Tên data, mô tả...">
                     </div>
