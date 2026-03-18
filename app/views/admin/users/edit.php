@@ -32,7 +32,6 @@ try {
 
 // Handle form submission
 $errors = [];
-$success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate form data
@@ -75,17 +74,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // If no errors, simulate save
+    // If no errors, update database
     if (empty($errors)) {
-        $success = true;
-        // In real app: update database
-        // Update user array for display
-        $user['name'] = $name;
-        $user['email'] = $email;
-        $user['phone'] = $phone;
-        $user['address'] = $address;
-        $user['role'] = $role;
-        $user['status'] = $status;
+        try {
+            require_once 'app/models/UsersModel.php';
+            $usersModel = new UsersModel();
+            
+            $updateData = [
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'address' => $address,
+                'role' => $role,
+                'status' => $status
+            ];
+            
+            // Only update password if provided
+            if (!empty($password)) {
+                require_once 'app/services/PasswordHasher.php';
+                $passwordHasher = new PasswordHasher();
+                $updateData['password'] = $passwordHasher->hash($password);
+            }
+            
+            $updated = $usersModel->update($user_id, $updateData);
+            
+            if ($updated) {
+                // Use PRG pattern - redirect after successful POST
+                if (!headers_sent($filename, $linenum)) {
+                    header('Location: ?page=admin&module=users&action=view&id=' . $user_id . '&updated=1');
+                    exit;
+                } else {
+                    // Fallback: if headers sent, use JavaScript redirect
+                    ?>
+                    <script>
+                    window.location.href = "?page=admin&module=users&action=view&id=<?= $user_id ?>&updated=1";
+                    </script>
+                    <div style="padding:20px;text-align:center;">
+                        <p>Đang chuyển hướng...</p>
+                        <a href="?page=admin&module=users&action=view&id=<?= $user_id ?>&updated=1">Nhấn vào đây nếu không tự chuyển</a>
+                    </div>
+                    <?php
+                    exit;
+                }
+            } else {
+                $errors[] = 'Có lỗi xảy ra khi cập nhật người dùng';
+            }
+        } catch (Exception $e) {
+            $errorHandler->logError('Update User', $e->getMessage());
+            $errors[] = 'Có lỗi xảy ra: ' . $e->getMessage();
+        }
     }
 } else {
     // Pre-fill form with existing data
@@ -140,13 +177,6 @@ function getRoleDisplayName($role) {
         </div>
     <?php endif; ?>
 
-    <?php if ($success): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span>Cập nhật thông tin người dùng thành công!</span>
-        </div>
-    <?php endif; ?>
-
     <!-- Form Container -->
     <div class="form-container">
         <form method="POST" class="admin-form" enctype="multipart/form-data">
@@ -198,31 +228,6 @@ function getRoleDisplayName($role) {
                             <label for="created_at">Ngày tạo</label>
                             <input type="text" id="created_at" value="<?= date('d/m/Y H:i', strtotime($user['created_at'])) ?>" 
                                    class="readonly" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Avatar Upload -->
-                    <div class="form-section">
-                        <h3 class="section-title">Ảnh Đại Diện</h3>
-                        
-                        <div class="form-group">
-                            <label for="avatar">Cập nhật ảnh đại diện</label>
-                            <div class="image-upload-container">
-                                <div class="image-preview" id="avatarPreview">
-                                    <div class="avatar-circle large">
-                                        <?= strtoupper(substr($user['name'], 0, 2)) ?>
-                                    </div>
-                                </div>
-                                <input type="file" id="avatar" name="avatar" class="image-input" 
-                                       accept="image/*">
-                                <div class="image-upload-info">
-                                    <div class="current-image-info">
-                                        Ảnh hiện tại: Avatar mặc định
-                                    </div>
-                                    <small>Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
-                                    <small>Kích thước khuyến nghị: 200x200px</small>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -295,26 +300,6 @@ function getRoleDisplayName($role) {
                             </label>
                         </div>
                     </div>
-
-                    <!-- Additional Settings -->
-                    <div class="form-section">
-                        <h3 class="section-title">Cài Đặt Bổ Sung</h3>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" name="send_notification_email" value="1">
-                                Gửi email thông báo thay đổi
-                            </label>
-                            <small>Gửi email thông báo cho người dùng về việc cập nhật thông tin</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="notes">Ghi chú</label>
-                            <textarea id="notes" name="notes" rows="4" 
-                                      placeholder="Ghi chú về người dùng này..."><?= htmlspecialchars($_POST['notes'] ?? '') ?></textarea>
-                            <small>Thông tin bổ sung về người dùng (chỉ admin xem được)</small>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -339,54 +324,3 @@ function getRoleDisplayName($role) {
             </div>
         </form>
     </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions-container">
-        <div class="quick-actions">
-            <h4>Thao Tác Nhanh</h4>
-            <div class="quick-actions-grid">
-                <button type="button" class="quick-action-btn" onclick="resetPassword()">
-                    <i class="fas fa-key"></i>
-                    <span>Reset mật khẩu</span>
-                </button>
-                <button type="button" class="quick-action-btn" onclick="sendWelcomeEmail()">
-                    <i class="fas fa-envelope"></i>
-                    <span>Gửi email chào mừng</span>
-                </button>
-                <button type="button" class="quick-action-btn" onclick="viewLoginHistory()">
-                    <i class="fas fa-history"></i>
-                    <span>Lịch sử đăng nhập</span>
-                </button>
-                <button type="button" class="quick-action-btn danger" onclick="deactivateUser()">
-                    <i class="fas fa-ban"></i>
-                    <span>Vô hiệu hóa</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function resetPassword() {
-    if (confirm('Bạn có chắc chắn muốn reset mật khẩu cho người dùng này?')) {
-        alert('Đã gửi email reset mật khẩu');
-    }
-}
-
-function sendWelcomeEmail() {
-    if (confirm('Gửi lại email chào mừng cho người dùng này?')) {
-        alert('Đã gửi email chào mừng');
-    }
-}
-
-function viewLoginHistory() {
-    alert('Chức năng xem lịch sử đăng nhập');
-}
-
-function deactivateUser() {
-    if (confirm('Bạn có chắc chắn muốn vô hiệu hóa tài khoản này?')) {
-        document.getElementById('status').value = 'inactive';
-        alert('Đã vô hiệu hóa tài khoản');
-    }
-}
-</script>

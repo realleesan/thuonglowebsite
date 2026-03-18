@@ -174,6 +174,12 @@ $timeline = generateOrderTimeline($order);
                 <i class="fas fa-edit"></i>
                 Cập nhật trạng thái
             </a>
+            <button type="button" class="btn btn-danger delete-btn" 
+                    data-id="<?= $order['id'] ?>" data-customer="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>"
+                    onclick="showProductDeleteModal(<?= $order['id'] ?>, '<?= htmlspecialchars($order['order_number'] ?? 'đơn hàng này') ?>')">
+                <i class="fas fa-trash"></i>
+                Xóa đơn hàng
+            </button>
         </div>
     </div>
 
@@ -244,25 +250,6 @@ $timeline = generateOrderTimeline($order);
                         <span class="item-value price-highlight"><?= formatPrice($order['total']) ?></span>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="order-actions">
-        <div class="action-group">
-            <h4>Hành Động</h4>
-            <div class="action-buttons">
-                <a href="?page=admin&module=orders&action=edit&id=<?= $order['id'] ?>" class="btn btn-warning">
-                    <i class="fas fa-edit"></i>
-                    Cập nhật trạng thái
-                </a>
-                <button type="button" class="btn btn-danger delete-btn" 
-                        data-id="<?= $order['id'] ?>" data-customer="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>"
-                        onclick="showProductDeleteModal(<?= $order['id'] ?>, '<?= htmlspecialchars($order['order_number'] ?? 'đơn hàng này') ?>')">
-                    <i class="fas fa-trash"></i>
-                    Xóa đơn hàng
-                </button>
             </div>
         </div>
     </div>

@@ -12,7 +12,6 @@ $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
 // Handle form submission
 $errors = [];
-$success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate form data
@@ -54,13 +53,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Xác nhận mật khẩu không khớp';
     }
 
-    // If no errors, simulate save
+    // If no errors, save to database
     if (empty($errors)) {
-        $success = true;
-        // In real app: save to database
-        // Redirect after successful save
-        // header('Location: ?page=admin&module=users&success=added');
-        // exit;
+        try {
+            require_once 'app/models/UsersModel.php';
+            $usersModel = new UsersModel();
+            
+            // Check if email already exists
+            if ($usersModel->emailExists($email)) {
+                $errors[] = 'Email đã tồn tại trong hệ thống';
+            } else {
+                // Check if phone already exists
+                if (!empty($phone) && $usersModel->phoneExists($phone)) {
+                    $errors[] = 'Số điện thoại đã tồn tại trong hệ thống';
+                } else {
+                    // Hash password
+                    require_once 'app/services/PasswordHasher.php';
+                    $passwordHasher = new PasswordHasher();
+                    
+                    $userData = [
+                        'name' => $name,
+                        'email' => $email,
+                        'phone' => $phone,
+                        'address' => $address,
+                        'role' => $role,
+                        'status' => $status,
+                        'password' => $passwordHasher->hash($password)
+                    ];
+                    
+                    $created = $usersModel->create($userData);
+                    
+                    if ($created) {
+                        // Use PRG pattern - redirect after successful POST
+                        if (!headers_sent($filename, $linenum)) {
+                            header('Location: ?page=admin&module=users&added=1');
+                            exit;
+                        } else {
+                            // Fallback: if headers sent, use JavaScript redirect
+                            ?>
+                            <script>
+                            window.location.href = "?page=admin&module=users&added=1";
+                            </script>
+                            <div style="padding:20px;text-align:center;">
+                                <p>Đang chuyển hướng...</p>
+                                <a href="?page=admin&module=users&added=1">Nhấn vào đây nếu không tự chuyển</a>
+                            </div>
+                            <?php
+                            exit;
+                        }
+                    } else {
+                        $errors[] = 'Có lỗi xảy ra khi tạo người dùng';
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            $errorHandler->logError('Add User', $e->getMessage());
+            $errors[] = 'Có lỗi xảy ra: ' . $e->getMessage();
+        }
     }
 }
 ?>
@@ -95,13 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                 </ul>
             </div>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($success): ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span>Thêm người dùng thành công!</span>
         </div>
     <?php endif; ?>
 
@@ -144,27 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="address">Địa chỉ</label>
                             <textarea id="address" name="address" rows="3" 
                                       placeholder="Nhập địa chỉ đầy đủ"><?= htmlspecialchars($_POST['address'] ?? '') ?></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Avatar Upload -->
-                    <div class="form-section">
-                        <h3 class="section-title">Ảnh Đại Diện</h3>
-                        
-                        <div class="form-group">
-                            <label for="avatar">Chọn ảnh đại diện</label>
-                            <div class="image-upload-container">
-                                <div class="image-preview" id="avatarPreview">
-                                    <i class="fas fa-user"></i>
-                                    <p>Chọn ảnh đại diện</p>
-                                </div>
-                                <input type="file" id="avatar" name="avatar" class="image-input" 
-                                       accept="image/*">
-                                <div class="image-upload-info">
-                                    <small>Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
-                                    <small>Kích thước khuyến nghị: 200x200px</small>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -218,34 +239,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="confirm_password" class="required">Xác nhận mật khẩu</label>
                             <input type="password" id="confirm_password" name="confirm_password" required 
                                    placeholder="Nhập lại mật khẩu">
-                        </div>
-                    </div>
-
-                    <!-- Additional Settings -->
-                    <div class="form-section">
-                        <h3 class="section-title">Cài Đặt Bổ Sung</h3>
-                        
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" name="send_welcome_email" value="1" checked>
-                                Gửi email chào mừng
-                            </label>
-                            <small>Gửi email thông báo tài khoản đã được tạo</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" name="require_password_change" value="1">
-                                Yêu cầu đổi mật khẩu lần đầu đăng nhập
-                            </label>
-                            <small>Người dùng phải đổi mật khẩu khi đăng nhập lần đầu</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="notes">Ghi chú</label>
-                            <textarea id="notes" name="notes" rows="4" 
-                                      placeholder="Ghi chú về người dùng này..."><?= htmlspecialchars($_POST['notes'] ?? '') ?></textarea>
-                            <small>Thông tin bổ sung về người dùng (chỉ admin xem được)</small>
                         </div>
                     </div>
                 </div>

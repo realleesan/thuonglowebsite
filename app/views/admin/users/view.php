@@ -10,6 +10,9 @@ require_once __DIR__ . '/../../../../core/view_init.php';
 // Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
+// Check for success message after redirect
+$updated = isset($_GET['updated']) && $_GET['updated'] == '1';
+
 try {
     // Get user ID from URL
     $user_id = (int)($_GET['id'] ?? 0);
@@ -76,6 +79,13 @@ function getOrderStatusDisplayName($status) {
 ?>
 
 <div class="users-view-page">
+    <?php if ($updated): ?>
+        <div class="alert alert-success" style="margin: 20px;">
+            <i class="fas fa-check-circle"></i>
+            <span>Cập nhật thông tin người dùng thành công!</span>
+        </div>
+    <?php endif; ?>
+    
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-header-left">
@@ -86,14 +96,20 @@ function getOrderStatusDisplayName($status) {
             <p class="page-description">Thông tin chi tiết của người dùng: <?= htmlspecialchars($user['name']) ?></p>
         </div>
         <div class="page-header-right">
-            <a href="?page=admin&module=users&action=edit&id=<?= $user['id'] ?>" class="btn btn-warning">
-                <i class="fas fa-edit"></i>
-                Chỉnh sửa
-            </a>
             <a href="?page=admin&module=users" class="btn btn-outline">
                 <i class="fas fa-arrow-left"></i>
                 Quay lại danh sách
             </a>
+            <a href="?page=admin&module=users&action=edit&id=<?= $user['id'] ?>" class="btn btn-warning">
+                <i class="fas fa-edit"></i>
+                Chỉnh sửa
+            </a>
+            <button type="button" class="btn btn-danger delete-btn" 
+                    data-id="<?= $user['id'] ?>" data-name="<?= htmlspecialchars($user['name'] ?? 'N/A') ?>"
+                    onclick="showProductDeleteModal(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name'] ?? 'người dùng này') ?>')">
+                <i class="fas fa-trash"></i>
+                Xóa người dùng
+            </button>
         </div>
     </div>
 
@@ -444,63 +460,174 @@ function getOrderStatusDisplayName($status) {
             </div>
         </div>
     </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons-container">
-        <div class="action-buttons-grid">
-            <button type="button" class="action-btn primary" onclick="editUser()">
-                <i class="fas fa-edit"></i>
-                <span>Chỉnh sửa thông tin</span>
-            </button>
-            <button type="button" class="action-btn secondary" onclick="resetPassword()">
-                <i class="fas fa-key"></i>
-                <span>Reset mật khẩu</span>
-            </button>
-            <button type="button" class="action-btn info" onclick="sendEmail()">
-                <i class="fas fa-envelope"></i>
-                <span>Gửi email</span>
-            </button>
-            <button type="button" class="action-btn warning" onclick="changeStatus()">
-                <i class="fas fa-toggle-on"></i>
-                <span>Đổi trạng thái</span>
-            </button>
-            <button type="button" class="action-btn danger" onclick="deleteUser()">
-                <i class="fas fa-trash"></i>
-                <span>Xóa người dùng</span>
-            </button>
-        </div>
-    </div>
 </div>
 
-<script>
-function editUser() {
-    window.location.href = '?page=admin&module=users&action=edit&id=<?= $user['id'] ?>';
-}
+    <!-- Delete Confirmation Modal - New Implementation -->
+    <div id="productDeleteModal" style="display: none;">
+        <div class="product-modal-overlay"></div>
+        <div class="product-modal-container">
+            <div class="product-modal-header">
+                <h3>Xác nhận xóa</h3>
+                <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa người dùng "<strong id="productDeleteName"></strong>"?</p>
+                <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
+            </div>
+            <div class="product-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+                <button type="button" class="btn btn-danger" id="prConfirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
 
-function resetPassword() {
-    if (confirm('Bạn có chắc chắn muốn reset mật khẩu cho người dùng này?')) {
-        alert('Đã gửi email reset mật khẩu');
+    <style>
+    #productDeleteModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
     }
-}
 
-function sendEmail() {
-    const email = '<?= htmlspecialchars($user['email']) ?>';
-    window.location.href = `mailto:${email}`;
-}
+    .product-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
 
-function changeStatus() {
-    const currentStatus = '<?= $user['status'] ?>';
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-    const action = newStatus === 'active' ? 'kích hoạt' : 'vô hiệu hóa';
+    .product-modal-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .product-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .product-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .product-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .product-modal-close:hover {
+        color: #374151;
+        background: #f3f4f6;
+    }
+
+    .product-modal-body {
+        padding: 20px;
+    }
+
+    .product-modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+    }
+
+    .product-modal-warning {
+        color: #dc2626 !important;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .product-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+    </style>
+
+    <script>
+    // Delete button click handler - tìm tất cả các nút xóa và gán sự kiện
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const name = this.dataset.name || 'người dùng này';
+                showProductDeleteModal(id, name);
+            });
+        });
+    });
+
+    window.showProductDeleteModal = function(id, name) {
+        const modal = document.getElementById('productDeleteModal');
+        const nameElement = document.getElementById('productDeleteName');
     
-    if (confirm(`Bạn có chắc chắn muốn ${action} tài khoản này?`)) {
-        alert('Đã ' + action + ' tài khoản');
-    }
-}
+        if (modal) {
+            if (nameElement) {
+                nameElement.textContent = name || 'người dùng này';
+            }
+            modal.style.display = 'block';
+            modal.dataset.deleteId = id;
+            document.body.style.overflow = 'hidden';
+        }
+    };
 
-function deleteUser() {
-    if (confirm('Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác!')) {
-        window.location.href = '?page=admin&module=users&action=delete&id=<?= $user['id'] ?>';
-    }
-}
-</script>
+    window.closeProductDeleteModal = function() {
+        const modal = document.getElementById('productDeleteModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            delete modal.dataset.deleteId;
+        }
+    };
+
+    // Handle confirm delete
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'prConfirmDeleteBtn') {
+            const modal = document.getElementById('productDeleteModal');
+            const deleteId = modal ? modal.dataset.deleteId : null;
+            if (deleteId) {
+                window.location.href = '?page=admin&module=users&action=delete&id=' + deleteId;
+            }
+        }
+    });
+
+    // Close on overlay click
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('product-modal-overlay')) {
+            closeProductDeleteModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('productDeleteModal');
+            if (modal && modal.style.display === 'block') {
+                closeProductDeleteModal();
+            }
+        }
+    });
+    </script>

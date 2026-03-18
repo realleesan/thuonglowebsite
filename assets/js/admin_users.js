@@ -526,19 +526,27 @@ document.head.insertAdjacentHTML('beforeend', strengthCSS);
 document.addEventListener('DOMContentLoaded', function () {
     if (document.querySelector('.users-edit-page')) {
         const formInputs = document.querySelectorAll('input, select, textarea');
-        let hasChanges = false;
+        window.hasUserChanges = false;
 
         formInputs.forEach(input => {
             if (!input.classList.contains('readonly')) {
                 input.addEventListener('change', function () {
-                    hasChanges = true;
+                    window.hasUserChanges = true;
                 });
             }
         });
 
+        // Handle form submission - reset hasChanges flag
+        const form = document.querySelector('.users-edit-page form');
+        if (form) {
+            form.addEventListener('submit', function () {
+                window.hasUserChanges = false;
+            });
+        }
+
         // Warn before leaving if there are unsaved changes
         window.addEventListener('beforeunload', function (e) {
-            if (hasChanges) {
+            if (window.hasUserChanges) {
                 e.preventDefault();
                 e.returnValue = '';
             }

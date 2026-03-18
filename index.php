@@ -1032,6 +1032,24 @@ switch($page) {
                 
             case 'users':
                 $page_title = 'Quản lý Người dùng';
+                
+                // Handle delete action BEFORE including layout
+                if ($action === 'delete' && isset($_GET['id'])) {
+                    $delete_id = (int)$_GET['id'];
+                    if ($delete_id > 0) {
+                        try {
+                            require_once 'app/models/UsersModel.php';
+                            $usersModel = new UsersModel();
+                            $usersModel->delete($delete_id);
+                        } catch (Exception $e) {
+                            error_log('Delete user error: ' . $e->getMessage());
+                        }
+                    }
+                    // Redirect after delete
+                    header('Location: ?page=admin&module=users&deleted=1');
+                    exit;
+                }
+                
                 switch($action) {
                     case 'add':
                         $content = 'app/views/admin/users/add.php';
@@ -1043,7 +1061,8 @@ switch($page) {
                         $content = 'app/views/admin/users/view.php';
                         break;
                     case 'delete':
-                        $content = 'app/views/admin/users/delete.php';
+                        // This case is now handled above
+                        $content = 'app/views/admin/users/index.php';
                         break;
                     default:
                         $content = 'app/views/admin/users/index.php';
