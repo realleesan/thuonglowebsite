@@ -1203,7 +1203,7 @@ class AdminService extends BaseService
             $total = $totalResult[0]['total'] ?? 0;
 
             $offset = ($page - 1) * $perPage;
-            $categoriesSql = "SELECT * FROM categories {$whereClause} ORDER BY created_at DESC LIMIT {$perPage} OFFSET {$offset}";
+            $categoriesSql = "SELECT DISTINCT c.* FROM categories c {$whereClause} ORDER BY c.created_at DESC LIMIT {$perPage} OFFSET {$offset}";
             $categories = $categoriesModel->query($categoriesSql, $bindings);
 
             // Get product counts
@@ -1213,6 +1213,7 @@ class AdminService extends BaseService
                     $countResult = $productsModel->query($productCountSql, [$category['id']]);
                     $category['products_count'] = $countResult[0]['count'] ?? 0;
                 }
+                unset($category); // Unset reference after loop
             }
 
             $transformedCategories = [];

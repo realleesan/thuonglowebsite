@@ -62,10 +62,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no errors, update database
     if (empty($errors)) {
-        $updated = $service->updateCategory($category_id, $_POST);
+        // Prepare update data - preserve existing image if not uploading new one
+        $updateData = [
+            'name' => $name,
+            'slug' => $slug,
+            'description' => $description,
+            'status' => $status,
+            'meta_title' => $_POST['meta_title'] ?? '',
+            'meta_description' => $_POST['meta_description'] ?? '',
+            'keywords' => $_POST['keywords'] ?? '',
+            'sort_order' => (int)($_POST['sort_order'] ?? 0),
+            'show_in_menu' => isset($_POST['show_in_menu']) ? 1 : 0,
+            'featured' => isset($_POST['featured']) ? 1 : 0
+        ];
+        
+        // Only update image if a new file was uploaded
+        if (!empty($_FILES['image']['name'])) {
+            // Handle image upload
+            $uploadDir = __DIR__ . '/../../../assets/uploads/categories/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            
+            $fileName = time() . '_' . basename($_FILES['image']['name']);
+            $targetPath = $uploadDir . $fileName;
+            
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
+                $updateData['image'] = '/assets/uploads/categories/' . $fileName;
+            }
+        } else {
+            // Keep existing image - don't include 'image' in update data
+            unset($updateData['image']);
+        }
+        
+        $updated = $service->updateCategory($category_id, $updateData);
         if ($updated) {
-            header('Location: ?page=admin&module=categories&action=view&id=' . $category_id . '&success=updated');
-            exit;
+            // Use PRG pattern - redirect after successful POST
+            if (!headers_sent($filename, $linenum)) {
+                header('Location: ?page=admin&module=categories&action=view&id=' . $category_id . '&updated=1');
+                exit;
+            } else {
+                // Fallback: if headers sent, use JavaScript redirect
+                ?>
+                <script>
+                window.location.href = "?page=admin&module=categories&action=view&id=<?= $category_id ?>&updated=1";
+                </script>
+                <div style="padding:20px;text-align:center;">
+                    <p>Đang chuyển hướng...</p>
+                    <a href="?page=admin&module=categories&action=view&id=<?= $category_id ?>&updated=1">Nhấn vào đây nếu không tự chuyển</a>
+                </div>
+                <?php
+                exit;
+            }
         } else {
             $errors[] = 'Không thể cập nhật danh mục';
         }
@@ -130,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Edit Category Form -->
     <div class="form-container">
-        <form method="POST" class="admin-form">
+        <form method="POST" class="admin-form" enctype="multipart/form-data">
             <div class="form-grid">
                 <!-- Left Column -->
                 <div class="form-column">
@@ -266,28 +314,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <span class="checkmark"></span>
                                     Danh mục nổi bật
                                 </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Category Info -->
-                    <div class="form-section">
-                        <h3 class="section-title">Thông Tin Danh Mục</h3>
-                        
-                        <div class="info-group">
-                            <div class="info-item">
-                                <label>ID danh mục:</label>
-                                <span class="info-value"><?= $category['id'] ?></span>
-                            </div>
-                            
-                            <div class="info-item">
-                                <label>Ngày tạo:</label>
-                                <span class="info-value"><?= date('d/m/Y H:i', strtotime($category['created_at'])) ?></span>
-                            </div>
-                            
-                            <div class="info-item">
-                                <label>Lần cập nhật cuối:</label>
-                                <span class="info-value"><?= date('d/m/Y H:i', strtotime($category['updated_at'] ?? $category['created_at'])) ?></span>
                             </div>
                         </div>
                     </div>

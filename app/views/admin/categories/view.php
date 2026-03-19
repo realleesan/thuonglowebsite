@@ -10,6 +10,9 @@ require_once __DIR__ . '/../../../../core/view_init.php';
 // Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
+// Check for success message after redirect
+$updated = isset($_GET['updated']) && $_GET['updated'] == '1';
+
 try {
     // Get category ID from URL
     $category_id = (int)($_GET['id'] ?? 0);
@@ -43,6 +46,11 @@ function formatPrice($price) {
 ?>
 
 <div class="categories-page categories-view-page">
+    <?php if ($updated): ?>
+        <div class="alert alert-success" style="margin: 20px;">
+            <i class="fas fa-check-circle"></i> Cập nhật danh mục thành công!
+        </div>
+    <?php endif; ?>
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-header-left">
@@ -53,6 +61,10 @@ function formatPrice($price) {
             <p class="page-description">Xem thông tin chi tiết danh mục: <?= htmlspecialchars($category['name']) ?></p>
         </div>
         <div class="page-header-right">
+            <a href="?page=admin&module=categories" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Quay lại danh sách
+            </a>
             <a href="?page=admin&module=categories&action=edit&id=<?= $category['id'] ?>" class="btn btn-warning">
                 <i class="fas fa-edit"></i>
                 Chỉnh sửa
@@ -62,10 +74,6 @@ function formatPrice($price) {
                 <i class="fas fa-trash"></i>
                 Xóa
             </button>
-            <a href="?page=admin&module=categories" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i>
-                Quay lại danh sách
-            </a>
         </div>
     </div>
 
@@ -226,130 +234,189 @@ function formatPrice($price) {
                         </div>
                     </div>
                 </div>
-
-                <!-- Quick Actions -->
-                <div class="details-section">
-                    <h3 class="section-title">Thao Tác Nhanh</h3>
-                    
-                    <div class="details-content">
-                        <div class="quick-actions">
-                            <a href="?page=admin&module=categories&action=edit&id=<?= $category['id'] ?>" 
-                               class="btn btn-sm btn-warning">
-                                <i class="fas fa-edit"></i>
-                                Chỉnh sửa
-                            </a>
-                            
-                            <a href="?page=admin&module=products&category=<?= $category['id'] ?>" 
-                               class="btn btn-sm btn-info">
-                                <i class="fas fa-box"></i>
-                                Xem sản phẩm
-                            </a>
-                            
-                            <button type="button" class="btn btn-sm btn-success" onclick="duplicateCategory()">
-                                <i class="fas fa-copy"></i>
-                                Nhân bản
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-
-    <!-- Products in Category -->
-    <?php if (!empty($category_products)): ?>
-        <div class="related-section">
-            <h3 class="section-title">
-                <i class="fas fa-box"></i>
-                Sản Phẩm Trong Danh Mục (<?= count($category_products) ?>)
-            </h3>
-            
-            <div class="products-grid">
-                <?php foreach (array_slice($category_products, 0, 6) as $product): ?>
-                    <div class="product-card">
-                        <div class="product-image">
-                            <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>"
-                                 onerror="this.src='<?php echo asset_url('images/placeholder.jpg'); ?>'"">
-                        </div>
-                        <div class="product-info">
-                            <h4 class="product-name"><?= htmlspecialchars($product['name']) ?></h4>
-                            <p class="product-price"><?= formatPrice($product['price']) ?></p>
-                            <div class="product-meta">
-                                <span class="stock-info">Tồn: <?= $product['stock'] ?></span>
-                                <span class="status-badge status-<?= $product['status'] ?>">
-                                    <?= $product['status'] == 'active' ? 'Hoạt động' : 'Không hoạt động' ?>
-                                </span>
-                            </div>
-                            <div class="product-actions">
-                                <a href="?page=admin&module=products&action=view&id=<?= $product['id'] ?>" 
-                                   class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i>
-                                    Xem
-                                </a>
-                                <a href="?page=admin&module=products&action=edit&id=<?= $product['id'] ?>" 
-                                   class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                    Sửa
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            
-            <?php if (count($category_products) > 6): ?>
-                <div class="view-all-products">
-                    <a href="?page=admin&module=products&category=<?= $category['id'] ?>" class="btn btn-outline">
-                        <i class="fas fa-arrow-right"></i>
-                        Xem tất cả <?= count($category_products) ?> sản phẩm
-                    </a>
-                </div>
-            <?php endif; ?>
-        </div>
-    <?php else: ?>
-        <div class="related-section">
-            <h3 class="section-title">
-                <i class="fas fa-box"></i>
-                Sản Phẩm Trong Danh Mục
-            </h3>
-            
-            <div class="no-products">
-                <i class="fas fa-inbox"></i>
-                <p>Chưa có sản phẩm nào trong danh mục này</p>
-                <a href="?page=admin&module=products&action=add&category=<?= $category['id'] ?>" 
-                   class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Thêm sản phẩm đầu tiên
-                </a>
-            </div>
-        </div>
-    <?php endif; ?>
 
     <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div id="productDeleteModal" style="display: none;">
+        <div class="product-modal-overlay"></div>
+        <div class="product-modal-container">
+            <div class="product-modal-header">
                 <h3>Xác nhận xóa</h3>
-                <button type="button" class="modal-close">&times;</button>
+                <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa danh mục <strong id="deleteCategoryName"></strong>?</p>
-                <p class="text-danger">Hành động này không thể hoàn tác!</p>
-                <?php if (!empty($category_products)): ?>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Danh mục này có <?= count($category_products) ?> sản phẩm. Bạn cần xử lý các sản phẩm này trước khi xóa danh mục.
-                    </div>
-                <?php endif; ?>
+                <p>Bạn có chắc chắn muốn xóa danh mục "<strong id="productDeleteName"></strong>"?</p>
+                <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelDelete">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete" 
-                        <?= !empty($category_products) ? 'disabled' : '' ?>>
-                    Xóa
-                </button>
+            <div class="product-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+                <button type="button" class="btn btn-danger" id="prConfirmDeleteBtn">Xóa</button>
             </div>
         </div>
     </div>
+
+    <style>
+    #productDeleteModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
+    }
+
+    .product-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .product-modal-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .product-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .product-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .product-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .product-modal-close:hover {
+        color: #374151;
+        background: #f3f4f6;
+    }
+
+    .product-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .product-modal-warning {
+        color: #dc2626 !important;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    </style>
+
+    <script>
+    // Delete button click handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const name = this.dataset.name || 'danh mục này';
+                showProductDeleteModal(id, name);
+            });
+        });
+    });
+
+    window.showProductDeleteModal = function(id, name) {
+        const modal = document.getElementById('productDeleteModal');
+        const nameElement = document.getElementById('productDeleteName');
+    
+        if (modal) {
+            if (nameElement) {
+                nameElement.textContent = name || 'danh mục này';
+            }
+            modal.style.display = 'block';
+            modal.dataset.deleteId = id;
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeProductDeleteModal = function() {
+        const modal = document.getElementById('productDeleteModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            delete modal.dataset.deleteId;
+        }
+    };
+
+    // Handle confirm delete - AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'prConfirmDeleteBtn') {
+            const modal = document.getElementById('productDeleteModal');
+            const deleteId = modal ? modal.dataset.deleteId : null;
+            if (deleteId) {
+                // AJAX delete
+                fetch('?page=admin&module=categories&action=delete&id=' + deleteId, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeProductDeleteModal();
+                        // Redirect to categories list after successful delete
+                        window.location.href = '?page=admin&module=categories';
+                    } else {
+                        alert(data.message || 'Có lỗi xảy ra khi xóa danh mục');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi xóa danh mục');
+                });
+            }
+        }
+    });
+
+    // Close on overlay click
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('product-modal-overlay')) {
+            closeProductDeleteModal();
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('productDeleteModal');
+            if (modal && modal.style.display === 'block') {
+                closeProductDeleteModal();
+            }
+        }
+    });
+    </script>
 </div>
 

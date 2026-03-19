@@ -149,19 +149,6 @@ function getRoleDisplayName($role) {
         <span class="results-count">
             Hiển thị <?= count($paged_users) ?> trong tổng số <?= $total_users ?> người dùng
         </span>
-        
-        <!-- Bulk Actions -->
-        <div class="bulk-actions">
-            <select id="bulk-action" disabled>
-                <option value="">Hành động hàng loạt</option>
-                <option value="activate">Kích hoạt</option>
-                <option value="deactivate">Vô hiệu hóa</option>
-                <option value="delete">Xóa</option>
-            </select>
-            <button type="button" id="apply-bulk" class="btn btn-secondary" disabled>
-                Áp dụng
-            </button>
-        </div>
     </div>
 
     <!-- Users Table -->

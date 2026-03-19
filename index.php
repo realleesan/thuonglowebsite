@@ -934,6 +934,21 @@ switch($page) {
                 
             case 'categories':
                 $page_title = 'Quản lý Danh mục';
+                
+                // Handle AJAX delete request
+                if ($action === 'delete' && !empty($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    header('Content-Type: application/json');
+                    try {
+                        require_once __DIR__ . '/app/services/AdminService.php';
+                        $adminService = new AdminService(null, 'admin');
+                        $result = $adminService->deleteCategory((int)$_GET['id']);
+                        echo json_encode(['success' => $result, 'message' => $result ? 'Xóa danh mục thành công' : 'Xóa danh mục thất bại']);
+                    } catch (Exception $e) {
+                        echo json_encode(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
+                    }
+                    exit;
+                }
+                
                 switch($action) {
                     case 'add':
                         $content = 'app/views/admin/categories/add.php';
@@ -945,7 +960,8 @@ switch($page) {
                         $content = 'app/views/admin/categories/view.php';
                         break;
                     case 'delete':
-                        $content = 'app/views/admin/categories/delete.php';
+                        // Redirect to index if delete.php doesn't exist
+                        $content = 'app/views/admin/categories/index.php';
                         break;
                     default:
                         $content = 'app/views/admin/categories/index.php';

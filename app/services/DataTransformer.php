@@ -93,11 +93,14 @@ class DataTransformer {
         
         return [
             'id' => (int) $category['id'],
-            'name' => $this->security->escapeHtml($category['name']),
+            'name' => $this->security->escapeHtml($category['name'] ?? ''),
             'slug' => $category['slug'] ?? '',
             'image' => $category['image'] ?? '/assets/images/default-category.jpg',
-            'product_count' => (int) ($category['product_count'] ?? 0),
-            'description' => $this->security->escapeHtml($category['description'] ?? '')
+            'products_count' => (int) ($category['products_count'] ?? 0),
+            'description' => $this->security->escapeHtml($category['description'] ?? ''),
+            'status' => $category['status'] ?? 'inactive',
+            'created_at' => $category['created_at'] ?? date('Y-m-d H:i:s'),
+            'updated_at' => $category['updated_at'] ?? date('Y-m-d H:i:s'),
         ];
     }
     
