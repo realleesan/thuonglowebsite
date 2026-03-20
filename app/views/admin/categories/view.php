@@ -175,7 +175,12 @@ function formatPrice($price) {
                             <?php if (!empty($category['image'])): ?>
                                 <img src="<?= htmlspecialchars($category['image']) ?>" 
                                      alt="<?= htmlspecialchars($category['name']) ?>"
-                                     class="category-image">
+                                     class="category-image"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="no-image" style="display:none;">
+                                    <i class="fas fa-image"></i>
+                                    <p>Chưa có hình ảnh</p>
+                                </div>
                             <?php else: ?>
                                 <div class="no-image">
                                     <i class="fas fa-image"></i>

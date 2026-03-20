@@ -45,10 +45,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no errors, save to database
     if (empty($errors)) {
-        $saved = $service->createCategory($_POST);
+        $categoryData = $_POST;
+        
+        // Handle image upload
+        if (!empty($_FILES['image']['name'])) {
+            $uploadDir = dirname(__DIR__, 4) . '/assets/uploads/categories/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            
+            $fileName = time() . '_' . basename($_FILES['image']['name']);
+            $targetPath = $uploadDir . $fileName;
+            
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
+                $categoryData['image'] = '/assets/uploads/categories/' . $fileName;
+            }
+        } elseif (!empty($_POST['image_url'])) {
+            // Handle image URL
+            $categoryData['image'] = trim($_POST['image_url']);
+        }
+        
+        $saved = $service->createCategory($categoryData);
         if ($saved) {
-            header('Location: ?page=admin&module=categories&success=added');
-            exit;
+            // Use PRG pattern - redirect after successful POST
+            if (!headers_sent($filename, $linenum)) {
+                header('Location: ?page=admin&module=categories&success=added');
+                exit;
+            } else {
+                // Fallback: if headers sent, use JavaScript redirect
+                ?>
+                <script>
+                window.location.href = "?page=admin&module=categories&success=added";
+                </script>
+                <div style="padding:20px;text-align:center;">
+                    <p>Đang chuyển hướng...</p>
+                    <a href="?page=admin&module=categories&success=added">Nhấn vào đây nếu không tự chuyển</a>
+                </div>
+                <?php
+                exit;
+            }
         } else {
             $errors[] = 'Không thể lưu danh mục';
         }
@@ -104,7 +139,7 @@ function generateSlug($name) {
 
     <!-- Add Category Form -->
     <div class="form-container">
-        <form method="POST" class="admin-form">
+        <form method="POST" class="admin-form" enctype="multipart/form-data">
             <div class="form-grid">
                 <!-- Left Column -->
                 <div class="form-column">
@@ -164,15 +199,23 @@ function generateSlug($name) {
                         <div class="form-group">
                             <label for="image">Hình ảnh đại diện</label>
                             <div class="image-upload-container">
-                                <div class="image-preview" id="imagePreview">
+                                <div class="image-preview" id="imagePreview" onclick="document.getElementById('image').click()" style="cursor:pointer;">
                                     <i class="fas fa-image"></i>
                                     <p>Chọn hình ảnh</p>
                                 </div>
-                                <input type="file" id="image" name="image" accept="image/*" class="image-input">
+                                <input type="file" id="image" name="image" accept="image/*" class="image-input" style="display:none;" onchange="previewImageAdd(this)">
                                 <div class="image-upload-info">
                                     <small>Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top:16px;">
+                            <label for="image_url">Hoặc nhập URL ảnh</label>
+                            <input type="url" id="image_url" name="image_url" 
+                                   value="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>" 
+                                   placeholder="https://example.com/image.jpg">
+                            <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
                         </div>
                     </div>
 
@@ -257,4 +300,20 @@ function generateSlug($name) {
         </form>
     </div>
 </div>
+
+<script>
+// Preview image when selected for add form
+function previewImageAdd(input) {
+    const preview = document.getElementById('imagePreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="max-width:100%;max-height:200px;border-radius:8px;">';
+            preview.style.background = '#f0f0f0';
+            preview.style.border = '2px solid #28a745';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 

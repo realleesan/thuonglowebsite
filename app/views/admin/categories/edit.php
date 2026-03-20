@@ -79,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Only update image if a new file was uploaded
         if (!empty($_FILES['image']['name'])) {
             // Handle image upload
-            $uploadDir = __DIR__ . '/../../../assets/uploads/categories/';
+            $uploadDir = dirname(__DIR__, 4) . '/assets/uploads/categories/';
+            $uploadUrl = '/assets/uploads/categories/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
@@ -87,9 +88,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fileName = time() . '_' . basename($_FILES['image']['name']);
             $targetPath = $uploadDir . $fileName;
             
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-                $updateData['image'] = '/assets/uploads/categories/' . $fileName;
+            // Try move_uploaded_file first (more secure), then copy as fallback
+            $uploadSuccess = move_uploaded_file($_FILES['image']['tmp_name'], $targetPath);
+            if (!$uploadSuccess) {
+                $uploadSuccess = copy($_FILES['image']['tmp_name'], $targetPath);
             }
+            
+            if ($uploadSuccess && file_exists($targetPath)) {
+                $updateData['image'] = '/assets/uploads/categories/' . $fileName;
+            } else {
+                $errors[] = 'Không thể tải lên hình ảnh. Lỗi: ' . $_FILES['image']['error'] . ' - File not found after upload';
+            }
+        } elseif (isset($_POST['remove_image'])) {
+            // Handle remove image request
+            $updateData['image'] = '';
+        } elseif (!empty($_POST['image_url'])) {
+            // Handle image URL input
+            $updateData['image'] = trim($_POST['image_url']);
         } else {
             // Keep existing image - don't include 'image' in update data
             unset($updateData['image']);
@@ -238,22 +253,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-group">
                             <label for="image">Hình ảnh đại diện</label>
                             <div class="image-upload-container">
-                                <div class="image-preview" id="imagePreview">
+                                <div class="image-preview" id="imagePreview" onclick="document.getElementById('image').click()" style="cursor:pointer;">
                                     <?php if (!empty($category['image'])): ?>
-                                        <img src="<?= htmlspecialchars($category['image']) ?>" alt="Current image">
+                                        <img src="<?= htmlspecialchars($category['image']) ?>" 
+                                             alt="Current image" 
+                                             id="currentImage"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="no-image-placeholder" style="display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;">
+                                            <i class="fas fa-image"></i>
+                                            <p>Chọn hình ảnh</p>
+                                        </div>
                                     <?php else: ?>
                                         <i class="fas fa-image"></i>
                                         <p>Chọn hình ảnh</p>
                                     <?php endif; ?>
                                 </div>
-                                <input type="file" id="image" name="image" accept="image/*" class="image-input">
+                                <input type="file" id="image" name="image" accept="image/*" class="image-input" style="display:none;" onchange="previewUploadedImage(this)">
                                 <div class="image-upload-info">
                                     <small>Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
                                     <?php if (!empty($category['image'])): ?>
-                                        <small>Để trống nếu không muốn thay đổi hình ảnh</small>
+                                        <small>Click vào ảnh để thay đổi</small>
                                     <?php endif; ?>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top:16px;">
+                            <label for="image_url">Hoặc nhập URL ảnh</label>
+                            <input type="url" id="image_url" name="image_url" 
+                                   value="<?= htmlspecialchars($category['image'] ?? '') ?>" 
+                                   placeholder="https://example.com/image.jpg">
+                            <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
                         </div>
                     </div>
 
@@ -342,4 +372,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </div>
+
+<script>
+function previewUploadedImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            // Update the main image preview (inside the dashed border)
+            var imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML = '<img src="' + e.target.result + '" alt="New image" style="max-width:100%;max-height:100%;object-fit:contain;">';
+            // Clear URL input when file is selected
+            document.getElementById('image_url').value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removeImage() {
+    if (confirm('Bạn có chắc chắn muốn xóa ảnh này?')) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '?page=admin&module=categories&action=edit&id=<?= $category_id ?>', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                window.location.reload();
+            }
+        };
+        xhr.send('remove_image=1');
+    }
+}
+</script>
 
