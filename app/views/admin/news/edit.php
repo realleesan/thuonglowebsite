@@ -296,24 +296,6 @@ function formatDate($date) {
                             <small>Các từ khóa liên quan, cách nhau bằng dấu phẩy</small>
                         </div>
                     </div>
-
-                    <!-- Revision History -->
-                    <div class="form-section">
-                        <h3 class="section-title">Lịch Sử Chỉnh Sửa</h3>
-                        
-                        <div class="revision-list">
-                            <div class="revision-item">
-                                <div class="revision-date"><?= formatDate($current_news['created_at']) ?></div>
-                                <div class="revision-action">Tạo bài viết</div>
-                                <div class="revision-author">bởi <?= htmlspecialchars($author['name'] ?? $current_news['author_name'] ?? 'N/A') ?></div>
-                            </div>
-                            <div class="revision-item current">
-                                <div class="revision-date"><?= date('d/m/Y H:i') ?></div>
-                                <div class="revision-action">Đang chỉnh sửa</div>
-                                <div class="revision-author">bởi Admin hiện tại</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -326,10 +308,6 @@ function formatDate($date) {
                 <button type="button" class="btn btn-secondary" onclick="saveDraft()">
                     <i class="fas fa-file-alt"></i>
                     Lưu Nháp
-                </button>
-                <button type="button" class="btn btn-info" onclick="previewNews()">
-                    <i class="fas fa-eye"></i>
-                    Xem Trước
                 </button>
                 <a href="?page=admin&module=news" class="btn btn-outline">
                     <i class="fas fa-times"></i>

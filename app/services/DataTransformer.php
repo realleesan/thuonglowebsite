@@ -218,6 +218,7 @@ class DataTransformer {
             'excerpt' => $this->security->escapeHtml($news['excerpt'] ?? ''),
             'image' => $news['image'] ?? '/assets/images/default-news.jpg',
             'category_name' => $this->security->escapeHtml($news['category_name'] ?? ''),
+            'status' => $news['status'] ?? 'draft',
             'created_at' => $this->formatDate($news['created_at']),
             'formatted_date' => $this->formatDateForDisplay($news['created_at'])
         ];

@@ -971,6 +971,22 @@ switch($page) {
                 
             case 'news':
                 $page_title = 'Quản lý Tin tức';
+                
+                // Handle delete action BEFORE including layout
+                if ($action === 'delete' && isset($_GET['id'])) {
+                    $delete_id = (int)$_GET['id'];
+                    if ($delete_id > 0 && $adminService) {
+                        try {
+                            $adminService->deleteNews($delete_id);
+                        } catch (Exception $e) {
+                            error_log('Delete news error: ' . $e->getMessage());
+                        }
+                    }
+                    // Redirect after delete
+                    header('Location: ?page=admin&module=news');
+                    exit;
+                }
+                
                 switch($action) {
                     case 'add':
                         $content = 'app/views/admin/news/add.php';
@@ -980,9 +996,6 @@ switch($page) {
                         break;
                     case 'view':
                         $content = 'app/views/admin/news/view.php';
-                        break;
-                    case 'delete':
-                        $content = 'app/views/admin/news/delete.php';
                         break;
                     default:
                         $content = 'app/views/admin/news/index.php';
