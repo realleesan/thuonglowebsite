@@ -216,6 +216,7 @@ class DataTransformer {
             'title' => $this->security->escapeHtml($news['title']),
             'slug' => $news['slug'],
             'excerpt' => $this->security->escapeHtml($news['excerpt'] ?? ''),
+            'content' => $news['content'] ?? '',
             'image' => $news['image'] ?? '/assets/images/default-news.jpg',
             'category_name' => $this->security->escapeHtml($news['category_name'] ?? ''),
             'status' => $news['status'] ?? 'draft',

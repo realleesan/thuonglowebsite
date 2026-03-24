@@ -62,8 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Slug chỉ được chứa chữ thường, số và dấu gạch ngang';
     }
     
+    // Transform form data to match model fields
+    $create_data = $form_data;
+    if (isset($create_data['author'])) {
+        $create_data['author_name'] = $create_data['author'];
+        unset($create_data['author']);
+    }
+    
     if (empty($errors)) {
-        $result = $service->createNews($form_data);
+        $result = $service->createNews($create_data);
         if ($result) {
             $success = true;
         } else {

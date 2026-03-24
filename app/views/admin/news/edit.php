@@ -83,9 +83,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Slug chỉ được chứa chữ thường, số và dấu gạch ngang';
     }
     
+    // Transform form data to match model fields
+    $update_data = $form_data;
+    if (isset($update_data['author'])) {
+        $update_data['author_name'] = $update_data['author'];
+        unset($update_data['author']);
+    }
+    
     if (empty($errors)) {
-        if ($service->updateNews($news_id, $form_data)) {
-            $success = true;
+        if ($service->updateNews($news_id, $update_data)) {
+            // Use PRG pattern - redirect after successful POST
+            if (!headers_sent($filename, $linenum)) {
+                header('Location: ?page=admin&module=news&action=view&id=' . $news_id . '&updated=1');
+                exit;
+            } else {
+                // Fallback: if headers sent, use JavaScript redirect
+                ?>
+                <script>
+                console.log('Redirecting via JS...');
+                window.location.href = "?page=admin&module=news&action=view&id=<?= $news_id ?>&updated=1";
+                </script>
+                <div style="padding:20px;text-align:center;">
+                    <p>Đang chuyển hướng...</p>
+                    <a href="?page=admin&module=news&action=view&id=<?= $news_id ?>&updated=1">Nhấn vào đây nếu không tự chuyển</a>
+                </div>
+                <?php
+                exit;
+            }
         } else {
             $errors[] = 'Có lỗi xảy ra khi cập nhật tin tức';
         }
@@ -373,18 +397,41 @@ document.getElementById('excerpt').addEventListener('input', function() {
     }
 });
 
-// Warn before leaving if form is dirty
-let formChanged = false;
-document.querySelectorAll('input, textarea, select').forEach(element => {
-    element.addEventListener('change', () => formChanged = true);
+// Warn before leaving if form is dirty - only when navigating away WITHOUT submitting
+var adminNewsFormChanged = false;
+var isFormSubmitting = false;
+
+document.querySelectorAll('input, textarea, select').forEach(function(element) {
+    element.addEventListener('input', function() {
+        adminNewsFormChanged = true;
+    });
+    element.addEventListener('change', function() {
+        adminNewsFormChanged = true;
+    });
 });
 
+// Prevent default beforeunload behavior - we'll handle it manually
 window.addEventListener('beforeunload', function(e) {
-    if (formChanged) {
+    // Chỉ hiển thị cảnh báo khi KHÔNG phải đang submit form
+    if (adminNewsFormChanged && !isFormSubmitting) {
         e.preventDefault();
-        e.returnValue = '';
+        // Chrome không cần returnValue
+        return;
     }
 });
 
-document.querySelector('form').addEventListener('submit', () => formChanged = false);
+// Submit button click - set flag TRƯỚC KHI form submission xảy ra
+var submitButtons = document.querySelectorAll('button[type="submit"], input[type="submit"]');
+submitButtons.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        isFormSubmitting = true;
+        adminNewsFormChanged = false;
+    });
+});
+
+// Form submit event - as backup
+document.querySelector('form').addEventListener('submit', function(e) {
+    isFormSubmitting = true;
+    adminNewsFormChanged = false;
+});
 </script>

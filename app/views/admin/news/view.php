@@ -36,6 +36,9 @@ try {
     exit;
 }
 
+// Check if redirected after successful update
+$updated = isset($_GET['updated']) && $_GET['updated'] == '1';
+
 // Format date function
 function formatDate($date) {
     return date('d/m/Y H:i', strtotime($date));
@@ -86,6 +89,16 @@ function getReadingTime($text) {
             </a>
         </div>
     </div>
+
+    <!-- Success Message -->
+    <?php if ($updated): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <strong>Thành công!</strong> Tin tức đã được cập nhật thành công.
+            </div>
+        </div>
+    <?php endif; ?>
 
     <!-- News Overview -->
     <div class="news-overview">
