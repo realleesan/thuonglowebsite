@@ -222,38 +222,6 @@ function formatDate($date) {
                         </form>
                     </div>
                 </div>
-
-                <!-- Quick Actions -->
-                <div class="detail-card">
-                    <div class="card-header">
-                        <h3>
-                            <i class="fas fa-bolt"></i>
-                            Thao Tác Nhanh
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="quick-actions">
-                            <button type="button" class="btn btn-info btn-block reply-btn" 
-                                    data-email="<?= htmlspecialchars($contact['email']) ?>" 
-                                    data-subject="Re: <?= htmlspecialchars($contact['subject']) ?>">
-                                <i class="fas fa-reply"></i>
-                                Trả lời email ngay
-                            </button>
-                            
-                            <button type="button" class="btn btn-success btn-block mark-replied-btn" 
-                                    data-id="<?= $contact['id'] ?>">
-                                <i class="fas fa-check"></i>
-                                Đánh dấu đã trả lời
-                            </button>
-                            
-                            <button type="button" class="btn btn-warning btn-block call-btn" 
-                                    data-phone="<?= htmlspecialchars($contact['phone']) ?>">
-                                <i class="fas fa-phone"></i>
-                                Gọi điện thoại
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

@@ -164,48 +164,102 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show loading state
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang gửi...';
             
-            // Simulate form submission (replace with actual submission logic)
-            setTimeout(() => {
+            // Create FormData object
+            const formData = new FormData(contactForm);
+            
+            // Submit form data via AJAX
+            fetch(contactForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
                 // Hide loading state
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;
+                submitBtn.textContent = 'Gửi tin nhắn';
                 
-                // Show success message
-                showSuccessMessage();
+                if (data.success) {
+                    // Show success message
+                    showSuccessMessage(data.message);
+                    
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Remove validation classes
+                    formControls.forEach(field => {
+                        field.classList.remove('error', 'success');
+                        removeErrorMessage(field);
+                    });
+                    
+                    // Scroll to top of form
+                    contactForm.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                } else {
+                    // Show error message
+                    showErrorMessage(data.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+                }
+            })
+            .catch(error => {
+                // Hide loading state
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Gửi tin nhắn';
                 
-                // Reset form
-                contactForm.reset();
-                
-                // Remove validation classes
-                formControls.forEach(field => {
-                    field.classList.remove('error', 'success');
-                    removeErrorMessage(field);
-                });
-                
-                // Scroll to top of form
-                contactForm.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                });
-                
-            }, 2000); // Simulate 2 second delay
+                // Show error message
+                showErrorMessage('Đã xảy ra lỗi kết nối. Vui lòng thử lại sau.');
+                console.error('Form submission error:', error);
+            });
         });
     }
     
-    function showSuccessMessage() {
-        // Remove existing success message
+    function showErrorMessage(message) {
+        // Remove existing messages
+        const existingMessage = document.querySelector('.error-message_global');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        // Create error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message_global show';
+        errorDiv.style.cssText = 'background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;';
+        errorDiv.innerHTML = `<strong>Thông báo:</strong> ${message}`;
+        
+        // Insert before form
+        contactForm.parentNode.insertBefore(errorDiv, contactForm);
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            errorDiv.classList.remove('show');
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 300);
+        }, 5000);
+    }
+    
+    function showSuccessMessage(customMessage) {
+        // Remove existing messages
         const existingMessage = document.querySelector('.success-message');
         if (existingMessage) {
             existingMessage.remove();
         }
         
+        // Use custom message or default
+        const message = customMessage || 'Cảm ơn bạn! Tin nhắn của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ lại sớm nhất có thể.';
+        
         // Create success message
         const successDiv = document.createElement('div');
         successDiv.className = 'success-message show';
-        successDiv.innerHTML = `
-            <strong>Thank you!</strong> Your message has been sent successfully. We'll get back to you soon.
-        `;
+        successDiv.style.cssText = 'background: #d4edda; color: #155724; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;';
+        successDiv.innerHTML = `<strong>Thành công!</strong> ${message}`;
         
         // Insert before form
         contactForm.parentNode.insertBefore(successDiv, contactForm);

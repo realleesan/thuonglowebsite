@@ -177,6 +177,58 @@ switch($page) {
         break;
         
     case 'contact':
+        // Handle POST request for contact form submission
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $response = ['success' => false, 'message' => ''];
+            
+            try {
+                // Validate required fields
+                $name = trim($_POST['your-name'] ?? '');
+                $email = trim($_POST['your-email'] ?? '');
+                $subject = trim($_POST['your-subject'] ?? '');
+                $message = trim($_POST['your-message'] ?? '');
+                
+                if (empty($name)) {
+                    $response['message'] = 'Vui lòng nhập họ tên';
+                } elseif (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $response['message'] = 'Vui lòng nhập email hợp lệ';
+                } elseif (empty($subject)) {
+                    $response['message'] = 'Vui lòng nhập tiêu đề';
+                } elseif (empty($message)) {
+                    $response['message'] = 'Vui lòng nhập nội dung';
+                } else {
+                    // Save contact to database
+                    require_once 'app/models/ContactsModel.php';
+                    $contactsModel = new ContactsModel();
+                    
+                    $data = [
+                        'name' => $name,
+                        'email' => $email,
+                        'subject' => $subject,
+                        'message' => $message,
+                        'status' => 'new',
+                        'priority' => 'normal'
+                    ];
+                    
+                    $result = $contactsModel->createSubmission($data);
+                    
+                    if ($result) {
+                        $response['success'] = true;
+                        $response['message'] = 'Cảm ơn bạn! Tin nhắn của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ lại sớm nhất có thể.';
+                    } else {
+                        $response['message'] = 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+                    }
+                }
+            } catch (Exception $e) {
+                $response['message'] = 'Đã xảy ra lỗi: ' . $e->getMessage();
+            }
+            
+            // Return JSON response
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit;
+        }
+        
         $title = 'Liên hệ - Thuong Lo';
         $content = 'app/views/contact/contact.php';
         $showPageHeader = true;
@@ -1122,15 +1174,27 @@ switch($page) {
                 
             case 'contact':
                 $page_title = 'Quản lý Liên hệ';
+                
+                // Handle AJAX delete request
+                if ($action === 'delete' && !empty($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    header('Content-Type: application/json');
+                    try {
+                        require_once __DIR__ . '/app/services/AdminService.php';
+                        $adminService = new AdminService(null, 'admin');
+                        $result = $adminService->deleteContact((int)$_GET['id']);
+                        echo json_encode(['success' => $result, 'message' => $result ? 'Xóa liên hệ thành công' : 'Xóa liên hệ thất bại']);
+                    } catch (Exception $e) {
+                        echo json_encode(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
+                    }
+                    exit;
+                }
+                
                 switch($action) {
                     case 'edit':
                         $content = 'app/views/admin/contact/edit.php';
                         break;
                     case 'view':
                         $content = 'app/views/admin/contact/view.php';
-                        break;
-                    case 'delete':
-                        $content = 'app/views/admin/contact/delete.php';
                         break;
                     default:
                         $content = 'app/views/admin/contact/index.php';
