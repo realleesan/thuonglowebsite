@@ -397,19 +397,20 @@ function getReadingTime($text) {
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div id="productDeleteModal" style="display: none;">
+        <div class="product-modal-overlay"></div>
+        <div class="product-modal-container">
+            <div class="product-modal-header">
                 <h3>Xác nhận xóa</h3>
-                <button type="button" class="modal-close">&times;</button>
+                <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa tin tức <strong id="deleteNewsName"></strong>?</p>
-                <p class="text-danger">Hành động này không thể hoàn tác!</p>
+                <p>Bạn có chắc chắn muốn xóa tin tức "<strong id="productDeleteName"></strong>"?</p>
+                <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelDelete">Hủy</button>
-                <a href="?page=admin&module=news&action=delete&id=<?= $news_id ?>" class="btn btn-danger" id="confirmDelete">Xóa</a>
+            <div class="product-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+                <button type="button" class="btn btn-danger" id="prConfirmDeleteBtn">Xóa</button>
             </div>
         </div>
     </div>
@@ -421,6 +422,222 @@ function getReadingTime($text) {
             <button class="zoom-close" onclick="closeImageZoom()">&times;</button>
         </div>
     </div>
+
+    <style>
+    /* Modal Styles */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
+    }
+    
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
+    
+    .modal-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+    }
+    
+    .modal-close:hover {
+        color: #374151;
+        background: #f3f4f6;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+    
+    /* Status Badge Styles */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        white-space: nowrap;
+    }
+    
+    .status-published {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-draft {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-archived {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+    
+    .product-thumbnail {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .no-image {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background: #f3f4f6;
+        border-radius: 4px;
+        color: #9ca3af;
+    }
+    
+    .product-category {
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+    
+    #productDeleteModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
+    }
+
+    .product-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .product-modal-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .product-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .product-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .product-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .product-modal-close:hover {
+        color: #374151;
+        background: #f3f4f6;
+    }
+
+    .product-modal-body {
+        padding: 20px;
+    }
+
+    .product-modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+    }
+
+    .product-modal-warning {
+        color: #dc2626 !important;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .product-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+    </style>
 </div>
 
 <script>
@@ -448,21 +665,6 @@ function openImageZoom(imageSrc) {
 function closeImageZoom() {
     document.getElementById('imageZoomOverlay').style.display = 'none';
 }
-
-// Delete functionality
-document.querySelector('.delete-btn').addEventListener('click', function() {
-    const newsName = this.getAttribute('data-name');
-    document.getElementById('deleteNewsName').textContent = newsName;
-    document.getElementById('deleteModal').style.display = 'flex';
-});
-
-document.getElementById('cancelDelete').addEventListener('click', function() {
-    document.getElementById('deleteModal').style.display = 'none';
-});
-
-document.querySelector('.modal-close').addEventListener('click', function() {
-    document.getElementById('deleteModal').style.display = 'none';
-});
 
 // Analytics chart
 if (document.getElementById('viewsChart')) {
@@ -494,4 +696,66 @@ if (document.getElementById('viewsChart')) {
     ctx.closePath();
     ctx.fill();
 }
+
+// Delete button click handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const newsId = this.getAttribute('data-id');
+                const newsName = this.getAttribute('data-name');
+                
+                const nameElement = document.getElementById('productDeleteName');
+                if (nameElement) {
+                    nameElement.textContent = newsName || 'tin tức này';
+                }
+                
+                const modal = document.getElementById('productDeleteModal');
+                if (modal) {
+                    modal.dataset.deleteId = newsId;
+                    modal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+        
+        // Confirm delete button
+        const confirmDeleteBtn = document.getElementById('prConfirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                const modal = document.getElementById('productDeleteModal');
+                const deleteId = modal ? modal.dataset.deleteId : null;
+                if (deleteId) {
+                    window.location.href = '?page=admin&module=news&action=delete&id=' + deleteId;
+                }
+            });
+        }
+        
+        // Close modal on overlay click
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('product-modal-overlay')) {
+                closeProductDeleteModal();
+            }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('productDeleteModal');
+                if (modal && modal.style.display === 'block') {
+                    closeProductDeleteModal();
+                }
+            }
+        });
+    });
+    
+    function closeProductDeleteModal() {
+        const modal = document.getElementById('productDeleteModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            delete modal.dataset.deleteId;
+        }
+    }
 </script>

@@ -69,8 +69,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($create_data['author']);
     }
     
+    // Set author_id - use current admin user ID or default to 1
+    $create_data['author_id'] = $_SESSION['user_id'] ?? 1;
+    
+    // Handle image upload - if a file is uploaded, process it
+    if (!empty($_FILES['image']['name'])) {
+        // Handle image upload
+        $uploadDir = dirname(__DIR__, 4) . '/assets/uploads/news/';
+        $uploadUrl = '/assets/uploads/news/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $fileName = time() . '_' . basename($_FILES['image']['name']);
+        $targetPath = $uploadDir . $fileName;
+        
+        // Try move_uploaded_file first (more secure), then copy as fallback
+        $uploadSuccess = move_uploaded_file($_FILES['image']['tmp_name'], $targetPath);
+        if (!$uploadSuccess) {
+            $uploadSuccess = copy($_FILES['image']['tmp_name'], $targetPath);
+        }
+        
+        if ($uploadSuccess && file_exists($targetPath)) {
+            $create_data['image'] = $uploadUrl . $fileName;
+        } else {
+            $errors[] = 'Không thể tải lên hình ảnh. Lỗi: ' . $_FILES['image']['error'];
+        }
+    } elseif (!empty($_POST['image_url'])) {
+        // Handle image URL input - exactly like edit.php
+        $create_data['image'] = trim($_POST['image_url']);
+    } else {
+        // No image provided - unset to not include in creation
+        unset($create_data['image']);
+    }
+    
     if (empty($errors)) {
         $result = $service->createNews($create_data);
+        
         if ($result) {
             $success = true;
         } else {
@@ -216,22 +251,30 @@ function generateSlug($title) {
                         <h3 class="section-title">Hình Ảnh Đại Diện</h3>
                         
                         <div class="form-group">
-                            <label for="image">Chọn hình ảnh:</label>
+                            <label>Chọn hình ảnh:</label>
                             <div class="image-upload-container">
-                                <div class="image-preview" onclick="document.getElementById('image').click()">
-                                    <img id="preview-img" src="" alt="Preview" style="display: none;">
+                                <div class="image-preview" id="imagePreview" onclick="document.getElementById('image').click()" style="cursor:pointer;">
+                                    <img id="preview-img" src="" alt="Preview" style="display:none;">
                                     <div id="preview-placeholder">
                                         <i class="fas fa-image"></i>
                                         <p>Click để chọn hình ảnh</p>
                                     </div>
                                 </div>
                                 <input type="file" id="image" name="image" class="image-input" 
-                                       accept="image/*" onchange="previewImage(this)">
+                                       accept="image/*" style="display:none;" onchange="previewUploadedImage(this)">
                                 <div class="image-upload-info">
                                     <small>Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
-                                    <small>Kích thước khuyến nghị: 800x600px</small>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top:16px;">
+                            <label for="image_url">Hoặc nhập URL ảnh:</label>
+                            <input type="text" id="image_url" name="image_url" 
+                                   value="<?= htmlspecialchars($form_data['image'] ?? '') ?>" 
+                                   placeholder="https://example.com/image.jpg"
+                                   oninput="updateImageFromUrl(this.value)">
+                            <small>Nhập URL ảnh (vd: https://example.com/image.jpg) hoặc click ra ngoài để cập nhật preview</small>
                         </div>
 
                         <?php if (!empty($form_data['image'])): ?>
@@ -278,10 +321,6 @@ function generateSlug($title) {
                     <i class="fas fa-save"></i>
                     Lưu Tin Tức
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
-                    <i class="fas fa-file-alt"></i>
-                    Lưu Nháp
-                </button>
                 <a href="?page=admin&module=news" class="btn btn-outline">
                     <i class="fas fa-times"></i>
                     Hủy
@@ -292,7 +331,43 @@ function generateSlug($title) {
 </div>
 
 <script>
-// Generate slug from title
+// Handle beforeunload warning - only warn if there are unsaved changes
+let isFormDirty = false;
+let isFormSubmitting = false;
+
+window.addEventListener('beforeunload', function(e) {
+    if (isFormDirty && !isFormSubmitting) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Track form changes
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        // Mark as dirty when any input changes
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                isFormDirty = true;
+            });
+        });
+        
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            isFormSubmitting = true;
+            isFormDirty = false;
+        });
+    }
+    
+    // Initialize image preview if there's an existing image URL
+    const imageUrlInput = document.getElementById('image_url');
+    if (imageUrlInput && imageUrlInput.value) {
+        updateImageFromUrl(imageUrlInput.value);
+    }
+});
+
 function generateSlugFromTitle() {
     const title = document.getElementById('title').value;
     const slug = title
@@ -303,19 +378,52 @@ function generateSlugFromTitle() {
     document.getElementById('slug').value = slug;
 }
 
-// Preview image
-function previewImage(input) {
-    const preview = document.getElementById('preview-img');
-    const placeholder = document.getElementById('preview-placeholder');
-    
+// Preview uploaded image
+function previewUploadedImage(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
+            const previewImg = document.getElementById('preview-img');
+            const placeholder = document.getElementById('preview-placeholder');
+            
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
             placeholder.style.display = 'none';
+            
+            // Clear the URL input when file is uploaded
+            const urlInput = document.getElementById('image_url');
+            if (urlInput) {
+                urlInput.value = '';
+            }
         };
         reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Update image from URL
+function updateImageFromUrl(url) {
+    if (!url) return;
+    
+    // Skip data URLs (already displayed from file upload)
+    if (url.startsWith('data:')) return;
+    
+    const previewImg = document.getElementById('preview-img');
+    const placeholder = document.getElementById('preview-placeholder');
+    
+    if (previewImg && placeholder) {
+        // Create a new image to test if URL is valid
+        const testImg = new Image();
+        testImg.onload = function() {
+            previewImg.src = url;
+            previewImg.style.display = 'block';
+            placeholder.style.display = 'none';
+        };
+        testImg.onerror = function() {
+            // Invalid URL - keep placeholder but don't hide it
+            previewImg.style.display = 'none';
+            placeholder.style.display = 'flex';
+        };
+        testImg.src = url;
     }
 }
 

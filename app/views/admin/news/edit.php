@@ -90,6 +90,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($update_data['author']);
     }
     
+    // Handle image upload - if a file is uploaded, process it
+    if (!empty($_FILES['image']['name'])) {
+        // Handle image upload
+        $uploadDir = dirname(__DIR__, 4) . '/assets/uploads/news/';
+        $uploadUrl = '/assets/uploads/news/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $fileName = time() . '_' . basename($_FILES['image']['name']);
+        $targetPath = $uploadDir . $fileName;
+        
+        // Try move_uploaded_file first (more secure), then copy as fallback
+        $uploadSuccess = move_uploaded_file($_FILES['image']['tmp_name'], $targetPath);
+        if (!$uploadSuccess) {
+            $uploadSuccess = copy($_FILES['image']['tmp_name'], $targetPath);
+        }
+        
+        if ($uploadSuccess && file_exists($targetPath)) {
+            $update_data['image'] = $uploadUrl . $fileName;
+        } else {
+            $errors[] = 'Không thể tải lên hình ảnh. Lỗi: ' . $_FILES['image']['error'];
+        }
+    } elseif (!empty($_POST['image_url'])) {
+        // Handle image URL input - exactly like categories/edit.php
+        $update_data['image'] = trim($_POST['image_url']);
+    } else {
+        // Keep existing image - don't include 'image' in update data
+        unset($update_data['image']);
+    }
+    
     if (empty($errors)) {
         if ($service->updateNews($news_id, $update_data)) {
             // Use PRG pattern - redirect after successful POST
@@ -259,17 +290,17 @@ function formatDate($date) {
                         <h3 class="section-title">Hình Ảnh Đại Diện</h3>
                         
                         <div class="form-group">
-                            <label for="image">Chọn hình ảnh mới:</label>
+                            <label>Chọn hình ảnh:</label>
                             <div class="image-upload-container">
-                                <div class="image-preview" onclick="document.getElementById('image').click()">
+                                <div class="image-preview" id="imagePreview" onclick="document.getElementById('image').click()" style="cursor:pointer;">
                                     <?php if (!empty($form_data['image'])): ?>
-                                        <img id="preview-img" src="<?= $form_data['image'] ?>" alt="Current Image">
-                                        <div id="preview-placeholder" style="display: none;">
+                                        <img id="preview-img" src="<?= htmlspecialchars($form_data['image']) ?>" alt="Current Image" style="max-width:100%;max-height:100%;object-fit:contain;">
+                                        <div id="preview-placeholder" style="display:none;">
                                             <i class="fas fa-image"></i>
                                             <p>Click để chọn hình ảnh</p>
                                         </div>
                                     <?php else: ?>
-                                        <img id="preview-img" src="" alt="Preview" style="display: none;">
+                                        <img id="preview-img" src="" alt="Preview" style="display:none;">
                                         <div id="preview-placeholder">
                                             <i class="fas fa-image"></i>
                                             <p>Click để chọn hình ảnh</p>
@@ -277,20 +308,21 @@ function formatDate($date) {
                                     <?php endif; ?>
                                 </div>
                                 <input type="file" id="image" name="image" class="image-input" 
-                                       accept="image/*" onchange="previewImage(this)">
+                                       accept="image/*" style="display:none;" onchange="previewUploadedImage(this)">
                                 <div class="image-upload-info">
                                     <small>Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
-                                    <small>Kích thước khuyến nghị: 800x600px</small>
                                 </div>
                             </div>
                         </div>
-
-                        <?php if (!empty($form_data['image'])): ?>
-                            <div class="current-image-info">
-                                <strong>Hình ảnh hiện tại:</strong><br>
-                                <?= basename($form_data['image']) ?>
-                            </div>
-                        <?php endif; ?>
+                        
+                        <div class="form-group" style="margin-top:16px;">
+                            <label for="image_url">Hoặc nhập URL ảnh:</label>
+                            <input type="text" id="image_url" name="image_url" 
+                                   value="<?= htmlspecialchars($form_data['image'] ?? '') ?>" 
+                                   placeholder="https://example.com/image.jpg"
+                                   oninput="updateImageFromUrl(this.value)">
+                            <small>Nhập URL ảnh (vd: https://example.com/image.jpg) hoặc click ra ngoài để cập nhật preview</small>
+                        </div>
                     </div>
 
                     <!-- SEO Options -->
@@ -329,10 +361,6 @@ function formatDate($date) {
                     <i class="fas fa-save"></i>
                     Cập Nhật Tin Tức
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
-                    <i class="fas fa-file-alt"></i>
-                    Lưu Nháp
-                </button>
                 <a href="?page=admin&module=news" class="btn btn-outline">
                     <i class="fas fa-times"></i>
                     Hủy
@@ -354,20 +382,52 @@ function generateSlugFromTitle() {
     document.getElementById('slug').value = slug;
 }
 
-// Preview image
-function previewImage(input) {
-    const preview = document.getElementById('preview-img');
-    const placeholder = document.getElementById('preview-placeholder');
-    
+// Preview image from file upload
+function previewUploadedImage(input) {
     if (input.files && input.files[0]) {
-        const reader = new FileReader();
+        var reader = new FileReader();
         reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            placeholder.style.display = 'none';
+            // Update the main image preview
+            var imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML = '<img id="preview-img" src="' + e.target.result + '" alt="New image" style="max-width:100%;max-height:100%;object-fit:contain;">';
+            // Clear URL input when file is selected
+            var urlInput = document.getElementById('image_url');
+            if (urlInput) {
+                urlInput.value = '';
+            }
         };
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+// Update image preview from URL
+function updateImageFromUrl(url) {
+    // Don't process if it's a base64 data URL
+    if (url && url.indexOf('data:') === 0) {
+        console.log('Skipping base64 data URL');
+        return;
+    }
+    
+    if (url && url.indexOf('http') === 0) {
+        var imagePreview = document.getElementById('imagePreview');
+        imagePreview.innerHTML = '<img id="preview-img" src="' + url + '" alt="URL Image" style="max-width:100%;max-height:100%;object-fit:contain;" onerror="this.onerror=null; this.src=\'/assets/images/default-news.jpg\';">';
+        // Clear file input
+        var fileInput = document.getElementById('image');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    } else {
+        // Clear preview if URL is invalid
+        var imagePreview = document.getElementById('imagePreview');
+        if (imagePreview) {
+            imagePreview.innerHTML = '<div id="preview-placeholder"><i class="fas fa-image"></i><p>Click để chọn hình ảnh</p></div>';
+        }
+    }
+}
+
+// Preview image (legacy - kept for compatibility)
+function previewImage(input) {
+    previewUploadedImage(input);
 }
 
 // Save as draft

@@ -1394,10 +1394,14 @@ class AdminService extends BaseService
     public function createNews(array $data): bool
     {
         $result = $this->callModelMethod('NewsModel', 'create', [$data], null);
-        if ($result) {
+        
+        // Check if result is valid - should be a positive numeric ID
+        if ($result && is_numeric($result) && $result > 0) {
             $this->flushDashboardCache();
+            return true;
         }
-        return $result !== false;
+        
+        return false;
     }
 
     public function updateNews(int $newsId, array $data): bool
