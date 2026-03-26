@@ -7,6 +7,11 @@
 // Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
+// Kiểm tra service availability
+if ($service === null) {
+    die('Error: AdminService not available. Please contact administrator.');
+}
+
 // Get error handler if available
 $errorHandler = null;
 if (isset($GLOBALS['errorHandler'])) {
@@ -27,6 +32,12 @@ try {
     
     // Get affiliates data using AdminService
     $affiliatesData = $service->getAffiliatesData($current_page, $per_page, $filters);
+    
+    // Ensure affiliatesData is always an array
+    if (!is_array($affiliatesData)) {
+        $affiliatesData = [];
+    }
+    
     $affiliates = $affiliatesData['affiliates'] ?? [];
     $pagination = $affiliatesData['pagination'] ?? ['current_page' => 1, 'last_page' => 1, 'per_page' => 10];
     $total_affiliates = $affiliatesData['total'] ?? 0;

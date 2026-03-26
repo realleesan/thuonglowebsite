@@ -146,43 +146,43 @@ $performance_data = [
             </div>
             <div class="card-body">
                 <div class="stats-grid">
-                    <div class="stat-item">
+                    <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <div class="stat-content">
-                            <h4><?= formatPrice($affiliate['total_sales']) ?></h4>
-                            <p>Tổng Doanh Số</p>
+                            <div class="stat-number"><?= formatPrice($affiliate['total_sales']) ?></div>
+                            <div class="stat-label">Tổng Doanh Số</div>
                         </div>
                     </div>
                     
-                    <div class="stat-item">
+                    <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-money-bill-wave"></i>
                         </div>
                         <div class="stat-content">
-                            <h4><?= formatPrice($affiliate['total_commission']) ?></h4>
-                            <p>Tổng Hoa Hồng</p>
+                            <div class="stat-number"><?= formatPrice($affiliate['total_commission']) ?></div>
+                            <div class="stat-label">Tổng Hoa Hồng</div>
                         </div>
                     </div>
                     
-                    <div class="stat-item">
+                    <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
                         <div class="stat-content">
-                            <h4><?= $total_orders ?></h4>
-                            <p>Tổng Đơn Hàng</p>
+                            <div class="stat-number"><?= $total_orders ?></div>
+                            <div class="stat-label">Tổng Đơn Hàng</div>
                         </div>
                     </div>
                     
-                    <div class="stat-item">
+                    <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-content">
-                            <h4>0</h4>
-                            <p>Khách Giới Thiệu</p>
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Khách Giới Thiệu</div>
                         </div>
                     </div>
                 </div>
@@ -190,27 +190,25 @@ $performance_data = [
         </div>
     </div>
 
-    <!-- Performance Charts -->
-    <div class="charts-section">
-        <div class="chart-container">
+    <!-- Charts & Recent Orders Grid -->
+    <div class="charts-orders-grid">
+        <!-- Performance Charts -->
+        <div class="charts-section">
             <div class="chart-header">
                 <h3>Biểu Đồ Doanh Số & Hoa Hồng</h3>
-                <div class="chart-controls">
-                    <select id="chartPeriod">
-                        <option value="6months">6 tháng gần đây</option>
-                        <option value="12months">12 tháng gần đây</option>
-                        <option value="year">Theo năm</option>
-                    </select>
-                </div>
+                <select id="chartPeriod">
+                    <option value="6months">6 tháng gần đây</option>
+                    <option value="12months">12 tháng gần đây</option>
+                    <option value="year">Theo năm</option>
+                </select>
             </div>
             <div class="chart-body">
-                <canvas id="performanceChart" width="400" height="200"></canvas>
+                <canvas id="performanceChart"></canvas>
             </div>
         </div>
-    </div>
 
-    <!-- Recent Orders -->
-    <div class="recent-orders-section">
+        <!-- Recent Orders -->
+        <div class="recent-orders-section">
         <div class="section-header">
             <h3>Đơn Hàng Gần Đây</h3>
             <a href="?page=admin&module=orders&affiliate=<?= $affiliate_id ?>" class="btn btn-outline">
@@ -275,6 +273,7 @@ $performance_data = [
                 </tbody>
             </table>
         </div>
+    </div>
     </div>
 
     <!-- Referral Links -->
@@ -400,6 +399,102 @@ $performance_data = [
         font-size: 13px;
         font-weight: 500;
     }
+    
+    /* Fix for charts and recent orders height */
+    .affiliates-view-page .charts-section {
+        min-height: 350px !important;
+        height: 350px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .affiliates-view-page .recent-orders-section {
+        min-height: 350px !important;
+        height: 350px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Fix grid width */
+    .affiliates-view-page .charts-orders-grid {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .affiliates-view-page .info-cards-grid {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Ensure all children use border-box */
+    .affiliates-view-page .charts-orders-grid *,
+    .affiliates-view-page .info-cards-grid * {
+        box-sizing: border-box;
+    }
+    
+    /* Force exact equal sizing for all 4 blocks */
+    .affiliates-view-page .info-cards-grid,
+    .affiliates-view-page .charts-orders-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 20px;
+    }
+    
+    .affiliates-view-page .info-card,
+    .affiliates-view-page .charts-section,
+    .affiliates-view-page .recent-orders-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 16px !important;
+        height: 450px !important;
+        min-height: 450px !important;
+        background: #ffffff !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: none !important;
+    }
+    
+    /* Chart section simplified styling */
+    .affiliates-view-page .charts-section .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .affiliates-view-page .charts-section .chart-header h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    .affiliates-view-page .charts-section .chart-header select {
+        padding: 6px 10px;
+        border: 1px solid #D1D5DB;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+    
+    .affiliates-view-page .charts-section .chart-body {
+        height: calc(450px - 60px);
+        min-height: 200px;
+        position: relative;
+    }
+    
+    .affiliates-view-page .charts-section .chart-body canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Referral section white frame */
+    .affiliates-view-page .referral-section {
+        background: #ffffff !important;
+        border: 1px solid #E5E7EB !important;
+        border-radius: 8px !important;
+        padding: 16px !important;
+        box-shadow: none !important;
+    }
     </style>
 </div>
 
@@ -429,9 +524,15 @@ const performanceChart = new Chart(ctx, {
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: {
             mode: 'index',
             intersect: false,
+        },
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
         },
         scales: {
             x: {
