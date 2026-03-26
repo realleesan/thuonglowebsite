@@ -1153,6 +1153,24 @@ switch($page) {
                 
             case 'affiliates':
                 $page_title = 'Quản lý Đại lý';
+                
+                // Handle delete action BEFORE including layout
+                if ($action === 'delete' && isset($_GET['id'])) {
+                    $delete_id = (int)$_GET['id'];
+                    if ($delete_id > 0) {
+                        try {
+                            require_once __DIR__ . '/app/services/AdminService.php';
+                            $adminService = new AdminService(null, 'admin');
+                            $adminService->deleteAffiliate($delete_id);
+                        } catch (Exception $e) {
+                            error_log('Delete affiliate error: ' . $e->getMessage());
+                        }
+                    }
+                    // Redirect after delete
+                    header('Location: ?page=admin&module=affiliates&deleted=1');
+                    exit;
+                }
+                
                 switch($action) {
                     case 'add':
                         $content = 'app/views/admin/affiliates/add.php';
@@ -1164,7 +1182,8 @@ switch($page) {
                         $content = 'app/views/admin/affiliates/view.php';
                         break;
                     case 'delete':
-                        $content = 'app/views/admin/affiliates/delete.php';
+                        // This case is now handled above
+                        $content = 'app/views/admin/affiliates/index.php';
                         break;
                     default:
                         $content = 'app/views/admin/affiliates/index.php';

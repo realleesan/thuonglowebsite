@@ -76,7 +76,7 @@ $performance_data = [
                 Chỉnh sửa
             </a>
             <button type="button" class="btn btn-danger delete-btn" 
-                    data-id="<?= $affiliate_id ?>" data-name="<?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?>">>
+                    data-id="<?= $affiliate_id ?>" data-name="<?= htmlspecialchars($affiliate['user_name'] ?? 'N/A') ?>">
                 <i class="fas fa-trash"></i>
                 Xóa
             </button>
@@ -307,22 +307,100 @@ $performance_data = [
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div id="productDeleteModal" style="display: none;">
+        <div class="product-modal-overlay"></div>
+        <div class="product-modal-container">
+            <div class="product-modal-header">
                 <h3>Xác nhận xóa</h3>
-                <button type="button" class="modal-close">&times;</button>
+                <button class="product-modal-close" onclick="closeProductDeleteModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa đại lý <strong id="deleteAffiliateName"></strong>?</p>
-                <p class="text-danger">Hành động này không thể hoàn tác và sẽ xóa tất cả dữ liệu liên quan!</p>
+                <p>Bạn có chắc chắn muốn xóa danh mục "<strong id="productDeleteName"></strong>"?</p>
+                <p class="product-modal-warning">Hành động này không thể hoàn tác!</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="cancelDelete">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+            <div class="product-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeProductDeleteModal()">Hủy</button>
+                <button type="button" class="btn btn-danger" id="prConfirmDeleteBtn">Xóa</button>
             </div>
         </div>
     </div>
+
+    <style>
+    #productDeleteModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 999999;
+    }
+
+    .product-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .product-modal-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .product-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .product-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .product-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .product-modal-close:hover {
+        color: #374151;
+        background: #f3f4f6;
+    }
+
+    .product-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .product-modal-warning {
+        color: #dc2626 !important;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    </style>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -423,34 +501,65 @@ function copyLink(elementId) {
     });
 }
 
-// Delete functionality
-document.querySelector('.delete-btn').addEventListener('click', function() {
-    const id = this.dataset.id;
-    const name = this.dataset.name;
+// Delete button click handler
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.delete-btn');
     
-    document.getElementById('deleteAffiliateName').textContent = name;
-    document.getElementById('deleteModal').style.display = 'block';
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const affiliateId = this.getAttribute('data-id');
+            const affiliateName = this.getAttribute('data-name');
+            
+            const nameElement = document.getElementById('productDeleteName');
+            if (nameElement) {
+                nameElement.textContent = affiliateName || 'đại lý này';
+            }
+            
+            const modal = document.getElementById('productDeleteModal');
+            if (modal) {
+                modal.dataset.deleteId = affiliateId;
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
     
-    document.getElementById('confirmDelete').onclick = function() {
-        // Send delete request via form submission
-        document.getElementById('deleteForm').submit();
-    };
-});
-
-// Modal close functionality
-document.querySelector('.modal-close').addEventListener('click', function() {
-    document.getElementById('deleteModal').style.display = 'none';
-});
-
-document.getElementById('cancelDelete').addEventListener('click', function() {
-    document.getElementById('deleteModal').style.display = 'none';
-});
-
-// Close modal when clicking outside
-window.addEventListener('click', function(event) {
-    const modal = document.getElementById('deleteModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
+    // Confirm delete button
+    const confirmDeleteBtn = document.getElementById('prConfirmDeleteBtn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            const modal = document.getElementById('productDeleteModal');
+            const deleteId = modal ? modal.dataset.deleteId : null;
+            if (deleteId) {
+                window.location.href = '?page=admin&module=affiliates&action=delete&id=' + deleteId;
+            }
+        });
     }
+    
+    // Close modal on overlay click
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('product-modal-overlay')) {
+            closeProductDeleteModal();
+        }
+    });
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('productDeleteModal');
+            if (modal && modal.style.display === 'block') {
+                closeProductDeleteModal();
+            }
+        }
+    });
 });
+
+function closeProductDeleteModal() {
+    const modal = document.getElementById('productDeleteModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        delete modal.dataset.deleteId;
+    }
+}
 </script>

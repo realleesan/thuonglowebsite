@@ -246,12 +246,16 @@ class DataTransformer {
         
         return [
             'id' => (int) $affiliate['id'],
-            'name' => $this->security->escapeHtml($affiliate['name']),
-            'email' => $this->security->escapeHtml($affiliate['email']),
+            'user_name' => $this->security->escapeHtml($affiliate['user_name'] ?? $affiliate['name'] ?? 'N/A'),
+            'user_email' => $this->security->escapeHtml($affiliate['user_email'] ?? $affiliate['email'] ?? 'N/A'),
+            'user_phone' => $this->security->escapeHtml($affiliate['user_phone'] ?? ''),
+            'referral_code' => $this->security->escapeHtml($affiliate['referral_code'] ?? ''),
             'commission_rate' => (float) ($affiliate['commission_rate'] ?? 0),
-            'total_earnings' => $this->security->formatMoney($affiliate['total_earnings'] ?? 0),
+            'total_sales' => (float) ($affiliate['total_sales'] ?? 0),
+            'total_commission' => (float) ($affiliate['total_commission'] ?? 0),
+            'total_earnings' => $this->security->formatMoney($affiliate['total_commission'] ?? $affiliate['total_earnings'] ?? 0),
             'customers_count' => (int) ($affiliate['customers_count'] ?? 0),
-            'status' => $affiliate['status'],
+            'status' => $affiliate['status'] ?? 'pending',
             'created_at' => $this->formatDate($affiliate['created_at'])
         ];
     }
