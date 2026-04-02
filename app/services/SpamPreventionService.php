@@ -65,15 +65,17 @@ class SpamPreventionService implements ServiceInterface {
     /**
      * Kiểm tra xem user có bị rate limit không
      * Requirements: 4.3
+     * Simplified: Only check if user has pending request in database
+     * No IP-based or session-based rate limiting
      */
     public function isRateLimited(?int $userId): bool {
         if (!$userId) {
-            // For anonymous users, use IP-based rate limiting
-            return $this->isIpRateLimited();
+            // No user ID - allow submission (this shouldn't happen for authenticated users)
+            return false;
         }
         
-        // Check database for user-based rate limiting
-        return $this->isUserRateLimited($userId);
+        // Check if user already has a pending request in database
+        return $this->hasExistingPendingRequest($userId);
     }
     
     /**
@@ -135,16 +137,26 @@ class SpamPreventionService implements ServiceInterface {
             return ($now - $timestamp) < 86400; // 24 hours
         });
         
-        // Check hourly limit
+        // For IP-based, we allow first-time submissions without rate limiting
+        // This prevents blocking legitimate new users
+        // Only apply rate limiting if they already have attempts AND have a pending request
+        
+        // Check hourly limit - but only if there are previous attempts
         $hourlyAttempts = array_filter($attempts, function($timestamp) use ($now) {
             return ($now - $timestamp) < 3600; // 1 hour
         });
         
+        // If no previous attempts, allow submission
+        if (count($attempts) === 0) {
+            return false;
+        }
+        
+        // Only block if hourly limit exceeded AND there are previous attempts
         if (count($hourlyAttempts) >= $this->rateLimitConfig['max_requests_per_hour']) {
             return true;
         }
         
-        // Check daily limit
+        // Only apply daily limit if there are previous attempts
         if (count($attempts) >= $this->rateLimitConfig['max_requests_per_day']) {
             return true;
         }
@@ -154,6 +166,7 @@ class SpamPreventionService implements ServiceInterface {
     
     /**
      * Kiểm tra rate limit dựa trên user ID
+     * This is now only called when user already has a pending request
      */
     private function isUserRateLimited(int $userId): bool {
         $sessionKey = $this->rateLimitConfig['session_key_prefix'] . 'user_' . $userId;
@@ -165,12 +178,12 @@ class SpamPreventionService implements ServiceInterface {
         $attempts = $_SESSION[$sessionKey] ?? [];
         $now = time();
         
-        // Clean old attempts
+        // Clean old attempts (older than 1 day)
         $attempts = array_filter($attempts, function($timestamp) use ($now) {
             return ($now - $timestamp) < 86400; // 24 hours
         });
         
-        // Check hourly limit
+        // User already has pending request - apply rate limiting
         $hourlyAttempts = array_filter($attempts, function($timestamp) use ($now) {
             return ($now - $timestamp) < 3600; // 1 hour
         });
@@ -179,7 +192,6 @@ class SpamPreventionService implements ServiceInterface {
             return true;
         }
         
-        // Check daily limit
         if (count($attempts) >= $this->rateLimitConfig['max_requests_per_day']) {
             return true;
         }

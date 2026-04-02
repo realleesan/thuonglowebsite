@@ -40,7 +40,6 @@
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 16px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .registration-subtitle {
@@ -57,7 +56,6 @@
     border-radius: 20px;
     padding: 40px;
     margin-bottom: 40px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .benefits-title {
@@ -81,12 +79,11 @@
     padding: 20px;
     background: #f8f9fa;
     border-radius: 12px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .benefit-item:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .benefit-icon {
@@ -132,7 +129,6 @@
 .agent-registration-form {
     max-width: 800px;
     margin: 0 auto;
-    /* Bỏ background và box-shadow để không có khung */
 }
 
 .form-group {
@@ -169,7 +165,6 @@
 .form-control:focus {
     outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .form-control.error {
@@ -178,7 +173,6 @@
 
 .form-control.error:focus {
     border-color: #dc3545;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
 }
 
 .form-control.readonly {
@@ -192,7 +186,6 @@
 .form-control.readonly:focus {
     background-color: #f8f9fa;
     border-color: #e9ecef;
-    box-shadow: none;
     outline: none;
 }
 
@@ -308,7 +301,6 @@ select.form-control {
 
 .btn-submit:disabled:hover {
     transform: none !important;
-    box-shadow: none !important;
 }
 
 .input-icon {
@@ -394,13 +386,13 @@ textarea.form-control {
 }
 
 .btn-submit {
-    background: #fff;
-    color: white;
+    background: #356df1;
+    color: #fff;
 }
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    background: #356df1;
 }
 
 .btn-cancel {
@@ -421,7 +413,6 @@ textarea.form-control {
     background: white;
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .process-title {

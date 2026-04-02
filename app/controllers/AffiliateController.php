@@ -60,15 +60,8 @@ class AffiliateController {
             return;
         }
         
-        // If user can't submit (rate limited), show message
-        if (!$statusResult['can_submit']) {
-            // Show rate limit message page
-            $this->renderView('affiliate/rate_limit_message', [
-                'page_title' => 'Quá nhiều yêu cầu - Đăng ký đại lý',
-                'message' => 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.'
-            ]);
-            return;
-        }
+        // User doesn't have any pending request - show registration form
+        // (No rate limiting needed - just check database status)
         
         // Get CSRF token
         $csrfToken = $this->authService->getCsrfToken();
@@ -84,12 +77,22 @@ class AffiliateController {
             $userEmail = $dbUser['email'] ?? '';
         }
         
+        // Get user phone from database
+        $userPhone = '';
+        if (isset($currentUser['id'])) {
+            require_once __DIR__ . '/../models/UsersModel.php';
+            $usersModel = new UsersModel();
+            $dbUser = $usersModel->find($currentUser['id']);
+            $userPhone = $dbUser['phone'] ?? '';
+        }
+        
         // Render full page view instead of popup
         $this->renderView('affiliate/registration_page', [
             'csrf_token' => $csrfToken,
             'user' => $currentUser,
             'form_action' => '?page=agent&action=register',
             'current_email' => $userEmail,
+            'current_phone' => $userPhone,
             'page_title' => 'Đăng ký trở thành đại lý - ThuongLo.com'
         ]);
     }
@@ -132,9 +135,6 @@ class AffiliateController {
             $agentEmail = $_POST['agent_email'] ?? '';
             $fullName = $_POST['full_name'] ?? '';
             $phoneNumber = $_POST['phone_number'] ?? '';
-            $businessType = $_POST['business_type'] ?? '';
-            $experienceYears = $_POST['experience_years'] ?? '';
-            $businessAddress = $_POST['business_address'] ?? '';
             $targetMarket = $_POST['target_market'] ?? [];
             $motivation = $_POST['motivation'] ?? '';
             
@@ -157,16 +157,9 @@ class AffiliateController {
                 $validationErrors['phone_number'] = 'Số điện thoại phải có 10-11 chữ số';
             }
             
-            if (empty($businessType)) {
-                $validationErrors['business_type'] = 'Loại hình kinh doanh là bắt buộc';
-            }
-            
-            if (empty($experienceYears)) {
-                $validationErrors['experience_years'] = 'Kinh nghiệm bán hàng là bắt buộc';
-            }
-            
-            if (empty($businessAddress)) {
-                $validationErrors['business_address'] = 'Địa chỉ kinh doanh là bắt buộc';
+            // Validate terms checkbox (agent_terms is required in form)
+            if (!isset($_POST['agent_terms']) || empty($_POST['agent_terms'])) {
+                $validationErrors['agent_terms'] = 'Bạn cần đồng ý với điều khoản đại lý';
             }
             
             if (!empty($validationErrors)) {
@@ -185,9 +178,6 @@ class AffiliateController {
                     'requested_at' => date('Y-m-d H:i:s'),
                     'full_name' => $fullName,
                     'phone_number' => $phoneNumber,
-                    'business_type' => $businessType,
-                    'experience_years' => $experienceYears,
-                    'business_address' => $businessAddress,
                     'target_market' => is_array($targetMarket) ? implode(', ', $targetMarket) : '',
                     'motivation' => $motivation
                 ]
@@ -205,9 +195,10 @@ class AffiliateController {
                 
                 $this->setFlashMessage('success', 
                     'Yêu cầu đăng ký đại lý đã được gửi thành công! ' .
-                    'Chúng tôi sẽ xem xét và phản hồi trong vòng 24 giờ qua email Gmail của bạn.'
+                    'Chúng tôi sẽ xem xét và phản hồi trong vòng 24 giờ qua email của bạn.'
                 );
-                $this->redirect('?page=agent&action=processing');
+                // Redirect to home page
+                $this->redirect('./');
             } else {
                 $this->setFlashMessage('error', $result['message'] ?? 'Có lỗi xảy ra khi xử lý yêu cầu');
                 $this->redirect('?page=agent');
@@ -516,11 +507,14 @@ class AffiliateController {
     
     /**
      * Check authentication middleware
+     * @param bool $silent If true, don't set flash message or redirect
      */
-    public function checkAuth(): bool {
+    public function checkAuth(bool $silent = false): bool {
         if (!$this->authService->isAuthenticated()) {
-            $this->setFlashMessage('error', 'Vui lòng đăng nhập để tiếp tục');
-            $this->redirect('?page=login');
+            if (!$silent) {
+                $this->setFlashMessage('error', 'Vui lòng đăng nhập để tiếp tục');
+                $this->redirect('?page=login');
+            }
             return false;
         }
         

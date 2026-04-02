@@ -256,49 +256,6 @@ $quickActions = [
                 <?php endif; ?>
             </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="dashboard-widget quick-actions-widget">
-            <div class="widget-header">
-                <h3>Thao tác nhanh</h3>
-            </div>
-            <div class="widget-content">
-                <div class="quick-actions">
-                    <?php foreach ($quickActions as $action): ?>
-                    <a href="<?php echo $action['link']; ?>" class="quick-action-btn quick-action-<?php echo $action['color']; ?>">
-                        <i class="<?php echo $action['icon']; ?>"></i>
-                        <span><?php echo $action['title']; ?></span>
-                    </a>
-                    <?php endforeach; ?>
-                    
-                    <!-- Cart & Wishlist Actions -->
-                    <?php
-                    // Get cart and wishlist counts from database
-                    $cartCount = 0;
-                    $wishlistCount = 0;
-                    
-                    try {
-                        $cartData = $userService->getCartData($userId);
-                        $cartCount = $cartData['summary']['total_items'] ?? 0;
-                        
-                        $wishlistData = $userService->getWishlistData($userId);
-                        $wishlistCount = $wishlistData['total_items'] ?? 0;
-                    } catch (Exception $e) {
-                        // Keep default values if service fails
-                    }
-                    ?>
-                    <a href="?page=users&module=cart" class="quick-action-btn quick-action-warning">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Giỏ hàng (<?php echo $cartCount; ?>)</span>
-                    </a>
-                    
-                    <a href="?page=users&module=wishlist" class="quick-action-btn quick-action-danger">
-                        <i class="fas fa-heart"></i>
-                        <span>Yêu thích (<?php echo $wishlistCount; ?>)</span>
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
     </div>
 </div>

@@ -35,45 +35,16 @@ try {
     exit;
 }
 
-// Handle form submission
+// Handle success/error messages from redirect (PRG pattern)
 $errors = [];
 $success = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validation
-    $commission_rate = (float)($_POST['commission_rate'] ?? 0);
-    $referral_code = trim($_POST['referral_code'] ?? '');
-    $status = $_POST['status'] ?? 'active';
-    
-    if ($commission_rate <= 0 || $commission_rate > 50) {
-        $errors[] = 'Tỷ lệ hoa hồng phải từ 0.1% đến 50%';
-    }
-    
-    if (empty($referral_code)) {
-        $errors[] = 'Mã giới thiệu không được để trống';
-    } elseif (strlen($referral_code) < 3) {
-        $errors[] = 'Mã giới thiệu phải có ít nhất 3 ký tự';
-    } elseif (!preg_match('/^[A-Z0-9]+$/', $referral_code)) {
-        $errors[] = 'Mã giới thiệu chỉ được chứa chữ cái in hoa và số';
-    } elseif ($service->checkReferralCodeExists($referral_code, $affiliate_id)) {
-        $errors[] = 'Mã giới thiệu đã tồn tại';
-    }
-    
-    // If no errors, update database
-    if (empty($errors)) {
-        $affiliateData = [
-            'commission_rate' => $commission_rate,
-            'referral_code' => strtoupper($referral_code),
-            'status' => $status
-        ];
-        $updated = $service->updateAffiliate($affiliate_id, $affiliateData);
-        if ($updated) {
-            header('Location: ?page=admin&module=affiliates&action=view&id=' . $affiliate_id . '&success=updated');
-            exit;
-        } else {
-            $errors[] = 'Không thể cập nhật đại lý';
-        }
-    }
+if (isset($_GET['success']) && $_GET['success'] === 'updated') {
+    $success = true;
+}
+
+if (isset($_GET['error'])) {
+    $errors[] = urldecode($_GET['error']);
 }
 
 // Format price function
@@ -125,6 +96,7 @@ function formatPrice($price) {
     <!-- Edit Affiliate Form -->
     <div class="form-container">
         <form method="POST" class="admin-form">
+            <input type="hidden" name="affiliate_id" value="<?= $affiliate_id ?>">
             <div class="form-grid">
                 <!-- Left Column -->
                 <div class="form-column">

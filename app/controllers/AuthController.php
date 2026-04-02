@@ -163,12 +163,12 @@ class AuthController {
                         $this->setFlashMessage('success', 'Đăng ký tài khoản thành công! Chào mừng bạn đến với ThuongLo.com');
 
                         // Check if user is logged in (auto-login was successful)
-                        if ($this->checkAuth()) {
+                        // Use silent=true to avoid setting another flash message
+                        if ($this->checkAuth(true)) {
                             // Redirect to user dashboard or home page
                             $this->redirect('?page=users&module=dashboard');
                         } else {
                             // Auto-login failed, redirect to login page
-                            $this->setFlashMessage('info', 'Tài khoản đã được tạo thành công. Vui lòng đăng nhập.');
                             $this->redirect('?page=login');
                         }
                     } else {
@@ -342,11 +342,14 @@ class AuthController {
     
     /**
      * Authentication middleware - check if user is authenticated
+     * @param bool $silent If true, don't set flash message or redirect
      */
-    public function checkAuth(): bool {
+    public function checkAuth(bool $silent = false): bool {
         if (!$this->authService->isAuthenticated()) {
-            $this->setFlashMessage('error', 'Vui lòng đăng nhập để tiếp tục');
-            $this->redirect('?page=login');
+            if (!$silent) {
+                $this->setFlashMessage('error', 'Vui lòng đăng nhập để tiếp tục');
+                $this->redirect('?page=login');
+            }
             return false;
         }
         

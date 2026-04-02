@@ -300,36 +300,27 @@ class AgentRegistrationService extends BaseService {
     
     /**
      * Ngăn chặn spam submission
-     * Requirements: 4.1, 4.2, 4.3
+     * Simplified: Only check database for pending request
      */
     public function preventSpamSubmission(int $userId): bool {
-        // Check for existing pending request
-        if ($this->spamPreventionService->hasExistingPendingRequest($userId)) {
-            return true; // Prevent submission
-        }
-        
-        // Check rate limiting
-        if ($this->spamPreventionService->isRateLimited($userId)) {
-            return true; // Prevent submission
-        }
-        
-        return false; // Allow submission
+        // Check if user has pending request in database
+        return $this->spamPreventionService->hasExistingPendingRequest($userId);
     }
     
     /**
      * Lấy trạng thái đăng ký của user
+     * Simplified: Only check database for existing request
      */
     public function getRegistrationStatus(int $userId): array {
         try {
             $existingRequest = $this->checkExistingRequest($userId);
-            $rateLimitStatus = $this->spamPreventionService->getRateLimitStatus($userId);
             
             return [
                 'success' => true,
                 'has_existing_request' => $existingRequest !== null,
                 'request_details' => $existingRequest,
-                'rate_limit_status' => $rateLimitStatus,
-                'can_submit' => !$this->preventSpamSubmission($userId)
+                // can_submit is true if user doesn't have existing request
+                'can_submit' => $existingRequest === null
             ];
             
         } catch (Exception $e) {

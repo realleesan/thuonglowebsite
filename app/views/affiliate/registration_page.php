@@ -34,6 +34,14 @@ $current_email = $current_email ?? ($user['email'] ?? '');
                     if (!empty($formData)) {
                         unset($_SESSION['agent_form_data']); // Clear after using
                     }
+                    
+                    // Check if user has pending request - show processing message instead
+                    $pendingStatus = $_SESSION['agent_request_status'] ?? 'none';
+                    if ($pendingStatus === 'pending') {
+                        // User has pending request - redirect to processing page
+                        header('Location: ?page=agent&action=processing');
+                        exit;
+                    }
                     ?>
                     
                     <script>
@@ -123,7 +131,7 @@ $current_email = $current_email ?? ($user['email'] ?? '');
                                                name="phone_number" 
                                                class="form-control <?php echo isset($fieldErrors['phone_number']) ? 'error' : ''; ?>"
                                                placeholder="Nhập số điện thoại"
-                                               value="<?php echo htmlspecialchars($formData['phone_number'] ?? $user['phone'] ?? ''); ?>"
+                                               value="<?php echo htmlspecialchars($formData['phone_number'] ?? $current_phone ?? $user['phone'] ?? ''); ?>"
                                                required
                                                pattern="[0-9]{10,11}"
                                                title="Số điện thoại phải có 10-11 chữ số">
@@ -194,8 +202,42 @@ $current_email = $current_email ?? ($user['email'] ?? '');
                                 <div class="terms-checkbox">
                                     <input type="checkbox" id="agent_terms" name="agent_terms" required>
                                     <label for="agent_terms">
-                                        Tôi đồng ý với <a href="#" target="_blank">Điều khoản đại lý</a> và 
-                                        <a href="#" target="_blank">Chính sách hoa hồng</a> của ThuongLo.com
+                                        Tôi đồng ý với 
+                                        <details class="inline-modal">
+                                            <summary class="inline-modal-trigger">Điều khoản đại lý</summary>
+                                            <div class="inline-modal-content">
+                                                <h4>1. Quyền và nghĩa vụ của đại lý</h4>
+                                                <p>Đại lý được quyền sử dụng mã giới thiệu cá nhân. Đại lý có nghĩa vụ tuân thủ quy định marketing.</p>
+                                                <h4>2. Quyền lợi hoa hồng</h4>
+                                                <p>Đại lý nhận hoa hồng từ mọi đơn hàng của khách giới thiệu, thanh toán hàng tháng.</p>
+                                                <h4>3. Thanh toán</h4>
+                                                <p>Hoa hồng thanh toán ngày 15 hàng tháng, số tiền tối thiểu 100.000 VNĐ.</p>
+                                                <h4>4. Chấm dứt hợp đồng</h4>
+                                                <p>ThuongLo.com có quyền chấm dứt nếu đại lý vi phạm điều khoản hoặc không đạt doanh số.</p>
+                                                <h4>5. Bảo mật thông tin</h4>
+                                                <p>Đại lý cam kết bảo mật thông tin khách hàng.</p>
+                                            </div>
+                                        </details>
+                                        và
+                                        <details class="inline-modal">
+                                            <summary class="inline-modal-trigger">Chính sách hoa hồng</summary>
+                                            <div class="inline-modal-content">
+                                                <h4>Hoa hồng trọn đời</h4>
+                                                <p>Bạn nhận hoa hồng từ TẤT CẢ đơn hàng của khách giới thiệu trọn đời.</p>
+                                                <h4>Các loại hoa hồng</h4>
+                                                <p>- Đăng ký gói dữ liệu: 10%</p>
+                                                <p>- Vận chuyển: 5%</p>
+                                                <h4>Mức hoa hồng theo cấp</h4>
+                                                <p>- Đồng (Bronze): 10%</p>
+                                                <p>- Bạc (Silver): 12%</p>
+                                                <p>- Vàng (Gold): 15%</p>
+                                                <p>- Kim cương (Diamond): 20%</p>
+                                                <h4>Thanh toán</h4>
+                                                <p>Kỳ: Hàng tháng (ngày 15)</p>
+                                                <p>Tối thiểu: 100.000 VNĐ</p>
+                                            </div>
+                                        </details>
+                                        của ThuongLo.com
                                     </label>
                                 </div>
                             </div>
@@ -223,6 +265,170 @@ $current_email = $current_email ?? ($user['email'] ?? '');
         </div>
     </section>
 </main>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('details.inline-modal[open]').forEach(d => d.removeAttribute('open'));
+    }
+});
+</script>
+
+<style>
+.inline-modal {
+    display: inline;
+}
+
+.inline-modal-trigger {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.inline-modal-trigger:hover {
+    color: #0056b3;
+}
+
+.inline-modal-content {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+}
+
+.inline-modal[open] .inline-modal-content {
+    display: block;
+}
+
+.inline-modal-content h4 {
+    margin: 16px 0 8px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+.inline-modal-content h4:first-child {
+    margin-top: 0;
+}
+
+.inline-modal-content p {
+    margin: 0 0 8px 0;
+    line-height: 1.5;
+    color: #555;
+    font-size: 13px;
+}
+</style>
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-body h4 {
+    margin: 20px 0 10px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.modal-body h4:first-child {
+    margin-top: 0;
+}
+
+.modal-body p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+    color: #555;
+}
+
+.modal-body ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.modal-body li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.modal-table th, .modal-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #e0e0e0;
+}
+
+.modal-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modal-footer .btn-primary {
+    padding: 10px 24px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.modal-footer .btn-primary:hover {
+    background: #0056b3;
+}
+</style>
 
 <?php
 $content = ob_get_clean();

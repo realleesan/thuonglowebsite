@@ -1154,6 +1154,70 @@ switch($page) {
             case 'affiliates':
                 $page_title = 'Quản lý Đại lý';
                 
+                // Handle POST update request BEFORE including layout (PRG pattern)
+                if ($action === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $affiliate_id = (int)($_POST['affiliate_id'] ?? $_GET['id'] ?? 0);
+                    $errors = [];
+                    
+                    if ($affiliate_id > 0) {
+                        // Validate and process
+                        $commission_rate = (float)($_POST['commission_rate'] ?? 0);
+                        $referral_code = trim($_POST['referral_code'] ?? '');
+                        $status = $_POST['status'] ?? 'active';
+                        
+                        if ($commission_rate <= 0 || $commission_rate > 50) {
+                            $errors[] = 'Tỷ lệ hoa hồng phải từ 0.1% đến 50%';
+                        }
+                        
+                        if (empty($referral_code)) {
+                            $errors[] = 'Mã giới thiệu không được để trống';
+                        } elseif (strlen($referral_code) < 3) {
+                            $errors[] = 'Mã giới thiệu phải có ít nhất 3 ký tự';
+                        } elseif (!preg_match('/^[A-Z0-9]+$/', $referral_code)) {
+                            $errors[] = 'Mã giới thiệu chỉ được chứa chữ cái in hoa và số';
+                        }
+                        
+                        if (empty($errors)) {
+                            try {
+                                require_once __DIR__ . '/app/services/AdminService.php';
+                                $adminService = new AdminService(null, 'admin');
+                                
+                                // Check referral code exists
+                                if ($adminService->checkReferralCodeExists($referral_code, $affiliate_id)) {
+                                    $errors[] = 'Mã giới thiệu đã tồn tại';
+                                } else {
+                                    $affiliateData = [
+                                        'commission_rate' => $commission_rate,
+                                        'referral_code' => strtoupper($referral_code),
+                                        'status' => $status
+                                    ];
+                                    $updated = $adminService->updateAffiliate($affiliate_id, $affiliateData);
+                                    if ($updated) {
+                                        // Redirect with success - PRG pattern
+                                        header('Location: ?page=admin&module=affiliates&action=edit&id=' . $affiliate_id . '&success=updated');
+                                        exit;
+                                    } else {
+                                        $errors[] = 'Không thể cập nhật đại lý';
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                error_log('Affiliate update error: ' . $e->getMessage());
+                                $errors[] = 'Lỗi hệ thống: ' . $e->getMessage();
+                            }
+                        }
+                        
+                        // If errors, redirect back with error message
+                        if (!empty($errors)) {
+                            $error_msg = urlencode(implode(', ', $errors));
+                            header('Location: ?page=admin&module=affiliates&action=edit&id=' . $affiliate_id . '&error=' . $error_msg);
+                            exit;
+                        }
+                    } else {
+                        header('Location: ?page=admin&module=affiliates&error=invalid_id');
+                        exit;
+                    }
+                }
+                
                 // Handle delete action BEFORE including layout
                 if ($action === 'delete' && isset($_GET['id'])) {
                     $delete_id = (int)$_GET['id'];
