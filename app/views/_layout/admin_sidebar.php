@@ -115,11 +115,12 @@ $current_action = $_GET['action'] ?? 'index';
                                     $subActive = true;
                                 }
                             }
-                            // Affiliates check: 'requests' action vs not
+                            // Affiliates check: 'requests' action vs not (includes request_detail, approve_request, reject_request, delete_request)
                             if ($current_module === 'affiliates') {
-                                if ($current_action === 'requests' && strpos($submenu['url'], 'action=requests') !== false) {
+                                $isRequestsRelated = in_array($current_action, ['requests', 'request_detail', 'approve_request', 'reject_request', 'delete_request']);
+                                if ($isRequestsRelated && strpos($submenu['url'], 'action=requests') !== false) {
                                     $subActive = true;
-                                } elseif ($current_action !== 'requests' && strpos($submenu['url'], 'action=requests') === false) {
+                                } elseif (!$isRequestsRelated && strpos($submenu['url'], 'action=requests') === false) {
                                     $subActive = true;
                                 }
                             }

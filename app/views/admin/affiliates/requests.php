@@ -233,16 +233,6 @@ $error = $_GET['error'] ?? null;
     <?php endif; ?>
 </div>
 
-<!-- Debug Info -->
-<?php if (!empty($debug_info)): ?>
-<div style="background:#f0f0f0;padding:15px;margin:15px 0;border:1px solid #ccc;font-size:12px;white-space:pre-wrap;">
-    <strong>DEBUG INFO:</strong><br>
-    <?php foreach ($debug_info as $info): ?>
-        <?php echo htmlspecialchars($info) . "\n"; ?>
-    <?php endforeach; ?>
-</div>
-<?php endif; ?>
-
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
