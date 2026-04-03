@@ -22,21 +22,21 @@ try {
     $affiliateModel = new AffiliateModel();
     $debug_info[] = 'AffiliateModel created: OK';
     
-    // Count pending requests
-    $countSql = "SELECT COUNT(*) as total FROM affiliates WHERE status = 'pending'";
+    // Count ALL requests (pending + inactive/rejected) - show history
+    $countSql = "SELECT COUNT(*) as total FROM affiliates WHERE status IN ('pending', 'inactive')";
     $debug_info[] = 'Count SQL: ' . $countSql;
     $countResult = $affiliateModel->query($countSql);
     $debug_info[] = 'Count Result: ' . print_r($countResult, true);
     $total_requests = $countResult[0]['total'] ?? 0;
     $debug_info[] = 'Total requests: ' . $total_requests;
     
-    // Get pending requests with user info
+    // Get ALL requests with user info (pending + inactive/rejected)
     $offset = max(0, ($current_page - 1) * $per_page);
     $requestsSql = "
         SELECT a.*, u.name as user_name, u.email as user_email, u.phone as user_phone
         FROM affiliates a
         LEFT JOIN users u ON a.user_id = u.id
-        WHERE a.status = 'pending'
+        WHERE a.status IN ('pending', 'inactive')
         ORDER BY a.created_at DESC
         LIMIT {$per_page} OFFSET {$offset}
     ";
@@ -70,7 +70,7 @@ $error = $_GET['error'] ?? null;
         <div class="page-header-left">
             <h1>Yêu cầu đăng ký đại lý</h1>
             <span class="results-count">
-                <?= $total_requests ?> yêu cầu chờ duyệt
+                <?= $total_requests ?> yêu cầu (chờ duyệt và đã từ chối)
             </span>
         </div>
     </div>
@@ -153,13 +153,17 @@ $error = $_GET['error'] ?? null;
                             <td><?= htmlspecialchars($request['referral_code'] ?? 'N/A') ?></td>
                             <td>
                                 <span class="status-badge status-<?= $request['status'] ?? 'pending' ?>">
-                                    <?php 
-                                    $statusLabels = [
-                                        'pending' => 'Chờ duyệt',
-                                        'approved' => 'Đã duyệt',
-                                        'rejected' => 'Từ chối'
-                                    ];
-                                    echo 'Chờ duyệt';
+                                    <?php
+                                    $status = $request['status'] ?? 'pending';
+                                    if ($status === 'pending') {
+                                        echo 'Chờ duyệt';
+                                    } elseif ($status === 'inactive') {
+                                        echo 'Đã từ chối';
+                                    } elseif ($status === 'active') {
+                                        echo 'Đã duyệt';
+                                    } else {
+                                        echo htmlspecialchars($status);
+                                    }
                                     ?>
                                 </span>
                             </td>
@@ -178,6 +182,7 @@ $error = $_GET['error'] ?? null;
                                            class="btn btn-sm btn-warning" title="Từ chối">
                                             <i class="fas fa-times"></i>
                                         </a>
+                                    <?php elseif (($request['status'] ?? '') === 'inactive'): ?>
                                     <?php endif; ?>
                                     <button type="button" class="btn btn-sm btn-danger" 
                                             onclick="confirmDelete(<?= $request['id'] ?>)" title="Xóa">
@@ -233,17 +238,24 @@ $error = $_GET['error'] ?? null;
     <?php endif; ?>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <h3>Xác nhận xóa</h3>
-        <p>Bạn có chắc chắn muốn xóa yêu cầu này không?</p>
-        <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
-            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+    <!-- Delete Confirmation Modal -->
+    <div id="requestDeleteModal" style="display: none;">
+        <div class="request-modal-overlay" onclick="closeRequestDeleteModal()"></div>
+        <div class="request-modal-container">
+            <div class="request-modal-header">
+                <h3>Xác nhận xóa yêu cầu</h3>
+                <button class="request-modal-close" onclick="closeRequestDeleteModal()">&times;</button>
+            </div>
+            <div class="request-modal-body">
+                <p>Bạn có chắc chắn muốn xóa yêu cầu đăng ký đại lý này?</p>
+                <p class="request-modal-warning">Hành động này không thể hoàn tác!</p>
+            </div>
+            <div class="request-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeRequestDeleteModal()">Hủy</button>
+                <button type="button" class="btn btn-danger" id="requestConfirmDeleteBtn">Xóa</button>
+            </div>
         </div>
     </div>
-</div>
 
 <style>
 /* Requests Page Specific Styles */
@@ -374,31 +386,132 @@ $error = $_GET['error'] ?? null;
     gap: 8px;
     justify-content: flex-end;
 }
+
+/* Request Delete Modal */
+#requestDeleteModal {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100vw;
+   height: 100vh;
+   z-index: 999999;
+}
+
+.request-modal-overlay {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background: rgba(0, 0, 0, 0.6);
+}
+
+.request-modal-container {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   background: white;
+   border-radius: 12px;
+   width: 90%;
+   max-width: 500px;
+}
+
+.request-modal-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 20px;
+   border-bottom: 1px solid #e5e7eb;
+}
+
+.request-modal-header h3 {
+   margin: 0;
+   font-size: 18px;
+   font-weight: 600;
+   color: #111827;
+}
+
+.request-modal-close {
+   background: none;
+   border: none;
+   font-size: 24px;
+   color: #9ca3af;
+   cursor: pointer;
+   padding: 4px;
+   border-radius: 4px;
+}
+
+.request-modal-close:hover {
+   color: #374151;
+   background: #f3f4f6;
+}
+
+.request-modal-footer {
+   display: flex;
+   justify-content: flex-end;
+   gap: 12px;
+   padding: 16px 20px;
+   border-top: 1px solid #e5e7eb;
+   background: #f9fafb;
+   border-radius: 0 0 12px 12px;
+}
+
+.request-modal-warning {
+   color: #dc2626 !important;
+   font-size: 13px;
+   font-weight: 500;
+}
+
+.request-modal-body {
+   padding: 20px;
+}
+
+.request-modal-body p {
+   margin: 0 0 8px 0;
+}
 </style>
 
 <script>
-let deleteId = null;
+let requestDeleteId = null;
 
+// Open delete modal
 function confirmDelete(id) {
-    deleteId = id;
-    document.getElementById('deleteModal').classList.add('show');
+    requestDeleteId = id;
+    const modal = document.getElementById('requestDeleteModal');
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
 }
 
-function closeModal() {
-    document.getElementById('deleteModal').classList.remove('show');
-    deleteId = null;
+// Close delete modal
+function closeRequestDeleteModal() {
+    const modal = document.getElementById('requestDeleteModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    requestDeleteId = null;
 }
 
-document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-    if (deleteId) {
-        window.location.href = '?page=admin&module=affiliates&action=delete_request&id=' + deleteId;
+// Confirm delete button click
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'requestConfirmDeleteBtn') {
+        if (requestDeleteId) {
+            // Redirect to delete action (handled in index.php)
+            window.location.href = '?page=admin&module=affiliates&action=delete_request&id=' + requestDeleteId;
+        }
     }
 });
 
-// Close modal when clicking outside
-document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeModal();
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('requestDeleteModal');
+        if (modal && modal.style.display === 'block') {
+            closeRequestDeleteModal();
+        }
     }
 });
 </script>

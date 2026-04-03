@@ -1881,6 +1881,8 @@ class AdminService extends BaseService
                 $bindings[] = $filters['status'];
             }
 
+            // Exclude 'inactive' (rejected) affiliates from the list - they only show in Requests tab
+            $conditions[] = "a.status != 'inactive'";
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM affiliates a LEFT JOIN users u ON a.user_id = u.id {$whereClause}";
             $totalResult = $affiliateModel->query($countSql, $bindings);
