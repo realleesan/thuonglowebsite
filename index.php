@@ -14,7 +14,7 @@ ini_set('display_startup_errors', 1);
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
     error_log("PHP Error [$errno]: $errstr in $errfile on line $errline");
     return false;
-});
+}); 
 
 // Set exception handler
 set_exception_handler(function($e) {
@@ -1257,18 +1257,53 @@ switch($page) {
                             require_once __DIR__ . '/app/services/AdminService.php';
                             $adminService = new AdminService(null, 'admin');
                             $result = $adminService->approveAffiliateRequest($approve_id);
+                            if (isset($result['success']) && $result['success']) {
+                                header('Location: ?page=admin&module=affiliates&action=requests&success=approved');
+                            } else {
+                                $error_msg = urlencode($result['message'] ?? 'Không thể duyệt yêu cầu');
+                                header('Location: ?page=admin&module=affiliates&action=requests&error=' . $error_msg);
+                            }
+                        } else {
+                            header('Location: ?page=admin&module=affiliates&action=requests&error=invalid_id');
                         }
-                        header('Location: ?page=admin&module=affiliates&action=requests&success=approved');
                         exit;
                     case 'reject_request':
                         $reject_id = (int)($_GET['id'] ?? 0);
-                        $reason = $_GET['reason'] ?? '';
                         if ($reject_id > 0) {
-                            require_once __DIR__ . '/app/services/AdminService.php';
-                            $adminService = new AdminService(null, 'admin');
-                            $result = $adminService->rejectAffiliateRequest($reject_id, $reason);
+                            try {
+                                require_once __DIR__ . '/app/models/AffiliateModel.php';
+                                require_once __DIR__ . '/app/models/UsersModel.php';
+                                $affiliateModel = new AffiliateModel();
+                                $usersModel = new UsersModel();
+                                
+                                // Get affiliate info
+                                $affiliate = $affiliateModel->find($reject_id);
+                                if (!$affiliate) {
+                                    header('Location: ?page=admin&module=affiliates&action=requests&error=not_found');
+                                    exit;
+                                }
+                                
+                                if ($affiliate['status'] !== 'pending') {
+                                    header('Location: ?page=admin&module=affiliates&action=requests&error=already_processed');
+                                    exit;
+                                }
+                                
+                                // Direct SQL update - use 'inactive' since ENUM doesn't have 'rejected'
+                                $sql = "UPDATE affiliates SET status = 'inactive' WHERE id = " . (int)$reject_id;
+                                $affiliateModel->query($sql);
+                                
+                                // Update user status
+                                $userId = $affiliate['user_id'];
+                                $usersModel->query("UPDATE users SET agent_request_status = 'rejected' WHERE id = " . (int)$userId);
+                                
+                                header('Location: ?page=admin&module=affiliates&action=requests&success=rejected');
+                            } catch (Exception $e) {
+                                $error_msg = urlencode('Error: ' . $e->getMessage());
+                                header('Location: ?page=admin&module=affiliates&action=requests&error=' . $error_msg);
+                            }
+                        } else {
+                            header('Location: ?page=admin&module=affiliates&action=requests&error=invalid_id');
                         }
-                        header('Location: ?page=admin&module=affiliates&action=requests&success=rejected');
                         exit;
                     case 'delete_request':
                         $delete_request_id = (int)($_GET['id'] ?? 0);

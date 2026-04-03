@@ -2005,12 +2005,9 @@ class AdminService extends BaseService
 
             $userId = $affiliate['user_id'];
 
-            // Update affiliate status to 'active'
-            $affiliateModel->update($affiliateId, [
-                'status' => 'active',
-                'approved_by' => $_SESSION['user_id'] ?? null,
-                'approved_at' => date('Y-m-d H:i:s')
-            ]);
+            // Update affiliate status to 'active' using direct SQL
+            $sql = "UPDATE affiliates SET status = 'active' WHERE id = ?";
+            $affiliateModel->query($sql, [$affiliateId]);
 
             // Update user role to 'affiliate'
             $usersModel->update($userId, [
@@ -2050,13 +2047,9 @@ class AdminService extends BaseService
 
             $userId = $affiliate['user_id'];
 
-            // Update affiliate status to 'rejected'
-            $affiliateModel->update($affiliateId, [
-                'status' => 'rejected',
-                'rejected_by' => $_SESSION['user_id'] ?? null,
-                'rejected_at' => date('Y-m-d H:i:s'),
-                'rejection_reason' => $reason
-            ]);
+            // Update affiliate status to 'inactive' (ENUM doesn't have 'rejected')
+            $sql = "UPDATE affiliates SET status = 'inactive' WHERE id = ?";
+            $affiliateModel->query($sql, [$affiliateId]);
 
             // Update user status
             $usersModel->update($userId, [
