@@ -38,17 +38,17 @@
 }
 
 .stat-card-primary .stat-icon {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: #ffffff;
 }
 
 .stat-card-warning .stat-icon {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: #ffffff;
 }
 
 .stat-card-success .stat-icon {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: #ffffff;
 }
 
@@ -194,7 +194,7 @@
 
 /* Balance Card */
 .balance-card {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
@@ -643,12 +643,12 @@
 }
 
 .webhook-icon-success {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: #ffffff;
 }
 
 .webhook-icon-primary {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: #ffffff;
 }
 

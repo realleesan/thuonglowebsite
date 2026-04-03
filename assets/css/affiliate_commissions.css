@@ -44,13 +44,13 @@
 
 .commission-breakdown-icon.icon-purple,
 .commission-breakdown-icon.commission-breakdown-purple {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .commission-breakdown-icon.icon-orange,
 .commission-breakdown-icon.commission-breakdown-orange {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
@@ -113,7 +113,7 @@
     width: 64px;
     height: 64px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
     display: flex;
     align-items: center;
@@ -185,12 +185,12 @@
 }
 
 .commission-type-icon.icon-purple {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .commission-type-icon.icon-orange {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
@@ -345,7 +345,7 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
     display: flex;
     align-items: center;

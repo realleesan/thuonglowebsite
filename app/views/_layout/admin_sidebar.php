@@ -39,11 +39,14 @@ $current_action = $_GET['action'] ?? 'index';
                     ['name' => 'Danh mục', 'url' => '?page=admin&module=categories', 'icon' => 'fas fa-tags'],
                     ['name' => 'Tin tức', 'url' => '?page=admin&module=news', 'icon' => 'fas fa-newspaper'],
                     ['name' => 'Liên hệ', 'url' => '?page=admin&module=contact', 'icon' => 'fas fa-envelope'],
-                    ['name' => 'Đại lý', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-store'],
+                    ['name' => 'Đại lý', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-store', 'submenus' => [
+                        ['name' => 'Danh sách', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-list'],
+                        ['name' => 'Yêu cầu', 'url' => '?page=admin&module=affiliates&action=requests', 'icon' => 'fas fa-user-plus']
+                    ]],
                     ['name' => 'Doanh thu', 'url' => '?page=admin&module=revenue', 'icon' => 'fas fa-chart-line'],
                 ];
             } else {
-                // Database menus - convert products to have submenu
+                // Database menus - convert products and affiliates to have submenu
                 $updatedMenus = [];
                 foreach ($menus as $menu) {
                     if (isset($menu['url']) && strpos($menu['url'], 'module=products') !== false && strpos($menu['url'], 'action=data') === false) {
@@ -51,6 +54,13 @@ $current_action = $_GET['action'] ?? 'index';
                         $menu['submenus'] = [
                             ['name' => 'Danh sách', 'url' => '?page=admin&module=products', 'icon' => 'fas fa-list'],
                             ['name' => 'Dữ liệu', 'url' => '?page=admin&module=products&action=data', 'icon' => 'fas fa-database']
+                        ];
+                    }
+                    if (isset($menu['url']) && strpos($menu['url'], 'module=affiliates') !== false && strpos($menu['url'], 'action=requests') === false) {
+                        // This is affiliates menu - add submenu
+                        $menu['submenus'] = [
+                            ['name' => 'Danh sách', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-list'],
+                            ['name' => 'Yêu cầu', 'url' => '?page=admin&module=affiliates&action=requests', 'icon' => 'fas fa-user-plus']
                         ];
                     }
                     $updatedMenus[] = $menu;
@@ -97,10 +107,21 @@ $current_action = $_GET['action'] ?? 'index';
                     <?php foreach ($menu['submenus'] as $submenu): 
                         $subActive = false;
                         if (strpos($submenu['url'], "module=$current_module") !== false) {
-                            if ($current_action === 'data' && strpos($submenu['url'], 'action=data') !== false) {
-                                $subActive = true;
-                            } elseif ($current_action !== 'data' && strpos($submenu['url'], 'action=data') === false) {
-                                $subActive = true;
+                            // Products check: 'data' action vs not
+                            if ($current_module === 'products') {
+                                if ($current_action === 'data' && strpos($submenu['url'], 'action=data') !== false) {
+                                    $subActive = true;
+                                } elseif ($current_action !== 'data' && strpos($submenu['url'], 'action=data') === false) {
+                                    $subActive = true;
+                                }
+                            }
+                            // Affiliates check: 'requests' action vs not
+                            if ($current_module === 'affiliates') {
+                                if ($current_action === 'requests' && strpos($submenu['url'], 'action=requests') !== false) {
+                                    $subActive = true;
+                                } elseif ($current_action !== 'requests' && strpos($submenu['url'], 'action=requests') === false) {
+                                    $subActive = true;
+                                }
                             }
                         }
                     ?>

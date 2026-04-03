@@ -191,9 +191,23 @@ function formatDate($date) {
                             </td>
                             <td>
                                 <?php
-                                $status = $affiliate['status'] ?? 'active';
-                                $status_class = ($status === 'active') ? 'status-active' : 'status-inactive';
-                                $status_text = ($status === 'active') ? 'Hoạt động' : 'Không hoạt động';
+                                $status = $affiliate['status'] ?? 'inactive';
+                                $status_class = '';
+                                $status_text = '';
+                                switch ($status) {
+                                    case 'active':
+                                        $status_class = 'status-active';
+                                        $status_text = 'Hoạt động';
+                                        break;
+                                    case 'pending':
+                                        $status_class = 'status-pending';
+                                        $status_text = 'Chờ duyệt';
+                                        break;
+                                    default:
+                                        $status_class = 'status-inactive';
+                                        $status_text = 'Không hoạt động';
+                                        break;
+                                }
                                 ?>
                                 <span class="status-badge <?= $status_class ?>"><?= $status_text ?></span>
                             </td>

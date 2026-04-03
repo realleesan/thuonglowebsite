@@ -1245,6 +1245,40 @@ switch($page) {
                     case 'view':
                         $content = 'app/views/admin/affiliates/view.php';
                         break;
+                    case 'requests':
+                        $content = 'app/views/admin/affiliates/requests.php';
+                        break;
+                    case 'request_detail':
+                        $content = 'app/views/admin/affiliates/request_detail.php';
+                        break;
+                    case 'approve_request':
+                        $approve_id = (int)($_GET['id'] ?? 0);
+                        if ($approve_id > 0) {
+                            require_once __DIR__ . '/app/services/AdminService.php';
+                            $adminService = new AdminService(null, 'admin');
+                            $result = $adminService->approveAffiliateRequest($approve_id);
+                        }
+                        header('Location: ?page=admin&module=affiliates&action=requests&success=approved');
+                        exit;
+                    case 'reject_request':
+                        $reject_id = (int)($_GET['id'] ?? 0);
+                        $reason = $_GET['reason'] ?? '';
+                        if ($reject_id > 0) {
+                            require_once __DIR__ . '/app/services/AdminService.php';
+                            $adminService = new AdminService(null, 'admin');
+                            $result = $adminService->rejectAffiliateRequest($reject_id, $reason);
+                        }
+                        header('Location: ?page=admin&module=affiliates&action=requests&success=rejected');
+                        exit;
+                    case 'delete_request':
+                        $delete_request_id = (int)($_GET['id'] ?? 0);
+                        if ($delete_request_id > 0) {
+                            require_once __DIR__ . '/app/services/AdminService.php';
+                            $adminService = new AdminService(null, 'admin');
+                            $result = $adminService->deleteAffiliateRequest($delete_request_id);
+                        }
+                        header('Location: ?page=admin&module=affiliates&action=requests&success=deleted');
+                        exit;
                     case 'delete':
                         // This case is now handled above
                         $content = 'app/views/admin/affiliates/index.php';

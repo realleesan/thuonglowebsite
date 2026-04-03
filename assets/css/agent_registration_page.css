@@ -354,11 +354,13 @@ textarea.form-control {
 
 .terms-checkbox a {
     color: #667eea;
+    font-weight: 700;
     text-decoration: none;
 }
 
 .terms-checkbox a:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    color: #667eea !important;
 }
 
 /* Form Actions */

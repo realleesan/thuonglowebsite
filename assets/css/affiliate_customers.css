@@ -17,7 +17,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
     display: flex;
     align-items: center;
@@ -153,7 +153,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
     display: flex;
     align-items: center;
@@ -405,22 +405,22 @@
 }
 
 .metric-icon-primary {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .metric-icon-success {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .metric-icon-warning {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .metric-icon-info {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 

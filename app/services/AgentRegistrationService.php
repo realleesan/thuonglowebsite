@@ -208,8 +208,13 @@ class AgentRegistrationService extends BaseService {
                 throw new Exception('Không thể khởi tạo AffiliateModel');
             }
             
+            // Generate referral code
+            $referralCode = 'REF' . str_pad($userId, 4, '0', STR_PAD_LEFT);
+            
             $affiliateData = [
                 'user_id' => $userId,
+                'referral_code' => $referralCode,
+                'commission_rate' => 10.00,
                 'status' => 'pending',
                 'additional_info' => json_encode($agentRegistrationData->additionalInfo),
                 'created_at' => date('Y-m-d H:i:s')
@@ -242,12 +247,51 @@ class AgentRegistrationService extends BaseService {
             ];
             
         } catch (Exception $e) {
-            return $this->handleError($e, [
-                'method' => 'upgradeExistingUserToAgent',
-                'user_id' => $userId,
-                'agent_data' => array_keys($agentData)
-            ]);
+            // Log detailed error but return specific message instead of generic fallback
+            $this->errorHandler->logError(
+                'Agent registration error: ' . $e->getMessage(),
+                [
+                    'method' => 'upgradeExistingUserToAgent',
+                    'user_id' => $userId,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]
+            );
+            
+            // Return specific error message based on what failed
+            $errorMessage = $this->getSpecificErrorMessage($e);
+            
+            return [
+                'success' => false,
+                'message' => $errorMessage,
+                'error_details' => $e->getMessage()
+            ];
         }
+    }
+    
+    /**
+     * Get specific error message based on exception type
+     */
+    private function getSpecificErrorMessage(Exception $e): string {
+        $message = $e->getMessage();
+        
+        // Check for specific error patterns
+        if (strpos($message, 'Không thể khởi tạo') !== false) {
+            return 'Hệ thống đang bận. Vui lòng thử lại sau.';
+        }
+        if (strpos($message, 'Không tìm thấy người dùng') !== false) {
+            return 'Tài khoản của bạn không tồn tại. Vui lòng đăng nhập lại.';
+        }
+        if (strpos($message, 'Không thể cập nhật') !== false) {
+            return 'Không thể cập nhật thông tin. Vui lòng thử lại.';
+        }
+        if (strpos($message, 'Không thể tạo bản ghi') !== false) {
+            return 'Không thể tạo yêu cầu đại lý. Vui lòng thử lại.';
+        }
+        
+        // Default to detailed message
+        return 'Đã xảy ra lỗi: ' . $message;
     }
     
     /**

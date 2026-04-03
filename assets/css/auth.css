@@ -462,13 +462,13 @@ body {
 
 .terms-checkbox a {
     color: #356DF1;
-    font-weight: 600;
+    font-weight: 700;
     text-decoration: none;
 }
 
 .terms-checkbox a:hover {
-    color: black;
-    transform: translateY(-1px);
+    color: #356DF1 !important;
+    text-decoration: none !important;
     cursor: pointer;
 }
 

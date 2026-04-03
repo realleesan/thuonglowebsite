@@ -52,22 +52,22 @@
 }
 
 .stat-card-primary .stat-icon {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .stat-card-success .stat-icon {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .stat-card-info .stat-icon {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .stat-card-warning .stat-icon {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
@@ -226,7 +226,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
     display: flex;
     align-items: center;
@@ -283,12 +283,12 @@
 }
 
 .commission-status-warning {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 
 .commission-status-success {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #356df1;
     color: white;
 }
 

@@ -1916,6 +1916,198 @@ class AdminService extends BaseService
         }
     }
 
+    /**
+     * Get pending affiliate requests (status = 'pending')
+     */
+    public function getPendingAffiliateRequests(int $page = 1, int $perPage = 10): array
+    {
+        try {
+            $affiliateModel = $this->getModel('AffiliateModel');
+            error_log('getPendingAffiliateRequests: affiliateModel = ' . ($affiliateModel ? 'OK' : 'NULL'));
+            
+            if (!$affiliateModel) {
+                error_log('getPendingAffiliateRequests: AffiliateModel is null');
+                return ['requests' => [], 'pagination' => ['current_page' => 1, 'last_page' => 1, 'per_page' => $perPage], 'total' => 0];
+            }
+
+            // Get count of pending requests
+            $countSql = "SELECT COUNT(*) as total FROM affiliates WHERE status = 'pending'";
+            error_log('getPendingAffiliateRequests: countSql = ' . $countSql);
+            $countResult = $affiliateModel->query($countSql);
+            error_log('getPendingAffiliateRequests: countResult = ' . print_r($countResult, true));
+            $total = $countResult[0]['total'] ?? 0;
+            error_log('getPendingAffiliateRequests: total = ' . $total);
+
+            // Get pending requests with user info
+            $offset = ($page - 1) * $perPage;
+            $requestsSql = "
+                SELECT a.*, u.name as user_name, u.email as user_email, u.phone as user_phone
+                FROM affiliates a
+                LEFT JOIN users u ON a.user_id = u.id
+                WHERE a.status = 'pending'
+                ORDER BY a.created_at DESC
+                LIMIT {$perPage} OFFSET {$offset}
+            ";
+            error_log('getPendingAffiliateRequests: requestsSql = ' . $requestsSql);
+            $requests = $affiliateModel->query($requestsSql);
+            error_log('getPendingAffiliateRequests: requests count = ' . count($requests ?? []));
+            error_log('getPendingAffiliateRequests: requests = ' . print_r($requests, true));
+
+            $transformedRequests = [];
+            foreach ($requests as $request) {
+                $transformedRequests[] = [
+                    'id' => $request['id'],
+                    'user_id' => $request['user_id'],
+                    'name' => $request['user_name'],
+                    'email' => $request['user_email'],
+                    'phone' => $request['user_phone'],
+                    'referral_code' => $request['referral_code'],
+                    'status' => $request['status'],
+                    'created_at' => $request['created_at'],
+                    'additional_info' => json_decode($request['additional_info'] ?? '{}', true)
+                ];
+            }
+
+            return [
+                'requests' => $transformedRequests,
+                'pagination' => $this->calculatePagination($page, $perPage, $total),
+                'total' => $total
+            ];
+        } catch (\Exception $e) {
+            error_log('getPendingAffiliateRequests Exception: ' . $e->getMessage());
+            error_log('getPendingAffiliateRequests Stack: ' . $e->getTraceAsString());
+            return $this->handleError($e, ['method' => 'getPendingAffiliateRequests']);
+        }
+    }
+
+    /**
+     * Approve affiliate request
+     */
+    public function approveAffiliateRequest(int $affiliateId): array
+    {
+        try {
+            $affiliateModel = $this->getModel('AffiliateModel');
+            $usersModel = $this->getModel('UsersModel');
+
+            if (!$affiliateModel || !$usersModel) {
+                return ['success' => false, 'message' => 'Không thể kết nối database'];
+            }
+
+            // Get affiliate info
+            $affiliate = $affiliateModel->find($affiliateId);
+            if (!$affiliate) {
+                return ['success' => false, 'message' => 'Không tìm thấy yêu cầu'];
+            }
+
+            if ($affiliate['status'] !== 'pending') {
+                return ['success' => false, 'message' => 'Yêu cầu này đã được xử lý'];
+            }
+
+            $userId = $affiliate['user_id'];
+
+            // Update affiliate status to 'active'
+            $affiliateModel->update($affiliateId, [
+                'status' => 'active',
+                'approved_by' => $_SESSION['user_id'] ?? null,
+                'approved_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Update user role to 'affiliate'
+            $usersModel->update($userId, [
+                'role' => 'affiliate',
+                'agent_request_status' => 'approved',
+                'agent_approved_at' => date('Y-m-d H:i:s')
+            ]);
+
+            return ['success' => true, 'message' => 'Đã duyệt yêu cầu thành công!'];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'approveAffiliateRequest', 'id' => $affiliateId]);
+        }
+    }
+
+    /**
+     * Reject affiliate request
+     */
+    public function rejectAffiliateRequest(int $affiliateId, string $reason = ''): array
+    {
+        try {
+            $affiliateModel = $this->getModel('AffiliateModel');
+            $usersModel = $this->getModel('UsersModel');
+
+            if (!$affiliateModel || !$usersModel) {
+                return ['success' => false, 'message' => 'Không thể kết nối database'];
+            }
+
+            // Get affiliate info
+            $affiliate = $affiliateModel->find($affiliateId);
+            if (!$affiliate) {
+                return ['success' => false, 'message' => 'Không tìm thấy yêu cầu'];
+            }
+
+            if ($affiliate['status'] !== 'pending') {
+                return ['success' => false, 'message' => 'Yêu cầu này đã được xử lý'];
+            }
+
+            $userId = $affiliate['user_id'];
+
+            // Update affiliate status to 'rejected'
+            $affiliateModel->update($affiliateId, [
+                'status' => 'rejected',
+                'rejected_by' => $_SESSION['user_id'] ?? null,
+                'rejected_at' => date('Y-m-d H:i:s'),
+                'rejection_reason' => $reason
+            ]);
+
+            // Update user status
+            $usersModel->update($userId, [
+                'agent_request_status' => 'rejected',
+                'agent_rejected_at' => date('Y-m-d H:i:s')
+            ]);
+
+            return ['success' => true, 'message' => 'Đã từ chối yêu cầu!'];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'rejectAffiliateRequest', 'id' => $affiliateId]);
+        }
+    }
+
+    /**
+     * Delete affiliate request
+     */
+    public function deleteAffiliateRequest(int $affiliateId): array
+    {
+        try {
+            $affiliateModel = $this->getModel('AffiliateModel');
+
+            if (!$affiliateModel) {
+                return ['success' => false, 'message' => 'Không thể kết nối database'];
+            }
+
+            // Get affiliate info
+            $affiliate = $affiliateModel->find($affiliateId);
+            if (!$affiliate) {
+                return ['success' => false, 'message' => 'Không tìm thấy yêu cầu'];
+            }
+
+            $userId = $affiliate['user_id'];
+
+            // Delete the affiliate record
+            $affiliateModel->delete($affiliateId);
+
+            // Update user status to remove agent request
+            $usersModel = $this->getModel('UsersModel');
+            if ($usersModel) {
+                $usersModel->update($userId, [
+                    'agent_request_status' => null,
+                    'agent_request_date' => null
+                ]);
+            }
+
+            return ['success' => true, 'message' => 'Đã xóa yêu cầu!'];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'deleteAffiliateRequest', 'id' => $affiliateId]);
+        }
+    }
+
     public function getAffiliateDetailsData(int $affiliateId): array
     {
         try {

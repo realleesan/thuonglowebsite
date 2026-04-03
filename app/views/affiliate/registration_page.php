@@ -202,43 +202,51 @@ $current_email = $current_email ?? ($user['email'] ?? '');
                                 <div class="terms-checkbox">
                                     <input type="checkbox" id="agent_terms" name="agent_terms" required>
                                     <label for="agent_terms">
-                                        Tôi đồng ý với 
-                                        <details class="inline-modal">
-                                            <summary class="inline-modal-trigger">Điều khoản đại lý</summary>
-                                            <div class="inline-modal-content">
-                                                <h4>1. Quyền và nghĩa vụ của đại lý</h4>
-                                                <p>Đại lý được quyền sử dụng mã giới thiệu cá nhân. Đại lý có nghĩa vụ tuân thủ quy định marketing.</p>
-                                                <h4>2. Quyền lợi hoa hồng</h4>
-                                                <p>Đại lý nhận hoa hồng từ mọi đơn hàng của khách giới thiệu, thanh toán hàng tháng.</p>
-                                                <h4>3. Thanh toán</h4>
-                                                <p>Hoa hồng thanh toán ngày 15 hàng tháng, số tiền tối thiểu 100.000 VNĐ.</p>
-                                                <h4>4. Chấm dứt hợp đồng</h4>
-                                                <p>ThuongLo.com có quyền chấm dứt nếu đại lý vi phạm điều khoản hoặc không đạt doanh số.</p>
-                                                <h4>5. Bảo mật thông tin</h4>
-                                                <p>Đại lý cam kết bảo mật thông tin khách hàng.</p>
-                                            </div>
-                                        </details>
-                                        và
-                                        <details class="inline-modal">
-                                            <summary class="inline-modal-trigger">Chính sách hoa hồng</summary>
-                                            <div class="inline-modal-content">
-                                                <h4>Hoa hồng trọn đời</h4>
-                                                <p>Bạn nhận hoa hồng từ TẤT CẢ đơn hàng của khách giới thiệu trọn đời.</p>
-                                                <h4>Các loại hoa hồng</h4>
-                                                <p>- Đăng ký gói dữ liệu: 10%</p>
-                                                <p>- Vận chuyển: 5%</p>
-                                                <h4>Mức hoa hồng theo cấp</h4>
-                                                <p>- Đồng (Bronze): 10%</p>
-                                                <p>- Bạc (Silver): 12%</p>
-                                                <p>- Vàng (Gold): 15%</p>
-                                                <p>- Kim cương (Diamond): 20%</p>
-                                                <h4>Thanh toán</h4>
-                                                <p>Kỳ: Hàng tháng (ngày 15)</p>
-                                                <p>Tối thiểu: 100.000 VNĐ</p>
-                                            </div>
-                                        </details>
-                                        của ThuongLo.com
+                                        Tôi đồng ý với <a href="javascript:void(0)" class="terms-link" onclick="openModal('agentTermsModal')">Điều khoản đại lý</a> và <a href="javascript:void(0)" class="terms-link" onclick="openModal('commissionModal')">Chính sách hoa hồng</a> của ThuongLo.com
                                     </label>
+                                </div>
+                            </div>
+
+                            <!-- Agent Terms Modal -->
+                            <div id="agentTermsModal" class="modal-overlay">
+                                <div class="modal-content">
+                                    <button class="modal-close" onclick="closeModal('agentTermsModal')">&times;</button>
+                                    <h3>Điều khoản đại lý</h3>
+                                    <div class="modal-body">
+                                        <h4>1. Quyền và nghĩa vụ của đại lý</h4>
+                                        <p>Đại lý được quyền sử dụng mã giới thiệu cá nhân để giới thiệu khách hàng. Đại lý có nghĩa vụ tuân thủ quy định marketing và không được phép spama hoặc làm giả thông tin.</p>
+                                        <h4>2. Quyền lợi hoa hồng</h4>
+                                        <p>Đại lý nhận hoa hồng từ mọi đơn hàng của khách giới thiệu. Hoa hồng được tính trọn đời cho khách hàng giới thiệu.</p>
+                                        <h4>3. Thanh toán</h4>
+                                        <p>Hoa hồng thanh toán vào ngày 15 hàng tháng. Số tiền tối thiểu để thanh toán là 100.000 VNĐ.</p>
+                                        <h4>4. Chấm dứt hợp đồng</h4>
+                                        <p>ThuongLo.com có quyền chấm dứt quan hệ đại lý nếu đại lý vi phạm điều khoản hoặc không đạt doanh số tối thiểu trong 3 tháng liên tiếp.</p>
+                                        <h4>5. Bảo mật thông tin</h4>
+                                        <p>Đại lý cam kết bảo mật thông tin khách hàng và không được phép tiết lộ cho bên thứ ba.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Commission Modal -->
+                            <div id="commissionModal" class="modal-overlay">
+                                <div class="modal-content">
+                                    <button class="modal-close" onclick="closeModal('commissionModal')">&times;</button>
+                                    <h3>Chính sách hoa hồng</h3>
+                                    <div class="modal-body">
+                                        <h4>Hoa hồng trọn đời</h4>
+                                        <p>Bạn nhận hoa hồng từ TẤT CẢ đơn hàng của khách giới thiệu trọn đời.</p>
+                                        <h4>Các loại hoa hồng</h4>
+                                        <p>- Đăng ký gói dữ liệu: 10%</p>
+                                        <p>- Vận chuyển: 5%</p>
+                                        <h4>Mức hoa hồng theo cấp</h4>
+                                        <p>- Đồng (Bronze): 10%</p>
+                                        <p>- Bạc (Silver): 12%</p>
+                                        <p>- Vàng (Gold): 15%</p>
+                                        <p>- Kim cương (Diamond): 20%</p>
+                                        <h4>Thanh toán</h4>
+                                        <p>Kỳ thanh toán: Hàng tháng (ngày 15)</p>
+                                        <p>Số tiền tối thiểu: 100.000 VNĐ</p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -267,105 +275,146 @@ $current_email = $current_email ?? ($user['email'] ?? '');
 </main>
 
 <script>
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('active');
+        setTimeout(() => {
+            e.target.style.display = 'none';
+        }, 300);
+    }
+});
+
+// Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        document.querySelectorAll('details.inline-modal[open]').forEach(d => d.removeAttribute('open'));
+        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        });
     }
 });
 </script>
 
 <style>
-.inline-modal {
-    display: inline;
-}
-
-.inline-modal-trigger {
+/* Terms link styling - bold blue text */
+.terms-link {
     color: #007bff;
-    cursor: pointer;
-    text-decoration: underline;
-    font-weight: 500;
+    font-weight: 700;
+    text-decoration: none;
 }
 
-.inline-modal-trigger:hover {
-    color: #0056b3;
+.terms-link:hover {
+    color: #333333 !important;
+    text-decoration: none !important;
 }
 
-.inline-modal-content {
+/* Modal Overlay */
+.modal-overlay {
     display: none;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* Modal Content */
+.modal-content {
     background: white;
     border-radius: 12px;
-    padding: 24px;
-    max-width: 500px;
-    width: 90%;
-    max-height: 70vh;
-    overflow-y: auto;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    z-index: 10000;
-}
-
-.inline-modal[open] .inline-modal-content {
-    display: block;
-}
-
-.inline-modal-content h4 {
-    margin: 16px 0 8px 0;
-    color: #333;
-    font-size: 14px;
-}
-
-.inline-modal-content h4:first-child {
-    margin-top: 0;
-}
-
-.inline-modal-content p {
-    margin: 0 0 8px 0;
-    line-height: 1.5;
-    color: #555;
-    font-size: 13px;
-}
-</style>
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f8f9fa;
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 20px;
-    color: #333;
-    font-weight: 600;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 28px;
-    color: #666;
-    cursor: pointer;
     padding: 0;
+    max-width: 550px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+/* Modal Close Button */
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f0f0f0;
+    border-radius: 50%;
+    font-size: 20px;
     line-height: 1;
-    transition: color 0.2s;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-close:hover {
+    background: #e0e0e0;
     color: #333;
 }
 
+/* Modal Header */
+.modal-content h3 {
+    padding: 20px 24px 0 24px;
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Modal Body */
 .modal-body {
-    padding: 24px;
-    overflow-y: auto;
-    flex: 1;
+    padding: 16px 24px 24px 24px;
 }
 
 .modal-body h4 {
-    margin: 20px 0 10px 0;
+    margin: 16px 0 8px 0;
     color: #333;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
 }
 
@@ -374,59 +423,28 @@ document.addEventListener('keydown', function(e) {
 }
 
 .modal-body p {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     line-height: 1.6;
     color: #555;
+    font-size: 14px;
 }
 
-.modal-body ul {
-    margin: 10px 0;
-    padding-left: 20px;
+/* Scrollbar styling */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
 }
 
-.modal-body li {
-    margin-bottom: 8px;
-    line-height: 1.5;
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
 }
 
-.modal-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 15px 0;
+.modal-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
 }
 
-.modal-table th, .modal-table td {
-    padding: 12px;
-    text-align: left;
-    border: 1px solid #e0e0e0;
-}
-
-.modal-table th {
-    background: #f8f9fa;
-    font-weight: 600;
-}
-
-.modal-footer {
-    padding: 16px 24px;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.modal-footer .btn-primary {
-    padding: 10px 24px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s;
-}
-
-.modal-footer .btn-primary:hover {
-    background: #0056b3;
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
 }
 </style>
 

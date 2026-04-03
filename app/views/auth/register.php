@@ -254,8 +254,8 @@ document.addEventListener('keydown', function(e) {
 }
 
 .terms-link:hover {
-    color: #0056b3;
-    text-decoration: underline;
+    color: #333333 !important;
+    text-decoration: none !important;
 }
 
 /* Modal Overlay */

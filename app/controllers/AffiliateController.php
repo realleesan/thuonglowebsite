@@ -183,9 +183,42 @@ class AffiliateController {
                 ]
             ];
             
-            // Process registration
-            $result = $this->agentService->upgradeExistingUserToAgent($userId, $agentData);
+            // Quick debug: test database connection directly
+            try {
+                $config = require __DIR__ . '/../../config.php';
+                $db = new PDO(
+                    'mysql:host=' . $config['database']['host'] . ';dbname=' . $config['database']['name'],
+                    $config['database']['username'],
+                    $config['database']['password']
+                );
+                // If here, connection works
+            } catch (PDOException $e) {
+                // Connection fails - show error in Vietnamese
+                $this->setFlashMessage('error', 'Lỗi kết nối database: ' . $e->getMessage());
+                $this->redirect('?page=agent');
+                return;
+            }
+
+            // First check if user already has pending request - don't call service if they do
+            $existingRequest = $this->agentService->checkExistingRequest($userId);
+            if ($existingRequest && isset($existingRequest['status']) && $existingRequest['status'] === 'pending') {
+                $this->setFlashMessage('error', 'Bạn đã có yêu cầu đăng ký đại lý đang chờ xử lý');
+                $this->redirect('?page=agent&action=processing');
+                return;
+            }
             
+            // Process registration
+            try {
+                $result = $this->agentService->upgradeExistingUserToAgent($userId, $agentData);
+            } catch (Exception $e) {
+                // Log and show specific error
+                error_log('Agent upgrade error: ' . $e->getMessage());
+                $this->setFlashMessage('error', 'Lỗi khi xử lý: ' . $e->getMessage());
+                $this->redirect('?page=agent');
+                return;
+            }
+            
+            // Check result - show specific error message instead of generic fallback
             if ($result['success']) {
                 $this->errorHandler->logSuccess('agent_registration_completed', [
                     'user_id' => $userId,
@@ -200,6 +233,7 @@ class AffiliateController {
                 // Redirect to home page
                 $this->redirect('./');
             } else {
+                // Show the specific error message from service
                 $this->setFlashMessage('error', $result['message'] ?? 'Có lỗi xảy ra khi xử lý yêu cầu');
                 $this->redirect('?page=agent');
             }
@@ -211,7 +245,16 @@ class AffiliateController {
                 'post_data' => array_keys($_POST)
             ]);
             
-            $this->setFlashMessage('error', 'Có lỗi hệ thống xảy ra. Vui lòng thử lại sau.');
+            // More friendly message - don't show system error details
+            $errorMessage = $e->getMessage();
+            // Map common errors to friendly Vietnamese messages
+            if (strpos($errorMessage, 'DSN') !== false || strpos($errorMessage, 'connection') !== false) {
+                $this->setFlashMessage('error', 'Không thể kết nối cơ sở dữ liệu. Vui lòng thử lại sau.');
+            } elseif (strpos($errorMessage, 'permission') !== false || strpos($errorMessage, 'denied') !== false) {
+                $this->setFlashMessage('error', 'Bạn không có quyền thực hiện thao tác này.');
+            } else {
+                $this->setFlashMessage('error', 'Có lỗi xảy ra khi xử lý yêu cầu. Vui lòng thử lại sau.');
+            }
             $this->redirect('?page=agent');
         }
     }
