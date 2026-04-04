@@ -1276,25 +1276,50 @@ switch($page) {
                                 $affiliateModel = new AffiliateModel();
                                 $usersModel = new UsersModel();
                                 
-                                // Get affiliate info
-                                $affiliate = $affiliateModel->find($reject_id);
-                                if (!$affiliate) {
+                                // Get affiliate info using direct SQL
+                                $result = $affiliateModel->query("SELECT user_id, status FROM affiliates WHERE id = " . (int)$reject_id);
+                                if (empty($result)) {
                                     header('Location: ?page=admin&module=affiliates&action=requests&error=not_found');
                                     exit;
                                 }
                                 
+                                $affiliate = $result[0];
                                 if ($affiliate['status'] !== 'pending') {
                                     header('Location: ?page=admin&module=affiliates&action=requests&error=already_processed');
                                     exit;
                                 }
                                 
-                                // Direct SQL update - use 'inactive' since ENUM doesn't have 'rejected'
-                                $sql = "UPDATE affiliates SET status = 'inactive' WHERE id = " . (int)$reject_id;
-                                $affiliateModel->query($sql);
-                                
-                                // Update user status
                                 $userId = $affiliate['user_id'];
+                                
+                                // Get user email for notification
+                                $userResult = $usersModel->query("SELECT email, name FROM users WHERE id = " . (int)$userId);
+                                $userEmail = '';
+                                $userName = '';
+                                if (!empty($userResult)) {
+                                    $userEmail = $userResult[0]['email'] ?? '';
+                                    $userName = $userResult[0]['name'] ?? 'Quý khách';
+                                }
+                                error_log('Reject request: userId=' . $userId . ', userEmail=' . $userEmail . ', userName=' . $userName);
+                                
+                                // Update affiliate status to 'inactive' (rejected) - keep for history
+                                $affiliateModel->query("UPDATE affiliates SET status = 'inactive' WHERE id = " . (int)$reject_id);
+                                
+                                // Reset user's agent_request_status to 'rejected' (valid ENUM value)
+                                // User can still re-apply because AgentRegistrationService checks for 'pending' status only
                                 $usersModel->query("UPDATE users SET agent_request_status = 'rejected' WHERE id = " . (int)$userId);
+                                
+                                // Send rejection email (same pattern as AgentRegistrationService)
+                                if (!empty($userEmail)) {
+                                    try {
+                                        require_once __DIR__ . '/app/services/EmailNotificationService.php';
+                                        $emailService = new EmailNotificationService();
+                                        $emailSent = $emailService->sendRejectionNotification($userEmail, $userName);
+                                        error_log('Rejection email sent to ' . $userEmail . ': ' . ($emailSent ? 'SUCCESS' : 'FAILED'));
+                                    } catch (Exception $emailError) {
+                                        // Log but don't fail the request
+                                        error_log('Rejection email error: ' . $emailError->getMessage() . ' in ' . $emailError->getFile() . ':' . $emailError->getLine());
+                                    }
+                                }
                                 
                                 header('Location: ?page=admin&module=affiliates&action=requests&success=rejected');
                             } catch (Exception $e) {

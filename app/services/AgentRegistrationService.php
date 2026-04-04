@@ -208,6 +208,13 @@ class AgentRegistrationService extends BaseService {
                 throw new Exception('Không thể khởi tạo AffiliateModel');
             }
             
+            // Check for existing inactive affiliate record (from rejected request)
+            $existingAffiliate = $affiliateModel->getByUserId($userId);
+            if ($existingAffiliate && $existingAffiliate['status'] === 'inactive') {
+                // Delete the old rejected record so user can re-apply
+                $affiliateModel->delete($existingAffiliate['id']);
+            }
+            
             // Generate referral code
             $referralCode = 'REF' . str_pad($userId, 4, '0', STR_PAD_LEFT);
             

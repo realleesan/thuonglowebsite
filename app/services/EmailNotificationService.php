@@ -6,16 +6,15 @@
  */
 
 require_once __DIR__ . '/ServiceInterface.php';
+require_once __DIR__ . '/../../assets/vendor/phpmailer/src/Exception.php';
 require_once __DIR__ . '/../../assets/vendor/phpmailer/src/PHPMailer.php';
 require_once __DIR__ . '/../../assets/vendor/phpmailer/src/SMTP.php';
-require_once __DIR__ . '/../../assets/vendor/phpmailer/src/Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
 class EmailNotificationService implements ServiceInterface {
-    private PHPMailer $mailer;
+    private $mailer;
     private array $emailConfig;
     private array $templates;
     
@@ -181,6 +180,42 @@ class EmailNotificationService implements ServiceInterface {
     }
     
     /**
+     * Gửi email thông báo từ chối yêu cầu đăng ký đại lý
+     */
+    public function sendRejectionNotification(string $userEmail, string $userName, string $reason = ''): bool {
+        try {
+            $this->setupMailer();
+            
+            // Recipient
+            $this->mailer->addAddress($userEmail, $userName);
+            
+            // Content
+            $this->mailer->Subject = 'Yeu cau dang ky dai ly chua duoc duyet - ThuongLo';
+            
+            $emailBody = $this->getEmailTemplate('rejection_notification', [
+                'user_name' => $userName,
+                'reason' => $reason ?: 'Chua dap ung du dieu kien dang ky dai ly tai thoi diem hien tai',
+                'reapply_info' => 'Ban co the gui lai yeu cau dang ky dai ly bat cu luc nao',
+                'contact_email' => $this->emailConfig['support_email'],
+                'website_name' => 'ThuongLo',
+                'website_url' => $this->getBaseUrl()
+            ]);
+            
+            $this->mailer->Body = $emailBody;
+            $this->mailer->AltBody = strip_tags($emailBody);
+            
+            $result = $this->mailer->send();
+            $this->resetMailer();
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            error_log("Rejection email failed: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Khởi tạo PHPMailer
      */
     private function initializeMailer(): void {
@@ -228,11 +263,11 @@ class EmailNotificationService implements ServiceInterface {
             // Handle smtp_secure setting
             $smtpSecure = $this->emailConfig['smtp_secure'];
             if ($smtpSecure === 'tls') {
-                $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $this->mailer->SMTPSecure = 'tls';
             } elseif ($smtpSecure === 'ssl') {
-                $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                $this->mailer->SMTPSecure = 'ssl';
             } else {
-                $this->mailer->SMTPSecure = $smtpSecure; // Use as-is if already a constant
+                $this->mailer->SMTPSecure = $smtpSecure;
             }
             
             $this->mailer->Port = $this->emailConfig['smtp_port'];
@@ -320,7 +355,28 @@ class EmailNotificationService implements ServiceInterface {
                     <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
                     <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
                 </div>
-            ', 
+            ',
+            'rejection_notification' => '
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #dc3545;">&#10060; Thông báo từ chối yêu cầu</h2>
+                    <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                    <p>Chúng tôi rất tiếc phải thông báo rằng yêu cầu đăng ký làm đại lý của bạn <strong>chưa được duyệt</strong>.</p>
+                    
+                    <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
+                        <h3 style="color: #721c24; margin-top: 0;">Lý do:</h3>
+                        <p style="color: #721c24; margin-bottom: 0;">{{reason}}</p>
+                    </div>
+                    
+                    <div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #17a2b8;">
+                        <h3 style="color: #0c5460; margin-top: 0;">Bạn vẫn có thể đăng ký lại!</h3>
+                        <p style="color: #0c5460; margin-bottom: 0;">{{reapply_info}}</p>
+                    </div>
+                    
+                    <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi để được hỗ trợ.</p>
+                    <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+                    <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}<br><a href="{{website_url}}">{{website_url}}</a></p>
+                </div>
+            ',
             'device_verification' => '<div><h2>Xac thuc dang nhap</h2><p>Xin chao {{user_name}},</p><p>Ma xac thuc cua ban la: <strong>{{verification_code}}</strong></p><p>Ma co hieu luc trong {{expiry_minutes}} phut</p></div>'
         ];
     }
@@ -400,7 +456,7 @@ class EmailNotificationService implements ServiceInterface {
             
             // Test SMTP connection
             if ($this->emailConfig['use_smtp']) {
-                $this->mailer->SMTPDebug = SMTP::DEBUG_CONNECTION;
+                $this->mailer->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_CONNECTION;
                 $this->mailer->Debugoutput = function($str, $level) {
                     return $str; // Capture debug output
                 };
