@@ -157,20 +157,53 @@ if (class_exists('CategoriesModel')) {
                     <li class="<?php echo ($currentPage == 'affiliate' || $currentPage == 'agent') ? 'active' : ''; ?>">
                         <?php if ($isAuthenticated): ?>
                             <?php
-                            // Check user's agent status from session or database
-                            $userRole = $_SESSION['user_role'] ?? 'user';
-                            $agentStatus = $_SESSION['agent_request_status'] ?? 'none';
+                            // Check user's agent status from database for accuracy
+                            $agentLink = '?page=agent'; // Default to registration page
                             
-                            // User is approved agent/affiliate - go to affiliate dashboard
-                            if (($userRole === 'agent' || $userRole === 'affiliate') && $agentStatus === 'approved') {
-                                echo '<a href="' . nav_url('affiliate') . '">Đại lý</a>';
-                            } elseif ($agentStatus === 'pending') {
-                                // User has pending request - show processing message
-                                echo '<a href="?page=agent&action=processing">Đại lý</a>';
-                            } else {
-                                // User can register as agent - show popup
-                                echo '<a href="?page=agent">Đại lý</a>';
+                            try {
+                                $userId = $_SESSION['user_id'] ?? null;
+                                if ($userId) {
+                                    // Load UsersModel if not already loaded
+                                    if (!class_exists('UsersModel')) {
+                                        require_once __DIR__ . '/../../models/UsersModel.php';
+                                    }
+                                    if (!class_exists('AffiliateModel')) {
+                                        require_once __DIR__ . '/../../models/AffiliateModel.php';
+                                    }
+                                    
+                                    if (class_exists('UsersModel')) {
+                                        $usersModel = new UsersModel();
+                                        $user = $usersModel->find($userId);
+                                        
+                                        if ($user) {
+                                            $userRole = $user['role'] ?? 'user';
+                                            $agentRequestStatus = $user['agent_request_status'] ?? 'none';
+                                            
+                                            // Check if user is an approved agent (role is 'affiliate' or agent_request_status is 'approved')
+                                            if ($userRole === 'affiliate' || $agentRequestStatus === 'approved') {
+                                                // User is approved agent - redirect to affiliate dashboard
+                                                $agentLink = '?page=affiliate';
+                                            } elseif ($agentRequestStatus === 'pending') {
+                                                // User has pending request - show processing message
+                                                $agentLink = '?page=agent&action=processing';
+                                            }
+                                            // else: user has no request or rejected - show registration form
+                                        }
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                error_log('Header agent status check error: ' . $e->getMessage());
+                                // Fallback to session-based check
+                                $userRole = $_SESSION['user_role'] ?? 'user';
+                                $agentStatus = $_SESSION['agent_request_status'] ?? 'none';
+                                if (($userRole === 'agent' || $userRole === 'affiliate') && $agentStatus === 'approved') {
+                                    $agentLink = '?page=affiliate';
+                                } elseif ($agentStatus === 'pending') {
+                                    $agentLink = '?page=agent&action=processing';
+                                }
                             }
+                            
+                            echo '<a href="' . htmlspecialchars($agentLink) . '">Đại lý</a>';
                             ?>
                         <?php else: ?>
                             <a href="?page=agent">Đại lý</a>

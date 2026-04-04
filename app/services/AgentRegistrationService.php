@@ -208,10 +208,18 @@ class AgentRegistrationService extends BaseService {
                 throw new Exception('Không thể khởi tạo AffiliateModel');
             }
             
-            // Check for existing inactive affiliate record (from rejected request)
+            // Check for existing affiliate record (from previous request)
             $existingAffiliate = $affiliateModel->getByUserId($userId);
-            if ($existingAffiliate && $existingAffiliate['status'] === 'inactive') {
-                // Delete the old rejected record so user can re-apply
+            if ($existingAffiliate) {
+                // If pending, user already has a pending request - should not reach here
+                if ($existingAffiliate['status'] === 'pending') {
+                    return [
+                        'success' => false,
+                        'message' => 'Bạn đã có yêu cầu đăng ký đại lý đang chờ xử lý',
+                        'existing_request' => true
+                    ];
+                }
+                // Delete the old record (rejected/inactive) so user can re-apply
                 $affiliateModel->delete($existingAffiliate['id']);
             }
             
@@ -224,7 +232,8 @@ class AgentRegistrationService extends BaseService {
                 'commission_rate' => 10.00,
                 'status' => 'pending',
                 'additional_info' => json_encode($agentRegistrationData->additionalInfo),
-                'created_at' => date('Y-m-d H:i:s')
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
             ];
             
             $affiliateId = $affiliateModel->create($affiliateData);
@@ -415,7 +424,7 @@ class AgentRegistrationService extends BaseService {
             $userUpdateData = [
                 'agent_request_status' => 'approved',
                 'agent_approved_date' => date('Y-m-d H:i:s'),
-                'role' => 'đại lý'
+                'role' => 'affiliate'
             ];
             
             $userUpdated = $usersModel->update($userId, $userUpdateData);

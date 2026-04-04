@@ -570,7 +570,39 @@ class AffiliateController {
         }
         
         $user = $this->getCurrentUser();
-        if (!$user || !in_array($user['role'], ['admin', 'affiliate'])) {
+        if (!$user) {
+            $this->setFlashMessage('error', 'Bạn không có quyền truy cập trang này');
+            $this->redirect('./');
+            return false;
+        }
+        
+        // Check role from session first
+        $userRole = $user['role'] ?? 'user';
+        $isAuthorized = in_array($userRole, ['admin', 'affiliate']);
+        
+        // If not authorized by session role, check database for approved agent status
+        if (!$isAuthorized && isset($user['id'])) {
+            try {
+                if (!class_exists('UsersModel')) {
+                    require_once __DIR__ . '/../models/UsersModel.php';
+                }
+                $usersModel = new UsersModel();
+                $dbUser = $usersModel->find($user['id']);
+                if ($dbUser) {
+                    // Check if user has been approved as agent in database
+                    if ($dbUser['role'] === 'affiliate' || ($dbUser['agent_request_status'] ?? 'none') === 'approved') {
+                        $isAuthorized = true;
+                        // Update session with current database values
+                        $_SESSION['user_role'] = $dbUser['role'];
+                        $_SESSION['agent_request_status'] = $dbUser['agent_request_status'] ?? 'none';
+                    }
+                }
+            } catch (Exception $e) {
+                error_log('requireAffiliate database check error: ' . $e->getMessage());
+            }
+        }
+        
+        if (!$isAuthorized) {
             $this->setFlashMessage('error', 'Bạn không có quyền truy cập trang này');
             $this->redirect('./');
             return false;
