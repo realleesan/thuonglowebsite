@@ -161,8 +161,8 @@ if (class_exists('CategoriesModel')) {
                             $userRole = $_SESSION['user_role'] ?? 'user';
                             $agentStatus = $_SESSION['agent_request_status'] ?? 'none';
                             
-                            if ($userRole === 'agent' && $agentStatus === 'approved') {
-                                // User is approved agent - go to affiliate dashboard
+                            // User is approved agent/affiliate - go to affiliate dashboard
+                            if (($userRole === 'agent' || $userRole === 'affiliate') && $agentStatus === 'approved') {
                                 echo '<a href="' . nav_url('affiliate') . '">Đại lý</a>';
                             } elseif ($agentStatus === 'pending') {
                                 // User has pending request - show processing message
