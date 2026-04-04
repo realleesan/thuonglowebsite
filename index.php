@@ -1254,13 +1254,57 @@ switch($page) {
                     case 'approve_request':
                         $approve_id = (int)($_GET['id'] ?? 0);
                         if ($approve_id > 0) {
-                            require_once __DIR__ . '/app/services/AdminService.php';
-                            $adminService = new AdminService(null, 'admin');
-                            $result = $adminService->approveAffiliateRequest($approve_id);
-                            if (isset($result['success']) && $result['success']) {
+                            try {
+                                require_once __DIR__ . '/app/models/AffiliateModel.php';
+                                require_once __DIR__ . '/app/models/UsersModel.php';
+                                $affiliateModel = new AffiliateModel();
+                                $usersModel = new UsersModel();
+                                
+                                // Get affiliate info using direct SQL
+                                $result = $affiliateModel->query("SELECT user_id, status FROM affiliates WHERE id = " . (int)$approve_id);
+                                if (empty($result)) {
+                                    header('Location: ?page=admin&module=affiliates&action=requests&error=not_found');
+                                    exit;
+                                }
+                                
+                                $affiliate = $result[0];
+                                if ($affiliate['status'] !== 'pending') {
+                                    header('Location: ?page=admin&module=affiliates&action=requests&error=already_processed');
+                                    exit;
+                                }
+                                
+                                $userId = $affiliate['user_id'];
+                                
+                                // Get user email for notification
+                                $userResult = $usersModel->query("SELECT email, name FROM users WHERE id = " . (int)$userId);
+                                $userEmail = '';
+                                $userName = '';
+                                if (!empty($userResult)) {
+                                    $userEmail = $userResult[0]['email'] ?? '';
+                                    $userName = $userResult[0]['name'] ?? 'Quý khách';
+                                }
+                                
+                                // Update affiliate status to 'active' (approved)
+                                $affiliateModel->query("UPDATE affiliates SET status = 'active' WHERE id = " . (int)$approve_id);
+                                
+                                // Update user role to 'affiliate' and status to 'approved'
+                                $usersModel->query("UPDATE users SET role = 'affiliate', agent_request_status = 'approved' WHERE id = " . (int)$userId);
+                                
+                                // Send approval email (same pattern as rejection)
+                                if (!empty($userEmail)) {
+                                    try {
+                                        require_once __DIR__ . '/app/services/EmailNotificationService.php';
+                                        $emailService = new EmailNotificationService();
+                                        $emailSent = $emailService->sendApprovalNotification($userEmail, $userName);
+                                        error_log('Approval email sent to ' . $userEmail . ': ' . ($emailSent ? 'SUCCESS' : 'FAILED'));
+                                    } catch (Exception $emailError) {
+                                        error_log('Approval email error: ' . $emailError->getMessage() . ' in ' . $emailError->getFile() . ':' . $emailError->getLine());
+                                    }
+                                }
+                                
                                 header('Location: ?page=admin&module=affiliates&action=requests&success=approved');
-                            } else {
-                                $error_msg = urlencode($result['message'] ?? 'Không thể duyệt yêu cầu');
+                            } catch (Exception $e) {
+                                $error_msg = urlencode('Error: ' . $e->getMessage());
                                 header('Location: ?page=admin&module=affiliates&action=requests&error=' . $error_msg);
                             }
                         } else {

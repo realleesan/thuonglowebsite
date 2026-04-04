@@ -22,21 +22,21 @@ try {
     $affiliateModel = new AffiliateModel();
     $debug_info[] = 'AffiliateModel created: OK';
     
-    // Count ALL requests (pending + inactive/rejected) - show history
-    $countSql = "SELECT COUNT(*) as total FROM affiliates WHERE status IN ('pending', 'inactive')";
+    // Count ALL requests (pending + inactive/rejected + active/approved) - show history
+    $countSql = "SELECT COUNT(*) as total FROM affiliates WHERE status IN ('pending', 'inactive', 'active')";
     $debug_info[] = 'Count SQL: ' . $countSql;
     $countResult = $affiliateModel->query($countSql);
     $debug_info[] = 'Count Result: ' . print_r($countResult, true);
     $total_requests = $countResult[0]['total'] ?? 0;
     $debug_info[] = 'Total requests: ' . $total_requests;
     
-    // Get ALL requests with user info (pending + inactive/rejected)
+    // Get ALL requests with user info (pending + inactive/rejected + active/approved)
     $offset = max(0, ($current_page - 1) * $per_page);
     $requestsSql = "
         SELECT a.*, u.name as user_name, u.email as user_email, u.phone as user_phone
         FROM affiliates a
         LEFT JOIN users u ON a.user_id = u.id
-        WHERE a.status IN ('pending', 'inactive')
+        WHERE a.status IN ('pending', 'inactive', 'active')
         ORDER BY a.created_at DESC
         LIMIT {$per_page} OFFSET {$offset}
     ";
@@ -70,7 +70,7 @@ $error = $_GET['error'] ?? null;
         <div class="page-header-left">
             <h1>Yêu cầu đăng ký đại lý</h1>
             <span class="results-count">
-                <?= $total_requests ?> yêu cầu (chờ duyệt và đã từ chối)
+                <?= $total_requests ?> yêu cầu
             </span>
         </div>
     </div>
@@ -162,7 +162,7 @@ $error = $_GET['error'] ?? null;
                                     } elseif ($status === 'active') {
                                         echo 'Đã duyệt';
                                     } else {
-                                        echo htmlspecialchars($status);
+                                        echo htmlspecialchars(ucfirst($status));
                                     }
                                     ?>
                                 </span>
@@ -183,11 +183,8 @@ $error = $_GET['error'] ?? null;
                                             <i class="fas fa-times"></i>
                                         </a>
                                     <?php elseif (($request['status'] ?? '') === 'inactive'): ?>
+                                    <?php elseif (($request['status'] ?? '') === 'active'): ?>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-sm btn-danger" 
-                                            onclick="confirmDelete(<?= $request['id'] ?>)" title="Xóa">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -327,6 +324,11 @@ $error = $_GET['error'] ?? null;
 .affiliates-requests-page .status-rejected {
     background: #FEE2E2;
     color: #991B1B;
+}
+
+.affiliates-requests-page .status-active {
+    background: #D1FAE5;
+    color: #065F46;
 }
 
 .affiliates-requests-page .action-buttons {
