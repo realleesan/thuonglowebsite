@@ -520,4 +520,35 @@ class AffiliateModel extends BaseModel {
             'bank_change_otp_expires_at' => null
         ]);
     }
+    
+    /**
+     * Get users referred by this affiliate
+     * Returns users who registered using this affiliate's referral code
+     */
+    public function getReferredUsers($affiliateUserId) {
+        $sql = "
+            SELECT u.*, a.referral_code
+            FROM users u
+            INNER JOIN affiliates a ON u.referred_by = a.user_id
+            WHERE a.user_id = ?
+            ORDER BY u.created_at DESC
+        ";
+        
+        return $this->db->query($sql, [$affiliateUserId]);
+    }
+    
+    /**
+     * Get count of referred users
+     */
+    public function getReferredUsersCount($affiliateUserId) {
+        $sql = "
+            SELECT COUNT(*) as count
+            FROM users u
+            INNER JOIN affiliates a ON u.referred_by = a.user_id
+            WHERE a.user_id = ?
+        ";
+        
+        $result = $this->db->query($sql, [$affiliateUserId]);
+        return $result ? (int)$result[0]['count'] : 0;
+    }
 }

@@ -14,9 +14,11 @@ require_once __DIR__ . '/AuthErrorHandler.php';
 require_once __DIR__ . '/SecurityLogger.php';
 require_once __DIR__ . '/SecurityMonitor.php';
 require_once __DIR__ . '/../models/UsersModel.php';
+require_once __DIR__ . '/../models/AffiliateModel.php';
 
 class AuthService implements ServiceInterface {
     private UsersModel $usersModel;
+    private AffiliateModel $affiliateModel;
     private SessionManager $sessionManager;
     private PasswordHasher $passwordHasher;
     private RoleManager $roleManager;
@@ -27,6 +29,7 @@ class AuthService implements ServiceInterface {
     
     public function __construct() {
         $this->usersModel = new UsersModel();
+        $this->affiliateModel = new AffiliateModel();
         $this->sessionManager = new SessionManager();
         $this->passwordHasher = new PasswordHasher();
         $this->roleManager = new RoleManager();
@@ -344,6 +347,26 @@ class AuthService implements ServiceInterface {
                 'timestamp' => date('Y-m-d H:i:s')
             ]);
             
+            // Validate referral code if provided and store affiliate user_id
+            $refCode = trim($userData['ref_code'] ?? '');
+            $referredByAffiliateId = null;
+            if (!empty($refCode)) {
+                // Check if referral code exists in database
+                $affiliate = $this->affiliateModel->getByReferralCode($refCode);
+                if (!$affiliate) {
+                    $this->securityLogger->logAuthAttempt('registration_failed', [
+                        'email' => $userData['email'] ?? 'unknown',
+                        'reason' => 'invalid_referral_code',
+                        'ref_code' => $refCode
+                    ]);
+                    return $this->errorHandler->handleValidationError([
+                        'ref_code' => 'Mã giới thiệu không tồn tại. Vui lòng kiểm tra lại hoặc để trống.'
+                    ]);
+                }
+                // Store the affiliate's user_id for later use
+                $referredByAffiliateId = $affiliate['user_id'];
+            }
+            
             // Validate input
             $validation = $this->validator->validateRegister($userData);
             if (!$validation['valid']) {
@@ -364,6 +387,24 @@ class AuthService implements ServiceInterface {
             
             // Register user
             $user = $this->usersModel->register($userData);
+            
+            // If user registered with a valid referral code, update referred_by field
+            if ($user && $referredByAffiliateId !== null) {
+                try {
+                    // Use direct database connection to avoid protected property access
+                    $config = require __DIR__ . '/../../config.php';
+                    $pdo = new \PDO(
+                        'mysql:host=' . $config['database']['host'] . ';dbname=' . $config['database']['name'],
+                        $config['database']['username'],
+                        $config['database']['password']
+                    );
+                    $stmt = $pdo->prepare("UPDATE users SET referred_by = ? WHERE id = ?");
+                    $stmt->execute([$referredByAffiliateId, $user['id']]);
+                } catch (\Throwable $e) {
+                    // Log error but don't fail registration
+                    error_log('Failed to set referred_by: ' . $e->getMessage());
+                }
+            }
             
             // Auto-login after successful registration
             $this->sessionManager->createSession($user);

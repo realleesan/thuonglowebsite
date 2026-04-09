@@ -65,12 +65,6 @@ ob_start();
         </h1>
         <p class="page-description">Phân tích lượt click vào link giới thiệu</p>
     </div>
-    <div class="page-header-actions">
-        <button type="button" class="btn btn-outline" onclick="exportClicksReport()">
-            <i class="fas fa-file-excel"></i>
-            <span>Xuất Excel</span>
-        </button>
-    </div>
 </div>
 
 <!-- Stats Cards -->

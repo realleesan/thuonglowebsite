@@ -1,8 +1,12 @@
 /* ===================================
    Affiliate Profile Module Styles
+   Design System: Synchronized with Admin
    =================================== */
 
-/* Profile Tabs */
+/* ============================================================================
+   PROFILE TABS (Admin-aligned)
+   ============================================================================ */
+
 .profile-tabs {
     display: flex;
     gap: 8px;
@@ -10,7 +14,7 @@
     background: #ffffff;
     padding: 8px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E5E7EB;
 }
 
 .tab-btn {
@@ -23,12 +27,11 @@
     background: transparent;
     border: none;
     border-radius: 8px;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     color: #6B7280;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
 }
 
 .tab-btn:hover {
@@ -45,7 +48,10 @@
     font-size: 16px;
 }
 
-/* Profile Content */
+/* ============================================================================
+   PROFILE CONTENT (Admin-aligned)
+   ============================================================================ */
+
 .profile-content {
     position: relative;
 }
@@ -58,12 +64,15 @@
     display: block;
 }
 
-/* Profile Card */
+/* ============================================================================
+   PROFILE CARD (Admin-aligned)
+   ============================================================================ */
+
 .profile-card {
     background: #ffffff;
     border-radius: 12px;
+    border: 1px solid #E5E7EB;
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .profile-card-header {
@@ -77,7 +86,6 @@
     align-items: center;
     gap: 12px;
     margin: 0 0 8px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 20px;
     font-weight: 600;
     color: #111827;
@@ -89,7 +97,6 @@
 
 .profile-card-subtitle {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #6B7280;
 }
@@ -98,7 +105,10 @@
     padding: 0;
 }
 
-/* Profile Form */
+/* ============================================================================
+   PROFILE FORM (Admin-aligned)
+   ============================================================================ */
+
 .profile-form {
     max-width: 800px;
 }
@@ -110,7 +120,10 @@
     margin-bottom: 24px;
 }
 
-/* Avatar Upload */
+/* ============================================================================
+   AVATAR UPLOAD (Admin-aligned)
+   ============================================================================ */
+
 .avatar-upload {
     display: flex;
     align-items: center;
@@ -136,7 +149,10 @@
     flex: 1;
 }
 
-/* Info Box */
+/* ============================================================================
+   INFO BOX (Admin-aligned)
+   ============================================================================ */
+
 .info-box {
     background: #F9FAFB;
     border-radius: 10px;
@@ -150,7 +166,6 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 16px;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #374151;
@@ -181,14 +196,12 @@
 }
 
 .info-label {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #6B7280;
     flex-shrink: 0;
 }
 
 .info-value {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #111827;
@@ -205,7 +218,10 @@
     color: #356DF1;
 }
 
-/* Password Input */
+/* ============================================================================
+   PASSWORD INPUT (Admin-aligned)
+   ============================================================================ */
+
 .password-input-wrapper {
     position: relative;
 }
@@ -224,14 +240,17 @@
     color: #6B7280;
     cursor: pointer;
     padding: 8px;
-    transition: color 0.3s ease;
+    transition: color 0.2s;
 }
 
 .btn-toggle-password:hover {
     color: #356DF1;
 }
 
-/* Password Strength */
+/* ============================================================================
+   PASSWORD STRENGTH (Admin-aligned)
+   ============================================================================ */
+
 .password-strength {
     margin-top: 12px;
 }
@@ -267,7 +286,6 @@
 }
 
 .strength-text {
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 500;
 }
@@ -284,7 +302,10 @@
     color: #10B981;
 }
 
-/* Password Requirements */
+/* ============================================================================
+   PASSWORD REQUIREMENTS (Admin-aligned)
+   ============================================================================ */
+
 .password-requirements {
     background: #F9FAFB;
     border-radius: 8px;
@@ -294,7 +315,6 @@
 
 .password-requirements h4 {
     margin: 0 0 12px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #374151;
@@ -313,7 +333,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Inter', sans-serif;
     font-size: 13px;
     color: #6B7280;
 }
@@ -331,7 +350,10 @@
     color: #10B981;
 }
 
-/* Form Actions */
+/* ============================================================================
+   FORM ACTIONS (Admin-aligned)
+   ============================================================================ */
+
 .form-actions {
     display: flex;
     gap: 12px;
@@ -340,7 +362,10 @@
     border-top: 1px solid #E5E7EB;
 }
 
-/* Responsive */
+/* ============================================================================
+   RESPONSIVE - PROFILE (Admin-aligned patterns)
+   ============================================================================ */
+
 @media (max-width: 768px) {
     .profile-tabs {
         flex-direction: column;

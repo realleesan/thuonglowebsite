@@ -9,7 +9,7 @@ require_once __DIR__ . '/BaseModel.php';
 class UsersModel extends BaseModel {
     protected $table = 'users';
     protected $fillable = [
-        'name', 'username', 'email', 'phone', 'password', 'role', 'status', 
+        'name', 'username', 'email', 'phone', 'password', 'role', 'status',
         'address', 'avatar', 'points', 'level', 'agent_request_status', 'agent_request_date'
     ];
     protected $hidden = ['password', 'remember_token'];

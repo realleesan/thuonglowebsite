@@ -18,19 +18,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Affiliate Core Styles -->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_style.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_header.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_components.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_responsive.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_style.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_style.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_header.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_header.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_components.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_components.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_responsive.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_responsive.css'); ?>">
     
     <!-- Module-specific Styles -->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_dashboard.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_commissions.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_customers.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_finance.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_marketing.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_reports.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_profile.css">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_dashboard.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_dashboard.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_commissions.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_commissions.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_customers.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_customers.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_finance.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_finance.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_marketing.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_marketing.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_reports.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_reports.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/affiliate_profile.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/affiliate_profile.css'); ?>">
     
     <!-- Chart.js (for dashboard) -->
     <?php if (isset($load_chartjs) && $load_chartjs): ?>

@@ -1,9 +1,9 @@
 /* ===================================
    Affiliate Header Styles
-   Design System: Giống Admin
+   Design System: Synchronized with Admin
    =================================== */
 
-/* Header Container */
+/* Header Container (Admin-aligned) */
 .affiliate-header {
     position: fixed;
     top: 0;
@@ -24,14 +24,14 @@
     left: 70px;
 }
 
-/* Header Left */
+/* Header Left (Admin-aligned) */
 .header-left {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
-/* Home Button */
+/* Home Button (Admin-aligned) */
 .home-btn {
     display: flex;
     align-items: center;
@@ -41,7 +41,6 @@
     color: #ffffff;
     text-decoration: none;
     border-radius: 8px;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -63,7 +62,7 @@
     white-space: nowrap;
 }
 
-/* Sidebar Toggle Button */
+/* Sidebar Toggle Button (Admin-aligned) */
 .sidebar-toggle-btn {
     background: none;
     border: none;
@@ -80,7 +79,7 @@
     color: #356DF1;
 }
 
-/* Header Right */
+/* Header Right (Admin-aligned) */
 .header-right {
     display: flex;
     align-items: center;
@@ -91,7 +90,7 @@
     position: relative;
 }
 
-/* Header Buttons */
+/* Header Buttons (Admin-aligned) */
 .header-btn {
     background: none;
     border: none;
@@ -112,8 +111,8 @@
     color: #356DF1;
 }
 
-/* Notification Badge */
-.badge {
+/* Notification Badge (Admin-aligned) */
+.notification-badge {
     position: absolute;
     top: -8px;
     right: -8px;
@@ -134,10 +133,9 @@
     display: block !important;
 }
 
-/* User Button */
+/* User Button (Admin-aligned) */
 .user-btn {
     padding: 8px 12px;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
 }
@@ -155,7 +153,7 @@
 }
 
 /* ===================================
-   Dropdown Menus
+   Dropdown Menus (Admin-aligned)
    =================================== */
 .dropdown-menu {
     position: absolute;
@@ -164,7 +162,6 @@
     background: #ffffff;
     border: 1px solid #E5E7EB;
     border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     min-width: 280px;
     z-index: 1000;
     opacity: 0;
@@ -187,7 +184,6 @@
 
 .dropdown-header h6 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #374151;
@@ -211,7 +207,6 @@
     padding: 12px 20px;
     color: #374151;
     text-decoration: none;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     transition: all 0.3s ease;
     gap: 12px;
@@ -239,7 +234,7 @@
 }
 
 /* ===================================
-   Notifications Dropdown
+   Notifications Dropdown (Admin-aligned)
    =================================== */
 .notifications-dropdown {
     position: relative;
@@ -309,20 +304,18 @@
 
 .notification-text {
     margin: 0 0 4px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     color: #374151;
 }
 
 .notification-time {
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: #6B7280;
 }
 
 /* ===================================
-   User Menu Dropdown
+   User Menu Dropdown (Admin-aligned)
    =================================== */
 .user-info {
     display: flex;
@@ -339,7 +332,6 @@
 
 .user-details h6 {
     margin: 0 0 4px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #374151;
@@ -347,7 +339,6 @@
 
 .user-email {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: #6B7280;
 }
@@ -358,7 +349,6 @@
     background: #356DF1;
     color: #ffffff;
     text-decoration: none;
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 500;
     border-radius: 8px;
@@ -372,7 +362,7 @@
 }
 
 /* ===================================
-   Responsive Design
+   Responsive Design (Admin-aligned patterns)
    =================================== */
 @media (max-width: 768px) {
     .affiliate-header {

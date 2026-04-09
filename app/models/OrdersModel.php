@@ -331,6 +331,28 @@ class OrdersModel extends BaseModel {
     }
     
     /**
+     * Get orders by affiliate ID and optionally customer ID
+     */
+    public function getByAffiliateAndCustomer($affiliateId, $customerId = null) {
+        $sql = "
+            SELECT o.*, u.name as customer_name, u.email as customer_email, u.phone as customer_phone
+            FROM {$this->table} o
+            LEFT JOIN users u ON o.user_id = u.id
+            WHERE o.affiliate_id = ?
+        ";
+        $params = [$affiliateId];
+        
+        if ($customerId) {
+            $sql .= " AND o.user_id = ?";
+            $params[] = $customerId;
+        }
+        
+        $sql .= " ORDER BY o.created_at DESC";
+        
+        return $this->db->query($sql, $params);
+    }
+    
+    /**
      * Get orders by status
      */
     public function getByStatus($status, $limit = null) {
@@ -714,5 +736,42 @@ class OrdersModel extends BaseModel {
         
         $result = $this->db->query($sql, $bindings);
         return $result ? $result[0] : [];
+    }
+    
+    /**
+     * Get order statistics for a specific user
+     * Returns total_orders, total_spent, and commission_earned
+     */
+    public function getUserOrderStats($userId) {
+        $sql = "
+            SELECT
+                COUNT(*) as total_orders,
+                COALESCE(SUM(total), 0) as total_spent,
+                COALESCE(SUM(commission_amount), 0) as commission_earned
+            FROM {$this->table}
+            WHERE user_id = ? AND status != 'cancelled'
+        ";
+        
+        $result = $this->db->query($sql, [$userId]);
+        return $result ? $result[0] : [
+            'total_orders' => 0,
+            'total_spent' => 0,
+            'commission_earned' => 0
+        ];
+    }
+
+    /**
+     * Get all orders for a specific user
+     */
+    public function getOrdersByUserId($userId, $limit = 50) {
+        $sql = "
+            SELECT *
+            FROM {$this->table}
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT ?
+        ";
+        
+        return $this->db->query($sql, [$userId, $limit]) ?? [];
     }
 }

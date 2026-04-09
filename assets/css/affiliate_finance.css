@@ -1,8 +1,12 @@
 /* ===================================
    Affiliate Finance Module Styles
+   Design System: Synchronized with Admin
    =================================== */
 
-/* Wallet Stats */
+/* ============================================================================
+   WALLET STATS (Admin-aligned)
+   ============================================================================ */
+
 .wallet-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -14,41 +18,41 @@
     background: #ffffff;
     border-radius: 12px;
     padding: 24px;
+    border: 1px solid #E5E7EB;
     display: flex;
     align-items: center;
     gap: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 24px;
     flex-shrink: 0;
 }
 
 .stat-card-primary .stat-icon {
-    background: #356df1;
+    background: linear-gradient(135deg, #356df1, #4f46e5);
     color: #ffffff;
 }
 
 .stat-card-warning .stat-icon {
-    background: #356df1;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
     color: #ffffff;
 }
 
 .stat-card-success .stat-icon {
-    background: #356df1;
+    background: linear-gradient(135deg, #10b981, #059669);
     color: #ffffff;
 }
 
@@ -57,7 +61,6 @@
 }
 
 .stat-label {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     color: #6B7280;
@@ -65,7 +68,6 @@
 }
 
 .stat-value {
-    font-family: 'Inter', sans-serif;
     font-size: 28px;
     font-weight: 700;
     color: #111827;
@@ -79,18 +81,20 @@
 }
 
 .stat-note {
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: #9CA3AF;
 }
 
-/* Info Card */
+/* ============================================================================
+   INFO CARD (Admin-aligned)
+   ============================================================================ */
+
 .info-card {
     background: #ffffff;
     border-radius: 12px;
+    border: 1px solid #E5E7EB;
     padding: 24px;
     margin-bottom: 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .info-card-header {
@@ -109,7 +113,6 @@
 
 .info-card-header h3 {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 18px;
     font-weight: 600;
     color: #111827;
@@ -132,36 +135,34 @@
 }
 
 .info-label {
-    font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 500;
     color: #6B7280;
 }
 
 .info-value {
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #111827;
 }
 
-/* Transaction Table */
+/* ============================================================================
+   TRANSACTION TABLE (Admin-aligned)
+   ============================================================================ */
+
 .transaction-date {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #374151;
     white-space: nowrap;
 }
 
 .transaction-description {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #374151;
     max-width: 300px;
 }
 
 .amount {
-    font-family: 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 600;
     white-space: nowrap;
@@ -176,7 +177,6 @@
 }
 
 .balance-after {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     color: #6B7280;
@@ -192,14 +192,16 @@
     color: #374151;
 }
 
-/* Balance Card */
+/* ============================================================================
+   BALANCE CARD (Admin-aligned)
+   ============================================================================ */
+
 .balance-card {
-    background: #356df1;
+    background: linear-gradient(135deg, #356df1, #4f46e5);
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
     color: #ffffff;
-    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
 }
 
 .balance-card-header {
@@ -207,7 +209,6 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 20px;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 500;
     opacity: 0.9;
@@ -222,20 +223,20 @@
 }
 
 .balance-amount {
-    font-family: 'Inter', sans-serif;
     font-size: 48px;
     font-weight: 700;
     margin-bottom: 8px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .balance-note {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     opacity: 0.9;
 }
 
-/* Withdrawal Form */
+/* ============================================================================
+   WITHDRAWAL FORM (Admin-aligned)
+   ============================================================================ */
+
 .withdrawal-form {
     max-width: 800px;
     margin: 0 auto;
@@ -249,7 +250,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #374151;
@@ -287,14 +287,13 @@
 .form-select,
 .form-textarea {
     width: 100%;
-    padding: 12px 16px;
-    font-family: 'Inter', sans-serif;
+    padding: 10px 12px;
     font-size: 14px;
     color: #374151;
     background: #ffffff;
     border: 1px solid #D1D5DB;
     border-radius: 8px;
-    transition: all 0.3s ease;
+    transition: border-color 0.2s;
 }
 
 .form-input:focus,
@@ -314,7 +313,6 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: #6B7280;
     margin-top: 6px;
@@ -325,7 +323,10 @@
     color: #9CA3AF;
 }
 
-/* Withdrawal Code Display */
+/* ============================================================================
+   WITHDRAWAL CODE DISPLAY (Admin-aligned)
+   ============================================================================ */
+
 .withdrawal-code-display {
     display: flex;
     align-items: center;
@@ -352,15 +353,18 @@
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
     font-size: 14px;
 }
 
 .btn-copy:hover {
-    background: #000000;
+    background: #2563EB;
 }
 
-/* Bank Details */
+/* ============================================================================
+   BANK DETAILS (Admin-aligned)
+   ============================================================================ */
+
 .bank-details {
     background: #F9FAFB;
     padding: 20px;
@@ -381,19 +385,20 @@
 }
 
 .detail-label {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #6B7280;
 }
 
 .detail-value {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #111827;
 }
 
-/* Amount Input */
+/* ============================================================================
+   AMOUNT INPUT (Admin-aligned)
+   ============================================================================ */
+
 .amount-input-wrapper {
     position: relative;
 }
@@ -407,7 +412,6 @@
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #6B7280;
@@ -426,11 +430,10 @@
     border: 1px solid #D1D5DB;
     padding: 6px 16px;
     border-radius: 6px;
-    font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
 }
 
 .amount-btn:hover {
@@ -439,7 +442,10 @@
     border-color: #356DF1;
 }
 
-/* Balance Preview */
+/* ============================================================================
+   BALANCE PREVIEW (Admin-aligned)
+   ============================================================================ */
+
 .balance-preview {
     background: #F9FAFB;
     padding: 20px;
@@ -455,13 +461,11 @@
 }
 
 .preview-label {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #6B7280;
 }
 
 .preview-value {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #111827;
@@ -492,7 +496,10 @@
     color: #356DF1;
 }
 
-/* Form Actions */
+/* ============================================================================
+   FORM ACTIONS (Admin-aligned)
+   ============================================================================ */
+
 .form-actions {
     display: flex;
     gap: 16px;
@@ -504,7 +511,10 @@
     font-size: 15px;
 }
 
-/* Rules List */
+/* ============================================================================
+   RULES LIST (Admin-aligned)
+   ============================================================================ */
+
 .rules-list {
     list-style: none;
     margin: 0;
@@ -531,19 +541,21 @@
 }
 
 .rule-item span {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #374151;
     line-height: 1.6;
 }
 
-/* Wallet Status Card */
+/* ============================================================================
+   WALLET STATUS CARD (Admin-aligned)
+   ============================================================================ */
+
 .wallet-status-card {
     background: #ffffff;
     border-radius: 12px;
+    border: 1px solid #E5E7EB;
     padding: 24px;
     margin-bottom: 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .wallet-status-header {
@@ -560,7 +572,6 @@
     align-items: center;
     gap: 12px;
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 18px;
     font-weight: 600;
     color: #111827;
@@ -588,7 +599,6 @@
 }
 
 .status-label {
-    font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 500;
     color: #6B7280;
@@ -596,13 +606,15 @@
 }
 
 .status-value {
-    font-family: 'Inter', sans-serif;
     font-size: 24px;
     font-weight: 700;
     color: #111827;
 }
 
-/* Webhook Controls */
+/* ============================================================================
+   WEBHOOK CONTROLS (Admin-aligned)
+   ============================================================================ */
+
 .webhook-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -613,13 +625,9 @@
 .webhook-card {
     background: #ffffff;
     border-radius: 12px;
+    border: 1px solid #E5E7EB;
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
-}
-
-.webhook-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .webhook-card-header {
@@ -643,12 +651,12 @@
 }
 
 .webhook-icon-success {
-    background: #356df1;
+    background: linear-gradient(135deg, #10b981, #059669);
     color: #ffffff;
 }
 
 .webhook-icon-primary {
-    background: #356df1;
+    background: linear-gradient(135deg, #356df1, #4f46e5);
     color: #ffffff;
 }
 
@@ -658,7 +666,6 @@
 
 .webhook-title {
     margin: 0 0 4px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #111827;
@@ -666,36 +673,14 @@
 
 .webhook-description {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 13px;
     color: #6B7280;
 }
 
-.webhook-card-body {
-    padding: 0;
-}
+/* ============================================================================
+   WEBHOOK LOGS (Admin-aligned)
+   ============================================================================ */
 
-.webhook-card-body .form-group {
-    margin-bottom: 16px;
-}
-
-.webhook-card-body .form-input,
-.webhook-card-body .form-select {
-    max-width: 100%;
-}
-
-.webhook-card-body .amount-input-wrapper {
-    max-width: 100%;
-}
-
-.withdrawal-preview {
-    background: #F9FAFB;
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-}
-
-/* Webhook Logs */
 .webhook-logs {
     background: #1F2937;
     border-radius: 8px;
@@ -721,7 +706,6 @@
 
 .log-empty p {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
 }
 
@@ -751,7 +735,10 @@
     color: #EF4444;
 }
 
-/* How It Works */
+/* ============================================================================
+   HOW IT WORKS (Admin-aligned)
+   ============================================================================ */
+
 .how-it-works {
     display: flex;
     flex-direction: column;
@@ -772,7 +759,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Inter', sans-serif;
     font-size: 18px;
     font-weight: 700;
     flex-shrink: 0;
@@ -784,7 +770,6 @@
 
 .step-content h4 {
     margin: 0 0 8px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #111827;
@@ -792,13 +777,15 @@
 
 .step-content p {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #6B7280;
     line-height: 1.6;
 }
 
-/* Responsive */
+/* ============================================================================
+   RESPONSIVE - FINANCE (Admin-aligned patterns)
+   ============================================================================ */
+
 @media (max-width: 768px) {
     .wallet-stats {
         grid-template-columns: 1fr;

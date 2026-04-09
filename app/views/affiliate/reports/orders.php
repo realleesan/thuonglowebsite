@@ -67,16 +67,10 @@ ob_start();
         </h1>
         <p class="page-description">Phân tích đơn hàng và doanh thu</p>
     </div>
-    <div class="page-header-actions">
-        <button type="button" class="btn btn-outline" onclick="exportOrdersReport()">
-            <i class="fas fa-file-excel"></i>
-            <span>Xuất Excel</span>
-        </button>
-    </div>
 </div>
 
 <!-- Stats Cards -->
-<div class="reports-stats">
+<div class="reports-stats"> 
     <div class="stat-card stat-card-primary">
         <div class="stat-icon">
             <i class="fas fa-shopping-cart"></i>

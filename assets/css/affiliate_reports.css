@@ -1,21 +1,28 @@
 /* ===================================
    Affiliate Reports Module Styles
+   Design System: Synchronized with Admin
    =================================== */
 
-/* Reports Stats */
+/* ============================================================================
+   REPORTS STATS (Admin-aligned)
+   ============================================================================ */
+
 .reports-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
     margin-bottom: 32px;
 }
 
 .stat-card-info .stat-icon {
-    background: #356df1;
+    background: linear-gradient(135deg, #356df1, #4f46e5);
     color: #ffffff;
 }
 
-/* Reports Charts */
+/* ============================================================================
+   REPORTS CHARTS (Admin-aligned)
+   ============================================================================ */
+
 .reports-charts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -26,8 +33,9 @@
 .chart-card {
     background: #ffffff;
     border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E5E7EB;
+    padding: 0;
+    overflow: hidden;
 }
 
 .chart-card-full {
@@ -35,9 +43,10 @@
 }
 
 .chart-card-header {
-    margin-bottom: 20px;
-    padding-bottom: 16px;
+    margin-bottom: 0;
+    padding: 16px 24px;
     border-bottom: 1px solid #E5E7EB;
+    background: #f9fafb;
 }
 
 .chart-title {
@@ -45,7 +54,6 @@
     align-items: center;
     gap: 12px;
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #111827;
@@ -57,19 +65,22 @@
 
 .chart-card-body {
     position: relative;
+    padding: 24px;
     height: 300px;
 }
 
 .chart-card-body canvas {
-    max-height: 300px;
+    max-height: 100%;
 }
 
-/* Source Name */
+/* ============================================================================
+   SOURCE NAME (Admin-aligned)
+   ============================================================================ */
+
 .source-name {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     color: #374151;
@@ -79,7 +90,10 @@
     font-size: 18px;
 }
 
-/* Progress Bar */
+/* ============================================================================
+   PROGRESS BAR (Admin-aligned)
+   ============================================================================ */
+
 .progress-bar-container {
     position: relative;
     width: 100%;
@@ -101,28 +115,32 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 600;
     color: #111827;
 }
 
-/* Products Grid */
+/* ============================================================================
+   PRODUCTS GRID (Admin-aligned)
+   ============================================================================ */
+
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 24px;
 }
 
 .product-performance-card {
     background: #F9FAFB;
     border-radius: 10px;
+    border: 1px solid #E5E7EB;
     padding: 20px;
     transition: all 0.3s ease;
 }
 
 .product-performance-card:hover {
-    background: #F3F4F6;
+    background: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .product-header {
@@ -134,14 +152,12 @@
 
 .product-name {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 600;
     color: #111827;
 }
 
 .product-percentage {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #356DF1;
@@ -161,7 +177,6 @@
 }
 
 .product-stat .stat-label {
-    font-family: 'Inter', sans-serif;
     font-size: 11px;
     color: #6B7280;
     text-transform: uppercase;
@@ -169,7 +184,6 @@
 }
 
 .product-stat .stat-value {
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: #111827;
@@ -191,7 +205,10 @@
     background: linear-gradient(90deg, #10B981 0%, #059669 100%);
 }
 
-/* Responsive */
+/* ============================================================================
+   RESPONSIVE - REPORTS (Admin-aligned patterns)
+   ============================================================================ */
+
 @media (max-width: 768px) {
     .reports-stats {
         grid-template-columns: 1fr;

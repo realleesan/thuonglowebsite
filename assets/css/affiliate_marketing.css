@@ -1,8 +1,12 @@
 /* ===================================
    Affiliate Marketing Module Styles
+   Design System: Synchronized with Admin
    =================================== */
 
-/* Marketing Section */
+/* ============================================================================
+   MARKETING SECTION (Admin-aligned)
+   ============================================================================ */
+
 .marketing-section {
     margin-bottom: 32px;
 }
@@ -16,7 +20,6 @@
     align-items: center;
     gap: 12px;
     margin: 0 0 8px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 20px;
     font-weight: 600;
     color: #111827;
@@ -29,12 +32,14 @@
 
 .section-description {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #6B7280;
 }
 
-/* Link Cards */
+/* ============================================================================
+   LINK CARDS (Admin-aligned)
+   ============================================================================ */
+
 .link-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -44,13 +49,13 @@
 .link-card {
     background: #ffffff;
     border-radius: 12px;
+    border: 1px solid #E5E7EB;
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
 .link-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .link-card-header {
@@ -64,7 +69,7 @@
     width: 48px;
     height: 48px;
     border-radius: 10px;
-    background: #356df1;
+    background: linear-gradient(135deg, #356df1, #4f46e5);
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -79,7 +84,6 @@
 
 .link-title {
     margin: 0 0 4px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #111827;
@@ -87,7 +91,6 @@
 
 .link-subtitle {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 13px;
     color: #6B7280;
 }
@@ -103,7 +106,7 @@
 
 .link-input {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 12px;
     font-family: 'Courier New', monospace;
     font-size: 14px;
     color: #374151;
@@ -116,33 +119,35 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 20px;
+    padding: 10px 20px;
     background: #356DF1;
     color: #ffffff;
     border: none;
     border-radius: 8px;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
     white-space: nowrap;
 }
 
 .btn-copy-link:hover {
-    background: #000000;
+    background: #2563EB;
 }
 
 .btn-copy-link.btn-success {
     background: #10B981;
 }
 
-/* QR Code Card */
+/* ============================================================================
+   QR CODE CARD (Admin-aligned)
+   ============================================================================ */
+
 .qr-code-card {
     background: #ffffff;
     border-radius: 12px;
+    border: 1px solid #E5E7EB;
     padding: 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     display: flex;
     gap: 32px;
     align-items: center;
@@ -165,7 +170,6 @@
 
 .qr-code-title {
     margin: 0 0 12px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 20px;
     font-weight: 600;
     color: #111827;
@@ -173,7 +177,6 @@
 
 .qr-code-description {
     margin: 0 0 24px 0;
-    font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #6B7280;
     line-height: 1.6;
@@ -184,7 +187,10 @@
     gap: 12px;
 }
 
-/* Social Share Grid */
+/* ============================================================================
+   SOCIAL SHARE GRID (Admin-aligned)
+   ============================================================================ */
+
 .social-share-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -198,7 +204,6 @@
     gap: 12px;
     padding: 16px 24px;
     border-radius: 10px;
-    font-family: 'Inter', sans-serif;
     font-size: 15px;
     font-weight: 600;
     text-decoration: none;
@@ -207,7 +212,6 @@
 
 .social-share-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     text-decoration: none;
 }
 
@@ -231,7 +235,10 @@
     color: #ffffff;
 }
 
-/* Campaigns Grid */
+/* ============================================================================
+   CAMPAIGNS GRID (Admin-aligned)
+   ============================================================================ */
+
 .campaigns-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -241,13 +248,13 @@
 .campaign-card {
     background: #ffffff;
     border-radius: 12px;
+    border: 1px solid #E5E7EB;
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
 .campaign-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .campaign-header {
@@ -259,7 +266,6 @@
 
 .campaign-name {
     margin: 0;
-    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #111827;
@@ -270,7 +276,6 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 20px;
-    font-family: 'Inter', sans-serif;
     font-size: 13px;
     color: #6B7280;
 }
@@ -290,7 +295,6 @@
 
 .campaign-stat .stat-label {
     display: block;
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
     color: #6B7280;
     margin-bottom: 4px;
@@ -298,13 +302,15 @@
 
 .campaign-stat .stat-value {
     display: block;
-    font-family: 'Inter', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: #111827;
 }
 
-/* Responsive */
+/* ============================================================================
+   RESPONSIVE - MARKETING (Admin-aligned patterns)
+   ============================================================================ */
+
 @media (max-width: 768px) {
     .link-cards {
         grid-template-columns: 1fr;

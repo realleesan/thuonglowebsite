@@ -30,7 +30,7 @@
             <button type="button" class="header-btn" id="notificationsBtn">
                 <i class="fas fa-bell"></i>
                 <?php if (isset($unreadCount) && $unreadCount > 0): ?>
-                <span class="badge"><?php echo $unreadCount > 9 ? '9+' : $unreadCount; ?></span>
+                <span class="notification-badge"><?php echo $unreadCount > 9 ? '9+' : $unreadCount; ?></span>
                 <?php endif; ?>
             </button>
             <div class="dropdown-menu notifications-menu" id="notificationsMenu">

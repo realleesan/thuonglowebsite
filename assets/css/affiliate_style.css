@@ -1,20 +1,30 @@
 /* ===================================
    Affiliate System - Main Styles
+   Design System: Synchronized with Admin
    =================================== */
 
-/* CSS Variables - Design System */
+/* CSS Variables - Design System (Matching Admin) */
 :root {
     /* Primary Colors */
     --primary: #356DF1;
+    --primary-hover: #2563EB;
     --secondary: #000000;
     
     /* Status Colors */
     --success: #10B981;
+    --success-bg: #ECFDF5;
+    --success-text: #065F46;
     --warning: #F59E0B;
+    --warning-bg: #FEF3C7;
+    --warning-text: #92400E;
     --danger: #EF4444;
+    --danger-bg: #FEF2F2;
+    --danger-text: #991B1B;
     --info: #3B82F6;
+    --info-bg: #DBEAFE;
+    --info-text: #1E40AF;
     
-    /* Neutral Colors */
+    /* Neutral Colors (Tailwind Gray) */
     --gray-50: #F9FAFB;
     --gray-100: #F3F4F6;
     --gray-200: #E5E7EB;
@@ -28,7 +38,7 @@
     --white: #FFFFFF;
     
     /* Typography */
-    --font-family: 'Inter', sans-serif;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --text-xs: 12px;
     --text-sm: 14px;
     --text-base: 16px;
@@ -43,7 +53,7 @@
     --font-semibold: 600;
     --font-bold: 700;
     
-    /* Spacing */
+    /* Spacing (Admin-aligned) */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -54,14 +64,14 @@
     --space-10: 40px;
     --space-12: 48px;
     
-    /* Border Radius */
+    /* Border Radius (Admin-aligned) */
     --radius-sm: 6px;
     --radius-md: 8px;
     --radius-lg: 10px;
     --radius-xl: 12px;
     --radius-full: 9999px;
     
-    /* Shadows */
+    /* Shadows (Admin-aligned) */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -70,6 +80,11 @@
     /* Transitions */
     --transition-duration: 0.3s;
     --transition-easing: ease;
+    
+    /* Layout */
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --header-height: 70px;
 }
 
 /* ===================================
@@ -98,17 +113,18 @@
 
 .affiliate-main {
     flex: 1;
-    margin-left: 250px;
+    margin-left: var(--sidebar-width);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    max-width: calc(100vw - 250px);
-    transition: margin-left var(--transition-duration) var(--transition-easing);
+    max-width: calc(100vw - var(--sidebar-width));
+    transition: margin-left var(--transition-duration) var(--transition-easing),
+                max-width var(--transition-duration) var(--transition-easing);
 }
 
 .affiliate-sidebar.collapsed ~ .affiliate-main {
-    margin-left: 70px;
-    max-width: calc(100vw - 70px);
+    margin-left: var(--sidebar-collapsed-width);
+    max-width: calc(100vw - var(--sidebar-collapsed-width));
 }
 
 .affiliate-content {
@@ -120,13 +136,13 @@
 }
 
 /* ===================================
-   Sidebar Styles
+   Sidebar Styles (Matching Admin)
    =================================== */
 .affiliate-sidebar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 250px;
+    width: var(--sidebar-width);
     height: 100vh;
     background: var(--white);
     border-right: 1px solid var(--gray-200);
@@ -136,7 +152,7 @@
 }
 
 .affiliate-sidebar.collapsed {
-    width: 70px;
+    width: var(--sidebar-collapsed-width);
 }
 
 .sidebar-header {
@@ -145,7 +161,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 70px;
+    height: var(--header-height);
 }
 
 .logo {
@@ -369,11 +385,6 @@
 }
 
 /* ===================================
-   Header Styles
-   Note: Detailed header styles moved to affiliate_header.css
-   =================================== */
-
-/* ===================================
    Footer Styles
    =================================== */
 .affiliate-footer {
@@ -456,10 +467,10 @@
    =================================== */
 .affiliate-breadcrumb {
     position: fixed;
-    top: 70px;
-    left: 250px;
+    top: var(--header-height);
+    left: var(--sidebar-width);
     right: 0;
-    height: 70px;
+    height: var(--header-height);
     background: var(--white);
     border-bottom: 1px solid var(--gray-200);
     z-index: 998;
@@ -470,7 +481,7 @@
 }
 
 .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-breadcrumb {
-    left: 70px;
+    left: var(--sidebar-collapsed-width);
 }
 
 .breadcrumb-list {

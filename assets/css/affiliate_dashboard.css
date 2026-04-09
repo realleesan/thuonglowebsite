@@ -1,16 +1,16 @@
 /**
  * Affiliate Dashboard CSS
- * Styles for affiliate dashboard page
+ * Design System: Synchronized with Admin
  */
 
 /* ============================================================================
-   DASHBOARD STATS GRID
+   DASHBOARD STATS GRID (Admin-aligned)
    ============================================================================ */
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 24px;
     margin-bottom: 32px;
 }
 
@@ -22,27 +22,26 @@
     grid-template-columns: repeat(4, 1fr);
 }
 
-/* Stat Cards */
+/* Stat Cards (Admin-aligned) */
 .stat-card {
-    background: white;
+    background: #ffffff;
     border-radius: 12px;
-    padding: 20px;
+    padding: 24px;
+    border: 1px solid #E5E7EB;
     display: flex;
     align-items: center;
-    gap: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    gap: 20px;
     transition: all 0.3s ease;
-    border: 1px solid #E5E7EB;
 }
 
 .stat-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -51,24 +50,25 @@
     flex-shrink: 0;
 }
 
+/* Stat Card Color Variants (Admin-aligned) */
 .stat-card-primary .stat-icon {
-    background: #356df1;
-    color: white;
+    background: linear-gradient(135deg, #356df1, #4f46e5);
+    color: #ffffff;
 }
 
 .stat-card-success .stat-icon {
-    background: #356df1;
-    color: white;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
 }
 
 .stat-card-info .stat-icon {
-    background: #356df1;
-    color: white;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #ffffff;
 }
 
 .stat-card-warning .stat-icon {
-    background: #356df1;
-    color: white;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
 }
 
 .stat-content {
@@ -79,19 +79,42 @@
 }
 
 .stat-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     color: #6B7280;
 }
 
 .stat-value {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 700;
-    color: #1F2937;
+    color: #111827;
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.trend-up {
+    color: #10b981;
+}
+
+.trend-up i {
+    margin-right: 4px;
+}
+
+.trend-down {
+    color: #ef4444;
+}
+
+.trend-down i {
+    margin-right: 4px;
 }
 
 /* ============================================================================
-   AFFILIATE INFO SECTION
+   DASHBOARD SECTIONS (Admin-aligned)
    ============================================================================ */
 
 .dashboard-section {
@@ -102,6 +125,30 @@
 .dashboard-section .card {
     margin-bottom: 0;
 }
+
+/* Dashboard Content Grid (Admin-aligned) */
+.dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0;
+}
+
+.dashboard-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.dashboard-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+/* ============================================================================
+   AFFILIATE INFO SECTION (Admin-aligned)
+   ============================================================================ */
 
 .affiliate-info-grid {
     display: grid;
@@ -117,8 +164,8 @@
 
 .affiliate-info-label {
     font-size: 14px;
-    font-weight: 600;
-    color: #4B5563;
+    font-weight: 500;
+    color: #6B7280;
 }
 
 .affiliate-info-value {
@@ -128,16 +175,16 @@
 
 .affiliate-info-value .form-control {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 12px;
     border: 1px solid #D1D5DB;
     border-radius: 8px;
     font-size: 14px;
-    color: #1F2937;
+    color: #374151;
     background: #F9FAFB;
 }
 
 .btn-copy {
-    padding: 12px 20px;
+    padding: 10px 20px;
     white-space: nowrap;
     display: flex;
     align-items: center;
@@ -145,7 +192,7 @@
 }
 
 /* ============================================================================
-   CHARTS SECTION
+   CHARTS SECTION (Admin-aligned)
    ============================================================================ */
 
 .charts-grid {
@@ -162,32 +209,34 @@
 .chart-card .card {
     background: white;
     border: 1px solid #E5E7EB;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     padding: 0;
     margin-bottom: 0;
     display: flex;
     flex-direction: column;
     height: 100%;
-}
-
-.chart-card .card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .chart-card .card-header {
-    background: white;
+    background: #f9fafb;
     border: none;
-    border-radius: 12px 12px 0 0;
-    padding: 16px 20px;
-    margin-bottom: 0;
     border-bottom: 1px solid #E5E7EB;
+    padding: 16px 24px;
+    margin-bottom: 0;
     flex-shrink: 0;
+}
+
+.chart-card .card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
 }
 
 .chart-card .card-body {
     background: white;
     border: none;
-    border-radius: 0 0 12px 12px;
     padding: 24px;
     flex: 1;
     display: flex;
@@ -206,16 +255,9 @@
 }
 
 /* ============================================================================
-   DASHBOARD GRID
+   CUSTOMER TABLE (Admin-aligned)
    ============================================================================ */
 
-.dashboard-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-}
-
-/* Recent Customers Table */
 .customer-info {
     display: flex;
     align-items: center;
@@ -232,7 +274,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 14px;
     flex-shrink: 0;
 }
 
@@ -244,7 +286,7 @@
 
 .customer-name {
     font-weight: 600;
-    color: #1F2937;
+    color: #374151;
     font-size: 14px;
 }
 
@@ -253,7 +295,10 @@
     color: #6B7280;
 }
 
-/* Commission Status */
+/* ============================================================================
+   COMMISSION STATUS GRID (Admin-aligned)
+   ============================================================================ */
+
 .commission-status-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -282,13 +327,13 @@
     flex-shrink: 0;
 }
 
-.commission-status-warning {
-    background: #356df1;
+.commission-status-warning .commission-status-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
     color: white;
 }
 
-.commission-status-success {
-    background: #356df1;
+.commission-status-success .commission-status-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
     color: white;
 }
 
@@ -308,7 +353,7 @@
 .commission-status-value {
     font-size: 20px;
     font-weight: 700;
-    color: #1F2937;
+    color: #111827;
 }
 
 .commission-status-count {
@@ -316,7 +361,10 @@
     color: #9CA3AF;
 }
 
-/* Commission Progress */
+/* ============================================================================
+   COMMISSION PROGRESS (Admin-aligned)
+   ============================================================================ */
+
 .commission-progress {
     margin-top: 20px;
 }
@@ -348,7 +396,49 @@
 }
 
 /* ============================================================================
-   RESPONSIVE - DASHBOARD
+   WIDGET STYLES (Admin-aligned)
+   ============================================================================ */
+
+.dashboard-widget {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.widget-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.widget-action {
+    color: #356df1;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.widget-action:hover {
+    color: #000000;
+}
+
+.widget-content {
+    padding: 24px;
+}
+
+/* ============================================================================
+   RESPONSIVE - DASHBOARD (Admin-aligned patterns)
    ============================================================================ */
 
 @media (max-width: 1200px) {
@@ -378,7 +468,8 @@
         grid-template-columns: 1fr;
     }
     
-    .dashboard-grid-2 {
+    .dashboard-grid-2,
+    .dashboard-grid-3 {
         grid-template-columns: 1fr;
     }
 }

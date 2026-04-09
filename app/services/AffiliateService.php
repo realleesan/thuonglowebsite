@@ -156,13 +156,18 @@ class AffiliateService extends BaseService
 
     /**
      * Data cho danh sách khách hàng affiliate giới thiệu.
+     * Bao gồm cả users đăng ký qua mã giới thiệu và users có đơn hàng qua affiliate.
      */
-    public function getCustomersData(int $affiliateId): array
+    /**
+     * Data cho danh sách khách hàng (có phân trang, lọc, tìm kiếm).
+     */
+    public function getCustomersData(int $affiliateId, array $options = []): array
     {
         try {
             $affiliateModel = $this->getModel('AffiliateModel');
             $usersModel = $this->getModel('UsersModel');
-            if (!$affiliateModel || !$usersModel) {
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$affiliateModel || !$usersModel || !$ordersModel) {
                 return $this->getEmptyData();
             }
 
@@ -172,24 +177,257 @@ class AffiliateService extends BaseService
                 return $this->getEmptyData();
             }
 
-            $dashboardData = $affiliateModel->getDashboardData($affiliate['id']);
-            $customers = [];
+            $search = $options['search'] ?? '';
+            $statusFilter = $options['status'] ?? '';
+            $sortBy = $options['sort'] ?? 'registered_date_desc';
+            $page = max(1, (int)($options['page'] ?? 1));
+            $perPage = (int)($options['per_page'] ?? 10);
 
+            $customers = [];
+            $seenUserIds = [];
+
+            // 1. Lấy users đăng ký qua mã giới thiệu của affiliate này
+            $referredUsers = $affiliateModel->getReferredUsers($affiliateId);
+            foreach ($referredUsers ?? [] as $user) {
+                $userId = $user['id'];
+                if (isset($seenUserIds[$userId])) {
+                    continue;
+                }
+                
+                // Apply search filter
+                if ($search) {
+                    $searchLower = strtolower($search);
+                    $nameMatch = stripos($user['name'] ?? '', $search) !== false;
+                    $emailMatch = stripos($user['email'] ?? '', $search) !== false;
+                    $phoneMatch = stripos($user['phone'] ?? '', $search) !== false;
+                    if (!$nameMatch && !$emailMatch && !$phoneMatch) {
+                        continue;
+                    }
+                }
+                
+                // Apply status filter
+                if ($statusFilter && ($user['status'] ?? 'active') !== $statusFilter) {
+                    continue;
+                }
+                
+                $seenUserIds[$userId] = true;
+                
+                // Get actual order count and total spent from orders table
+                $orderStats = $ordersModel->getUserOrderStats($userId);
+                
+                $customers[] = [
+                    'id' => $user['id'],
+                    'name' => $user['name'] ?? 'Khách hàng',
+                    'email' => $user['email'] ?? '',
+                    'phone' => $user['phone'] ?? '',
+                    'status' => $user['status'] ?? 'active',
+                    'registered_date' => $user['created_at'] ?? date('Y-m-d'),
+                    'total_orders' => $orderStats['total_orders'] ?? 0,
+                    'total_spent' => $orderStats['total_spent'] ?? 0,
+                    'commission_earned' => $orderStats['commission_earned'] ?? 0,
+                    'referral_code' => $user['referral_code'] ?? '',
+                ];
+            }
+
+            // 2. Lấy users có đơn hàng qua affiliate (từ dashboard data)
+            $dashboardData = $affiliateModel->getDashboardData($affiliate['id']);
             foreach ($dashboardData['recent_orders'] ?? [] as $order) {
                 if (empty($order['user_id'])) {
                     continue;
                 }
-                $customer = $usersModel->getById($order['user_id']);
+                $userId = $order['user_id'];
+                if (isset($seenUserIds[$userId])) {
+                    continue;
+                }
+                
+                $customer = $usersModel->find($order['user_id']);
                 if ($customer) {
-                    $customers[] = $this->transformer->transformUser($customer);
+                    // Apply search filter
+                    if ($search) {
+                        $nameMatch = stripos($customer['name'] ?? '', $search) !== false;
+                        $emailMatch = stripos($customer['email'] ?? '', $search) !== false;
+                        $phoneMatch = stripos($customer['phone'] ?? '', $search) !== false;
+                        if (!$nameMatch && !$emailMatch && !$phoneMatch) {
+                            continue;
+                        }
+                    }
+                    
+                    // Apply status filter
+                    if ($statusFilter && ($customer['status'] ?? 'active') !== $statusFilter) {
+                        continue;
+                    }
+                    
+                    $seenUserIds[$userId] = true;
+                    
+                    // Get actual order count and total spent from orders table
+                    $orderStats = $ordersModel->getUserOrderStats($userId);
+                    
+                    $customers[] = [
+                        'id' => $customer['id'],
+                        'name' => $customer['name'] ?? 'Khách hàng',
+                        'email' => $customer['email'] ?? '',
+                        'phone' => $customer['phone'] ?? '',
+                        'status' => $customer['status'] ?? 'active',
+                        'registered_date' => $customer['created_at'] ?? date('Y-m-d'),
+                        'total_orders' => $orderStats['total_orders'] ?? 0,
+                        'total_spent' => $orderStats['total_spent'] ?? 0,
+                        'commission_earned' => $orderStats['commission_earned'] ?? 0,
+                        'referral_code' => '',
+                    ];
                 }
             }
 
+            // Sort customers
+            usort($customers, function($a, $b) use ($sortBy) {
+                switch ($sortBy) {
+                    case 'registered_date_desc':
+                        return strtotime($b['registered_date']) - strtotime($a['registered_date']);
+                    case 'registered_date_asc':
+                        return strtotime($a['registered_date']) - strtotime($b['registered_date']);
+                    case 'total_spent_desc':
+                        return $b['total_spent'] - $a['total_spent'];
+                    case 'total_spent_asc':
+                        return $a['total_spent'] - $b['total_spent'];
+                    case 'total_orders_desc':
+                        return $b['total_orders'] - $a['total_orders'];
+                    case 'total_orders_asc':
+                        return $a['total_orders'] - $b['total_orders'];
+                    default:
+                        return 0;
+                }
+            });
+
+            // Calculate stats before pagination
+            $totalCustomers = count($customers);
+            $activeCount = count(array_filter($customers, fn($c) => $c['status'] === 'active'));
+            $totalSpent = array_sum(array_column($customers, 'total_spent'));
+            $totalCommission = array_sum(array_column($customers, 'commission_earned'));
+
+            // Pagination
+            $offset = ($page - 1) * $perPage;
+            $paginatedCustomers = array_slice($customers, $offset, $perPage);
+            $totalPages = ceil($totalCustomers / $perPage);
+
             return [
-                'customers' => $customers,
+                'customers' => $paginatedCustomers,
+                'stats' => [
+                    'total' => $totalCustomers,
+                    'active' => $activeCount,
+                    'total_spent' => $totalSpent,
+                    'total_commission' => $totalCommission,
+                ],
+                'pagination' => [
+                    'current_page' => $page,
+                    'total_pages' => max(1, $totalPages),
+                    'per_page' => $perPage,
+                    'total' => $totalCustomers,
+                ],
             ];
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'getCustomersData', 'affiliate_id' => $affiliateId]);
+        }
+    }
+
+    /**
+     * Lấy chi tiết một khách hàng.
+     */
+    public function getCustomerDetail(int $affiliateId, int $customerId): array
+    {
+        try {
+            $affiliateModel = $this->getModel('AffiliateModel');
+            $usersModel = $this->getModel('UsersModel');
+            $ordersModel = $this->getModel('OrdersModel');
+            if (!$affiliateModel || !$usersModel || !$ordersModel) {
+                return $this->getEmptyData();
+            }
+
+            // Verify affiliate exists
+            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            if (!$affiliate) {
+                return $this->getEmptyData();
+            }
+
+            // Get customer info
+            $customer = $usersModel->find($customerId);
+            if (!$customer) {
+                return $this->getEmptyData();
+            }
+
+            // Verify this customer is referred by this affiliate
+            $referredUsers = $affiliateModel->getReferredUsers($affiliateId);
+            $isReferred = false;
+            foreach ($referredUsers ?? [] as $user) {
+                if ($user['id'] == $customerId) {
+                    $isReferred = true;
+                    break;
+                }
+            }
+
+            if (!$isReferred) {
+                return $this->getEmptyData();
+            }
+
+            // Get order stats
+            $orderStats = $ordersModel->getUserOrderStats($customerId);
+
+            // Get customer orders
+            $customerOrders = $ordersModel->getOrdersByUserId($customerId);
+
+            // Build timeline
+            $timeline = [];
+            $timeline[] = [
+                'title' => 'Khách hàng đăng ký',
+                'description' => 'Khách hàng đã đăng ký tài khoản thành công',
+                'date' => $customer['created_at'] ?? date('Y-m-d H:i:s'),
+                'status' => 'completed',
+                'icon' => 'user-plus',
+            ];
+
+            foreach ($customerOrders ?? [] as $order) {
+                $statusLabels = [
+                    'pending' => 'Chờ xử lý',
+                    'processing' => 'Đang xử lý',
+                    'completed' => 'Hoàn thành',
+                    'cancelled' => 'Đã hủy'
+                ];
+                $statusLabel = $statusLabels[$order['status'] ?? 'pending'] ?? 'Chờ xử lý';
+                
+                $timeline[] = [
+                    'title' => 'Đơn hàng #' . str_pad($order['id'], 6, '0', STR_PAD_LEFT),
+                    'description' => $statusLabel,
+                    'date' => $order['created_at'] ?? date('Y-m-d H:i:s'),
+                    'status' => $order['status'] === 'completed' ? 'completed' : 'pending',
+                    'icon' => 'shopping-cart',
+                    'amount' => $order['total'] ?? 0,
+                ];
+            }
+
+            // Sort timeline by date descending
+            usort($timeline, fn($a, $b) => strtotime($b['date']) - strtotime($a['date']));
+
+            return [
+                'customer' => [
+                    'id' => $customer['id'],
+                    'name' => $customer['name'] ?? 'Khách hàng',
+                    'email' => $customer['email'] ?? '',
+                    'phone' => $customer['phone'] ?? '',
+                    'status' => $customer['status'] ?? 'active',
+                    'registered_date' => $customer['created_at'] ?? date('Y-m-d'),
+                    'referral_code' => $customer['referral_code'] ?? '',
+                ],
+                'orders' => $customerOrders ?? [],
+                'stats' => [
+                    'total_orders' => $orderStats['total_orders'] ?? 0,
+                    'total_spent' => $orderStats['total_spent'] ?? 0,
+                    'total_commission' => $orderStats['commission_earned'] ?? 0,
+                    'avg_order_value' => $orderStats['total_orders'] > 0
+                        ? ($orderStats['total_spent'] / $orderStats['total_orders'])
+                        : 0,
+                ],
+                'timeline' => $timeline,
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getCustomerDetail', 'affiliate_id' => $affiliateId, 'customer_id' => $customerId]);
         }
     }
 

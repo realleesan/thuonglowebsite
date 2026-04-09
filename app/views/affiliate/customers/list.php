@@ -2,197 +2,185 @@
 /**
  * Affiliate Customers List
  * Danh sách khách hàng của đại lý
+ * Design: Synchronized with Admin
  */
 
-// 1. Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
 
-// 2. Chọn service affiliate (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($affiliateService ?? null);
 
-// Initialize data variables
 $customers = [];
+$stats = ['total' => 0, 'active' => 0, 'total_spent' => 0, 'total_commission' => 0];
+$pagination = ['current_page' => 1, 'total_pages' => 1, 'total' => 0];
+$search = '';
+$status_filter = '';
+$sort_by = 'registered_date_desc';
 
 try {
     if ($service) {
-        // Get current affiliate ID from session
         $affiliateId = $_SESSION['user_id'] ?? 0;
         
-        // Validate affiliate is logged in
         if ($affiliateId <= 0) {
-            throw new Exception('Vui lòng đăng nhập để xem danh sách khách hàng');
+            header('Location: ?page=auth&module=login');
+            exit;
         }
         
-        // Get dashboard data FIRST for affiliate info (needed by header)
-        $dashboardData = $service->getDashboardData($affiliateId);
-        $affiliateInfo = $dashboardData['affiliate'] ?? [
-            'name' => '',
-            'email' => ''
-        ];
+        // Get filter params
+        $search = $_GET['search'] ?? '';
+        $status_filter = $_GET['status'] ?? '';
+        $sort_by = $_GET['sort'] ?? 'registered_date_desc';
+        $current_page = max(1, (int)($_GET['page'] ?? 1));
+        $per_page = 10;
         
-        // Get customers data từ AffiliateService
-        $customersData = $service->getCustomersData($affiliateId);
+        // Get dashboard data for affiliate info
+        $dashboardData = $service->getDashboardData($affiliateId);
+        $affiliateInfo = $dashboardData['affiliate'] ?? ['name' => '', 'email' => ''];
+        
+        // Get customers data
+        $customersData = $service->getCustomersData($affiliateId, [
+            'search' => $search,
+            'status' => $status_filter,
+            'sort' => $sort_by,
+            'page' => $current_page,
+            'per_page' => $per_page
+        ]);
+        
         $customers = $customersData['customers'] ?? [];
+        $stats = $customersData['stats'] ?? $stats;
+        $pagination = $customersData['pagination'] ?? $pagination;
     }
 } catch (Exception $e) {
-    $errorHandler->handleViewError($e, 'affiliate_customers_list', []);
     error_log('Customers List Error: ' . $e->getMessage());
 }
 
-// Set page info cho master layout
 $page_title = 'Danh sách khách hàng';
 $page_module = 'customers';
 
-// Include master layout
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <h1 class="page-title">
-        <i class="fas fa-users"></i>
-        Danh sách khách hàng
-    </h1>
-    <p class="page-description">Quản lý và theo dõi khách hàng được giới thiệu</p>
-</div>
-
-<!-- Stats Cards -->
-<div class="stats-grid stats-grid-4">
-    <!-- Tổng khách hàng -->
-    <div class="stat-card stat-card-primary">
-        <div class="stat-icon">
-            <i class="fas fa-users"></i>
+<div class="customers-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1 class="page-title">
+                <i class="fas fa-users"></i>
+                Danh sách khách hàng
+            </h1>
+            <p class="page-description">Quản lý và theo dõi khách hàng được giới thiệu</p>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Tổng khách hàng</div>
-            <div class="stat-value"><?php echo count($customers); ?></div>
-        </div>
-    </div>
-
-    <!-- Khách hàng active -->
-    <div class="stat-card stat-card-success">
-        <div class="stat-icon">
-            <i class="fas fa-user-check"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Đang hoạt động</div>
-            <div class="stat-value">
-                <?php 
-                $activeCount = count(array_filter($customers, function($c) { 
-                    return $c['status'] === 'active'; 
-                }));
-                echo $activeCount;
-                ?>
+        <div class="page-header-right">
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Tổng:</span>
+                    <span class="stat-value"><?= $stats['total'] ?></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Hoạt động:</span>
+                    <span class="stat-value"><?= $stats['active'] ?></span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Tổng doanh số -->
-    <div class="stat-card stat-card-info">
-        <div class="stat-icon">
-            <i class="fas fa-chart-line"></i>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-card-primary">
+            <div class="stat-card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Tổng khách hàng</div>
+                <div class="stat-card-value"><?= $stats['total'] ?></div>
+            </div>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Tổng doanh số</div>
-            <div class="stat-value">
-                <?php 
-                $totalSpent = array_sum(array_column($customers, 'total_spent'));
-                echo number_format($totalSpent);
-                ?>đ
+        <div class="stat-card stat-card-success">
+            <div class="stat-card-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Đang hoạt động</div>
+                <div class="stat-card-value"><?= $stats['active'] ?></div>
+            </div>
+        </div>
+        <div class="stat-card stat-card-info">
+            <div class="stat-card-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Tổng doanh số</div>
+                <div class="stat-card-value"><?= number_format($stats['total_spent']) ?>đ</div>
+            </div>
+        </div>
+        <div class="stat-card stat-card-warning">
+            <div class="stat-card-icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-label">Tổng hoa hồng</div>
+                <div class="stat-card-value"><?= number_format($stats['total_commission']) ?>đ</div>
             </div>
         </div>
     </div>
 
-    <!-- Tổng hoa hồng -->
-    <div class="stat-card stat-card-warning">
-        <div class="stat-icon">
-            <i class="fas fa-wallet"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Tổng hoa hồng</div>
-            <div class="stat-value">
-                <?php 
-                $totalCommission = array_sum(array_column($customers, 'commission_earned'));
-                echo number_format($totalCommission);
-                ?>đ
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Filters & Search -->
-<div class="card">
-    <div class="card-body">
-        <form class="filters-form" id="customersFilterForm">
-            <div class="filters-grid filters-grid-4">
-                <!-- Search -->
+    <!-- Filters -->
+    <div class="filters-section">
+        <form method="GET" class="filters-form">
+            <input type="hidden" name="page" value="affiliate">
+            <input type="hidden" name="module" value="customers">
+            
+            <div class="filter-group">
                 <div class="filter-item">
-                    <label class="filter-label">Tìm kiếm</label>
-                    <input type="text" 
-                           class="form-control" 
-                           id="searchInput" 
+                    <label for="search">Tìm kiếm</label>
+                    <input type="text" id="search" name="search" value="<?= htmlspecialchars($search) ?>" 
                            placeholder="Tên, email, số điện thoại...">
                 </div>
-
-                <!-- Status Filter -->
+                
                 <div class="filter-item">
-                    <label class="filter-label">Trạng thái</label>
-                    <select class="form-control" id="statusFilter">
+                    <label for="status">Trạng thái</label>
+                    <select id="status" name="status">
                         <option value="">Tất cả</option>
-                        <option value="active">Đang hoạt động</option>
-                        <option value="inactive">Không hoạt động</option>
+                        <option value="active" <?= $status_filter === 'active' ? 'selected' : '' ?>>Đang hoạt động</option>
+                        <option value="inactive" <?= $status_filter === 'inactive' ? 'selected' : '' ?>>Không hoạt động</option>
                     </select>
                 </div>
-
-                <!-- Sort By -->
+                
                 <div class="filter-item">
-                    <label class="filter-label">Sắp xếp theo</label>
-                    <select class="form-control" id="sortBy">
-                        <option value="registered_date_desc">Ngày đăng ký (Mới nhất)</option>
-                        <option value="registered_date_asc">Ngày đăng ký (Cũ nhất)</option>
-                        <option value="total_spent_desc">Doanh số (Cao nhất)</option>
-                        <option value="total_spent_asc">Doanh số (Thấp nhất)</option>
-                        <option value="total_orders_desc">Đơn hàng (Nhiều nhất)</option>
-                        <option value="total_orders_asc">Đơn hàng (Ít nhất)</option>
+                    <label for="sort">Sắp xếp</label>
+                    <select id="sort" name="sort">
+                        <option value="registered_date_desc" <?= $sort_by === 'registered_date_desc' ? 'selected' : '' ?>>Ngày đăng ký (Mới nhất)</option>
+                        <option value="registered_date_asc" <?= $sort_by === 'registered_date_asc' ? 'selected' : '' ?>>Ngày đăng ký (Cũ nhất)</option>
+                        <option value="total_spent_desc" <?= $sort_by === 'total_spent_desc' ? 'selected' : '' ?>>Doanh số (Cao nhất)</option>
+                        <option value="total_spent_asc" <?= $sort_by === 'total_spent_asc' ? 'selected' : '' ?>>Doanh số (Thấp nhất)</option>
+                        <option value="total_orders_desc" <?= $sort_by === 'total_orders_desc' ? 'selected' : '' ?>>Đơn hàng (Nhiều nhất)</option>
+                        <option value="total_orders_asc" <?= $sort_by === 'total_orders_asc' ? 'selected' : '' ?>>Đơn hàng (Ít nhất)</option>
                     </select>
                 </div>
-
-                <!-- Filter Actions -->
-                <div class="filter-item filter-actions">
-                    <label class="filter-label">&nbsp;</label>
-                    <div class="filter-buttons">
-                        <button type="button" class="btn btn-primary" onclick="filterCustomers()">
-                            <i class="fas fa-filter"></i>
-                            Lọc
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="resetFilters()">
-                            <i class="fas fa-redo"></i>
-                            Đặt lại
-                        </button>
-                    </div>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn btn-secondary">
+                        <i class="fas fa-search"></i>
+                        Lọc
+                    </button>
+                    <a href="?page=affiliate&module=customers" class="btn btn-outline">
+                        <i class="fas fa-times"></i>
+                        Đặt lại
+                    </a>
                 </div>
             </div>
         </form>
     </div>
-</div>
 
-<!-- Customers Table -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-list"></i>
-            Danh sách khách hàng
-        </h3>
-        <div class="card-actions">
-            <button type="button" class="btn btn-sm btn-secondary" onclick="exportCustomers()">
-                <i class="fas fa-file-excel"></i>
-                Xuất Excel
-            </button>
-        </div>
+    <!-- Results Info -->
+    <div class="results-info">
+        <span class="results-count">
+            Hiển thị <?= count($customers) ?> trong tổng số <?= $pagination['total'] ?> khách hàng
+        </span>
     </div>
-    <div class="card-body">
+
+    <!-- Customers Table -->
+    <div class="table-container">
         <?php if (empty($customers)): ?>
-            <!-- Empty State -->
             <div class="empty-state">
                 <div class="empty-state-icon">
                     <i class="fas fa-users"></i>
@@ -207,9 +195,8 @@ ob_start();
                 </a>
             </div>
         <?php else: ?>
-            <!-- Customers Table -->
             <div class="table-responsive">
-                <table class="table" id="customersTable">
+                <table class="table customers-table">
                     <thead>
                         <tr>
                             <th>Khách hàng</th>
@@ -224,68 +211,55 @@ ob_start();
                     </thead>
                     <tbody>
                         <?php foreach ($customers as $customer): ?>
-                        <tr data-customer-id="<?php echo $customer['id']; ?>">
-                            <!-- Khách hàng -->
-                            <td>
+                        <tr data-customer-id="<?= $customer['id'] ?>">
+                            <td data-label="Khách hàng">
                                 <div class="customer-info">
                                     <div class="customer-avatar">
-                                        <?php echo strtoupper(substr($customer['name'], 0, 1)); ?>
+                                        <?= strtoupper(substr($customer['name'], 0, 1)) ?>
                                     </div>
                                     <div class="customer-details">
-                                        <div class="customer-name"><?php echo htmlspecialchars($customer['name']); ?></div>
-                                        <div class="customer-id">ID: <?php echo $customer['id']; ?></div>
+                                        <div class="customer-name"><?= htmlspecialchars($customer['name']) ?></div>
+                                        <div class="customer-id">ID: <?= $customer['id'] ?></div>
                                     </div>
                                 </div>
                             </td>
-
-                            <!-- Liên hệ -->
-                            <td>
+                            <td data-label="Liên hệ">
                                 <div class="customer-contact">
                                     <div class="contact-item">
                                         <i class="fas fa-envelope"></i>
-                                        <?php echo htmlspecialchars($customer['email']); ?>
+                                        <?= htmlspecialchars($customer['email']) ?>
                                     </div>
                                     <div class="contact-item">
                                         <i class="fas fa-phone"></i>
-                                        <?php echo htmlspecialchars($customer['phone']); ?>
+                                        <?= htmlspecialchars($customer['phone']) ?>
                                     </div>
                                 </div>
                             </td>
-
-                            <!-- Ngày đăng ký -->
-                            <td>
+                            <td data-label="Ngày đăng ký">
                                 <div class="customer-date">
-                                    <?php echo date('d/m/Y', strtotime($customer['registered_date'])); ?>
+                                    <?= date('d/m/Y', strtotime($customer['registered_date'])) ?>
                                 </div>
                             </td>
-
-                            <!-- Đơn hàng -->
-                            <td>
+                            <td data-label="Đơn hàng">
                                 <div class="customer-orders">
                                     <span class="badge badge-info">
-                                        <?php echo $customer['total_orders']; ?> đơn
+                                        <?= $customer['total_orders'] ?> đơn
                                     </span>
                                 </div>
                             </td>
-
-                            <!-- Doanh số -->
-                            <td>
+                            <td data-label="Doanh số">
                                 <div class="customer-spent">
-                                    <?php echo number_format($customer['total_spent']); ?>đ
+                                    <?= number_format($customer['total_spent']) ?>đ
                                 </div>
                             </td>
-
-                            <!-- Hoa hồng -->
-                            <td>
+                            <td data-label="Hoa hồng">
                                 <div class="customer-commission">
                                     <span class="commission-amount">
-                                        <?php echo number_format($customer['commission_earned']); ?>đ
+                                        <?= number_format($customer['commission_earned']) ?>đ
                                     </span>
                                 </div>
                             </td>
-
-                            <!-- Trạng thái -->
-                            <td>
+                            <td data-label="Trạng thái">
                                 <?php if ($customer['status'] === 'active'): ?>
                                     <span class="badge badge-success">
                                         <i class="fas fa-check-circle"></i>
@@ -298,16 +272,12 @@ ob_start();
                                     </span>
                                 <?php endif; ?>
                             </td>
-
-                            <!-- Thao tác -->
-                            <td>
-                                <div class="table-actions">
-                                    <a href="?page=affiliate&module=customers&action=detail&id=<?php echo $customer['id']; ?>" 
-                                       class="btn btn-sm btn-primary"
-                                       title="Xem chi tiết">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </div>
+                            <td data-label="Thao tác" class="table-actions">
+                                <a href="?page=affiliate&module=customers&action=detail&id=<?= $customer['id'] ?>" 
+                                   class="btn-icon btn-primary"
+                                   title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -315,8 +285,8 @@ ob_start();
                     <tfoot>
                         <tr>
                             <td colspan="4"><strong>Tổng cộng</strong></td>
-                            <td><strong><?php echo number_format($totalSpent); ?>đ</strong></td>
-                            <td><strong><?php echo number_format($totalCommission); ?>đ</strong></td>
+                            <td><strong><?= number_format($stats['total_spent']) ?>đ</strong></td>
+                            <td><strong><?= number_format($stats['total_commission']) ?>đ</strong></td>
                             <td colspan="2"></td>
                         </tr>
                     </tfoot>
@@ -324,20 +294,54 @@ ob_start();
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    Hiển thị <strong>1-<?php echo count($customers); ?></strong> trong tổng số <strong><?php echo count($customers); ?></strong> khách hàng
+            <?php if ($pagination['total_pages'] > 1): ?>
+                <div class="pagination-container">
+                    <div class="pagination">
+                        <?php if ($pagination['current_page'] > 1): ?>
+                            <a href="?page=affiliate&module=customers&<?= http_build_query(array_merge($_GET, ['page' => $pagination['current_page'] - 1])) ?>" 
+                               class="pagination-btn">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        <?php endif; ?>
+
+                        <?php
+                        $start_page = max(1, $pagination['current_page'] - 2);
+                        $end_page = min($pagination['total_pages'], $pagination['current_page'] + 2);
+                        
+                        if ($start_page > 1): ?>
+                            <a href="?page=affiliate&module=customers&<?= http_build_query(array_merge($_GET, ['page' => 1])) ?>" 
+                               class="pagination-number">1</a>
+                            <?php if ($start_page > 2): ?>
+                                <span class="pagination-dots">...</span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                            <a href="?page=affiliate&module=customers&<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>" 
+                               class="pagination-number <?= $i == $pagination['current_page'] ? 'active' : '' ?>"><?= $i ?></a>
+                        <?php endfor; ?>
+
+                        <?php if ($end_page < $pagination['total_pages']): ?>
+                            <?php if ($end_page < $pagination['total_pages'] - 1): ?>
+                                <span class="pagination-dots">...</span>
+                            <?php endif; ?>
+                            <a href="?page=affiliate&module=customers&<?= http_build_query(array_merge($_GET, ['page' => $pagination['total_pages']])) ?>" 
+                               class="pagination-number"><?= $pagination['total_pages'] ?></a>
+                        <?php endif; ?>
+
+                        <?php if ($pagination['current_page'] < $pagination['total_pages']): ?>
+                            <a href="?page=affiliate&module=customers&<?= http_build_query(array_merge($_GET, ['page' => $pagination['current_page'] + 1])) ?>" 
+                               class="pagination-btn">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="pagination-info">
+                        Trang <?= $pagination['current_page'] ?> / <?= $pagination['total_pages'] ?>
+                    </div>
                 </div>
-                <div class="pagination">
-                    <button class="pagination-btn" disabled>
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn" disabled>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>

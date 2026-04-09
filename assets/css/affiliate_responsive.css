@@ -1,5 +1,6 @@
 /* ===================================
    Affiliate Responsive CSS
+   Design System: Synchronized with Admin
    =================================== */
 
 /* ===================================
@@ -32,6 +33,15 @@
     .table-responsive {
         overflow-x: auto;
     }
+    
+    /* Grid adjustments */
+    .grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .grid-cols-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* ===================================
@@ -46,7 +56,6 @@
     
     .affiliate-sidebar.mobile-open {
         transform: translateX(0);
-        box-shadow: var(--shadow-xl);
     }
     
     /* Main content - Full width */
@@ -61,7 +70,7 @@
     /* Header - Full width */
     .affiliate-header {
         left: 0;
-        padding: 0 var(--space-4);
+        padding: 0 16px;
     }
     
     .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-header {
@@ -69,7 +78,7 @@
     }
     
     .header-title {
-        font-size: var(--text-lg);
+        font-size: 18px;
     }
     
     .user-name {
@@ -79,7 +88,7 @@
     /* Breadcrumb - Full width */
     .affiliate-breadcrumb {
         left: 0;
-        padding: 0 var(--space-4);
+        padding: 0 16px;
     }
     
     .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-breadcrumb {
@@ -88,81 +97,47 @@
     
     /* Content - Reduced padding */
     .affiliate-content {
-        padding: var(--space-4);
+        padding: 16px;
         margin-top: 140px;
     }
     
     /* Stat Cards - Stack vertically */
-    .stats-grid {
+    .stats-grid,
+    .stats-grid-3,
+    .stats-grid-4 {
         grid-template-columns: 1fr;
-        gap: var(--space-4);
+        gap: 16px;
     }
     
     .stat-card {
-        flex-direction: column;
-        text-align: center;
+        padding: 16px;
     }
     
     .stat-icon {
-        margin-right: 0;
-        margin-bottom: var(--space-4);
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
     }
     
     .stat-value {
-        font-size: var(--text-3xl);
+        font-size: 20px;
     }
     
     /* Cards - Reduced padding */
     .card {
-        padding: var(--space-4);
+        padding: 16px;
     }
     
-    /* Tables - Card view */
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    /* Tables - Keep horizontal scroll on mobile */
     .table-responsive {
         overflow-x: auto;
-    }
-    
-    .table {
-        min-width: 600px;
-    }
-    
-    /* Alternative: Card-based table for mobile */
-    .table-mobile-card {
-        display: block;
-    }
-    
-    .table-mobile-card thead {
-        display: none;
-    }
-    
-    .table-mobile-card tbody {
-        display: block;
-    }
-    
-    .table-mobile-card tr {
-        display: block;
-        margin-bottom: var(--space-4);
-        background: var(--white);
-        border: 1px solid var(--gray-200);
-        border-radius: var(--radius-md);
-        padding: var(--space-4);
-    }
-    
-    .table-mobile-card td {
-        display: flex;
-        justify-content: space-between;
-        padding: var(--space-2) 0;
-        border-bottom: 1px solid var(--gray-100);
-    }
-    
-    .table-mobile-card td:last-child {
-        border-bottom: none;
-    }
-    
-    .table-mobile-card td::before {
-        content: attr(data-label);
-        font-weight: var(--font-semibold);
-        color: var(--gray-700);
+        -webkit-overflow-scrolling: touch;
     }
     
     /* Buttons - Full width */
@@ -173,19 +148,24 @@
     
     /* Forms - Full width */
     .form-row {
-        flex-direction: column;
+        grid-template-columns: 1fr;
     }
     
-    .form-col {
+    /* Page Header - Stack */
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .page-header-right {
         width: 100%;
-        margin-bottom: var(--space-4);
     }
     
     /* Footer - Stack vertically */
     .footer-content {
         flex-direction: column;
         text-align: center;
-        gap: var(--space-3);
+        gap: 12px;
     }
     
     .footer-info {
@@ -194,20 +174,112 @@
     }
     
     /* Charts - Adjust height */
-    .chart-container {
+    .chart-card-body {
         height: 250px;
     }
     
-    /* Modals - Full screen */
-    .modal-dialog {
-        margin: 0;
-        max-width: 100%;
-        height: 100vh;
+    /* Grid adjustments */
+    .grid-cols-2,
+    .grid-cols-3,
+    .grid-cols-4 {
+        grid-template-columns: 1fr;
     }
     
-    .modal-content {
-        border-radius: 0;
-        height: 100%;
+    /* Commission/Tier grids */
+    .commission-breakdown-grid,
+    .commission-types-grid,
+    .customer-value-metrics {
+        grid-template-columns: 1fr;
+    }
+    
+    .how-it-works-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Link cards */
+    .link-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .link-display {
+        flex-direction: column;
+    }
+    
+    .btn-copy-link {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* QR Code card */
+    .qr-code-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .qr-code-actions {
+        justify-content: center;
+    }
+    
+    /* Social share grid */
+    .social-share-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Campaigns */
+    .campaigns-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Profile tabs */
+    .profile-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        justify-content: flex-start;
+    }
+    
+    /* Form actions */
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+    
+    /* Pagination */
+    .pagination-container {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    /* Filter grids */
+    .filters-grid,
+    .filters-grid-2,
+    .filters-grid-3,
+    .filters-grid-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-form .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-item {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .filter-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .filter-actions .btn {
+        flex: 1;
     }
 }
 
@@ -217,37 +289,58 @@
 @media (max-width: 480px) {
     /* Further reduce spacing */
     .affiliate-content {
-        padding: var(--space-3);
+        padding: 12px;
     }
     
     .card {
-        padding: var(--space-3);
+        padding: 12px;
     }
     
     /* Stat value - Smaller font */
     .stat-value {
-        font-size: var(--text-2xl);
+        font-size: 24px;
     }
     
     /* Header title - Smaller */
     .header-title {
-        font-size: var(--text-base);
+        font-size: 16px;
     }
     
     /* Buttons - Smaller padding */
     .btn {
-        padding: var(--space-2) var(--space-3);
-        font-size: var(--text-xs);
+        padding: 8px 12px;
+        font-size: 12px;
     }
     
     /* Tables - Smaller text */
     .table {
-        font-size: var(--text-xs);
+        font-size: 12px;
     }
     
     .table th,
     .table td {
-        padding: var(--space-2);
+        padding: 8px;
+    }
+    
+    /* How it works - single column */
+    .how-it-works-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Balance amount */
+    .balance-amount {
+        font-size: 36px;
+    }
+    
+    /* Customer detail */
+    .customer-detail-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
+    
+    .customer-detail-name {
+        font-size: 20px;
     }
 }
 
@@ -264,13 +357,13 @@
     .content-grid-2 {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-6);
+        gap: 24px;
     }
     
     .content-grid-3 {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-6);
+        gap: 24px;
     }
     
     /* Sidebar - Full width */
@@ -283,7 +376,7 @@
     }
     
     /* Charts - Larger height */
-    .chart-container {
+    .chart-card-body {
         height: 350px;
     }
 }
@@ -313,8 +406,7 @@
     /* Remove shadows and transitions */
     .card,
     .stat-card {
-        box-shadow: none;
-        border: 1px solid var(--gray-300);
+        border: 1px solid #D1D5DB;
     }
     
     /* Ensure proper page breaks */
@@ -384,7 +476,7 @@
 
 /* Responsive spacing */
 .mb-mobile-4 {
-    margin-bottom: var(--space-4);
+    margin-bottom: 16px;
 }
 
 @media (min-width: 768px) {

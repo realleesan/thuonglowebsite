@@ -110,8 +110,8 @@
                         <label for="ref_code">Mã giới thiệu</label>
                         <input type="text" id="ref_code" name="ref_code"
                                placeholder="Nhập mã giới thiệu (nếu có)"
-                               value="<?php echo htmlspecialchars($refCodeFromUrl ?: ''); ?>"
-                               class="form-control <?php echo $refCodeFromUrl ? 'readonly' : ''; ?>"
+                               value="<?php echo htmlspecialchars($_POST['ref_code'] ?? $refCodeFromUrl ?: ''); ?>"
+                               class="form-control <?php echo isset($fieldErrors['ref_code']) ? 'error' : ''; ?> <?php echo $refCodeFromUrl ? 'readonly' : ''; ?>"
                                <?php echo $refCodeFromUrl ? 'readonly' : ''; ?>>
 
                         <?php if ($refCodeFromUrl): ?>
@@ -119,6 +119,9 @@
                                 <span class="icon">✓</span>
                                 Mã giới thiệu đã được tự động điền từ link giới thiệu
                             </div>
+                        <?php endif; ?>
+                        <?php if (isset($fieldErrors['ref_code'])): ?>
+                            <div class="field-error"><?php echo htmlspecialchars($fieldErrors['ref_code']); ?></div>
                         <?php endif; ?>
                     </div>
 

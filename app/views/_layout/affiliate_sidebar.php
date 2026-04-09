@@ -134,14 +134,6 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
                     </li>
                 </ul>
             </li>
-
-            <!-- Profile -->
-            <li class="nav-item <?php echo ($active_menu === 'profile') ? 'active' : ''; ?>">
-                <a href="<?php echo base_url(); ?>?page=affiliate&module=profile" class="nav-link">
-                    <i class="nav-icon fas fa-user-circle"></i>
-                    <span class="nav-text">Hồ sơ</span>
-                </a>
-            </li>
         </ul>
     </nav>
 </aside>
