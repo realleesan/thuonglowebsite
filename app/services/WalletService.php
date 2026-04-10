@@ -63,6 +63,53 @@ class WalletService {
     }
     
     /**
+     * Debit balance (subtract money from wallet)
+     */
+    public function debitBalance(int $affiliateId, float $amount, string $description = null): bool {
+        try {
+            $this->affiliateModel->beginTransaction();
+            
+            // Get current balance
+            $affiliate = $this->affiliateModel->find($affiliateId);
+            if (!$affiliate) {
+                throw new Exception('Affiliate not found');
+            }
+            
+            if ($affiliate['balance'] < $amount) {
+                throw new Exception('Insufficient balance');
+            }
+            
+            $balanceBefore = $affiliate['balance'];
+            $balanceAfter = $balanceBefore - $amount;
+            
+            // Debit balance
+            $this->affiliateModel->update($affiliateId, [
+                'balance' => $balanceAfter,
+                'total_commission' => ($affiliate['total_commission'] ?? 0) - $amount
+            ]);
+            
+            // Create transaction record
+            $this->transactionModel->createTransaction([
+                'affiliate_id' => $affiliateId,
+                'type' => WalletTransactionModel::TYPE_REFUND,
+                'amount' => -$amount,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'description' => $description ?: "Balance debit",
+                'status' => WalletTransactionModel::STATUS_COMPLETED
+            ]);
+            
+            $this->affiliateModel->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->affiliateModel->rollback();
+            error_log('Error debiting balance: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
      * Complete withdrawal request
      */
     public function completeWithdrawal(int $withdrawalId): bool {

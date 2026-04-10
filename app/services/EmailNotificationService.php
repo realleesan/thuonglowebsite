@@ -216,6 +216,44 @@ class EmailNotificationService implements ServiceInterface {
     }
     
     /**
+     * G sending email thông báo hoa hông
+     */
+    public function sendCommissionEarned(string $userEmail, string $userName, float $commission, string $orderNumber): bool {
+        try {
+            $this->setupMailer();
+            
+            // Recipient
+            $this->mailer->addAddress($userEmail, $userName);
+            
+            // Content
+            $this->mailer->Subject = 'Ban nhan duoc hoa hong moi - ThuongLo';
+            
+            $emailBody = $this->getEmailTemplate('commission_earned', [
+                'user_name' => $userName,
+                'commission_amount' => number_format($commission, 0, ',', '.') . ' VNÄ',
+                'order_number' => $orderNumber,
+                'website_name' => 'ThuongLo',
+                'website_url' => $this->getBaseUrl()
+            ]);
+            
+            $this->mailer->Body = $emailBody;
+            $this->mailer->AltBody = strip_tags($emailBody);
+            
+            $result = $this->mailer->send();
+            $this->resetMailer();
+            
+            return $result;
+            
+        } catch (PHPMailerException $e) {
+            error_log('PHPMailer Error in sendCommissionEarned: ' . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
+            error_log('General Error in sendCommissionEarned: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Khởi tạo PHPMailer
      */
     private function initializeMailer(): void {
@@ -375,6 +413,26 @@ class EmailNotificationService implements ServiceInterface {
                     <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi để được hỗ trợ.</p>
                     <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
                     <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}<br><a href="{{website_url}}">{{website_url}}</a></p>
+                </div>
+            ',
+            'commission_earned' => '
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #28a745;">&#127874; Chúc mùng! Ban nhan duoc hoa hong moi!</h2>
+                    <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                    <p>Ban vua nhan duoc hoa hong <strong style="color: #28a745;">{{commission_amount}}</strong> tu don hang <strong>{{order_number}}</strong>.</p>
+                    
+                    <div style="background-color: #d4edda; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
+                        <h3 style="color: #155724; margin-top: 0;">Chi tiet hoa hong:</h3>
+                        <ul style="color: #155724;">
+                            <li>So tien hoa hong: {{commission_amount}}</li>
+                            <li>Ma don hang: {{order_number}}</li>
+                            <li>Trang thai: Da cong vao vi</li>
+                        </ul>
+                    </div>
+                    
+                    <p>Ban co the <a href="{{website_url}}/affiliate/dashboard" style="color: #007bff;">xem chi tiet</a> trong bang dieu khien dai ly.</p>
+                    <p>Cam on ban da kinh doanh voi {{website_name}}!</p>
+                    <p style="color: #6c757d; font-size: 14px;">Trân truong,<br>Doi ngu {{website_name}}</p>
                 </div>
             ',
             'device_verification' => '<div><h2>Xac thuc dang nhap</h2><p>Xin chao {{user_name}},</p><p>Ma xac thuc cua ban la: <strong>{{verification_code}}</strong></p><p>Ma co hieu luc trong {{expiry_minutes}} phut</p></div>'

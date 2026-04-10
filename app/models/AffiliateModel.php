@@ -276,7 +276,8 @@ class AffiliateModel extends BaseModel {
         $newBalance = $affiliate['balance'] + $amount;
         
         return $this->update($affiliateId, [
-            'balance' => $newBalance
+            'balance' => $newBalance,
+            'total_commission' => ($affiliate['total_commission'] ?? 0) + $amount
         ]);
     }
     

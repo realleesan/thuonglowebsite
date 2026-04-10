@@ -50,7 +50,7 @@ class AffiliateService extends BaseService
             
             // Nếu không có name/email từ affiliate, lấy từ users
             if (empty($affiliateInfo['name']) && $usersModel) {
-                $userData = $usersModel->getById($affiliateId);
+                $userData = $usersModel->findById($affiliateId);
                 if ($userData) {
                     $affiliateInfo['name'] = $userData['name'] ?? $userData['full_name'] ?? '';
                     $affiliateInfo['email'] = $userData['email'] ?? '';
@@ -82,7 +82,7 @@ class AffiliateService extends BaseService
                 if (empty($order['user_id'])) {
                     continue;
                 }
-                $customer = $usersModel->getById($order['user_id']);
+                $customer = $usersModel->findById($order['user_id']);
                 if ($customer) {
                     // Đếm số đơn hàng của khách
                     if (!isset($customerOrderCounts[$order['user_id']])) {

@@ -63,6 +63,25 @@ try {
                     ]);
                     // Reload để lấy dữ liệu mới
                     $order = $ordersModel->findBy('order_number', $orderId);
+                    
+                    // AUTO TRIGGER COMMISSION - TỰ ĐỘNG TÍNH HOA HỒNG KHI PAYMENT THÀNH CÔNG
+                    if (!empty($order['affiliate_id']) && $order['commission_amount'] == 0) {
+                        try {
+                            require_once __DIR__ . '/../../services/CommissionService.php';
+                            require_once __DIR__ . '/../../services/ErrorHandler.php';
+                            $errorHandler = new ErrorHandler();
+                            $commissionService = new CommissionService($errorHandler);
+                            $result = $commissionService->processOrderCommission($order['id']);
+                            
+                            if ($result['success']) {
+                                error_log('AUTO COMMISSION: Order ' . $order['id'] . ' - Commission ' . $result['commission'] . ' VND processed successfully');
+                            } else {
+                                error_log('AUTO COMMISSION ERROR: Order ' . $order['id'] . ' - ' . $result['message']);
+                            }
+                        } catch (Exception $e) {
+                            error_log('AUTO COMMISSION EXCEPTION: ' . $e->getMessage());
+                        }
+                    }
                 } catch (Exception $e) {
                     error_log('Update order status error: ' . $e->getMessage());
                 }

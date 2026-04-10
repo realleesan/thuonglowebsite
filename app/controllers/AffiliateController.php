@@ -454,18 +454,21 @@ class AffiliateController {
      * Render view with data
      */
     private function renderView(string $view, array $data = []): void {
+        // Load view_init to make services available
+        require_once __DIR__ . '/../../core/view_init.php';
+        
         // Check and set the view file path
         $viewFile = __DIR__ . "/../views/{$view}.php";
         
         // Set layout variables
-        $title = $data['page_title'] ?? 'Đại lý';
+        $title = $data['page_title'] ?? 'Ðai lý';
         $showPageHeader = false;
         $showCTA = false;
         $showBreadcrumb = true;
         $currentPage = 'affiliate';
         $breadcrumbs = [
-            ['title' => 'Trang chủ', 'url' => './'],
-            ['title' => 'Đại lý']
+            ['title' => 'Trang ch?', 'url' => './'],
+            ['title' => 'Ðai lý']
         ];
         
         // Check if view file exists
@@ -565,6 +568,11 @@ class AffiliateController {
     }
 
     public function requireAffiliate(): bool {
+        // Start session if not started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         if (!$this->checkAuth()) {
             return false;
         }

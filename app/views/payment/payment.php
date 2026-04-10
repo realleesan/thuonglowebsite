@@ -114,6 +114,33 @@ try {
     $userEmail = $userData['email'] ?? '';
     $userName = $userData['name'] ?? $userData['username'] ?? 'Khách hàng';
     
+    // Lấy thông tin affiliate từ referred_by của user
+    $affiliateId = null;
+    if ($userId) {
+        try {
+            // Get user's referred_by field using UsersModel
+            require_once __DIR__ . '/../../models/UsersModel.php';
+            require_once __DIR__ . '/../../models/AffiliateModel.php';
+            
+            $usersModel = new UsersModel();
+            $affiliateModel = new AffiliateModel();
+            
+            // Get user info
+            $user = $usersModel->find($userId);
+            
+            if ($user && !empty($user['referred_by'])) {
+                // Get affiliate_id from user_id
+                $affiliate = $affiliateModel->getByUserId($user['referred_by']);
+                
+                if ($affiliate && $affiliate['status'] === 'active') {
+                    $affiliateId = $affiliate['id'];
+                }
+            }
+        } catch (\Throwable $e) {
+            error_log('Failed to get affiliate info: ' . $e->getMessage());
+        }
+    }
+
     // Chuẩn bị dữ liệu đơn hàng
     $orderData = [
         'user_id' => $userId,
@@ -126,9 +153,10 @@ try {
         'shipping_name' => substr($userName, 0, 100),
         'shipping_email' => substr($userEmail, 0, 100),
         'shipping_phone' => substr($userData['phone'] ?? '', 0, 20),
+        'affiliate_id' => $affiliateId, 
     ];
     
-    // Chu�n bị items với đầy đủ thông tin sản phẩm
+    // Chuẩn bị items với đầy đủ thông tin sản phẩm
     $items = [];
     $isRenewal = false; // Check if this is a renewal purchase
     

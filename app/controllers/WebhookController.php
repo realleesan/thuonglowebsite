@@ -121,8 +121,9 @@ class WebhookController {
             $signature = $headers['X-Sepay-Signature'] ?? $headers['x-sepay-signature'] ?? null;
             $signatureVerified = false;
             
-            if ($signature) {
-                $signatureVerified = $this->sepayService->verifyWebhookSignature($rawData, $signature);
+            if ($signature && is_array($webhookData)) {
+                $signatureResult = $this->sepayService->verifyWebhookSignature($webhookData, $signature);
+                $signatureVerified = is_bool($signatureResult) ? $signatureResult : false;
                 $logData['signature'] = $signature;
                 $logData['signature_verified'] = $signatureVerified ? 1 : 0;
             }
@@ -238,14 +239,19 @@ class WebhookController {
         // Update order status to processing
         $this->ordersModel->updateStatus($orderId, 'processing');
         
-        // If order has affiliate, record commission
-        if (!empty($order['affiliate_id']) && !empty($order['commission_amount'])) {
-            $this->walletService->recordCommission(
-                $order['affiliate_id'],
-                $order['commission_amount'],
-                $orderId,
-                'Commission from order ' . $order['order_number']
-            );
+        // If order has affiliate, process commission
+        if (!empty($order['affiliate_id'])) {
+            require_once __DIR__ . '/../services/CommissionService.php';
+            require_once __DIR__ . '/../services/ErrorHandler.php';
+            $errorHandler = new ErrorHandler();
+            $commissionService = new CommissionService($errorHandler);
+            $commissionResult = $commissionService->processOrderCommission($orderId);
+            
+            if (!$commissionResult['success']) {
+                error_log('Failed to process commission for order ' . $orderId . ': ' . ($commissionResult['message'] ?? 'Unknown error'));
+            } else {
+                error_log('Commission processed successfully for order ' . $orderId . ': ' . ($commissionResult['commission'] ?? 0) . ' VND');
+            }
         }
         
         return true;

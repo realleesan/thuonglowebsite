@@ -164,14 +164,14 @@ class CommissionService extends BaseService
             $affiliateId = $calculation['affiliate_id'];
             
             // Add commission to wallet
-            $walletResult = $this->walletService->addCommission(
+            $walletResult = $this->walletService->recordCommission(
                 $affiliateId,
-                $orderId,
                 $commission,
+                $orderId,
                 "Commission from order #{$order['order_number']}"
             );
             
-            if (!$walletResult['success']) {
+            if (!$walletResult) {
                 throw new Exception('Failed to add commission to wallet');
             }
             
@@ -242,15 +242,14 @@ class CommissionService extends BaseService
                 throw new Exception('No affiliate associated with this order');
             }
             
-            // Adjust wallet balance (negative amount)
-            $adjustResult = $this->walletService->adjustBalance(
+            // Adjust wallet balance (debit commission)
+            $debitResult = $this->walletService->debitBalance(
                 $affiliateId,
-                -$commissionAmount,
-                "Commission refund: $reason (Order #{$order['order_number']})",
-                $orderId
+                $commissionAmount,
+                "Commission refund: $reason (Order #{$order['order_number']})"
             );
             
-            if (!$adjustResult['success']) {
+            if (!$debitResult) {
                 throw new Exception('Failed to refund commission');
             }
             
