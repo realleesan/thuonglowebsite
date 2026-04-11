@@ -15,7 +15,7 @@
 }
 
 .stat-card-info .stat-icon {
-    background: linear-gradient(135deg, #356df1, #4f46e5);
+    background: #356df1;
     color: #ffffff;
 }
 
@@ -105,7 +105,7 @@
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #356DF1 0%, #667eea 100%);
+    background: #356df1;
     border-radius: 12px;
     transition: width 0.3s ease;
 }
@@ -202,7 +202,7 @@
 }
 
 .product-progress .progress-bar {
-    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    background: #356df1;
 }
 
 /* ============================================================================

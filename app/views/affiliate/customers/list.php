@@ -60,28 +60,6 @@ ob_start();
 ?>
 
 <div class="customers-page">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-header-left">
-            <h1 class="page-title">
-                <i class="fas fa-users"></i>
-                Danh sách khách hàng
-            </h1>
-            <p class="page-description">Quản lý và theo dõi khách hàng được giới thiệu</p>
-        </div>
-        <div class="page-header-right">
-            <div class="header-stats">
-                <div class="stat-item">
-                    <span class="stat-label">Tổng:</span>
-                    <span class="stat-value"><?= $stats['total'] ?></span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Hoạt động:</span>
-                    <span class="stat-value"><?= $stats['active'] ?></span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Stats Cards -->
     <div class="stats-grid">

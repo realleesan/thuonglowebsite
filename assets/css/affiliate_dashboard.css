@@ -52,22 +52,22 @@
 
 /* Stat Card Color Variants (Admin-aligned) */
 .stat-card-primary .stat-icon {
-    background: linear-gradient(135deg, #356df1, #4f46e5);
+    background: #356df1;
     color: #ffffff;
 }
 
 .stat-card-success .stat-icon {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #356df1;
     color: #ffffff;
 }
 
 .stat-card-info .stat-icon {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: #356df1;
     color: #ffffff;
 }
 
 .stat-card-warning .stat-icon {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    background: #356df1;
     color: #ffffff;
 }
 
@@ -328,12 +328,12 @@
 }
 
 .commission-status-warning .commission-status-icon {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    background: #356df1;
     color: white;
 }
 
 .commission-status-success .commission-status-icon {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #356df1;
     color: white;
 }
 
@@ -379,7 +379,7 @@
 
 .commission-progress .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+    background: #356df1;
     transition: width 0.3s ease;
     display: flex;
     align-items: center;

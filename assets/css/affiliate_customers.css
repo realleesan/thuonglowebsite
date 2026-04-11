@@ -123,22 +123,22 @@
 }
 
 .stat-card-primary .stat-card-icon {
-    background: linear-gradient(135deg, #356DF1, #4F46E5);
+    background: #356df1;
     color: #FFFFFF;
 }
 
 .stat-card-success .stat-card-icon {
-    background: linear-gradient(135deg, #10B981, #059669);
+    background: #356df1;
     color: #FFFFFF;
 }
 
 .stat-card-info .stat-card-icon {
-    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    background: #356df1;
     color: #FFFFFF;
 }
 
 .stat-card-warning .stat-card-icon {
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: #356df1;
     color: #FFFFFF;
 }
 
@@ -331,7 +331,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #356DF1, #4F46E5);
+    background: #356df1;
     color: #FFFFFF;
     display: flex;
     align-items: center;
@@ -841,7 +841,7 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #356DF1, #4F46E5);
+    background: #356df1;
     color: #FFFFFF;
     display: flex;
     align-items: center;
@@ -955,17 +955,17 @@
 }
 
 .metric-icon-primary {
-    background: linear-gradient(135deg, #356DF1, #4F46E5);
+    background: #356df1;
     color: #FFFFFF;
 }
 
 .metric-icon-success {
-    background: linear-gradient(135deg, #10B981, #059669);
+    background: #356df1;
     color: #FFFFFF;
 }
 
 .metric-icon-warning {
-    background: linear-gradient(135deg, #F59E0B, #D97706);
+    background: #356df1;
     color: #FFFFFF;
 }
 

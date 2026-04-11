@@ -66,23 +66,6 @@ $withdrawalCode = 'WD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="page-header-content">
-        <h1 class="page-title">
-            <i class="fas fa-money-bill-wave"></i>
-            Yêu cầu rút tiền
-        </h1>
-        <p class="page-description">Rút tiền về tài khoản ngân hàng</p>
-    </div>
-    <div class="page-header-actions">
-        <a href="?page=affiliate&module=finance" class="btn btn-outline">
-            <i class="fas fa-arrow-left"></i>
-            <span>Quay lại</span>
-        </a>
-    </div>
-</div>
-
 <!-- Wallet Balance Card -->
 <div class="balance-card">
     <div class="balance-card-header">
@@ -244,48 +227,6 @@ ob_start();
                 </a>
             </div>
         </form>
-    </div>
-</div>
-
-<!-- Withdrawal Rules -->
-<div class="info-card">
-    <div class="info-card-header">
-        <i class="fas fa-shield-alt"></i>
-        <h3>Quy định rút tiền</h3>
-    </div>
-    <div class="info-card-body">
-        <ul class="rules-list">
-            <?php 
-            // Build dynamic rules from settings
-            $rules = [];
-            if (!empty($withdrawalSettings['require_verification'])) {
-                $rules[] = 'Yêu cầu xác minh tài khoản trước khi rút tiền';
-            }
-            $minAmount = $withdrawalSettings['min_amount'] ?? 100000;
-            $maxAmount = $withdrawalSettings['max_amount'] ?? 10000000;
-            $rules[] = 'Số tiền rút tối thiểu là ' . number_format($minAmount) . ' VNĐ';
-            $rules[] = 'Số tiền rút tối đa là ' . number_format($maxAmount) . ' VNĐ';
-            $processingTime = $withdrawalSettings['processing_time'] ?? '1-3 ngày làm việc';
-            $rules[] = 'Thời gian xử lý từ ' . $processingTime;
-            
-            foreach ($rules as $rule): 
-            ?>
-            <li class="rule-item">
-                <i class="fas fa-check-circle"></i>
-                <span><?php echo htmlspecialchars($rule); ?></span>
-            </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-</div>
-
-<!-- Processing Time Info -->
-<div class="alert alert-info">
-    <i class="fas fa-clock"></i>
-    <div class="alert-content">
-        <strong>Thời gian xử lý:</strong>
-        <p>Yêu cầu rút tiền sẽ được xử lý trong vòng <?php echo htmlspecialchars($withdrawalSettings['processing_time'] ?? '1-3 ngày làm việc'); ?>. 
-        Tiền sẽ được chuyển vào tài khoản ngân hàng của bạn sau khi được duyệt.</p>
     </div>
 </div>
 

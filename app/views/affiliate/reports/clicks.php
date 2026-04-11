@@ -56,17 +56,6 @@ $load_chartjs = true;
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="page-header-content">
-        <h1 class="page-title">
-            <i class="fas fa-mouse-pointer"></i>
-            Báo Cáo Clicks
-        </h1>
-        <p class="page-description">Phân tích lượt click vào link giới thiệu</p>
-    </div>
-</div>
-
 <!-- Stats Cards -->
 <div class="reports-stats">
     <div class="stat-card stat-card-primary">

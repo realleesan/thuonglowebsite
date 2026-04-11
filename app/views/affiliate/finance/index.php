@@ -76,23 +76,6 @@ $page_title = 'Ví của tôi';
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="page-header-content">
-        <h1 class="page-title">
-            <i class="fas fa-wallet"></i>
-            Ví của tôi
-        </h1>
-        <p class="page-description">Quản lý số dư và lịch sử giao dịch</p>
-    </div>
-    <div class="page-header-actions">
-        <a href="?page=affiliate&module=finance&action=withdraw" class="btn btn-primary">
-            <i class="fas fa-money-bill-wave"></i>
-            <span>Rút tiền</span>
-        </a>
-    </div>
-</div>
-
 <!-- Wallet Stats -->
 <div class="wallet-stats">
     <!-- Available Balance -->
@@ -133,34 +116,6 @@ ob_start();
             <div class="stat-value"><?php echo number_format($wallet['total_earned']); ?> đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Tất cả thời gian</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Withdrawal Info Card -->
-<div class="info-card">
-    <div class="info-card-header">
-        <i class="fas fa-info-circle"></i>
-        <h3>Quy định rút tiền</h3>
-    </div>
-    <div class="info-card-body">
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">Số tiền tối thiểu</div>
-                <div class="info-value"><?php echo number_format($withdrawalSettings['min_amount']); ?> đ</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Số tiền tối đa</div>
-                <div class="info-value"><?php echo number_format($withdrawalSettings['max_amount']); ?> đ</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Thời gian xử lý</div>
-                <div class="info-value"><?php echo htmlspecialchars($withdrawalSettings['processing_time'] ?? '1-3 ngày làm việc'); ?></div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Phí rút tiền</div>
-                <div class="info-value text-success">Miễn phí</div>
             </div>
         </div>
     </div>

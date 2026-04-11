@@ -35,35 +35,6 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
                 </a>
             </li>
 
-            <!-- Commissions with Dropdown -->
-            <li class="nav-item has-submenu <?php echo ($active_menu === 'commissions') ? 'active' : ''; ?>">
-                <a href="<?php echo base_url(); ?>?page=affiliate&module=commissions" class="nav-link">
-                    <i class="nav-icon fas fa-dollar-sign"></i>
-                    <span class="nav-text">Hoa hồng</span>
-                    <i class="nav-arrow fas fa-chevron-down"></i>
-                </a>
-                <ul class="submenu">
-                    <li class="submenu-item <?php echo ($active_menu === 'commissions' && $current_action === 'index') ? 'active' : ''; ?>">
-                        <a href="<?php echo base_url(); ?>?page=affiliate&module=commissions" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
-                            <span class="submenu-text">Tổng quan</span>
-                        </a>
-                    </li>
-                    <li class="submenu-item <?php echo ($active_menu === 'commissions' && $current_action === 'history') ? 'active' : ''; ?>">
-                        <a href="<?php echo base_url(); ?>?page=affiliate&module=commissions&action=history" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
-                            <span class="submenu-text">Lịch sử</span>
-                        </a>
-                    </li>
-                    <li class="submenu-item <?php echo ($active_menu === 'commissions' && $current_action === 'policy') ? 'active' : ''; ?>">
-                        <a href="<?php echo base_url(); ?>?page=affiliate&module=commissions&action=policy" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
-                            <span class="submenu-text">Chính sách</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
             <!-- Customers with Dropdown -->
             <li class="nav-item has-submenu <?php echo ($active_menu === 'customers') ? 'active' : ''; ?>">
                 <a href="<?php echo base_url(); ?>?page=affiliate&module=customers" class="nav-link">
@@ -120,12 +91,6 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
                     <i class="nav-arrow fas fa-chevron-down"></i>
                 </a>
                 <ul class="submenu">
-                    <li class="submenu-item <?php echo ($active_menu === 'reports' && $current_action === 'clicks') ? 'active' : ''; ?>">
-                        <a href="<?php echo base_url(); ?>?page=affiliate&module=reports&action=clicks" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
-                            <span class="submenu-text">Clicks</span>
-                        </a>
-                    </li>
                     <li class="submenu-item <?php echo ($active_menu === 'reports' && $current_action === 'orders') ? 'active' : ''; ?>">
                         <a href="<?php echo base_url(); ?>?page=affiliate&module=reports&action=orders" class="submenu-link">
                             <i class="submenu-icon fas fa-circle"></i>

@@ -125,58 +125,6 @@ ob_start();
         </div>
     </div>
 
-    <!-- Lượt click -->
-    <div class="stat-card stat-card-warning">
-        <div class="stat-icon">
-            <i class="fas fa-mouse-pointer"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Lượt click</div>
-            <div class="stat-value" data-value="<?php echo $stats['total_clicks']; ?>">
-                <?php echo number_format($stats['total_clicks']); ?>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hoa hồng chờ -->
-    <div class="stat-card stat-card-warning">
-        <div class="stat-icon">
-            <i class="fas fa-clock"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Hoa hồng chờ</div>
-            <div class="stat-value" data-value="<?php echo $stats['pending_commission']; ?>">
-                <?php echo number_format($stats['pending_commission']); ?>đ
-            </div>
-        </div>
-    </div>
-
-    <!-- Hoa hồng đã trả -->
-    <div class="stat-card stat-card-success">
-        <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Hoa hồng đã trả</div>
-            <div class="stat-value" data-value="<?php echo $stats['paid_commission']; ?>">
-                <?php echo number_format($stats['paid_commission']); ?>đ
-            </div>
-        </div>
-    </div>
-
-    <!-- Tỉ lệ chuyển đổi -->
-    <div class="stat-card stat-card-info">
-        <div class="stat-icon">
-            <i class="fas fa-percentage"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Tỉ lệ chuyển đổi</div>
-            <div class="stat-value" data-value="<?php echo $stats['conversion_rate']; ?>">
-                <?php echo number_format($stats['conversion_rate'], 1); ?>%
-            </div>
-        </div>
-    </div>
-
     <!-- Tổng khách hàng -->
     <div class="stat-card stat-card-primary">
         <div class="stat-icon">

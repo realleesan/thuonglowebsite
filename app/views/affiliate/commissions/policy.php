@@ -63,15 +63,6 @@ $page_action = 'policy';
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <h1 class="page-title">
-        <i class="fas fa-file-contract"></i>
-        Chính sách hoa hồng
-    </h1>
-    <p class="page-subtitle">Tìm hiểu về cơ chế hoa hồng trọn đời và các mức hoa hồng</p>
-</div>
-
 <!-- Lifetime Commission Info -->
 <div class="alert alert-info">
     <div class="alert-icon">

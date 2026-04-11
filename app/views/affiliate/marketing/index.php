@@ -69,25 +69,7 @@ ob_start();
 ?>
 
 <!-- Page Header -->
-<div class="page-header">
-    <div class="page-header-content">
-        <h1 class="page-title">
-            <i class="fas fa-bullhorn"></i>
-            Công cụ Marketing
-        </h1>
-        <p class="page-description">Quản lý links, banners và công cụ chia sẻ</p>
-    </div>
-</div>
-
-<!-- Affiliate Link Section -->
 <div class="marketing-section">
-    <div class="section-header">
-        <h2 class="section-title">
-            <i class="fas fa-link"></i>
-            Link Giới Thiệu
-        </h2>
-        <p class="section-description">Chia sẻ link này để nhận hoa hồng từ khách hàng</p>
-    </div>
 
     <div class="link-cards">
         <!-- Affiliate Link Card -->
@@ -150,14 +132,6 @@ ob_start();
 
 <!-- QR Code Section -->
 <div class="marketing-section">
-    <div class="section-header">
-        <h2 class="section-title">
-            <i class="fas fa-qrcode"></i>
-            QR Code
-        </h2>
-        <p class="section-description">Tải QR code để in ấn hoặc chia sẻ</p>
-    </div>
-
     <div class="qr-code-card">
         <div class="qr-code-preview">
             <img src="<?php echo htmlspecialchars($qrCodeUrl); ?>" 
@@ -166,11 +140,6 @@ ob_start();
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect width=%22200%22 height=%22200%22 fill=%22%23f3f4f6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22 font-family=%22Arial%22 font-size=%2214%22%3EQR Code%3C/text%3E%3C/svg%3E'">
         </div>
         <div class="qr-code-info">
-            <h3 class="qr-code-title">QR Code Giới Thiệu</h3>
-            <p class="qr-code-description">
-                Khách hàng quét QR code này sẽ tự động truy cập link giới thiệu của bạn. 
-                Bạn có thể in QR code ra giấy, đặt trên website, hoặc chia sẻ trên mạng xã hội.
-            </p>
             <div class="qr-code-actions">
                 <button type="button" class="btn btn-primary" onclick="downloadQRCode()">
                     <i class="fas fa-download"></i>

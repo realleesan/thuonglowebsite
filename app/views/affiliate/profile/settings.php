@@ -55,17 +55,6 @@ $page_title = 'Cài Đặt Hồ Sơ';
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="page-header-content">
-        <h1 class="page-title">
-            <i class="fas fa-user-cog"></i>
-            Cài Đặt Hồ Sơ
-        </h1>
-        <p class="page-description">Quản lý thông tin cá nhân và tài khoản</p>
-    </div>
-</div>
-
 <!-- Profile Tabs -->
 <div class="profile-tabs">
     <button type="button" class="tab-btn active" data-tab="personal">

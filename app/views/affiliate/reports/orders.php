@@ -58,17 +58,6 @@ $load_chartjs = true;
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="page-header-content">
-        <h1 class="page-title">
-            <i class="fas fa-shopping-cart"></i>
-            Báo Cáo Đơn Hàng
-        </h1>
-        <p class="page-description">Phân tích đơn hàng và doanh thu</p>
-    </div>
-</div>
-
 <!-- Stats Cards -->
 <div class="reports-stats"> 
     <div class="stat-card stat-card-primary">
@@ -140,47 +129,6 @@ ob_start();
                     data-revenue='<?php echo json_encode(array_column($ordersByDate, 'revenue')); ?>'
                     data-commission='<?php echo json_encode(array_column($ordersByDate, 'commission')); ?>'>
             </canvas>
-        </div>
-    </div>
-</div>
-
-<!-- Products Performance -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-box"></i>
-            Hiệu Quả Sản Phẩm
-        </h3>
-    </div>
-    <div class="card-body">
-        <div class="products-grid">
-            <?php foreach ($ordersByProduct as $product): ?>
-            <div class="product-performance-card">
-                <div class="product-header">
-                    <h4 class="product-name"><?php echo htmlspecialchars($product['product_name']); ?></h4>
-                    <span class="product-percentage"><?php echo number_format($product['percentage'], 1); ?>%</span>
-                </div>
-                <div class="product-stats">
-                    <div class="product-stat">
-                        <span class="stat-label">Đơn hàng</span>
-                        <span class="stat-value"><?php echo number_format($product['orders']); ?></span>
-                    </div>
-                    <div class="product-stat">
-                        <span class="stat-label">Doanh thu</span>
-                        <span class="stat-value"><?php echo number_format($product['revenue']); ?> đ</span>
-                    </div>
-                    <div class="product-stat">
-                        <span class="stat-label">Hoa hồng</span>
-                        <span class="stat-value text-success"><?php echo number_format($product['commission']); ?> đ</span>
-                    </div>
-                </div>
-                <div class="product-progress">
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: <?php echo $product['percentage']; ?>%"></div>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
         </div>
     </div>
 </div>

@@ -51,15 +51,6 @@ $page_action = 'history';
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <h1 class="page-title">
-        <i class="fas fa-history"></i>
-        Lịch sử hoa hồng
-    </h1>
-    <p class="page-subtitle">Theo dõi chi tiết các giao dịch hoa hồng của bạn</p>
-</div>
-
 <!-- Filters Section -->
 <div class="card">
     <div class="card-body">

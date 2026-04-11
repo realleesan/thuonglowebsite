@@ -42,17 +42,17 @@
 }
 
 .stat-card-primary .stat-icon {
-    background: linear-gradient(135deg, #356df1, #4f46e5);
+    background: #356df1;
     color: #ffffff;
 }
 
 .stat-card-warning .stat-icon {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    background: #356df1;
     color: #ffffff;
 }
 
 .stat-card-success .stat-icon {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #356df1;
     color: #ffffff;
 }
 
@@ -197,7 +197,7 @@
    ============================================================================ */
 
 .balance-card {
-    background: linear-gradient(135deg, #356df1, #4f46e5);
+    background: #356df1;
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
@@ -651,12 +651,12 @@
 }
 
 .webhook-icon-success {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #356df1;
     color: #ffffff;
 }
 
 .webhook-icon-primary {
-    background: linear-gradient(135deg, #356df1, #4f46e5);
+    background: #356df1;
     color: #ffffff;
 }
 

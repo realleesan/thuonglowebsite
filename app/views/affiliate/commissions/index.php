@@ -67,15 +67,6 @@ $page_module = 'commissions';
 ob_start();
 ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <h1 class="page-title">
-        <i class="fas fa-wallet"></i>
-        Quản lý hoa hồng
-    </h1>
-    <p class="page-subtitle">Theo dõi và quản lý hoa hồng của bạn</p>
-</div>
-
 <!-- Overview Stats -->
 <div class="stats-grid stats-grid-3">
     <!-- Tổng hoa hồng đã nhận -->
@@ -124,116 +115,6 @@ ob_start();
                 Tích lũy
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Commission Breakdown -->
-<div class="dashboard-section">
-    <h2 class="section-title">
-        <i class="fas fa-chart-pie"></i>
-        Phân loại hoa hồng
-    </h2>
-    
-    <div class="commission-breakdown-grid">
-        <!-- From Subscription -->
-        <div class="card">
-            <div class="card-body">
-                <div class="commission-breakdown-item">
-                    <div class="commission-breakdown-icon commission-breakdown-purple">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="commission-breakdown-content">
-                        <div class="commission-breakdown-label">
-                            Từ Gói Data (Subscription)
-                        </div>
-                        <div class="commission-breakdown-value">
-                            <?php echo number_format($overview['from_subscription']); ?>đ
-                        </div>
-                        <div class="commission-breakdown-percentage">
-                            <?php 
-                            $subscriptionPercent = 0;
-                            if (isset($overview['total_earned']) && $overview['total_earned'] > 0) {
-                                $subscriptionPercent = ($overview['from_subscription'] / $overview['total_earned']) * 100;
-                            }
-                            echo number_format($subscriptionPercent, 1); 
-                            ?>% tổng hoa hồng
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- From Logistics -->
-        <div class="card">
-            <div class="card-body">
-                <div class="commission-breakdown-item">
-                    <div class="commission-breakdown-icon commission-breakdown-orange">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                    <div class="commission-breakdown-content">
-                        <div class="commission-breakdown-label">
-                            Từ Vận chuyển (Logistics)
-                        </div>
-                        <div class="commission-breakdown-value">
-                            <?php echo number_format($overview['from_logistics']); ?>đ
-                        </div>
-                        <div class="commission-breakdown-percentage">
-                            <?php 
-                            $logisticsPercent = 0;
-                            if (isset($overview['total_earned']) && $overview['total_earned'] > 0) {
-                                $logisticsPercent = ($overview['from_logistics'] / $overview['total_earned']) * 100;
-                            }
-                            echo number_format($logisticsPercent, 1); 
-                            ?>% tổng hoa hồng
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="dashboard-section">
-    <div class="quick-actions-grid">
-        <a href="?page=affiliate&module=commissions&action=history" class="quick-action-card">
-            <div class="quick-action-icon">
-                <i class="fas fa-history"></i>
-            </div>
-            <div class="quick-action-content">
-                <h3 class="quick-action-title">Lịch sử hoa hồng</h3>
-                <p class="quick-action-text">Xem chi tiết các giao dịch</p>
-            </div>
-            <div class="quick-action-arrow">
-                <i class="fas fa-arrow-right"></i>
-            </div>
-        </a>
-
-        <a href="?page=affiliate&module=commissions&action=policy" class="quick-action-card">
-            <div class="quick-action-icon">
-                <i class="fas fa-file-contract"></i>
-            </div>
-            <div class="quick-action-content">
-                <h3 class="quick-action-title">Chính sách hoa hồng</h3>
-                <p class="quick-action-text">Tìm hiểu về mức hoa hồng</p>
-            </div>
-            <div class="quick-action-arrow">
-                <i class="fas fa-arrow-right"></i>
-            </div>
-        </a>
-
-        <a href="?page=affiliate&module=finance" class="quick-action-card">
-            <div class="quick-action-icon">
-                <i class="fas fa-money-bill-wave"></i>
-            </div>
-            <div class="quick-action-content">
-                <h3 class="quick-action-title">Yêu cầu rút tiền</h3>
-                <p class="quick-action-text">Rút hoa hồng về tài khoản</p>
-            </div>
-            <div class="quick-action-arrow">
-                <i class="fas fa-arrow-right"></i>
-            </div>
-        </a>
     </div>
 </div>
 
