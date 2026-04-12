@@ -35,21 +35,12 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
                 </a>
             </li>
 
-            <!-- Customers with Dropdown -->
-            <li class="nav-item has-submenu <?php echo ($active_menu === 'customers') ? 'active' : ''; ?>">
-                <a href="<?php echo base_url(); ?>?page=affiliate&module=customers" class="nav-link">
+            <!-- Customers -->
+            <li class="nav-item <?php echo ($active_menu === 'customers') ? 'active' : ''; ?>">
+                <a href="<?php echo base_url(); ?>?page=affiliate&module=customers&action=list" class="nav-link">
                     <i class="nav-icon fas fa-users"></i>
                     <span class="nav-text">Khách hàng</span>
-                    <i class="nav-arrow fas fa-chevron-down"></i>
                 </a>
-                <ul class="submenu">
-                    <li class="submenu-item <?php echo ($active_menu === 'customers' && $current_action === 'list') ? 'active' : ''; ?>">
-                        <a href="<?php echo base_url(); ?>?page=affiliate&module=customers&action=list" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
-                            <span class="submenu-text">Danh sách</span>
-                        </a>
-                    </li>
-                </ul>
             </li>
 
             <!-- Finance with Dropdown -->
@@ -83,21 +74,12 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
                 </a>
             </li>
 
-            <!-- Reports with Dropdown -->
-            <li class="nav-item has-submenu <?php echo ($active_menu === 'reports') ? 'active' : ''; ?>">
-                <a href="<?php echo base_url(); ?>?page=affiliate&module=reports" class="nav-link">
+            <!-- Reports -->
+            <li class="nav-item <?php echo ($active_menu === 'reports') ? 'active' : ''; ?>">
+                <a href="<?php echo base_url(); ?>?page=affiliate&module=reports&action=orders" class="nav-link">
                     <i class="nav-icon fas fa-chart-bar"></i>
                     <span class="nav-text">Báo cáo</span>
-                    <i class="nav-arrow fas fa-chevron-down"></i>
                 </a>
-                <ul class="submenu">
-                    <li class="submenu-item <?php echo ($active_menu === 'reports' && $current_action === 'orders') ? 'active' : ''; ?>">
-                        <a href="<?php echo base_url(); ?>?page=affiliate&module=reports&action=orders" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
-                            <span class="submenu-text">Đơn hàng</span>
-                        </a>
-                    </li>
-                </ul>
             </li>
         </ul>
     </nav>

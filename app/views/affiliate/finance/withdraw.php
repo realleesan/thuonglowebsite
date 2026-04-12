@@ -66,20 +66,6 @@ $withdrawalCode = 'WD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0
 ob_start();
 ?>
 
-<!-- Wallet Balance Card -->
-<div class="balance-card">
-    <div class="balance-card-header">
-        <i class="fas fa-wallet"></i>
-        <span>Số dư khả dụng</span>
-    </div>
-    <div class="balance-card-body">
-        <div class="balance-amount" id="availableBalance" data-balance="<?php echo $wallet['balance']; ?>">
-            <?php echo number_format($wallet['balance']); ?> đ
-        </div>
-        <div class="balance-note">Có thể rút ngay</div>
-    </div>
-</div>
-
 <!-- Withdrawal Form -->
 <div class="card">
     <div class="card-header">
@@ -91,6 +77,23 @@ ob_start();
 
     <div class="card-body">
         <form id="withdrawalForm" class="withdrawal-form">
+            <!-- Available Balance -->
+            <div class="form-group balance-info">
+                <label class="form-label">
+                    <i class="fas fa-wallet"></i>
+                    Số dư khả dụng
+                </label>
+                <div class="balance-display">
+                    <div class="balance-amount" id="availableBalance" data-balance="<?php echo $wallet['balance']; ?>">
+                        <?php echo number_format($wallet['balance']); ?> đ
+                    </div>
+                </div>
+                <small class="form-help">
+                    <i class="fas fa-info-circle"></i>
+                    Số dư thực tế trong ví của bạn
+                </small>
+            </div>
+
             <!-- Withdrawal Code -->
             <div class="form-group">
                 <label class="form-label">

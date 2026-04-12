@@ -128,18 +128,15 @@ ob_start();
             <i class="fas fa-history"></i>
             Lịch sử biến động số dư
         </h3>
-        <div class="card-actions">
-            <button type="button" class="btn btn-sm btn-outline" onclick="exportTransactions()">
-                <i class="fas fa-download"></i>
-                <span>Xuất Excel</span>
-            </button>
-        </div>
     </div>
 
     <!-- Filters -->
-    <div class="card-filters">
-        <div class="filter-group">
-            <label class="filter-label">Loại giao dịch</label>
+    <div class="filter-bar">
+        <div class="filter-item">
+            <label class="filter-label">
+                <i class="fas fa-filter"></i>
+                Loại giao dịch
+            </label>
             <select class="filter-select" id="transactionTypeFilter" onchange="filterTransactions()">
                 <option value="all">Tất cả</option>
                 <option value="commission">Hoa hồng</option>
@@ -147,8 +144,11 @@ ob_start();
             </select>
         </div>
 
-        <div class="filter-group">
-            <label class="filter-label">Trạng thái</label>
+        <div class="filter-item">
+            <label class="filter-label">
+                <i class="fas fa-check-circle"></i>
+                Trạng thái
+            </label>
             <select class="filter-select" id="transactionStatusFilter" onchange="filterTransactions()">
                 <option value="all">Tất cả</option>
                 <option value="completed">Hoàn thành</option>
@@ -156,7 +156,7 @@ ob_start();
             </select>
         </div>
 
-        <div class="filter-group">
+        <div class="filter-actions">
             <button type="button" class="btn btn-sm btn-outline" onclick="resetTransactionFilters()">
                 <i class="fas fa-redo"></i>
                 <span>Đặt lại</span>
