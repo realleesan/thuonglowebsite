@@ -70,6 +70,7 @@ try {
     // Handle errors gracefully
     $result = $errorHandler->handleViewError($e, 'affiliate_dashboard', []);
     error_log('Affiliate Dashboard Error: ' . $e->getMessage());
+    error_log('Stack trace: ' . $e->getTraceAsString());
     // Use empty state data
     $emptyState = $service->handleEmptyState('affiliate_dashboard');
     $stats = $emptyState['product_stats'] ?? $stats;

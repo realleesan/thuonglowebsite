@@ -36,13 +36,18 @@ class AffiliateService extends BaseService
             $ordersModel = $this->getModel('OrdersModel');
             $usersModel = $this->getModel('UsersModel');
 
+            error_log("DEBUG getDashboardData: affiliateModel=" . ($affiliateModel ? 'OK' : 'NULL') . ", ordersModel=" . ($ordersModel ? 'OK' : 'NULL') . ", usersModel=" . ($usersModel ? 'OK' : 'NULL'));
+
             if (!$affiliateModel || !$ordersModel || !$usersModel) {
+                error_log("DEBUG getDashboardData: Model missing, returning empty data");
                 return $this->getEmptyData();
             }
 
             // Lấy thông tin affiliate + user (tìm theo user_id)
             $affiliate = $affiliateModel->getByUserId($affiliateId);
+            error_log("DEBUG getDashboardData: getByUserId({$affiliateId}) result=" . ($affiliate ? 'FOUND id=' . $affiliate['id'] : 'NULL'));
             if (!$affiliate) {
+                error_log("DEBUG getDashboardData: Affiliate not found, returning empty data");
                 return $this->getEmptyData();
             }
             // Lấy thông tin chi tiết bằng getWithUser với affiliate id
@@ -61,18 +66,57 @@ class AffiliateService extends BaseService
             // Lấy dashboard data từ AffiliateModel (sử dụng affiliate id từ bảng affiliates)
             $dashboardData = $affiliateModel->getDashboardData($affiliate['id']);
 
+            // Lấy tất cả orders của affiliate để tính stats chính xác
+            $orders = $ordersModel->getByAffiliate($affiliate['id']);
+
+            // Tính toán stats từ dữ liệu orders thực tế
+            $totalRevenue = 0;
+            $totalCommission = 0;
+            $totalOrders = 0;
+            $uniqueCustomers = [];
+            $weeklyRevenue = 0;
+            $monthlyRevenue = 0;
+
+            $weekStart = date('Y-m-d', strtotime('-7 days'));
+            $monthStart = date('Y-m-d', strtotime('-30 days'));
+
+            foreach ($orders ?? [] as $order) {
+                $amount = $order['total'] ?? $order['total_amount'] ?? 0;
+                $commission = $order['commission_amount'] ?? 0;
+                $orderDate = $order['created_at'] ?? date('Y-m-d');
+
+                $totalRevenue += $amount;
+                $totalCommission += $commission;
+                $totalOrders++;
+
+                // Đếm unique customers
+                if (!empty($order['user_id'])) {
+                    $uniqueCustomers[$order['user_id']] = true;
+                }
+
+                // Tính weekly revenue
+                if ($orderDate >= $weekStart) {
+                    $weeklyRevenue += $amount;
+                }
+
+                // Tính monthly revenue
+                if ($orderDate >= $monthStart) {
+                    $monthlyRevenue += $amount;
+                }
+            }
+
             // Stats cơ bản
             $stats = [
-                'total_clicks' => 0, // Cần có bảng clicks để theo dõi
-                'total_orders' => isset($dashboardData['recent_orders']) ? count($dashboardData['recent_orders']) : 0,
-                'total_revenue' => $affiliateInfo['total_sales'] ?? 0,
-                'total_commission' => $affiliateInfo['total_commission'] ?? 0,
-                'weekly_revenue' => ($affiliateInfo['total_sales'] ?? 0) * 0.2,
-                'monthly_revenue' => ($affiliateInfo['total_sales'] ?? 0) * 0.8,
+                'total_clicks' => 0,
+                'total_orders' => $totalOrders,
+                'total_revenue' => $totalRevenue,
+                'total_commission' => $totalCommission,
+                'weekly_revenue' => $weeklyRevenue,
+                'monthly_revenue' => $monthlyRevenue,
                 'pending_commission' => $affiliateInfo['pending_commission'] ?? 0,
                 'paid_commission' => $affiliateInfo['paid_commission'] ?? 0,
-                'conversion_rate' => 0, // Cần có bảng clicks để tính toán
-                'total_customers' => isset($dashboardData['recent_orders']) ? count($dashboardData['recent_orders']) : 0,
+                'conversion_rate' => 0,
+                'total_customers' => count($uniqueCustomers),
             ];
 
             // Recent customers
@@ -725,13 +769,8 @@ class AffiliateService extends BaseService
                 return $this->getEmptyOrdersData();
             }
 
-            // Lấy orders từ database
-            $orders = [];
-            
-            // Try to get from affiliate_model if method exists
-            if (method_exists($affiliateModel, 'getReferredOrders')) {
-                $orders = $affiliateModel->getReferredOrders($affiliate['id'], $dateFrom, $dateTo);
-            }
+            // Lấy orders từ OrdersModel
+            $orders = $ordersModel->getByAffiliate($affiliate['id']);
 
             // Nếu không có dữ liệu, trả về mảng rỗng
             if (empty($orders)) {

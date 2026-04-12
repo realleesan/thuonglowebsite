@@ -633,19 +633,21 @@ class OrdersModel extends BaseModel {
      * Get orders by affiliate
      */
     public function getByAffiliate($affiliateId, $limit = null, $status = null) {
-        $query = $this->where('affiliate_id', $affiliateId);
-        
+        $sql = "SELECT * FROM {$this->table} WHERE affiliate_id = ?";
+        $bindings = [$affiliateId];
+
         if ($status) {
-            $query->where('status', $status);
+            $sql .= " AND status = ?";
+            $bindings[] = $status;
         }
-        
-        $query->orderBy('created_at', 'DESC');
-        
+
+        $sql .= " ORDER BY created_at DESC";
+
         if ($limit) {
-            $query->limit($limit);
+            $sql .= " LIMIT " . (int)$limit;
         }
-        
-        return $query->get();
+
+        return $this->db->query($sql, $bindings);
     }
     
     /**
