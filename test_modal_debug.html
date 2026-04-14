@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Debug - Tìm CSS Conflict</title>
+    
+    <!-- Load tất cả CSS của admin để tìm conflict -->
+    <link rel="stylesheet" href="assets/css/admin_header.css">
+    <link rel="stylesheet" href="assets/css/admin_sidebar.css">
+    <link rel="stylesheet" href="assets/css/admin_affiliates.css">
+    <link rel="stylesheet" href="assets/css/admin_dashboard.css">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .debug-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            background: #fff;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 11px;
+            z-index: 100000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .debug-section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .debug-section h4 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+            font-size: 12px;
+        }
+        
+        .debug-item {
+            margin: 3px 0;
+        }
+        
+        .debug-item strong {
+            color: #d63384;
+        }
+        
+        /* Modal CSS - Global scope */
+        .reject-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .reject-modal .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .reject-modal .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reject-modal .modal-header h3 {
+            margin: 0;
+        }
+
+        .reject-modal .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .reject-modal .close:hover {
+            color: #000;
+        }
+
+        .reject-modal .modal-body {
+            padding: 20px;
+        }
+
+        .reject-modal .modal-body .form-group {
+            margin-bottom: 15px;
+        }
+
+        .reject-modal .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .reject-modal .modal-body textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .reject-modal .modal-body .note {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 10px;
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .reject-modal .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Modal Debug - Tìm CSS Conflict</h1>
+        
+        <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0;">
+            <h3>Yêu cầu rút tiền: RUT2604120003</h3>
+            <p><strong>Số tiền:</strong> 150,000 đ</p>
+            <p><strong>Trạng thái:</strong> <span style="color: orange;">Đang chờ</span></p>
+            
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-warning" onclick="showRejectModal()">
+                    <i>×</i> Từ chối
+                </button>
+                <button type="button" class="btn btn-success" onclick="showRejectModal()">
+                    <i>✓</i> Duyệt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h3 style="margin: 0 0 15px 0; color: #007bff;">🔍 CSS Conflict Debug</h3>
+        
+        <div class="debug-section">
+            <h4>Modal Info</h4>
+            <div id="modalInfo" class="debug-item">Chưa có dữ liệu</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>Modal Computed Styles</h4>
+            <div id="modalStyles" class="debug-item">Chưa có dữ liệu</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>Modal Content Styles</h4>
+            <div id="contentStyles" class="debug-item">Chưa có dữ liệu</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>Parent Chain</h4>
+            <div id="parentChain" class="debug-item">Chưa có dữ liệu</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>CSS Rules Affecting Modal</h4>
+            <div id="cssRules" class="debug-item">Chưa có dữ liệu</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>Viewport Info</h4>
+            <div id="viewportInfo" class="debug-item">Chưa có dữ liệu</div>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="reject-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Từ chối yêu cầu rút tiền</h3>
+                <span class="close" onclick="closeRejectModal()">&times;</span>
+            </div>
+            <form id="rejectForm" method="GET" action="?page=admin&module=affiliates&action=reject_withdrawal&id=3">
+                <div class="modal-body">
+                    <p>Bạn đang từ chối yêu cầu: <strong>RUT2604120003</strong></p>
+                    <div class="form-group">
+                        <label for="rejectNote">Lý do từ chối (tùy chọn):</label>
+                        <textarea id="rejectNote" name="note" rows="3" placeholder="Nhập lý do từ chối..."></textarea>
+                    </div>
+                    <p class="note">Sau khi từ chối, số tiền <strong>150,000 đ</strong> sẽ được hoàn lại vào số dư của đại lý.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeRejectModal()">Hủy</button>
+                    <button type="submit" class="btn btn-warning">Xác nhận từ chối</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function showRejectModal() {
+        var modal = document.getElementById('rejectModal');
+        modal.style.display = 'block';
+        
+        // Debug: Lấy thông tin chi tiết
+        debugModalInfo();
+        debugComputedStyles();
+        debugParentChain();
+        debugCSSRules();
+        debugViewport();
+        
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeRejectModal() {
+        var modal = document.getElementById('rejectModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function debugModalInfo() {
+        var modal = document.getElementById('rejectModal');
+        var content = modal.querySelector('.modal-content');
+        
+        document.getElementById('modalInfo').innerHTML = `
+            <div class="debug-item"><strong>Modal ID:</strong> ${modal.id}</div>
+            <div class="debug-item"><strong>Modal Classes:</strong> ${modal.className}</div>
+            <div class="debug-item"><strong>Content Classes:</strong> ${content.className}</div>
+            <div class="debug-item"><strong>Modal Parent:</strong> ${modal.parentElement.tagName} (ID: ${modal.parentElement.id || 'none'})</div>
+        `;
+    }
+
+    function debugComputedStyles() {
+        var modal = document.getElementById('rejectModal');
+        var content = modal.querySelector('.modal-content');
+        var modalStyle = window.getComputedStyle(modal);
+        var contentStyle = window.getComputedStyle(content);
+        
+        document.getElementById('modalStyles').innerHTML = `
+            <div class="debug-item"><strong>position:</strong> ${modalStyle.position}</div>
+            <div class="debug-item"><strong>left:</strong> ${modalStyle.left}</div>
+            <div class="debug-item"><strong>top:</strong> ${modalStyle.top}</div>
+            <div class="debug-item"><strong>transform:</strong> ${modalStyle.transform}</div>
+            <div class="debug-item"><strong>z-index:</strong> ${modalStyle.zIndex}</div>
+            <div class="debug-item"><strong>width:</strong> ${modalStyle.width}</div>
+            <div class="debug-item"><strong>height:</strong> ${modalStyle.height}</div>
+        `;
+        
+        document.getElementById('contentStyles').innerHTML = `
+            <div class="debug-item"><strong>position:</strong> ${contentStyle.position}</div>
+            <div class="debug-item"><strong>margin:</strong> ${contentStyle.margin}</div>
+            <div class="debug-item"><strong>transform:</strong> ${contentStyle.transform}</div>
+            <div class="debug-item"><strong>width:</strong> ${contentStyle.width}</div>
+            <div class="debug-item"><strong>left:</strong> ${contentStyle.left}</div>
+            <div class="debug-item"><strong>top:</strong> ${contentStyle.top}</div>
+        `;
+    }
+
+    function debugParentChain() {
+        var modal = document.getElementById('rejectModal');
+        var parent = modal.parentElement;
+        var chain = [];
+        
+        while (parent && parent !== document.body) {
+            var style = window.getComputedStyle(parent);
+            chain.push({
+                tag: parent.tagName,
+                id: parent.id || 'none',
+                class: parent.className || 'none',
+                position: style.position,
+                transform: style.transform,
+                overflow: style.overflow
+            });
+            parent = parent.parentElement;
+        }
+        
+        var chainHTML = chain.map((item, index) => `
+            <div class="debug-item">
+                <strong>L${index + 1}:</strong> ${item.tag} 
+                <strong>ID:</strong> ${item.id}
+                <strong>Class:</strong> ${item.class}
+                <strong>Pos:</strong> ${item.position}
+                <strong>Transform:</strong> ${item.transform}
+            </div>
+        `).join('');
+        
+        document.getElementById('parentChain').innerHTML = chainHTML + 
+            `<div class="debug-item"><strong>Final Parent:</strong> BODY</div>`;
+    }
+
+    function debugCSSRules() {
+        var modal = document.getElementById('rejectModal');
+        var styleSheets = Array.from(document.styleSheets);
+        var affectingRules = [];
+        
+        styleSheets.forEach(sheet => {
+            try {
+                var rules = Array.from(sheet.cssRules || sheet.rules || []);
+                rules.forEach(rule => {
+                    if (rule.selectorText && 
+                        (rule.selectorText.includes('.modal') || 
+                         rule.selectorText.includes('fixed') ||
+                         rule.selectorText.includes('transform') ||
+                         rule.selectorText.includes('z-index'))) {
+                        affectingRules.push(rule.selectorText);
+                    }
+                });
+            } catch (e) {
+                // Ignore cross-origin errors
+            }
+        });
+        
+        document.getElementById('cssRules').innerHTML = affectingRules.slice(0, 10).map(rule => 
+            `<div class="debug-item">${rule}</div>`
+        ).join('');
+    }
+
+    function debugViewport() {
+        document.getElementById('viewportInfo').innerHTML = `
+            <div class="debug-item"><strong>Window Width:</strong> ${window.innerWidth}px</div>
+            <div class="debug-item"><strong>Window Height:</strong> ${window.innerHeight}px</div>
+            <div class="debug-item"><strong>Document Height:</strong> ${document.documentElement.scrollHeight}px</div>
+            <div class="debug-item"><strong>Scroll X:</strong> ${window.scrollX}px</div>
+            <div class="debug-item"><strong>Scroll Y:</strong> ${window.scrollY}px</div>
+        `;
+    }
+
+    // Auto-close debug panel khi ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeRejectModal();
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1383,6 +1383,118 @@ switch($page) {
                         }
                         header('Location: ?page=admin&module=affiliates&action=requests&success=deleted');
                         exit;
+                    case 'withdrawals':
+                        $content = 'app/views/admin/affiliates/withdrawals.php';
+                        break;
+                    case 'withdrawal_detail':
+                        $content = 'app/views/admin/affiliates/withdrawal_detail.php';
+                        break;
+                    case 'approve_withdrawal':
+                        $withdrawal_id = (int)($_GET['id'] ?? 0);
+                        if ($withdrawal_id > 0) {
+                            try {
+                                require_once __DIR__ . '/app/services/WalletService.php';
+                                require_once __DIR__ . '/app/services/EmailNotificationService.php';
+                                require_once __DIR__ . '/app/models/WithdrawalRequestModel.php';
+                                require_once __DIR__ . '/app/models/AffiliateModel.php';
+                                require_once __DIR__ . '/app/models/UsersModel.php';
+                                
+                                $withdrawalModel = new WithdrawalRequestModel();
+                                $walletService = new WalletService();
+                                $emailService = new EmailNotificationService();
+                                $affiliateModel = new AffiliateModel();
+                                $usersModel = new UsersModel();
+                                
+                                // Get withdrawal details
+                                $withdrawal = $withdrawalModel->getWithDetails($withdrawal_id);
+                                if (!$withdrawal) {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&error=not_found');
+                                    exit;
+                                }
+                                
+                                if ($withdrawal['status'] !== 'pending') {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&error=already_processed');
+                                    exit;
+                                }
+                                
+                                // Update status to processing
+                                $withdrawalModel->updateStatus($withdrawal_id, 'processing', $_SESSION['user_id'] ?? null);
+                                
+                                // Complete withdrawal (transfer from pending_withdrawal to total_withdrawn)
+                                $walletService->completeWithdrawal($withdrawal_id);
+                                
+                                // Send email notification
+                                $affiliateEmail = $withdrawal['affiliate_email'] ?? '';
+                                $affiliateName = $withdrawal['affiliate_name'] ?? 'Quý khách';
+                                $amount = $withdrawal['net_amount'] ?? 0;
+                                
+                                if (!empty($affiliateEmail)) {
+                                    try {
+                                        $emailService->sendWithdrawalApprovedNotification($affiliateEmail, $affiliateName, $amount, $withdrawal['withdraw_code']);
+                                    } catch (Exception $emailError) {
+                                        error_log('Withdrawal approval email error: ' . $emailError->getMessage());
+                                    }
+                                }
+                                
+                                header('Location: ?page=admin&module=affiliates&action=withdrawals&success=approved');
+                            } catch (Exception $e) {
+                                error_log('Approve withdrawal error: ' . $e->getMessage());
+                                header('Location: ?page=admin&module=affiliates&action=withdrawals&error=' . urlencode($e->getMessage()));
+                            }
+                        } else {
+                            header('Location: ?page=admin&module=affiliates&action=withdrawals&error=invalid_id');
+                        }
+                        exit;
+                    case 'reject_withdrawal':
+                        $reject_withdrawal_id = (int)($_GET['id'] ?? 0);
+                        $admin_note = $_GET['note'] ?? '';
+                        if ($reject_withdrawal_id > 0) {
+                            try {
+                                require_once __DIR__ . '/app/services/WalletService.php';
+                                require_once __DIR__ . '/app/services/EmailNotificationService.php';
+                                require_once __DIR__ . '/app/models/WithdrawalRequestModel.php';
+                                
+                                $withdrawalModel = new WithdrawalRequestModel();
+                                $walletService = new WalletService();
+                                $emailService = new EmailNotificationService();
+                                
+                                // Get withdrawal details
+                                $withdrawal = $withdrawalModel->getWithDetails($reject_withdrawal_id);
+                                if (!$withdrawal) {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&error=not_found');
+                                    exit;
+                                }
+                                
+                                if ($withdrawal['status'] !== 'pending') {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&error=already_processed');
+                                    exit;
+                                }
+                                
+                                // Cancel withdrawal - return money to balance
+                                $walletService->cancelWithdrawal($reject_withdrawal_id, $admin_note);
+                                
+                                // Send email notification
+                                $affiliateEmail = $withdrawal['affiliate_email'] ?? '';
+                                $affiliateName = $withdrawal['affiliate_name'] ?? 'Quý khách';
+                                $amount = $withdrawal['net_amount'] ?? 0;
+                                
+                                if (!empty($affiliateEmail)) {
+                                    try {
+                                        $emailService->sendWithdrawalRejectedNotification($affiliateEmail, $affiliateName, $amount, $admin_note);
+                                    } catch (Exception $emailError) {
+                                        error_log('Withdrawal rejection email error: ' . $emailError->getMessage());
+                                    }
+                                }
+                                
+                                header('Location: ?page=admin&module=affiliates&action=withdrawals&success=rejected');
+                            } catch (Exception $e) {
+                                error_log('Reject withdrawal error: ' . $e->getMessage());
+                                header('Location: ?page=admin&module=affiliates&action=withdrawals&error=' . urlencode($e->getMessage()));
+                            }
+                        } else {
+                            header('Location: ?page=admin&module=affiliates&action=withdrawals&error=invalid_id');
+                        }
+                        exit;
                     case 'delete':
                         // This case is now handled above
                         $content = 'app/views/admin/affiliates/index.php';

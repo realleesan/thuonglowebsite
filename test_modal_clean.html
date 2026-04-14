@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Modal Test</title>
+    
+    <!-- Load CSS theo đúng thứ tự như admin -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/admin_header.css">
+    <link rel="stylesheet" href="assets/css/admin_sidebar.css">
+    <link rel="stylesheet" href="assets/css/admin_affiliates.css">
+    <link rel="stylesheet" href="assets/css/admin_dashboard.css">
+    
+    <style>
+        /* Reset và base styles */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        /* Modal styles - TÁCH RIÊNG để dễ debug */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-container {
+            position: relative;
+            margin: 15% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: #fefefe;
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-body .form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .modal-body .note {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 10px;
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Debug panel */
+        .debug-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 350px;
+            background: #fff;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 11px;
+            z-index: 100000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .debug-section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .debug-section h4 {
+            margin: 0 0 10px 0;
+            color: #28a745;
+            font-size: 12px;
+        }
+        
+        .debug-item {
+            margin: 3px 0;
+            padding: 2px 0;
+        }
+        
+        .debug-item strong {
+            color: #d63384;
+        }
+        
+        .conflict {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .ok {
+            background: #d4edda;
+            color: #155724;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Simulate admin layout structure -->
+    <div class="test-container">
+        <h1>Clean Modal Test - Tìm CSS Conflict</h1>
+        
+        <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0;">
+            <h3>Yêu cầu rút tiền: RUT2604120003</h3>
+            <p><strong>Số tiền:</strong> 150,000 đ</p>
+            <p><strong>Trạng thái:</strong> <span style="color: orange;">Đang chờ</span></p>
+            
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-warning" onclick="showModal('test1')">
+                    Test Modal 1 (Basic)
+                </button>
+                <button type="button" class="btn btn-warning" onclick="showModal('test2')">
+                    Test Modal 2 (Different class)
+                </button>
+                <button type="button" class="btn btn-warning" onclick="showModal('test3')">
+                    Test Modal 3 (ID-based)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h3 style="margin: 0 0 15px 0; color: #28a745;">🔍 CSS Conflict Analysis</h3>
+        
+        <div class="debug-section">
+            <h4>Modal States</h4>
+            <div id="modalStates" class="debug-item">Chưa test</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>CSS Rules Analysis</h4>
+            <div id="cssAnalysis" class="debug-item">Chưa phân tích</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>Position Analysis</h4>
+            <div id="positionAnalysis" class="debug-item">Chưa phân tích</div>
+        </div>
+        
+        <div class="debug-section">
+            <h4>Transform Analysis</h4>
+            <div id="transformAnalysis" class="debug-item">Chưa phân tích</div>
+        </div>
+    </div>
+
+    <!-- Modal templates -->
+    <div id="test1" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Test Modal 1 - Basic</h3>
+                <span class="modal-close" onclick="closeModal('test1')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Modal 1: Dùng class modal-overlay và modal-container</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="test2" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Test Modal 2 - Different</h3>
+                <span class="modal-close" onclick="closeModal('test2')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Modal 2: Thử với class khác</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="test3" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Test Modal 3 - ID</h3>
+                <span class="modal-close" onclick="closeModal('test3')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Modal 3: Dùng ID-based styling</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function showModal(modalId) {
+        var modal = document.getElementById(modalId);
+        modal.style.display = 'block';
+        
+        analyzeModal(modalId);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalId) {
+        var modal = document.getElementById(modalId);
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function analyzeModal(modalId) {
+        var modal = document.getElementById(modalId);
+        var container = modal.querySelector('.modal-container');
+        var modalStyle = window.getComputedStyle(modal);
+        var containerStyle = window.getComputedStyle(container);
+        
+        // Analysis results
+        var results = {
+            modalPosition: modalStyle.position,
+            modalLeft: modalStyle.left,
+            modalTop: modalStyle.top,
+            modalZIndex: modalStyle.zIndex,
+            containerPosition: containerStyle.position,
+            containerMargin: containerStyle.margin,
+            containerTransform: containerStyle.transform,
+            containerLeft: containerStyle.left,
+            containerTop: containerStyle.top
+        };
+        
+        // Check for conflicts
+        var conflicts = [];
+        
+        if (modalStyle.position !== 'fixed') {
+            conflicts.push('Modal position không phải fixed');
+        }
+        
+        if (modalStyle.left !== '0px' || modalStyle.top !== '0px') {
+            conflicts.push('Modal left/top không phải 0');
+        }
+        
+        if (containerStyle.transform !== 'none') {
+            conflicts.push('Container có transform: ' + containerStyle.transform);
+        }
+        
+        if (containerStyle.position !== 'relative') {
+            conflicts.push('Container position không phải relative');
+        }
+        
+        // Update debug panel
+        updateDebugPanel(modalId, results, conflicts);
+    }
+
+    function updateDebugPanel(modalId, results, conflicts) {
+        document.getElementById('modalStates').innerHTML = `
+            <div class="debug-item"><strong>Modal:</strong> ${modalId}</div>
+            <div class="debug-item ${results.modalPosition === 'fixed' ? 'ok' : 'conflict'}">
+                <strong>Modal Position:</strong> ${results.modalPosition}
+            </div>
+            <div class="debug-item ${results.modalLeft === '0px' && results.modalTop === '0px' ? 'ok' : 'conflict'}">
+                <strong>Modal Left/Top:</strong> ${results.modalLeft} / ${results.modalTop}
+            </div>
+            <div class="debug-item ${results.containerPosition === 'relative' ? 'ok' : 'conflict'}">
+                <strong>Container Position:</strong> ${results.containerPosition}
+            </div>
+            <div class="debug-item ${results.containerTransform === 'none' ? 'ok' : 'conflict'}">
+                <strong>Container Transform:</strong> ${results.containerTransform}
+            </div>
+        `;
+        
+        document.getElementById('cssAnalysis').innerHTML = `
+            <div class="debug-item"><strong>Container Margin:</strong> ${results.containerMargin}</div>
+            <div class="debug-item"><strong>Container Left:</strong> ${results.containerLeft}</div>
+            <div class="debug-item"><strong>Container Top:</strong> ${results.containerTop}</div>
+        `;
+        
+        document.getElementById('positionAnalysis').innerHTML = `
+            <div class="debug-item"><strong>Modal Z-Index:</strong> ${results.modalZIndex}</div>
+            <div class="debug-item"><strong>Window Width:</strong> ${window.innerWidth}px</div>
+            <div class="debug-item"><strong>Window Height:</strong> ${window.innerHeight}px</div>
+        `;
+        
+        document.getElementById('transformAnalysis').innerHTML = conflicts.length > 0 ? 
+            conflicts.map(c => `<div class="debug-item conflict">❌ ${c}</div>`).join('') :
+            '<div class="debug-item ok">✅ Không có conflict detected</div>';
+    }
+
+    // ESC key to close all modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            ['test1', 'test2', 'test3'].forEach(id => {
+                var modal = document.getElementById(id);
+                if (modal && modal.style.display === 'block') {
+                    closeModal(id);
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>

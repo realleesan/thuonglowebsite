@@ -172,4 +172,70 @@ class WalletService {
             throw $e;
         }
     }
+    
+    /**
+     * Cancel withdrawal request - return money to affiliate balance
+     */
+    public function cancelWithdrawal(int $withdrawalId, string $adminNote = ''): bool {
+        try {
+            $this->withdrawalModel->beginTransaction();
+            
+            // Get withdrawal request
+            $withdrawal = $this->withdrawalModel->find($withdrawalId);
+            if (!$withdrawal) {
+                throw new Exception('Withdrawal request not found');
+            }
+            
+            // Check if already cancelled or completed
+            if (in_array($withdrawal['status'], [WithdrawalRequestModel::STATUS_COMPLETED, WithdrawalRequestModel::STATUS_CANCELLED])) {
+                $this->withdrawalModel->rollback();
+                throw new Exception('Withdrawal request has already been processed');
+            }
+            
+            $affiliateId = $withdrawal['affiliate_id'];
+            $amount = $withdrawal['amount']; // Return full amount including fee
+            
+            // Get current affiliate data
+            $affiliate = $this->affiliateModel->find($affiliateId);
+            if (!$affiliate) {
+                throw new Exception('Affiliate not found');
+            }
+            
+            // Return money from pending_withdrawal to balance
+            $this->affiliateModel->unfreezeBalance($affiliateId, $amount);
+            
+            // Create transaction record for the refund
+            $balanceBefore = $affiliate['balance'];
+            $balanceAfter = $balanceBefore + $amount;
+            
+            $this->transactionModel->createTransaction([
+                'affiliate_id' => $affiliateId,
+                'type' => WalletTransactionModel::TYPE_REFUND,
+                'amount' => $amount,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter,
+                'reference_type' => 'withdrawal_cancelled',
+                'reference_id' => $withdrawalId,
+                'withdrawal_id' => $withdrawalId,
+                'description' => "Hoàn tiền yêu cầu rút {$withdrawal['withdraw_code']}" . ($adminNote ? " - Lý do: {$adminNote}" : ''),
+                'status' => WalletTransactionModel::STATUS_COMPLETED
+            ]);
+            
+            // Update withdrawal status
+            $this->withdrawalModel->updateStatus(
+                $withdrawalId,
+                WithdrawalRequestModel::STATUS_CANCELLED,
+                null,
+                $adminNote
+            );
+            
+            $this->withdrawalModel->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->withdrawalModel->rollback();
+            error_log('Error cancelling withdrawal: ' . $e->getMessage());
+            throw $e;
+        }
+    }
 }

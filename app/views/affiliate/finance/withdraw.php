@@ -113,43 +113,53 @@ ob_start();
                 </small>
             </div>
 
-            <!-- Bank Account -->
+            <!-- Bank Account Input -->
             <div class="form-group">
                 <label class="form-label required">
                     <i class="fas fa-university"></i>
-                    Tài khoản ngân hàng
+                    Thông tin tài khoản ngân hàng
                 </label>
-                <select class="form-select" id="bankAccountSelect" name="bank_account" required>
-                    <option value="">-- Chọn tài khoản --</option>
-                    <?php foreach ($bankAccounts as $account): ?>
-                    <option value="<?php echo $account['id']; ?>" 
-                            data-bank="<?php echo htmlspecialchars($account['bank_name']); ?>"
-                            data-account="<?php echo htmlspecialchars($account['account_number']); ?>"
-                            data-holder="<?php echo htmlspecialchars($account['account_holder']); ?>"
-                            <?php echo $account['is_default'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($account['bank_name']); ?> - 
-                        <?php echo htmlspecialchars($account['account_number']); ?> - 
-                        <?php echo htmlspecialchars($account['account_holder']); ?>
-                        <?php echo $account['is_default'] ? '(Mặc định)' : ''; ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
 
-            <!-- Bank Details Display -->
-            <div class="bank-details" id="bankDetails" style="display: none;">
-                <div class="bank-detail-item">
-                    <span class="detail-label">Ngân hàng:</span>
-                    <span class="detail-value" id="bankName">-</span>
+                <!-- Bank Name -->
+                <div class="form-subgroup">
+                    <label class="form-sublabel">Tên ngân hàng</label>
+                    <input type="text"
+                           class="form-input"
+                           id="bankName"
+                           name="bank_name"
+                           placeholder="VD: Vietcombank, Techcombank, BIDV..."
+                           value="<?php echo !empty($bankAccounts) ? htmlspecialchars($bankAccounts[0]['bank_name']) : ''; ?>"
+                           required>
                 </div>
-                <div class="bank-detail-item">
-                    <span class="detail-label">Số tài khoản:</span>
-                    <span class="detail-value" id="accountNumber">-</span>
+
+                <!-- Account Number -->
+                <div class="form-subgroup">
+                    <label class="form-sublabel">Số tài khoản</label>
+                    <input type="text"
+                           class="form-input"
+                           id="accountNumber"
+                           name="bank_account"
+                           placeholder="Nhập số tài khoản ngân hàng"
+                           value="<?php echo !empty($bankAccounts) ? htmlspecialchars($bankAccounts[0]['account_number']) : ''; ?>"
+                           required>
                 </div>
-                <div class="bank-detail-item">
-                    <span class="detail-label">Chủ tài khoản:</span>
-                    <span class="detail-value" id="accountHolder">-</span>
+
+                <!-- Account Holder -->
+                <div class="form-subgroup">
+                    <label class="form-sublabel">Chủ tài khoản</label>
+                    <input type="text"
+                           class="form-input"
+                           id="accountHolder"
+                           name="account_holder"
+                           placeholder="Nhập tên chủ tài khoản (in hoa, không dấu)"
+                           value="<?php echo !empty($bankAccounts) ? htmlspecialchars($bankAccounts[0]['account_holder']) : ''; ?>"
+                           required>
                 </div>
+
+                <small class="form-help">
+                    <i class="fas fa-info-circle"></i>
+                    Vui lòng nhập chính xác thông tin để tránh lỗi chuyển khoản.
+                </small>
             </div>
 
             <!-- Amount -->

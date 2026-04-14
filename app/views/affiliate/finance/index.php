@@ -42,8 +42,9 @@ try {
         $wallet = [
             'balance' => $financeData['balance'] ?? 0,
             'total_earned' => ($financeData['pending_commission'] ?? 0) + ($financeData['paid_commission'] ?? 0),
-            'total_withdrawn' => $financeData['paid_commission'] ?? 0,
-            'pending' => $financeData['pending_commission'] ?? 0
+            'total_withdrawn' => $financeData['total_withdrawn'] ?? 0,
+            'pending_withdrawal' => $financeData['pending_withdrawal'] ?? 0,
+            'pending_commission' => $financeData['pending_commission'] ?? 0
         ];
         
         // Get withdrawal settings from service
@@ -99,7 +100,7 @@ ob_start();
         </div>
         <div class="stat-content">
             <div class="stat-label">Đang xử lý</div>
-            <div class="stat-value"><?php echo number_format($wallet['frozen'] ?? 0); ?> đ</div>
+            <div class="stat-value"><?php echo number_format($wallet['pending_withdrawal'] ?? 0); ?> đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Lệnh rút đang chờ</span>
             </div>

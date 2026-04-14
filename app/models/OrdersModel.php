@@ -402,6 +402,15 @@ class OrdersModel extends BaseModel {
     }
     
     /**
+     * Find order by order number
+     */
+    public function findByOrderNumber($orderNumber) {
+        $sql = "SELECT * FROM {$this->table} WHERE order_number = ? LIMIT 1";
+        $result = $this->db->query($sql, [$orderNumber]);
+        return !empty($result) ? $result[0] : null;
+    }
+    
+    /**
      * Check if user has purchased a product (has completed order for this product)
      */
     public function hasUserPurchasedProduct($userId, $productId) {

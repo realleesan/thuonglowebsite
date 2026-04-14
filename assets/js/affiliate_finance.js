@@ -73,36 +73,23 @@
     // Withdrawal Form
     // ===================================
     
-    // Bank Account Selection
-    const bankAccountSelect = document.getElementById('bankAccountSelect');
-    if (bankAccountSelect) {
-        bankAccountSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const bankDetails = document.getElementById('bankDetails');
-            
-            if (this.value) {
-                const bankName = selectedOption.getAttribute('data-bank');
-                const accountNumber = selectedOption.getAttribute('data-account');
-                const accountHolder = selectedOption.getAttribute('data-holder');
-                
-                document.getElementById('bankName').textContent = bankName;
-                document.getElementById('accountNumber').textContent = accountNumber;
-                document.getElementById('accountHolder').textContent = accountHolder;
-                
-                if (bankDetails) {
-                    bankDetails.style.display = 'block';
-                }
-            } else {
-                if (bankDetails) {
-                    bankDetails.style.display = 'none';
-                }
-            }
+    // Bank Account Input Validation
+    const bankNameInput = document.getElementById('bankName');
+    const accountNumberInput = document.getElementById('accountNumber');
+    const accountHolderInput = document.getElementById('accountHolder');
+    
+    if (accountNumberInput) {
+        // Only allow numbers for account number
+        accountNumberInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
         });
-        
-        // Trigger change on page load if default selected
-        if (bankAccountSelect.value) {
-            bankAccountSelect.dispatchEvent(new Event('change'));
-        }
+    }
+    
+    if (accountHolderInput) {
+        // Auto uppercase and remove special chars for account holder
+        accountHolderInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase().replace(/[^A-Z0-9\s]/g, '');
+        });
     }
 
     // Amount Input - Format and Calculate
@@ -165,11 +152,17 @@
 
     // Withdrawal Form Submission
     const withdrawalForm = document.getElementById('withdrawalForm');
+    console.log('DEBUG: withdrawalForm found:', !!withdrawalForm);
+    
     if (withdrawalForm) {
         withdrawalForm.addEventListener('submit', function(e) {
+            console.log('DEBUG: Form submit triggered');
             e.preventDefault();
             
-            const bankAccount = document.getElementById('bankAccountSelect').value;
+            const bankName = document.getElementById('bankName')?.value?.trim() || '';
+            console.log('DEBUG: bankName=', bankName);
+            const bankAccount = document.getElementById('accountNumber')?.value?.trim() || '';
+            const accountHolder = document.getElementById('accountHolder')?.value?.trim() || '';
             const amount = parseInt(document.getElementById('withdrawalAmount').value) || 0;
             const note = document.getElementById('withdrawalNote').value;
             const availableBalance = parseInt(document.getElementById('availableBalance').getAttribute('data-balance')) || 0;
@@ -177,8 +170,21 @@
             const errorText = document.getElementById('errorText');
             
             // Validation
+            if (!bankName) {
+                showError('Vui lòng nhập tên ngân hàng');
+                document.getElementById('bankName')?.focus();
+                return;
+            }
+            
             if (!bankAccount) {
-                showError('Vui lòng chọn tài khoản ngân hàng');
+                showError('Vui lòng nhập số tài khoản ngân hàng');
+                document.getElementById('accountNumber')?.focus();
+                return;
+            }
+            
+            if (!accountHolder) {
+                showError('Vui lòng nhập tên chủ tài khoản');
+                document.getElementById('accountHolder')?.focus();
                 return;
             }
             
@@ -216,7 +222,9 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    bank_name: bankName,
                     bank_account: bankAccount,
+                    account_holder: accountHolder,
                     amount: amount,
                     note: note
                 })

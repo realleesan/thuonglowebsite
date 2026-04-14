@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Margin Debug</title>
+    
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/admin_header.css">
+    <link rel="stylesheet" href="assets/css/admin_sidebar.css">
+    <link rel="stylesheet" href="assets/css/admin_affiliates.css">
+    <link rel="stylesheet" href="assets/css/admin_dashboard.css">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .test-box {
+            background: #e3f2fd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .margin-test {
+            background: #fff3cd;
+            padding: 20px;
+            border: 2px solid #ffc107;
+            border-radius: 4px;
+            margin: 15% auto;
+            width: 500px;
+            position: relative;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .css-rule {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .conflict {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Margin Debug - Tìm CSS Conflict</h1>
+        
+        <div class="test-box">
+            <h3>Test 1: Pure CSS</h3>
+            <div class="margin-test" id="pureTest">
+                Pure CSS margin: 15% auto
+                <div class="debug-info" id="pureDebug"></div>
+            </div>
+        </div>
+        
+        <div class="test-box">
+            <h3>Test 2: Different Class</h3>
+            <div class="margin-test-alt" id="classTest" style="margin: 15% auto; width: 500px; background: #d4edda; padding: 20px; border: 2px solid #28a745;">
+                Different class: margin-test-alt
+                <div class="debug-info" id="classDebug"></div>
+            </div>
+        </div>
+        
+        <div class="test-box">
+            <h3>Test 3: ID-based</h3>
+            <div id="idTest" style="margin: 15% auto; width: 500px; background: #f8d7da; padding: 20px; border: 2px solid #dc3545;">
+                ID-based: #idTest
+                <div class="debug-info" id="idDebug"></div>
+            </div>
+        </div>
+        
+        <div class="test-box">
+            <h3>Test 4: Inline Style</h3>
+            <div style="margin: 15% auto; width: 500px; background: #e2e3e5; padding: 20px; border: 2px solid #6c757d;">
+                Inline style
+                <div class="debug-info" id="inlineDebug"></div>
+            </div>
+        </div>
+        
+        <div class="test-box">
+            <h3>CSS Rules Analysis</h3>
+            <div id="cssRules" class="css-rule"></div>
+        </div>
+    </div>
+
+    <script>
+    function analyzeMargin(elementId, debugId, testName) {
+        var element = document.getElementById(elementId);
+        var style = window.getComputedStyle(element);
+        
+        var expectedTop = window.innerHeight * 0.15; // 15% of viewport height
+        var actualMargin = style.margin;
+        var marginTop = style.marginTop;
+        
+        var debugInfo = `
+            <strong>Test:</strong> ${testName}<br>
+            <strong>Expected:</strong> ${expectedTop.toFixed(1)}px (15% of ${window.innerHeight}px)<br>
+            <strong>Actual:</strong> ${actualMargin}<br>
+            <strong>Margin-top:</strong> ${marginTop}<br>
+            <strong>Difference:</strong> ${(parseFloat(marginTop) - expectedTop).toFixed(1)}px<br>
+            <strong>Position:</strong> ${style.position}<br>
+            <strong>Transform:</strong> ${style.transform}<br>
+            <strong>Box-sizing:</strong> ${style.boxSizing}
+        `;
+        
+        document.getElementById(debugId).innerHTML = debugInfo;
+        
+        return {
+            expected: expectedTop,
+            actual: parseFloat(marginTop),
+            difference: parseFloat(marginTop) - expectedTop
+        };
+    }
+
+    function analyzeCSSRules() {
+        var allRules = [];
+        var styleSheets = Array.from(document.styleSheets);
+        
+        styleSheets.forEach(sheet => {
+            try {
+                var rules = Array.from(sheet.cssRules || sheet.rules || []);
+                rules.forEach(rule => {
+                    if (rule.selectorText && 
+                        (rule.selectorText.includes('margin') ||
+                         rule.selectorText.includes('.margin-test') ||
+                         rule.selectorText.includes('modal') ||
+                         rule.selectorText.includes('container'))) {
+                        allRules.push({
+                            selector: rule.selectorText,
+                            styles: rule.style.cssText
+                        });
+                    }
+                });
+            } catch (e) {
+                // Ignore cross-origin errors
+            }
+        });
+        
+        var rulesHTML = allRules.slice(0, 20).map(rule => 
+            `<div class="css-rule">
+                <strong>${rule.selector}</strong><br>
+                ${rule.styles}
+            </div>`
+        ).join('');
+        
+        document.getElementById('cssRules').innerHTML = rulesHTML;
+    }
+
+    // Run analysis
+    window.addEventListener('load', function() {
+        var results = [];
+        
+        results.push(analyzeMargin('pureTest', 'pureDebug', 'Pure CSS'));
+        results.push(analyzeMargin('classTest', 'classDebug', 'Different Class'));
+        results.push(analyzeMargin('idTest', 'idDebug', 'ID-based'));
+        results.push(analyzeMargin('inlineDebug', 'inlineDebug', 'Inline Style'));
+        
+        analyzeCSSRules();
+        
+        // Check for patterns
+        console.log('Margin Analysis Results:', results);
+        
+        // Look for consistent issues
+        var hasConsistentIssue = results.every(r => r.difference > 50);
+        if (hasConsistentIssue) {
+            console.warn('🚨 All tests show margin calculation issue!');
+        }
+    });
+    </script>
+</body>
+</html>

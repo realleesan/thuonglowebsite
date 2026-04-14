@@ -209,7 +209,7 @@ try {
 }
 
 // Payment configuration - lấy từ settings nếu có
-$bankAcc = "0389654785"; // Có thể lấy từ SettingsModel
+$bankAcc = "0914960029666"; // Có thể lấy từ SettingsModel
 $bankName = "MBBank";
 $content = "THANHTOAN " . $orderId;
 $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=compact&amount={$amount}&des=" . urlencode($content);
@@ -245,7 +245,7 @@ $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=co
             <div class="order-info">
                 <p><strong>Ngân hàng:</strong> <?php echo $bankName; ?></p>
                 <p><strong>Số tài khoản:</strong> <?php echo $bankAcc; ?></p>
-                <p><strong>Chủ tài khoản:</strong> NGUYEN VAN A</p>
+                <p><strong>Chủ tài khoản:</strong> LE VU BAO NHAT</p>
                 <p><strong>Số tiền:</strong> <span style="color: #2563EB; font-size: 18px; font-weight: bold;"><?php echo number_format($amount); ?>đ</span></p>
                 <p><strong>Nội dung:</strong> <span style="color: #d32f2f; font-weight: bold;"><?php echo $content; ?></span></p>
             </div>

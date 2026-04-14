@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #007bff;
+            color: #007bff;
+        }
+        
+        /* Modal CSS - Global scope */
+        .reject-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .reject-modal .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .reject-modal .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reject-modal .modal-header h3 {
+            margin: 0;
+        }
+
+        .reject-modal .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .reject-modal .close:hover {
+            color: #000;
+        }
+
+        .reject-modal .modal-body {
+            padding: 20px;
+        }
+
+        .reject-modal .modal-body .form-group {
+            margin-bottom: 15px;
+        }
+
+        .reject-modal .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .reject-modal .modal-body textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .reject-modal .modal-body .note {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 10px;
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .reject-modal .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Test styles */
+        .test-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Test Modal Independence</h1>
+        
+        <div class="test-info">
+            <p><strong>Muc tiêu:</strong> Kiem tra modal co hoat dong doc lap hay khong</p>
+            <p><strong>Test 1:</strong> Click nut "Tu choi" de mo modal</p>
+            <p><strong>Test 2:</strong> Kiem tra vi tri modal co dung giua man hinh khong</p>
+            <p><strong>Test 3:</strong> Mo Dev Tools (F12) -> Console xem debug info</p>
+        </div>
+        
+        <div style="padding: 20px; border: 1px solid #ddd; border-radius: 4px; margin: 20px 0;">
+            <h3>Yeu cau rut tien: RUT2604120003</h3>
+            <p><strong>So tien:</strong> 150,000 d</p>
+            <p><strong>Trang thai:</strong> <span style="color: orange;">Dang cho</span></p>
+            
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-warning" onclick="showRejectModal()">
+                    <i>×</i> Tu choi
+                </button>
+                <button type="button" class="btn btn-success">
+                    <i>×</i> Duyet
+                </button>
+            </div>
+        </div>
+        
+        <div id="debugOutput" class="debug-info" style="display: none;">
+            <h4>Debug Info:</h4>
+            <div id="debugContent"></div>
+        </div>
+    </div>
+
+    <!-- Reject Modal - Outside container -->
+    <div id="rejectModal" class="reject-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tu choi yeu cau rut tien</h3>
+                <span class="close" onclick="closeRejectModal()">&times;</span>
+            </div>
+            <form id="rejectForm" method="GET" action="?page=admin&module=affiliates&action=reject_withdrawal&id=3">
+                <div class="modal-body">
+                    <p>Ban dang tu choi yeu cau: <strong>RUT2604120003</strong></p>
+                    <div class="form-group">
+                        <label for="rejectNote">Ly do tu choi (tuy chon):</label>
+                        <textarea id="rejectNote" name="note" rows="3" placeholder="Nhap ly do tu choi..."></textarea>
+                    </div>
+                    <p class="note">Sau khi tu choi, so tien <strong>150,000 d</strong> se duoc hoan lai vao so du cua dai ly.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeRejectModal()">Huy</button>
+                    <button type="submit" class="btn btn-warning">Xac nhan tu choi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function showRejectModal() {
+        var modal = document.getElementById('rejectModal');
+        modal.style.display = 'block';
+        
+        // Debug: Log computed styles
+        var computedStyle = window.getComputedStyle(modal);
+        var modalContent = modal.querySelector('.modal-content');
+        var contentStyle = window.getComputedStyle(modalContent);
+        
+        var debugInfo = {
+            modal: {
+                position: computedStyle.position,
+                left: computedStyle.left,
+                top: computedStyle.top,
+                transform: computedStyle.transform,
+                marginLeft: computedStyle.marginLeft,
+                marginTop: computedStyle.marginTop,
+                zIndex: computedStyle.zIndex,
+                width: computedStyle.width,
+                height: computedStyle.height
+            },
+            modalContent: {
+                position: contentStyle.position,
+                left: contentStyle.left,
+                top: contentStyle.top,
+                transform: contentStyle.transform,
+                margin: contentStyle.margin,
+                width: contentStyle.width,
+                height: contentStyle.height
+            },
+            viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                scrollX: window.scrollX,
+                scrollY: window.scrollY
+            }
+        };
+        
+        console.log('Modal Debug Info:', debugInfo);
+        
+        // Show debug on page
+        document.getElementById('debugOutput').style.display = 'block';
+        document.getElementById('debugContent').innerHTML = JSON.stringify(debugInfo, null, 2);
+        
+        // Reset body scroll
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeRejectModal() {
+        var modal = document.getElementById('rejectModal');
+        modal.style.display = 'none';
+        
+        // Hide debug
+        document.getElementById('debugOutput').style.display = 'none';
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+
+    window.onclick = function(event) {
+        var modal = document.getElementById('rejectModal');
+        if (event.target == modal) {
+            closeRejectModal();
+        }
+    }
+
+    // ESC key to close
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeRejectModal();
+        }
+    });
+    </script>
+</body>
+</html>

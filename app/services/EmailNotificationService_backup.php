@@ -435,55 +435,7 @@ class EmailNotificationService implements ServiceInterface {
                     <p style="color: #6c757d; font-size: 14px;">Trân truong,<br>Doi ngu {{website_name}}</p>
                 </div>
             ',
-            'device_verification' => '<div><h2>Xac thuc dang nhap</h2><p>Xin chao {{user_name}},</p><p>Ma xac thuc cua ban la: <strong>{{verification_code}}</strong></p><p>Ma co hieu luc trong {{expiry_minutes}} phut</p></div>',
-            'withdrawal_approved' => '
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #28a745;">✅ Yêu cầu rút tiền đã được duyệt!</h2>
-                    <p>Xin chào <strong>{{user_name}}</strong>,</p>
-                    <p>Yêu cầu rút tiền <strong>{{withdraw_code}}</strong> của bạn đã được <strong style="color: #28a745;">PHÊ DUYỆT</strong> và đang được xử lý chuyển tiền.</p>
-                    
-                    <div style="background-color: #d4edda; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
-                        <h3 style="color: #155724; margin-top: 0;">Thông tin giao dịch:</h3>
-                        <ul style="color: #155724;">
-                            <li>Mã yêu cầu: {{withdraw_code}}</li>
-                            <li>Số tiền: {{amount}}</li>
-                            <li>Trạng thái: Đã duyệt - Đang chuyển tiền</li>
-                            <li>Thời gian xử lý: 1-2 ngày làm việc</li>
-                        </ul>
-                    </div>
-                    
-                    <p>Tiền sẽ được chuyển vào tài khoản ngân hàng bạn đã đăng ký.</p>
-                    <p>Bạn có thể <a href="{{website_url}}/affiliate/finance" style="color: #007bff;">kiểm tra trạng thái</a> trong mục Ví của tôi.</p>
-                    
-                    <p>Cảm ơn bạn đã sử dụng dịch vụ của {{website_name}}!</p>
-                    <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
-                </div>
-            ',
-            'withdrawal_rejected' => '
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #dc3545;">❌ Yêu cầu rút tiền bị từ chối</h2>
-                    <p>Xin chào <strong>{{user_name}}</strong>,</p>
-                    <p>Chúng tôi rất tiếc phải thông báo rằng yêu cầu rút tiền <strong>{{withdraw_code}}</strong> của bạn <strong>không được duyệt</strong>.</p>
-                    
-                    <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
-                        <h3 style="color: #721c24; margin-top: 0;">Thông tin:</h3>
-                        <ul style="color: #721c24;">
-                            <li>Mã yêu cầu: {{withdraw_code}}</li>
-                            <li>Số tiền: {{amount}}</li>
-                            <li>Lý do: {{reason}}</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #17a2b8;">
-                        <h3 style="color: #0c5460; margin-top: 0;">Số tiền đã được hoàn lại</h3>
-                        <p style="color: #0c5460; margin-bottom: 0;">Số tiền {{amount}} đã được hoàn trả vào số dư ví của bạn. Bạn có thể gửi yêu cầu rút tiền mới bất cứ lúc nào.</p>
-                    </div>
-                    
-                    <p>Nếu bạn có thắc mắc, vui lòng liên hệ với chúng tôi để được hỗ trợ.</p>
-                    <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
-                    <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
-                </div>
-            '
+            'device_verification' => '<div><h2>Xac thuc dang nhap</h2><p>Xin chao {{user_name}},</p><p>Ma xac thuc cua ban la: <strong>{{verification_code}}</strong></p><p>Ma co hieu luc trong {{expiry_minutes}} phut</p></div>'
         ];
     }
     
@@ -530,132 +482,267 @@ class EmailNotificationService implements ServiceInterface {
             $emailBody = $this->getEmailTemplate('device_verification', [
                 'user_name' => $userName,
                 'verification_code' => $code,
-                'device_name' => $deviceInfo['device_name'] ?? 'Thiết bị không xác định',
-                'ip_address' => $deviceInfo['ip_address'] ?? 'N/A',
-                'location' => $deviceInfo['location'] ?? 'N/A',
-                'browser' => $deviceInfo['browser'] ?? 'N/A',
-                'os' => $deviceInfo['os'] ?? 'N/A',
-                'expiry_minutes' => '5',
-                'website_name' => 'ThuongLo'
-            ]);
-            
-            $this->mailer->Body = $emailBody;
-            $this->mailer->AltBody = "Mã xác thực của bạn là: {$code}. Mã có hiệu lực trong 5 phút.";
-            
-            $result = $this->mailer->send();
-            $this->resetMailer();
-            
-            return $result;
-            
-        } catch (Exception $e) {
-            error_log("Device verification email failed: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Gửi email thông báo yêu cầu rút tiền được duyệt
-     */
-    public function sendWithdrawalApprovedNotification(string $userEmail, string $userName, float $amount, string $withdrawCode): bool {
-        try {
-            $this->setupMailer();
-            
-            // Recipient
-            $this->mailer->addAddress($userEmail, $userName);
-            
-            // Content
-            $this->mailer->Subject = 'Yêu cầu rút tiền đã được duyệt - ThuongLo';
-            
-            $emailBody = $this->getEmailTemplate('withdrawal_approved', [
-                'user_name' => $userName,
-                'amount' => number_format($amount, 0, ',', '.') . ' VNĐ',
-                'withdraw_code' => $withdrawCode,
-                'website_name' => 'ThuongLo',
-                'website_url' => $this->getBaseUrl()
-            ]);
-            
-            $this->mailer->Body = $emailBody;
-            $this->mailer->AltBody = strip_tags($emailBody);
-            
-            $result = $this->mailer->send();
-            $this->resetMailer();
-            
-            return $result;
-            
-        } catch (Exception $e) {
-            error_log('Withdrawal approved email failed: ' . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Gửi email thông báo yêu cầu rút tiền bị từ chối
-     */
-    public function sendWithdrawalRejectedNotification(string $userEmail, string $userName, float $amount, string $reason = ''): bool {
-        try {
-            $this->setupMailer();
-            
-            // Recipient
-            $this->mailer->addAddress($userEmail, $userName);
-            
-            // Content
-            $this->mailer->Subject = 'Yêu cầu rút tiền không được duyệt - ThuongLo';
-            
-            $emailBody = $this->getEmailTemplate('withdrawal_rejected', [
-                'user_name' => $userName,
-                'amount' => number_format($amount, 0, ',', '.') . ' VNĐ',
-                'withdraw_code' => '',
-                'reason' => $reason ?: 'Không đáp ứng điều kiện rút tiền',
-                'contact_email' => $this->emailConfig['support_email'],
-                'website_name' => 'ThuongLo',
-                'website_url' => $this->getBaseUrl()
-            ]);
-            
-            $this->mailer->Body = $emailBody;
-            $this->mailer->AltBody = strip_tags($emailBody);
-            
-            $result = $this->mailer->send();
-            $this->resetMailer();
-            
-            return $result;
-            
-        } catch (Exception $e) {
-            error_log('Withdrawal rejected email failed: ' . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Test email configuration
-     */
-    public function testEmailConfiguration(): array {
-        try {
-            $this->setupMailer();
-            
-            // Test SMTP connection
-            if ($this->emailConfig['use_smtp']) {
-                $this->mailer->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_CONNECTION;
                 $this->mailer->Debugoutput = function($str, $level) {
                     return $str; // Capture debug output
                 };
             }
-            
-            return [
-                'success' => true,
-                'message' => 'Email configuration is valid',
-                'config' => [
-                    'smtp_host' => $this->emailConfig['smtp_host'],
-                    'smtp_port' => $this->emailConfig['smtp_port'],
-                    'from_email' => $this->emailConfig['from_email'],
-                    'use_smtp' => $this->emailConfig['use_smtp']
-                ]
-            ];
-            
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Email configuration error: ' . $e->getMessage()
-            ];
-        }
+                <div style="background-color: #f8f9fa; padding: 15px; border-radius:5px; margin: 20px 0;">
+                    <h3 style="color: #495057; margin-top: 0;">Thông tin quan trọng:</h3>
+                    <ul style="color: #6c757d;">
+                        <li>Thời gian xử lý: {{processing_time}}</li>
+                        <li>Bạn sẽ nhận được email thông báo kết quả</li>
+                        <li>Trong thời gian chờ, bạn có thể sử dụng tài khoản với tư cách người dùng thông thường</li>
+                    </ul>
+                </div>
+                <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+                <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+            </div>
+        ',
+        
+        'approval_notification' => '
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #28a745;">🎉 Chúc mừng {{user_name}}!</h2>
+                <p>Yêu cầu đăng ký làm đại lý của bạn đã được <strong style="color: #28a745;">PHÊ DUYỆT</strong>!</p>
+                <p>Bạn đã chính thức trở thành đại lý của <strong>{{website_name}}</strong>.</p>
+                
+                <div style="background-color: #d4edda; padding: 15px; border-radius:5px; margin: 20px 0; border-left: 4px solid #28a745;">
+                    <h3 style="color: #155724; margin-top: 0;">Bước tiếp theo:</h3>
+                    <ol style="color: #155724;">
+                        <li><a href="{{login_url}}" style="color: #007bff;">Đăng nhập vào tài khoản</a></li>
+                        <li><a href="{{dashboard_url}}" style="color: #007bff;">Truy cập bảng điều khiển đại lý</a></li>
+                        <li>Bắt đầu kinh doanh và kiếm hoa hồng</li>
+                    </ol>
+                </div>
+                
+                <p>Chúc bạn thành công trong vai trò đại lý mới!</p>
+                <p>Nếu cần hỗ trợ, liên hệ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+                <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+            </div>
+        ',
+        
+        'processing_notification' => '
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #ffc107;">&#9203; Đang xử lý yêu cầu</h2>
+                <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                <p>Chúng tôi đang xử lý yêu cầu đăng ký làm đại lý của bạn.</p>
+                
+                <div style="background-color: #fff3cd; padding: 15px; border-radius:5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                    <h3 style="color: #856404; margin-top: 0;">Thời gian xử lý:</h3>
+                    <p style="color: #856404; margin-bottom: 0;">Dự kiến trong vòng <strong>{{processing_time}}</strong></p>
+                </div>
+                
+                <p>Bạn có thể <a href="{{status_check_url}}" style="color: #007bff;">kiểm tra trạng thái</a> trong tài khoản của mình.</p>
+                <p>Chúng tôi sẽ gửi email thông báo ngay khi có kết quả.</p>
+                
+                <p>Cảm ơn sự kiên nhẫn của bạn!</p>
+                <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+                <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+            </div>
+        ',
+        'rejection_notification' => '
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #dc3545;">&#10060; Thông báo từ chối yêu cầu</h2>
+                <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                <p>Chúng tôi rất tiếc phải thông báo rằng yêu cầu đăng ký làm đại lý của bạn <strong>chưa được duyệt</strong>.</p>
+                
+                <div style="background-color: #f8d7da; padding: 15px; border-radius:5px; margin: 20px 0; border-left: 4px solid #dc3545;">
+                    <h3 style="color: #721c24; margin-top: 0;">Lý do:</h3>
+                    <p style="color: #721c24; margin-bottom: 0;">{{reason}}</p>
+                </div>
+                
+                <div style="background-color: #d1ecf1; padding: 15px; border-radius:5px; margin: 20px 0; border-left: 4px solid #17a2b8;">
+                    <h3 style="color: #0c5460; margin-top: 0;">Bạn vẫn có thể đăng ký lại!</h3>
+                    <p style="color: #0c5460; margin-bottom: 0;">{{reapply_info}}</p>
+                </div>
+                
+                <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi để được hỗ trợ.</p>
+                <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
+                <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}<br><a href="{{website_url}}">{{website_url}}</a></p>
+            </div>
+        ',
+        'commission_earned' => '
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #28a745;">&#127874; Chúc mùng! Ban nhan duoc hoa hong moi!</h2>
+                <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                <p>Ban vua nhan duoc hoa hong <strong style="color: #28a745;">{{commission_amount}}</strong> tu don hang <strong>{{order_number}}</strong>.</p>
+                
+                <div style="background-color: #d4edda; padding: 15px; border-radius:5px; margin: 20px 0; border-left: 4px solid #28a745;">
+                    <h3 style="color: #155724; margin-top: 0;">Chi tiet hoa hong:</h3>
+                    <ul style="color: #155724;">
+                        <li>So tien hoa hong: {{commission_amount}}</li>
+                        <li>Ma don hang: {{order_number}}</li>
+                        <li>Trang thai: Da cong vao vi</li>
+                    </ul>
+                </div>
+                
+                <p>Ban co <a href="{{website_url}}/affiliate/dashboard" style="color: #007bff;">xem chi tiet</a> trong bang dieu khien dai ly.</p>
+                <p>Cam on ban da kinh doanh voi {{website_name}}!</p>
+                <p style="color: #6c757d; font-size: 14px;">Trân truong,<br>Doi ngu {{website_name}}</p>
+            </div>
+        ',
+        'device_verification' => '<div><h2>Xac thuc dang nhap</h2><p>Xin chao {{user_name}},</p><p>Ma xac thuc cua ban la: <strong>{{verification_code}}</strong></p><p>Ma co hieu luc trong {{expiry_minutes}} phut</p></div>',
+        
+        'withdrawal_approved' => '
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #28a745;">&#127874; Chúc mừng! Yêu cầu rút tiền đã được duyệt!</h2>
+                <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                <p>Yêu cầu rút tiền của bạn đã được xử lý thành công.</p>
+                
+                <div style="background-color: #d4edda; padding:15px; border-radius:5px; margin: 20px 0; border-left: 4px solid #28a745;">
+                    <h3 style="color: #155724; margin-top: 0;">Chi tiết giao dịch:</h3>
+                    <ul style="color: #155724;">
+                        <li>Mã rút tiền: {{withdraw_code}}</li>
+                        <li>Số tiền: {{amount}} VNĐ</li>
+                        <li>Ngân hàng: {{bank_name}}</li>
+                        <li>Chủ tài khoản: {{account_holder}}</li>
+                        <li>Mã giao dịch: {{transaction_id}}</li>
+                    </ul>
+                </div>
+                
+                <p>Bạn có thể <a href="{{website_url}}/affiliate/dashboard" style="color: #007bff;">xem chi tiết</a> trong bảng điều khiển đại lý.</p>
+                <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+                <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+            </div>
+        ',
+
+        'withdrawal_rejected' => '
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #dc3545;">&#10060; Yêu cầu rút tiền bị từ chối</h2>
+                <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                <p>Yêu cầu rút tiền của bạn không thể được xử lý.</p>
+                
+                <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #dc3545;">
+                    <h3 style="color: #721c24; margin-top: 0;">Lý do từ chối:</h3>
+                    <p style="color: #721c24; margin-bottom: 0;">{{reason}}</p>
+                </div>
+                
+                <p>Bạn có thể tạo yêu cầu rút tiền mới sau khi đã giải quyết các vấn đề.</p>
+                <p>Nếu có thắc mắc, vui lòng liên hệ với chúng tôi để được hỗ trợ.</p>
+                <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+            </div>
+        ',
+
+        'withdrawal_cancelled' => '
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #ffc107;">&#9203; Yêu cầu rút tiền đã bị hủy</h2>
+                <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                <p>Yêu cầu rút tiền của bạn đã bị hủy.</p>
+                
+                <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                    <h3 style="color: #856404; margin-top: 0;">Chi tiết yêu cầu:</h3>
+                    <ul style="color: #856404;">
+                        <li>Mã rút tiền: {{withdraw_code}}</li>
+                        <li>Số tiền: {{amount}} VNĐ</li>
+                    </ul>
+                </div>
+                
+                <p>Số tiền đã được hoàn trả vào tài khoản đại lý của bạn.</p>
+                <p>Bạn có thể tạo yêu cầu rút tiền mới bất cứ lúc nào.</p>
+                <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
+            </div>
+        ',
+    ];
+}
+
+// ... (rest of the code remains the same)
+
+/**
+ * Gửi email thông báo duyệt yêu cầu rút tiền
+ */
+public function sendWithdrawalApprovedEmail(string $email, array $data): bool {
+    try {
+        $this->setupMailer();
+        
+        $this->mailer->setFrom($this->emailConfig['from_email'], $this->emailConfig['from_name']);
+        $this->mailer->addAddress($email);
+        
+        $this->mailer->isHTML(true);
+        $this->mailer->Subject = 'Yêu cầu rút tiền đã được duyệt - ' . $data['withdraw_code'];
+        
+        $template = $this->templates['withdrawal_approved'] ?? $this->getDefaultWithdrawalApprovedTemplate();
+        $body = $this->replaceTemplateVariables($template, array_merge($data, [
+            'recipient_email' => $email,
+            'site_name' => $this->emailConfig['site_name'] ?? 'ThuongLo',
+            'support_email' => $this->emailConfig['support_email'] ?? $this->emailConfig['from_email']
+        ]));
+        
+        $this->mailer->Body = $body;
+        
+        $result = $this->mailer->send();
+        error_log("Withdrawal approved email sent to $email: " . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        return $result;
+        
+    } catch (Exception $e) {
+        error_log("Withdrawal approved email failed: " . $e->getMessage());
+        return false;
     }
 }
+
+/**
+ * Gửi email thông báo từ chối yêu cầu rút tiền
+ */
+public function sendWithdrawalRejectedEmail(string $email, array $data): bool {
+    try {
+        $this->setupMailer();
+        
+        $this->mailer->setFrom($this->emailConfig['from_email'], $this->emailConfig['from_name']);
+        $this->mailer->addAddress($email);
+        
+        $this->mailer->isHTML(true);
+        $this->mailer->Subject = 'Yêu cầu rút tiền đã bị từ chối - ' . $data['withdraw_code'];
+        
+        $template = $this->templates['withdrawal_rejected'] ?? $this->getDefaultWithdrawalRejectedTemplate();
+        $body = $this->replaceTemplateVariables($template, array_merge($data, [
+            'recipient_email' => $email,
+            'site_name' => $this->emailConfig['site_name'] ?? 'ThuongLo',
+            'support_email' => $this->emailConfig['support_email'] ?? $this->emailConfig['from_email']
+        ]));
+        
+        $this->mailer->Body = $body;
+        
+        $result = $this->mailer->send();
+        error_log("Withdrawal rejected email sent to $email: " . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        return $result;
+        
+    } catch (Exception $e) {
+        error_log("Withdrawal rejected email failed: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Gửi email thông báo hủy yêu cầu rút tiền
+ */
+public function sendWithdrawalCancelledEmail(string $email, array $data): bool {
+    try {
+        $this->setupMailer();
+        
+        $this->mailer->setFrom($this->emailConfig['from_email'], $this->emailConfig['from_name']);
+        $this->mailer->addAddress($email);
+        
+        $this->mailer->isHTML(true);
+        $this->mailer->Subject = 'Yêu cầu rút tiền đã bị hủy - ' . $data['withdraw_code'];
+        
+        $template = $this->templates['withdrawal_cancelled'] ?? $this->getDefaultWithdrawalCancelledTemplate();
+        $body = $this->replaceTemplateVariables($template, array_merge($data, [
+            'recipient_email' => $email,
+            'site_name' => $this->emailConfig['site_name'] ?? 'ThuongLo',
+            'support_email' => $this->emailConfig['support_email'] ?? $this->emailConfig['from_email']
+        ]));
+        
+        $this->mailer->Body = $body;
+        
+        $result = $this->mailer->send();
+        error_log("Withdrawal cancelled email sent to $email: " . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        return $result;
+        
+    } catch (Exception $e) {
+        error_log("Withdrawal cancelled email failed: " . $e->getMessage());
+        return false;
+    }
+}
+
+// ... (rest of the code remains the same)

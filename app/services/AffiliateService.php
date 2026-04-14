@@ -489,7 +489,7 @@ class AffiliateService extends BaseService
     /**
      * Data cho finance (rút tiền, số dư, v.v.).
      */
-    public function getFinanceData(int $affiliateId): array
+    public function getFinanceData(int $userId): array
     {
         try {
             $affiliateModel = $this->getModel('AffiliateModel');
@@ -498,25 +498,28 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $affiliateModel->getByUserId($userId);
             if (!$affiliate) {
                 return $this->getEmptyData();
             }
 
+            
             return [
                 'balance' => $affiliate['balance'] ?? 0,
+                'pending_withdrawal' => $affiliate['pending_withdrawal'] ?? 0,
+                'total_withdrawn' => $affiliate['total_withdrawn'] ?? 0,
                 'pending_commission' => $affiliate['pending_commission'] ?? 0,
                 'paid_commission' => $affiliate['paid_commission'] ?? 0,
             ];
         } catch (\Exception $e) {
-            return $this->handleError($e, ['method' => 'getFinanceData', 'affiliate_id' => $affiliateId]);
+            return $this->handleError($e, ['method' => 'getFinanceData', 'user_id' => $userId]);
         }
     }
 
     /**
      * Lấy cài đặt rút tiền (số tiền tối thiểu, tối đa, phí, v.v.).
      */
-    public function getWithdrawalSettings(int $affiliateId = 0): array
+    public function getWithdrawalSettings(int $userId = 0): array
     {
         try {
             $settingsModel = $this->getModel('SettingsModel');
@@ -574,7 +577,7 @@ class AffiliateService extends BaseService
                     'bank_name' => $affiliate['bank_name'] ?? 'Ngân hàng',
                     'bank_code' => $affiliate['bank_code'] ?? '',
                     'account_number' => $affiliate['bank_account'] ?? '',
-                    'account_holder' => $affiliate['bank_holder'] ?? $affiliate['name'] ?? '',
+                    'account_holder' => $affiliate['account_holder'] ?? $affiliate['name'] ?? '',
                     'is_default' => true,
                 ];
             }

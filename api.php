@@ -78,6 +78,17 @@ try {
                 }
                 exit;
             
+            case 'webhook':
+                $provider = $_GET['provider'] ?? '';
+                if ($provider === 'sepay') {
+                    require_once __DIR__ . '/app/controllers/WebhookController.php';
+                    $webhookController = new WebhookController();
+                    $webhookController->handleSepayWebhook();
+                } else {
+                    throw new Exception('Unknown webhook provider: ' . $provider, 400);
+                }
+                exit;
+            
             case 'deductQuota':
                 header('Content-Type: application/json');
                 $productId = (int)($_GET['product_id'] ?? 0);
@@ -964,6 +975,115 @@ try {
                     'logged_in' => !empty($_SESSION['user_id']),
                     'user_id' => $_SESSION['user_id'] ?? null
                 ]);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+
+        // ==========================================
+        // AFFILIATE WITHDRAWAL API
+        // ==========================================
+        case 'affiliate/withdraw':
+            if ($method === 'POST') {
+                // Check if user is logged in
+                if (empty($_SESSION['user_id'])) {
+                    echo json_encode([
+                        'success' => false,
+                        'require_login' => true,
+                        'message' => 'Vui lòng đăng nhập để rút tiền'
+                    ]);
+                    exit;
+                }
+                
+                $input = json_decode(file_get_contents('php://input'), true);
+                
+                // Validate required fields
+                $bankName = trim($input['bank_name'] ?? '');
+                $bankAccount = trim($input['bank_account'] ?? '');
+                $accountHolder = trim($input['account_holder'] ?? '');
+                $amount = (float)($input['amount'] ?? 0);
+                $note = trim($input['note'] ?? '');
+                
+                if (empty($bankName)) {
+                    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên ngân hàng']);
+                    exit;
+                }
+                if (empty($bankAccount)) {
+                    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập số tài khoản']);
+                    exit;
+                }
+                if (empty($accountHolder)) {
+                    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên chủ tài khoản']);
+                    exit;
+                }
+                if ($amount <= 0) {
+                    echo json_encode(['success' => false, 'message' => 'Số tiền rút không hợp lệ']);
+                    exit;
+                }
+                
+                try {
+                    require_once __DIR__ . '/app/models/AffiliateModel.php';
+                    require_once __DIR__ . '/app/models/WithdrawalRequestModel.php';
+                    
+                    $affiliateModel = new AffiliateModel();
+                    $withdrawalModel = new WithdrawalRequestModel();
+                    
+                    // Get affiliate by user_id
+                    $affiliate = $affiliateModel->getByUserId($_SESSION['user_id']);
+                    if (!$affiliate) {
+                        echo json_encode(['success' => false, 'message' => 'Không tìm thấy thông tin đại lý']);
+                        exit;
+                    }
+                    
+                    // Check minimum/maximum withdrawal amount
+                    $minAmount = 100000; // 100k
+                    $maxAmount = 10000000; // 10M
+                    if ($amount < $minAmount) {
+                        echo json_encode(['success' => false, 'message' => 'Số tiền rút tối thiểu là 100,000 đ']);
+                        exit;
+                    }
+                    if ($amount > $maxAmount) {
+                        echo json_encode(['success' => false, 'message' => 'Số tiền rút tối đa là 10,000,000 đ']);
+                        exit;
+                    }
+                    
+                    // Check available balance
+                    if ($affiliate['balance'] < $amount) {
+                        echo json_encode(['success' => false, 'message' => 'Số dư không đủ để thực hiện giao dịch']);
+                        exit;
+                    }
+                    
+                    // Freeze balance
+                    $affiliateModel->freezeBalance($affiliate['id'], $amount);
+                    
+                    // Create withdrawal request
+                    $withdrawalId = $withdrawalModel->createRequest([
+                        'affiliate_id' => $affiliate['id'],
+                        'amount' => $amount,
+                        'bank_name' => $bankName,
+                        'bank_account' => $bankAccount,
+                        'account_holder' => $accountHolder,
+                        'status' => 'pending',
+                        'requested_at' => date('Y-m-d H:i:s')
+                    ]);
+                    
+                    // Update affiliate bank info for future use
+                    $affiliateModel->update($affiliate['id'], [
+                        'bank_name' => $bankName,
+                        'bank_account' => $bankAccount,
+                        'account_holder' => $accountHolder
+                    ]);
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Yêu cầu rút tiền đã được gửi thành công',
+                        'withdrawal_id' => $withdrawalId
+                    ]);
+                    
+                } catch (Exception $e) {
+                    error_log('Withdrawal error: ' . $e->getMessage());
+                    echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()]);
+                }
             } else {
                 throw new Exception('Method not allowed', 405);
             }
