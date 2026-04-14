@@ -255,15 +255,6 @@ $qrSource = "https://qr.sepay.vn/img?bank={$bankName}&acc={$bankAcc}&template=co
                 <span id="status-text">Đang chờ tín hiệu từ ngân hàng...</span>
             </div>
             
-            <!-- Demo: Button to bypass payment -->
-            <div style="margin-top: 20px; text-align: center;">
-                <p style="color: #666; font-size: 12px;">Chưa có tiền? Nhấn nút bên dưới để test:</p>
-                <a href="?page=payment_success&order_id=<?php echo $orderId; ?>" 
-                   style="display: inline-block; padding: 12px 24px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                   ✓ Xác nhận đã thanh toán (Demo)
-                </a>
-            </div>
-            
             <div style="width: 100%; background: #eee; height: 5px; margin-top: 15px; border-radius: 3px; overflow: hidden;">
                 <div id="progress-bar" style="width: 0%; height: 100%; background: #2563EB; transition: width 5s linear;"></div>
             </div>
