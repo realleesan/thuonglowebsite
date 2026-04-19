@@ -172,6 +172,22 @@ class DataTransformer {
         // Get category name
         $categoryName = !empty($order['category_name']) ? $order['category_name'] : '';
         
+        // Calculate quota info for completed orders
+        $quotaTotal = (int) ($order['product_quota'] ?? 0);
+        $quotaUsed = (int) ($order['used_quota'] ?? 0);
+        $quotaRemaining = max(0, $quotaTotal - $quotaUsed);
+        
+        // Calculate days left for expiry
+        $expiryDate = $order['expiry_date'] ?? null;
+        $daysLeft = null;
+        $isExpired = false;
+        if ($expiryDate && $order['status'] === 'completed') {
+            $expiry = strtotime($expiryDate);
+            $now = time();
+            $daysLeft = floor(($expiry - $now) / (60 * 60 * 24));
+            $isExpired = $daysLeft < 0;
+        }
+        
         return [
             'id' => (int) $order['id'],
             'order_number' => $this->security->escapeHtml($order['order_number'] ?? ''),
@@ -188,7 +204,14 @@ class DataTransformer {
             'type' => $orderType,
             'product_image' => $productImage,
             'product_id' => $order['product_id'] ?? null,
-            'category_name' => $this->security->escapeHtml($categoryName)
+            'category_name' => $this->security->escapeHtml($categoryName),
+            'expiry_date' => $expiryDate,
+            'days_left' => $daysLeft,
+            'is_expired' => $isExpired,
+            'quota_total' => $quotaTotal,
+            'quota_used' => $quotaUsed,
+            'quota_remaining' => $quotaRemaining,
+            'has_quota' => $quotaTotal > 0
         ];
     }
     

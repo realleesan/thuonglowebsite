@@ -478,4 +478,87 @@ class WebhookController {
             'timestamp' => date('Y-m-d H:i:s')
         ]);
     }
+    
+    /**
+     * Handle PayOS payout webhook callback
+     * This endpoint receives POST requests from PayOS when payout status changes
+     */
+    public function handlePayOSWebhook(): void {
+        $debugLogFile = __DIR__ . '/../../logs/payos_webhook.log';
+        
+        try {
+            // Get raw POST data
+            $rawData = file_get_contents('php://input');
+            $webhookData = json_decode($rawData, true);
+            
+            // Log incoming webhook
+            @file_put_contents($debugLogFile, 
+                "\n" . str_repeat('=', 80) . "\n" . 
+                date('Y-m-d H:i:s') . " - PayOS Webhook received\n" .
+                "Raw Data: " . $rawData . "\n",
+                FILE_APPEND
+            );
+            
+            // Verify webhook signature
+            $headers = $this->getRequestHeaders();
+            $signature = $headers['X-Signature'] ?? $headers['x-signature'] ?? '';
+            
+            require_once __DIR__ . '/../services/PayOSService.php';
+            $payosService = new PayOSService();
+            
+            if (!$payosService->verifyWebhookSignature($webhookData, $signature)) {
+                @file_put_contents($debugLogFile, "❌ Invalid signature\n", FILE_APPEND);
+                $this->jsonResponse(['success' => false, 'error' => 'Invalid signature'], 401);
+                return;
+            }
+            
+            // Parse webhook data
+            $parsedData = $payosService->parsePayoutWebhook($webhookData);
+            
+            @file_put_contents($debugLogFile, 
+                "Parsed - Payout ID: {$parsedData['payout_id']}, Reference: {$parsedData['reference_id']}, Status: {$parsedData['status']}\n",
+                FILE_APPEND
+            );
+            
+            // Find withdrawal by reference_id (withdraw_code)
+            $withdrawal = $this->withdrawalModel->getByWithdrawCode($parsedData['reference_id']);
+            
+            if (!$withdrawal) {
+                @file_put_contents($debugLogFile, "❌ Withdrawal not found for code: {$parsedData['reference_id']}\n", FILE_APPEND);
+                $this->jsonResponse(['success' => false, 'error' => 'Withdrawal not found'], 404);
+                return;
+            }
+            
+            // Update PayOS status in withdrawal record
+            $this->withdrawalModel->update($withdrawal['id'], [
+                'payos_status' => $parsedData['status'],
+                'payos_webhook_data' => json_encode($webhookData),
+                'payos_webhook_received_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            // Process based on status
+            if ($parsedData['status'] === 'COMPLETED') {
+                // Complete withdrawal if not already completed
+                if ($withdrawal['status'] !== WithdrawalRequestModel::STATUS_COMPLETED) {
+                    $this->walletService->completeWithdrawal($withdrawal['id']);
+                    @file_put_contents($debugLogFile, "✅ Withdrawal {$withdrawal['id']} completed\n", FILE_APPEND);
+                }
+            } elseif ($parsedData['status'] === 'FAILED' || $parsedData['status'] === 'CANCELLED') {
+                // Cancel withdrawal and return money to affiliate
+                $this->walletService->cancelWithdrawal($withdrawal['id'], 'PayOS payout failed: ' . $parsedData['status']);
+                @file_put_contents($debugLogFile, "❌ Withdrawal {$withdrawal['id']} cancelled due to payout failure\n", FILE_APPEND);
+            }
+            
+            $this->jsonResponse(['success' => true, 'message' => 'Webhook processed']);
+            
+        } catch (Exception $e) {
+            @file_put_contents($debugLogFile, "❌ ERROR: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n", FILE_APPEND);
+            error_log('PayOS webhook error: ' . $e->getMessage());
+            
+            $this->jsonResponse([
+                'success' => false,
+                'error' => 'Internal server error'
+            ], 500);
+        }
+    }
 }

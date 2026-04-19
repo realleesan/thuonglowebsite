@@ -132,6 +132,36 @@
     margin-right: 4px;
 }
 
+/* Charts Section - Side by Side Row */
+.dashboard-charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-charts-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-widget-half {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.chart-widget-half .widget-content {
+    padding: 20px;
+    min-height: 280px;
+}
+
+.chart-widget-half .widget-content canvas {
+    max-height: 250px;
+}
+
 /* Charts Section */
 .dashboard-charts {
     display: grid;

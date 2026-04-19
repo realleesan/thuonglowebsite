@@ -1420,12 +1420,50 @@ switch($page) {
                                 // Update status to processing
                                 $withdrawalModel->updateStatus($withdrawal_id, 'processing', $_SESSION['user_id'] ?? null);
                                 
-                                // Complete withdrawal (transfer from pending_withdrawal to total_withdrawn)
-                                $walletService->completeWithdrawal($withdrawal_id);
+                                // Initiate PayOS payout
+                                require_once __DIR__ . '/app/services/PayOSService.php';
+                                $payosService = new PayOSService();
+                                
+                                // Get bank BIN code from bank name
+                                $bankBin = $payosService->getBankBinByName($withdrawal['bank_name'] ?? '');
+                                
+                                $payoutResult = $payosService->createPayout(
+                                    $withdrawal['withdraw_code'],
+                                    $withdrawal['net_amount'],
+                                    [
+                                        'bank_name' => $withdrawal['bank_name'] ?? '',
+                                        'bank_code' => $bankBin,
+                                        'account_number' => $withdrawal['bank_account'] ?? '',
+                                        'account_holder' => $withdrawal['account_holder'] ?? ''
+                                    ],
+                                    "Rut tien hoa hong {$withdrawal['withdraw_code']}"
+                                );
+                                
+                                if (!$payoutResult['success']) {
+                                    // Payout failed, rollback status to pending
+                                    $withdrawalModel->updateStatus($withdrawal_id, 'pending', null, 'PayOS payout failed: ' . $payoutResult['message']);
+                                    throw new Exception('PayOS payout failed: ' . $payoutResult['message']);
+                                }
+                                
+                                // Save PayOS payout ID to withdrawal record
+                                $withdrawalModel->update($withdrawal_id, [
+                                    'payos_payout_id' => $payoutResult['payout_id'] ?? null,
+                                    'payos_status' => $payoutResult['status'] ?? 'PROCESSING',
+                                    'payos_response' => json_encode($payoutResult)
+                                ]);
+                                
+                                // Check if we should auto-complete or wait for webhook
+                                $payosConfig = require __DIR__ . '/config.php';
+                                $autoComplete = $payosConfig['payos']['auto_complete_on_success'] ?? true;
+                                
+                                if ($autoComplete && $payoutResult['status'] === 'COMPLETED') {
+                                    // Complete withdrawal immediately if already completed
+                                    $walletService->completeWithdrawal($withdrawal_id);
+                                }
                                 
                                 // Send email notification
                                 $affiliateEmail = $withdrawal['affiliate_email'] ?? '';
-                                $affiliateName = $withdrawal['affiliate_name'] ?? 'Quý khách';
+                                $affiliateName = $withdrawal['affiliate_name'] ?? 'Quy khach';
                                 $amount = $withdrawal['net_amount'] ?? 0;
                                 
                                 if (!empty($affiliateEmail)) {
@@ -1490,42 +1528,107 @@ switch($page) {
                             } catch (Exception $e) {
                                 error_log('Reject withdrawal error: ' . $e->getMessage());
                                 header('Location: ?page=admin&module=affiliates&action=withdrawals&error=' . urlencode($e->getMessage()));
+                            } finally {
+                                exit;
+                            }
+                        } else {
+                            header('Location: ?page=admin&module=affiliates&action=withdrawals&error=invalid_id');
+                            exit;
+                        }
+                        break;
+                    case 'approve_to_processing':
+                        // Approve withdrawal and set status to processing (for manual bank transfer)
+                        $processing_id = (int)($_GET['id'] ?? 0);
+                        if ($processing_id > 0) {
+                            try {
+                                require_once __DIR__ . '/app/models/WithdrawalRequestModel.php';
+                                $withdrawalModel = new WithdrawalRequestModel();
+                                
+                                $withdrawal = $withdrawalModel->find($processing_id);
+                                if (!$withdrawal) {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&error=not_found');
+                                    exit;
+                                }
+                                
+                                if ($withdrawal['status'] !== 'pending') {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&error=already_processed');
+                                    exit;
+                                }
+                                
+                                // Update to processing status
+                                $withdrawalModel->updateStatus($processing_id, 'processing', $_SESSION['user_id'] ?? null);
+                                
+                                header('Location: ?page=admin&module=affiliates&action=withdrawals&status=processing&success=approved_to_processing');
+                            } catch (Exception $e) {
+                                error_log('Approve to processing error: ' . $e->getMessage());
+                                header('Location: ?page=admin&module=affiliates&action=withdrawals&error=' . urlencode($e->getMessage()));
                             }
                         } else {
                             header('Location: ?page=admin&module=affiliates&action=withdrawals&error=invalid_id');
                         }
                         exit;
-                    case 'delete':
-                        // This case is now handled above
-                        $content = 'app/views/admin/affiliates/index.php';
-                        break;
-                    default:
-                        $content = 'app/views/admin/affiliates/index.php';
-                        break;
-                }
-                break;
-                
-            case 'contact':
-                $page_title = 'Quản lý Liên hệ';
-                
-                // Handle AJAX delete request
-                if ($action === 'delete' && !empty($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-                    header('Content-Type: application/json');
-                    try {
-                        require_once __DIR__ . '/app/services/AdminService.php';
-                        $adminService = new AdminService(null, 'admin');
-                        $result = $adminService->deleteContact((int)$_GET['id']);
-                        echo json_encode(['success' => $result, 'message' => $result ? 'Xóa liên hệ thành công' : 'Xóa liên hệ thất bại']);
-                    } catch (Exception $e) {
-                        echo json_encode(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
-                    }
-                    exit;
-                }
-                
-                switch($action) {
-                    case 'edit':
-                        $content = 'app/views/admin/contact/edit.php';
-                        break;
+                    case 'export_withdrawals':
+                        // Export selected withdrawals to CSV for bulk bank transfer
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            try {
+                                require_once __DIR__ . '/app/services/WithdrawalExportService.php';
+                                require_once __DIR__ . '/app/models/WithdrawalRequestModel.php';
+                                
+                                $exportService = new WithdrawalExportService();
+                                $withdrawalModel = new WithdrawalRequestModel();
+                                
+                                $selectedIds = $_POST['selected_ids'] ?? '';
+                                $bankFormat = $_POST['bank_format'] ?? 'mbbank';
+                                
+                                if (empty($selectedIds)) {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&error=no_selection');
+                                    exit;
+                                }
+                                
+                                $ids = array_map('intval', explode(',', $selectedIds));
+                                
+                                foreach ($ids as $id) {
+                                    $withdrawal = $withdrawalModel->find($id);
+                                    if ($withdrawal && $withdrawal['status'] === 'pending') {
+                                        $withdrawalModel->updateStatus($id, 'processing', $_SESSION['user_id'] ?? null);
+                                    }
+                                }
+                                
+                                switch ($bankFormat) {
+                                    case 'tpbank':
+                                        $result = $exportService->exportToTPBankCSV($ids);
+                                        break;
+                                    case 'vietcombank':
+                                        $result = $exportService->exportToVietcombankCSV($ids);
+                                        break;
+                                    case 'mbbank':
+                                    default:
+                                        $result = $exportService->exportToBankCSV($ids);
+                                        break;
+                                }
+                                
+                                if (!$result['success']) {
+                                    header('Location: ?page=admin&module=affiliates&action=withdrawals&status=processing&error=' . urlencode($result['error']));
+                                    exit;
+                                }
+                                
+                                header('Content-Type: text/csv; charset=utf-8');
+                                header('Content-Disposition: attachment; filename="' . $result['filename'] . '"');
+                                header('Pragma: no-cache');
+                                header('Expires: 0');
+                                
+                                echo "\xEF\xBB\xBF";
+                                echo $result['content'];
+                                exit;
+                                
+                            } catch (Exception $e) {
+                                error_log('Export withdrawals error: ' . $e->getMessage());
+                                header('Location: ?page=admin&module=affiliates&action=withdrawals&error=' . urlencode($e->getMessage()));
+                                exit;
+                            }
+                        }
+                        header('Location: ?page=admin&module=affiliates&action=withdrawals');
+                        exit;
                     case 'view':
                         $content = 'app/views/admin/contact/view.php';
                         break;

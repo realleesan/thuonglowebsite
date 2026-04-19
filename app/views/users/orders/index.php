@@ -20,8 +20,17 @@ try {
 
 // Filter and search functionality
 $statusFilter = $_GET['status'] ?? 'all';
-$typeFilter = $_GET['type'] ?? 'all';
+$categoryFilter = $_GET['category'] ?? 'all';
 $searchQuery = $_GET['search'] ?? '';
+
+// Get unique categories from orders
+$categories = [];
+foreach ($orders as $order) {
+    if (!empty($order['category_name']) && !in_array($order['category_name'], $categories)) {
+        $categories[] = $order['category_name'];
+    }
+}
+sort($categories);
 
 // Apply filters
 $filteredOrders = $orders;
@@ -32,9 +41,9 @@ if ($statusFilter !== 'all') {
     });
 }
 
-if ($typeFilter !== 'all') {
-    $filteredOrders = array_filter($filteredOrders, function($order) use ($typeFilter) {
-        return ($order['type'] ?? 'data_nguon_hang') === $typeFilter;
+if ($categoryFilter !== 'all') {
+    $filteredOrders = array_filter($filteredOrders, function($order) use ($categoryFilter) {
+        return ($order['category_name'] ?? '') === $categoryFilter;
     });
 }
 
@@ -56,7 +65,7 @@ $completedOrders = count(array_filter($orders, function($order) { return $order[
 // Processing includes both 'processing' and 'pending' statuses
 $processingOrders = count(array_filter($orders, function($order) { return in_array($order['status'], ['processing', 'pending']); }));
 $cancelledOrders = count(array_filter($orders, function($order) { return $order['status'] === 'cancelled'; }));
-$totalSpent = array_sum(array_column($orders, 'amount'));
+$totalSpent = array_sum(array_column(array_filter($orders, function($order) { return $order['status'] === 'completed'; }), 'amount'));
 
 // Status and type mappings
 $statusLabels = [
@@ -103,56 +112,31 @@ $paymentLabels = [
             </div>
         </div>
 
-        <!-- Orders Statistics -->
-        <div class="orders-stats">
-            <div class="orders-stat-card">
-                <div class="orders-stat-icon">
-                    <i class="fas fa-shopping-bag"></i>
-                </div>
-                <div class="orders-stat-content">
-                    <h3><?php echo $totalOrders; ?></h3>
-                    <p>Tổng đơn hàng</p>
-                </div>
+        <!-- Orders Statistics Compact -->
+        <div class="orders-stats-compact">
+            <div class="stat-item">
+                <span class="stat-num"><?php echo $totalOrders; ?></span>
+                <span class="stat-label">Tổng đơn</span>
             </div>
-            
-            <div class="orders-stat-card">
-                <div class="orders-stat-icon orders-stat-icon-success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="orders-stat-content">
-                    <h3><?php echo $completedOrders; ?></h3>
-                    <p>Đã hoàn thành</p>
-                </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num success"><?php echo $completedOrders; ?></span>
+                <span class="stat-label">Hoàn thành</span>
             </div>
-            
-            <div class="orders-stat-card">
-                <div class="orders-stat-icon orders-stat-icon-warning">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="orders-stat-content">
-                    <h3><?php echo $processingOrders; ?></h3>
-                    <p>Đang xử lý</p>
-                </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num warning"><?php echo $processingOrders; ?></span>
+                <span class="stat-label">Đang xử lý</span>
             </div>
-            
-            <div class="orders-stat-card">
-                <div class="orders-stat-icon orders-stat-icon-danger">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <div class="orders-stat-content">
-                    <h3><?php echo $cancelledOrders; ?></h3>
-                    <p>Đã hủy</p>
-                </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num danger"><?php echo $cancelledOrders; ?></span>
+                <span class="stat-label">Đã hủy</span>
             </div>
-            
-            <div class="orders-stat-card">
-                <div class="orders-stat-icon orders-stat-icon-info">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div class="orders-stat-content">
-                    <h3><?php echo number_format($totalSpent / 1000000, 1); ?>M</h3>
-                    <p>Tổng chi tiêu</p>
-                </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item stat-money">
+                <span class="stat-num info"><?php echo number_format($totalSpent, 0, ',', '.'); ?>đ</span>
+                <span class="stat-label">Tổng chi tiêu</span>
             </div>
         </div>
 
@@ -177,13 +161,11 @@ $paymentLabels = [
                     <option value="cancelled" <?php echo $statusFilter === 'cancelled' ? 'selected' : ''; ?>>Đã hủy</option>
                 </select>
 
-                <select class="orders-filter-select" id="typeFilter" onchange="applyFilters()">
-                    <option value="all" <?php echo $typeFilter === 'all' ? 'selected' : ''; ?>>Tất cả loại</option>
-                    <option value="data_nguon_hang" <?php echo $typeFilter === 'data_nguon_hang' ? 'selected' : ''; ?>>Data Nguồn Hàng</option>
-                    <option value="van_chuyen" <?php echo $typeFilter === 'van_chuyen' ? 'selected' : ''; ?>>Vận Chuyển</option>
-                    <option value="dich_vu_tt" <?php echo $typeFilter === 'dich_vu_tt' ? 'selected' : ''; ?>>Dịch Vụ TT</option>
-                    <option value="danh_hang" <?php echo $typeFilter === 'danh_hang' ? 'selected' : ''; ?>>Đánh Hàng</option>
-                    <option value="khoa_hoc" <?php echo $typeFilter === 'khoa_hoc' ? 'selected' : ''; ?>>Khóa Học</option>
+                <select class="orders-filter-select" id="categoryFilter" onchange="applyFilters()">
+                    <option value="all" <?php echo $categoryFilter === 'all' ? 'selected' : ''; ?>>Tất cả danh mục</option>
+                    <?php foreach ($categories as $cat): ?>
+                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo $categoryFilter === $cat ? 'selected' : ''; ?>><?php echo htmlspecialchars($cat); ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
         </div>
@@ -220,76 +202,98 @@ $paymentLabels = [
                         </div>
                     </div>
                     
-                    <div class="orders-item-content">
-                        <div class="orders-item-product">
+                    <div class="orders-item-body">
+                        <!-- Left Column: Product Image -->
+                        <div class="orders-item-image-col">
                             <?php if (!empty($order['product_image'])): ?>
                             <div class="orders-product-image">
-                                <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                <a href="?page=details&id=<?php echo (int)$order['product_id']; ?>">
+                                    <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>">
+                                </a>
                             </div>
                             <?php else: ?>
                             <div class="orders-product-image">
-                                <div class="orders-product-placeholder">
-                                    <i class="fas fa-<?php echo $order['type'] === 'data_nguon_hang' ? 'database' : ($order['type'] === 'van_chuyen' ? 'truck' : ($order['type'] === 'dich_vu_tt' ? 'credit-card' : ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); ?>"></i>
-                                </div>
+                                <a href="?page=details&id=<?php echo (int)$order['product_id']; ?>">
+                                    <div class="orders-product-placeholder">
+                                        <i class="fas fa-<?php echo $order['type'] === 'data_nguon_hang' ? 'database' : ($order['type'] === 'van_chuyen' ? 'truck' : ($order['type'] === 'dich_vu_tt' ? 'credit-card' : ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); ?>"></i>
+                                    </div>
+                                </a>
                             </div>
                             <?php endif; ?>
-                            <div class="orders-product-info">
-                                <h4><?php echo htmlspecialchars($order['product_name']); ?></h4>
-                                <?php if (!empty($order['category_name'])): ?>
-                                <p class="orders-product-type">
-                                    <i class="fas fa-folder"></i>
-                                    <?php echo htmlspecialchars($order['category_name']); ?>
-                                </p>
+                        </div>
+                        
+                        <!-- Right Column: All Info -->
+                        <div class="orders-item-info-col">
+                            <!-- Product Name -->
+                            <h4 class="orders-product-name">
+                                <a href="?page=details&id=<?php echo (int)$order['product_id']; ?>" class="product-name-link">
+                                    <?php echo htmlspecialchars($order['product_name']); ?>
+                                </a>
+                            </h4>
+                            
+                            <!-- Category -->
+                            <?php if (!empty($order['category_name'])): ?>
+                            <p class="orders-product-category">
+                                <i class="fas fa-folder"></i>
+                                <?php echo htmlspecialchars($order['category_name']); ?>
+                            </p>
+                            <?php endif; ?>
+                            
+                            <!-- Quota & Expiry for completed orders -->
+                            <?php if ($order['status'] === 'completed' && !empty($order['product_id'])): ?>
+                                <?php if ($order['has_quota']): ?>
+                                    <?php
+                                        $quotaPercent = $order['quota_total'] > 0 ? round(($order['quota_remaining'] / $order['quota_total']) * 100) : 0;
+                                        $quotaColor = $quotaPercent <= 20 ? '#dc3545' : ($quotaPercent <= 50 ? '#ff971a' : '#17a2b8');
+                                    ?>
+                                    <div class="orders-quota-row">
+                                        <span class="quota-icon"><i class="fas fa-bolt"></i></span>
+                                        <span class="quota-label">Quota:</span>
+                                        <div class="quota-bar-small">
+                                            <div class="quota-fill" style="width: <?php echo $quotaPercent; ?>%; background: <?php echo $quotaColor; ?>"></div>
+                                        </div>
+                                        <span class="quota-value"><?php echo $order['quota_remaining']; ?>/<?php echo $order['quota_total']; ?></span>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($order['expiry_date']): ?>
+                                    <?php
+                                        $daysLeft = $order['days_left'];
+                                        $expiryColor = $daysLeft <= 0 ? '#dc3545' : ($daysLeft <= 7 ? '#ff971a' : '#28a745');
+                                        $expiryText = $daysLeft < 0 ? 'Đã hết hạn' : ($daysLeft == 0 ? 'Hết hạn hôm nay' : 'Còn ' . $daysLeft . ' ngày');
+                                    ?>
+                                    <div class="orders-expiry-row" style="color: <?php echo $expiryColor; ?>">
+                                        <i class="fas fa-clock"></i>
+                                        <span><?php echo $expiryText; ?> (<?php echo date('d/m/Y', strtotime($order['expiry_date'])); ?>)</span>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            
+                            <!-- Payment Info -->
+                            <div class="orders-payment-row">
+                                <div class="payment-item">
+                                    <span class="payment-label">Số tiền:</span>
+                                    <span class="payment-value orders-amount"><?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ</span>
+                                </div>
+                                <div class="payment-item">
+                                    <span class="payment-label">Thanh toán:</span>
+                                    <span class="payment-value"><?php echo $paymentLabels[$order['payment_method']] ?? $order['payment_method']; ?></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="orders-item-actions-row">
+                                <a href="?page=users&module=orders&action=view&id=<?php echo $order['id']; ?>" class="btn-detail">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </a>
+                                
+                                <?php if ($order['status'] === 'completed' && !empty($order['product_id']) && $order['quota_remaining'] > 0 && !$order['is_expired']): ?>
+                                <button class="btn-view-now" onclick="viewOrderData(<?php echo (int)$order['product_id']; ?>)">
+                                    <i class="fas fa-eye"></i> Xem ngay
+                                </button>
                                 <?php endif; ?>
                             </div>
                         </div>
-                        
-                        <div class="orders-item-details">
-                            <div class="orders-detail-item">
-                                <span class="orders-detail-label">Số tiền:</span>
-                                <span class="orders-detail-value orders-amount">
-                                    <?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ
-                                </span>
-                            </div>
-                            
-                            <div class="orders-detail-item">
-                                <span class="orders-detail-label">Thanh toán:</span>
-                                <span class="orders-detail-value">
-                                    <?php echo $paymentLabels[$order['payment_method']] ?? $order['payment_method']; ?>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="orders-item-actions">
-                        <a href="?page=users&module=orders&action=view&id=<?php echo $order['id']; ?>" 
-                           class="orders-action-btn orders-action-view">
-                            <i class="fas fa-eye"></i>
-                            Chi tiết
-                        </a>
-                        
-                        <?php if ($order['status'] === 'processing' || $order['status'] === 'pending'): ?>
-                        <a href="?page=users&module=orders&action=delete&id=<?php echo $order['id']; ?>" 
-                           class="orders-action-btn orders-action-delete"
-                           onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
-                            <i class="fas fa-times"></i>
-                            Hủy đơn hàng
-                        </a>
-                        <?php endif; ?>
-                        
-                        <?php if ($order['status'] === 'processing'): ?>
-                        <a href="?page=contact" class="orders-action-btn orders-action-support">
-                            <i class="fas fa-headset"></i>
-                            Hỗ trợ
-                        </a>
-                        <?php endif; ?>
-                        
-                        <?php if ($order['status'] === 'completed'): ?>
-                        <a href="#" class="orders-action-btn orders-action-reorder">
-                            <i class="fas fa-redo"></i>
-                            Đặt lại
-                        </a>
-                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -323,12 +327,12 @@ $paymentLabels = [
 // Apply filters when select changes
 function applyFilters() {
     const statusFilter = document.getElementById('statusFilter').value;
-    const typeFilter = document.getElementById('typeFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
     
     // Build URL with filter parameters
     const url = new URL(window.location.href);
     url.searchParams.set('status', statusFilter);
-    url.searchParams.set('type', typeFilter);
+    url.searchParams.set('category', categoryFilter);
     
     // Redirect to filtered page
     window.location.href = url.toString();

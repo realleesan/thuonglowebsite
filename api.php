@@ -84,6 +84,10 @@ try {
                     require_once __DIR__ . '/app/controllers/WebhookController.php';
                     $webhookController = new WebhookController();
                     $webhookController->handleSepayWebhook();
+                } elseif ($provider === 'payos') {
+                    require_once __DIR__ . '/app/controllers/WebhookController.php';
+                    $webhookController = new WebhookController();
+                    $webhookController->handlePayOSWebhook();
                 } else {
                     throw new Exception('Unknown webhook provider: ' . $provider, 400);
                 }

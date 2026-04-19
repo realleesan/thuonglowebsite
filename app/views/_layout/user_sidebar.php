@@ -21,7 +21,6 @@ $cartCount = 0;
 $wishlistCount = 0;
 
 $userName = $currentUser['name'] ?? 'Người dùng';
-$userLevel = ($currentUser['level'] ?? 'Bronze') . ' Member';
 ?>
 
 <div class="user-sidebar" id="userSidebar">
@@ -32,7 +31,6 @@ $userLevel = ($currentUser['level'] ?? 'Bronze') . ' Member';
         </div>
         <div class="user-info">
             <h4 class="user-name" id="userName"><?php echo htmlspecialchars($userName); ?></h4>
-            <span class="user-level" id="userLevel"><?php echo htmlspecialchars($userLevel); ?></span>
         </div>
     </div>
 

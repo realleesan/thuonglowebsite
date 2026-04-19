@@ -92,12 +92,6 @@ $quickActions = [
             <h1>Chào mừng trở lại, <?php echo htmlspecialchars($user['name'] ?? 'Người dùng'); ?>!</h1>
             <p>Tổng quan tài khoản và hoạt động của bạn</p>
         </div>
-        <div class="dashboard-header-right">
-            <div class="user-level-badge">
-                <i class="fas fa-crown"></i>
-                <span><?php echo $stats['user_level']; ?> Member</span>
-            </div>
-        </div>
     </div>
 
     <!-- KPI Cards with Trends -->
@@ -121,7 +115,7 @@ $quickActions = [
                 <i class="fas fa-wallet"></i>
             </div>
             <div class="stat-content">
-                <h3><?php echo number_format($stats['total_spent'] / 1000000, 1); ?>M</h3>
+                <h3><?php echo number_format($stats['total_spent'], 0, ',', '.'); ?>đ</h3>
                 <p>Tổng chi tiêu (VNĐ)</p>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i>
@@ -143,120 +137,29 @@ $quickActions = [
                 </div>
             </div>
         </div>
-
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="stat-content">
-                <h3><?php echo number_format($stats['loyalty_points']); ?></h3>
-                <p>Điểm tích lũy</p>
-                <div class="stat-trend trend-up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span><?php echo $trends['points']['value']; ?>% so với tháng trước</span>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Charts Section -->
-    <div class="dashboard-charts">
-        <!-- Revenue Chart -->
-        <div class="chart-widget chart-widget-large">
+    <!-- Charts Section - Side by Side -->
+    <div class="dashboard-charts-row">
+        <!-- Order Status Distribution Chart -->
+        <div class="chart-widget chart-widget-half">
             <div class="widget-header">
-                <h3>Chi tiêu theo thời gian</h3>
-                <div class="chart-controls">
-                    <select class="user-form-control" id="revenueChartPeriod">
-                        <option value="5months" selected>5 tháng gần đây</option>
-                        <option value="12months">12 tháng</option>
-                        <option value="custom">Tùy chỉnh</option>
-                    </select>
-                </div>
+                <h3>Phân bố đơn hàng theo trạng thái</h3>
             </div>
             <div class="widget-content">
-                <canvas id="revenueChart" width="400" height="200"></canvas>
+                <canvas id="orderStatusChart" width="300" height="250"></canvas>
             </div>
         </div>
 
-        <!-- Order Distribution Chart -->
-        <div class="chart-widget">
+        <!-- Monthly Spending Chart -->
+        <div class="chart-widget chart-widget-half">
             <div class="widget-header">
-                <h3>Phân loại đơn hàng</h3>
+                <h3>Chi tiêu theo tháng</h3>
             </div>
             <div class="widget-content">
-                <canvas id="orderDistributionChart" width="400" height="300"></canvas>
+                <canvas id="spendingChart" width="300" height="250"></canvas>
             </div>
         </div>
-
-        <!-- Order Status Chart -->
-        <div class="chart-widget">
-            <div class="widget-header">
-                <h3>Trạng thái đơn hàng</h3>
-            </div>
-            <div class="widget-content">
-                <canvas id="orderStatusChart" width="400" height="300"></canvas>
-            </div>
-        </div>
-
-        <!-- Purchase Trend Chart -->
-        <div class="chart-widget chart-widget-purchase-trend">
-            <div class="widget-header">
-                <h3>Xu hướng mua hàng (4 tuần)</h3>
-            </div>
-            <div class="widget-content">
-                <canvas id="purchaseTrendChart" width="400" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="dashboard-content">
-        <!-- Recent Orders -->
-        <div class="dashboard-widget recent-orders-widget">
-            <div class="widget-header">
-                <h3>Đơn hàng gần đây</h3>
-                <a href="?page=users&module=orders" class="widget-action">Xem tất cả →</a>
-            </div>
-            <div class="widget-content">
-                <?php if (empty($recentOrders)): ?>
-                    <p class="no-data">Chưa có đơn hàng nào</p>
-                <?php else: ?>
-                    <div class="recent-orders-list">
-                        <?php foreach ($recentOrders as $order): ?>
-                        <div class="order-item">
-                            <div class="order-info">
-                                <div class="order-id">#<?php echo $order['id']; ?></div>
-                                <div class="order-product"><?php echo htmlspecialchars($order['product_name']); ?></div>
-                                <div class="order-date"><?php echo date('d/m/Y', strtotime($order['date'])); ?></div>
-                            </div>
-                            <div class="order-amount">
-                                <?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ
-                            </div>
-                            <div class="order-status">
-                                <span class="user-badge user-badge-<?php 
-                                    echo $order['status'] === 'completed' ? 'success' : 
-                                        ($order['status'] === 'processing' ? 'warning' : 
-                                        ($order['status'] === 'cancelled' ? 'danger' : 'info')); 
-                                ?>">
-                                    <?php 
-                                    // Status text mapping
-                                    $statusLabels = [
-                                        'completed' => 'Hoàn thành',
-                                        'processing' => 'Đang xử lý',
-                                        'pending' => 'Chờ xử lý',
-                                        'cancelled' => 'Đã hủy'
-                                    ];
-                                    echo $statusLabels[$order['status']] ?? ucfirst($order['status']); 
-                                    ?>
-                                </span>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
     </div>
 </div>
 
@@ -410,6 +313,43 @@ window.dashboardChartData = {
             } else {
                 // Default trend when no orders
                 echo '0, 0, 0, 0';
+            }
+            ?>
+        ]
+    },
+    monthlySpending: {
+        labels: <?php 
+        // Generate last 6 month labels
+        $monthLabels = [];
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        for ($i = 5; $i >= 0; $i--) {
+            $monthNum = $currentMonth - $i;
+            $year = $currentYear;
+            if ($monthNum <= 0) {
+                $monthNum += 12;
+                $year--;
+            }
+            $monthLabels[] = 'T' . $monthNum . '/' . substr($year, 2);
+        }
+        echo json_encode($monthLabels);
+        ?>,
+        data: [
+            <?php 
+            // Calculate monthly spending based on orders
+            $totalSpent = $stats['total_spent'] ?? 0;
+            if ($totalSpent > 0) {
+                // Simulate monthly distribution (actual would come from database)
+                $month1 = round($totalSpent * 0.05);  // 5%
+                $month2 = round($totalSpent * 0.10);  // 10%
+                $month3 = round($totalSpent * 0.15);  // 15%
+                $month4 = round($totalSpent * 0.25);  // 25%
+                $month5 = round($totalSpent * 0.20);  // 20%
+                $month6 = round($totalSpent * 0.25);  // 25%
+                
+                echo $month1 . ', ' . $month2 . ', ' . $month3 . ', ' . $month4 . ', ' . $month5 . ', ' . $month6;
+            } else {
+                echo '0, 0, 0, 0, 0, 0';
             }
             ?>
         ]

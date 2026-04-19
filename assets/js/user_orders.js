@@ -281,3 +281,62 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add any additional initialization here
     console.log('Orders page fully loaded');
 });
+
+// View order data - Xem ngay functionality for completed orders
+function viewOrderData(productId) {
+    // First check if user is logged in
+    fetch('api.php?action=getUserData')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success || !data.user) {
+                // Not logged in, redirect to login
+                window.location.href = '?page=login&redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+            
+            // Deduct quota first, then redirect with token
+            fetch('api.php?action=deductQuota&product_id=' + productId, {
+                method: 'POST'
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => {
+                        throw new Error('HTTP ' + res.status + ': ' + (text || 'Server error'));
+                    });
+                }
+                return res.text();
+            })
+            .then(text => {
+                if (!text || !text.trim()) {
+                    throw new Error('Empty response from server');
+                }
+                try {
+                    return JSON.parse(text);
+                } catch(e) {
+                    throw new Error('Invalid JSON: ' + text.substring(0, 200));
+                }
+            })
+            .then(quotaResult => {
+                console.log('Quota result:', quotaResult);
+                
+                if (quotaResult.success && quotaResult.access_token) {
+                    // Redirect to data list page with token
+                    window.location.href = '?page=product-data&id=' + productId + '&token=' + quotaResult.access_token;
+                } else if (quotaResult.success) {
+                    // Fallback: redirect to user orders page
+                    window.location.href = '?page=users&module=orders';
+                } else {
+                    // Show error
+                    alert(quotaResult.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(err => {
+                console.error('Error deducting quota:', err);
+                alert('Lỗi: ' + err.message);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Lỗi xác thực. Vui lòng đăng nhập lại.');
+        });
+}

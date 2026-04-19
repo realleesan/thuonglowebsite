@@ -83,31 +83,21 @@ $paymentLabels = [
                 <p>Đặt hàng ngày <?php echo date('d/m/Y H:i', strtotime($order['date'])); ?></p>
             </div>
             <div class="order-detail-actions">
-                <button onclick="window.print()" class="orders-btn orders-btn-secondary">
-                    <i class="fas fa-print"></i>
-                    In đơn hàng
-                </button>
                 
                 <?php if ($order['status'] === 'processing' || $order['status'] === 'pending'): ?>
-                <a href="?page=contact" class="orders-btn orders-btn-secondary">
-                    <i class="fas fa-headset"></i>
-                    Liên hệ hỗ trợ
-                </a>
                 <?php endif; ?>
                 
                 <?php if ($order['status'] === 'completed'): ?>
-                <button onclick="handleReorder('<?php echo $order['id']; ?>')" class="orders-btn orders-btn-primary">
-                    <i class="fas fa-redo"></i>
-                    Đặt lại
-                </button>
                 <?php endif; ?>
             </div>
         </div>
 
-        <!-- Order Status -->
-        <div class="order-status-card">
-            <div class="order-status-info">
-                <div class="order-status-badge">
+        <!-- Order Detail Card -->
+        <div class="order-detail-main-card">
+            <!-- Header with Status -->
+            <div class="order-detail-card-header">
+                <div class="order-detail-title">
+                    <h3>Thông tin đơn hàng</h3>
                     <span class="orders-badge orders-badge-<?php 
                         echo $order['status'] === 'completed' ? 'success' : 
                             ($order['status'] === 'processing' ? 'warning' : 
@@ -116,201 +106,109 @@ $paymentLabels = [
                         <?php echo $statusLabels[$order['status']] ?? $order['status']; ?>
                     </span>
                 </div>
-                <div class="order-status-text">
-                    <h3>
-                        <?php 
-                        switch($order['status']) {
-                            case 'completed':
-                                echo 'Đơn hàng đã hoàn thành';
-                                break;
-                            case 'processing':
-                                echo 'Đơn hàng đang được xử lý';
-                                break;
-                            case 'pending':
-                                echo 'Đơn hàng đang chờ xử lý';
-                                break;
-                            case 'cancelled':
-                                echo 'Đơn hàng đã bị hủy';
-                                break;
-                            default:
-                                echo 'Trạng thái không xác định';
-                        }
-                        ?>
-                    </h3>
-                    <p>
-                        <?php 
-                        switch($order['status']) {
-                            case 'completed':
-                                echo 'Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đã được hoàn thành thành công.';
-                                break;
-                            case 'processing':
-                                echo 'Chúng tôi đang xử lý đơn hàng của bạn. Bạn sẽ nhận được thông báo khi hoàn thành.';
-                                break;
-                            case 'pending':
-                                echo 'Đơn hàng của bạn đang chờ được xác nhận và xử lý.';
-                                break;
-                            case 'cancelled':
-                                echo 'Đơn hàng này đã bị hủy. Nếu có thắc mắc, vui lòng liên hệ hỗ trợ.';
-                                break;
-                        }
-                        ?>
-                    </p>
-                </div>
+                <p class="order-status-desc">
+                    <?php 
+                    switch($order['status']) {
+                        case 'completed': echo 'Đơn hàng đã hoàn thành. Cảm ơn bạn đã mua hàng!'; break;
+                        case 'processing': echo 'Đơn hàng đang được xử lý.'; break;
+                        case 'pending': echo 'Đơn hàng đang chờ xử lý.'; break;
+                        case 'cancelled': echo 'Đơn hàng đã bị hủy.'; break;
+                    }
+                    ?>
+                </p>
             </div>
-        </div>
-
-        <!-- Order Content Grid -->
-        <div class="order-detail-content">
-            <!-- Order Information -->
-            <div class="order-info-card">
-                <div class="order-card-header">
-                    <h3>Thông tin đơn hàng</h3>
-                </div>
-                <div class="order-card-content">
-                    <div class="order-product-detail">
+            
+            <div class="order-detail-card-body">
+                <!-- Product with Actions -->
+                <div class="order-product-full">
+                    <div class="order-product-main">
                         <?php if (!empty($order['product_image'])): ?>
-                        <div class="order-product-image">
-                            <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                        <div class="order-product-img-wrap">
+                            <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>">
                         </div>
                         <?php else: ?>
-                        <div class="order-product-image">
-                            <div class="order-product-placeholder">
-                                <i class="fas fa-<?php 
-                                    echo $order['type'] === 'data_nguon_hang' ? 'database' : 
-                                        ($order['type'] === 'van_chuyen' ? 'truck' : 
-                                        ($order['type'] === 'dich_vu_tt' ? 'credit-card' : 
-                                        ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); 
-                                ?>"></i>
-                            </div>
+                        <div class="order-product-img-wrap placeholder">
+                            <i class="fas fa-<?php echo $order['type'] === 'data_nguon_hang' ? 'database' : ($order['type'] === 'van_chuyen' ? 'truck' : ($order['type'] === 'dich_vu_tt' ? 'credit-card' : ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); ?>"></i>
                         </div>
                         <?php endif; ?>
-                        <div class="order-product-info">
-                            <h4><?php echo htmlspecialchars($order['product_name']); ?></h4>
+                        <div class="order-product-details">
+                            <h4 class="order-product-name"><?php echo htmlspecialchars($order['product_name']); ?></h4>
                             <?php if (!empty($order['category_name'])): ?>
-                            <p class="order-product-category">
-                                <i class="fas fa-folder"></i>
-                                <?php echo htmlspecialchars($order['category_name']); ?>
-                            </p>
+                            <span class="order-product-cat"><i class="fas fa-folder"></i> <?php echo htmlspecialchars($order['category_name']); ?></span>
                             <?php endif; ?>
-                            <div class="order-product-price">
-                                <?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ
-                            </div>
                         </div>
+                        <div class="order-product-amount"><?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ</div>
                     </div>
                     
-                    <div class="order-details-grid">
-                        <div class="order-detail-row">
-                            <span class="order-detail-label">Mã đơn hàng:</span>
-                            <span class="order-detail-value">#<?php echo htmlspecialchars($order['id']); ?></span>
+                    <!-- Product Actions Row -->
+                    <?php if ($order['status'] === 'completed' && !empty($order['product_id']) && ($order['quota_remaining'] ?? 0) > 0 && !($order['is_expired'] ?? false)): ?>
+                    <div class="order-product-actions-row">
+                        <button class="btn-action btn-view-data" onclick="viewOrderData(<?php echo (int)$order['product_id']; ?>)">
+                            <i class="fas fa-eye"></i> Xem dữ liệu
+                        </button>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Order & Customer Info -->
+                <div class="order-meta-section">
+                    <div class="order-meta-row">
+                        <div class="meta-item">
+                            <span class="meta-label">Mã đơn:</span>
+                            <span class="meta-value">#<?php echo htmlspecialchars($order['id']); ?></span>
                         </div>
-                        
-                        <div class="order-detail-row">
-                            <span class="order-detail-label">Ngày đặt:</span>
-                            <span class="order-detail-value"><?php echo date('d/m/Y H:i', strtotime($order['date'])); ?></span>
+                        <div class="meta-item">
+                            <span class="meta-label">Ngày đặt:</span>
+                            <span class="meta-value"><?php echo date('d/m/Y H:i', strtotime($order['date'])); ?></span>
                         </div>
-                        
-                        <div class="order-detail-row">
-                            <span class="order-detail-label">Phương thức thanh toán:</span>
-                            <span class="order-detail-value"><?php echo $paymentLabels[$order['payment_method']] ?? $order['payment_method']; ?></span>
+                    </div>
+                    <div class="order-meta-row">
+                        <div class="meta-item">
+                            <span class="meta-label">Thanh toán:</span>
+                            <span class="meta-value"><?php echo $paymentLabels[$order['payment_method']] ?? $order['payment_method']; ?></span>
                         </div>
-                        
-                        <div class="order-detail-row">
-                            <span class="order-detail-label">Mã giao dịch:</span>
-                            <span class="order-detail-value"><?php echo $orderDetails['payment_info']['transaction_id']; ?></span>
+                        <div class="meta-item">
+                            <span class="meta-label">Mã GD:</span>
+                            <span class="meta-value"><?php echo $order['order_number'] ?? 'N/A'; ?></span>
+                        </div>
+                    </div>
+                    <div class="order-meta-row">
+                        <div class="meta-item">
+                            <span class="meta-label">Khách hàng:</span>
+                            <span class="meta-value"><?php echo htmlspecialchars($user['fullname'] ?? $user['name'] ?? 'N/A'); ?></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Email:</span>
+                            <span class="meta-value"><?php echo htmlspecialchars($user['email'] ?? 'N/A'); ?></span>
+                        </div>
+                    </div>
+                    <div class="order-meta-row">
+                        <div class="meta-item">
+                            <span class="meta-label">SĐT:</span>
+                            <span class="meta-value"><?php echo !empty($user['phone']) ? htmlspecialchars($user['phone']) : 'N/A'; ?></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Địa chỉ:</span>
+                            <span class="meta-value"><?php echo !empty($user['address']) ? htmlspecialchars($user['address']) : 'N/A'; ?></span>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Customer Information -->
-            <div class="order-info-card">
-                <div class="order-card-header">
-                    <h3>Thông tin khách hàng</h3>
-                </div>
-                <div class="order-card-content">
-                    <div class="customer-info-grid">
-                        <div class="customer-info-item">
-                            <div class="customer-info-label">Họ và tên:</div>
-                            <div class="customer-info-value"><?php echo htmlspecialchars($orderDetails['customer_info']['name']); ?></div>
-                        </div>
-                        
-                        <div class="customer-info-item">
-                            <div class="customer-info-label">Email:</div>
-                            <div class="customer-info-value"><?php echo htmlspecialchars($orderDetails['customer_info']['email']); ?></div>
-                        </div>
-                        
-                        <div class="customer-info-item">
-                            <div class="customer-info-label">Số điện thoại:</div>
-                            <div class="customer-info-value"><?php echo htmlspecialchars($orderDetails['customer_info']['phone']); ?></div>
-                        </div>
-                        
-                        <div class="customer-info-item">
-                            <div class="customer-info-label">Địa chỉ:</div>
-                            <div class="customer-info-value"><?php echo htmlspecialchars($orderDetails['customer_info']['address']); ?></div>
-                        </div>
+                
+                <!-- Payment Summary -->
+                <div class="order-payment-box">
+                    <div class="payment-line">
+                        <span class="pay-label">Tạm tính:</span>
+                        <span class="pay-value"><?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Payment Summary -->
-            <div class="order-info-card">
-                <div class="order-card-header">
-                    <h3>Tóm tắt thanh toán</h3>
-                </div>
-                <div class="order-card-content">
-                    <div class="payment-summary">
-                        <div class="payment-row">
-                            <span class="payment-label">Tạm tính:</span>
-                            <span class="payment-value"><?php echo number_format($orderDetails['payment_info']['subtotal'], 0, ',', '.'); ?> VNĐ</span>
-                        </div>
-                        
-                        <?php if ($orderDetails['payment_info']['discount'] > 0): ?>
-                        <div class="payment-row">
-                            <span class="payment-label">Giảm giá:</span>
-                            <span class="payment-value payment-discount">-<?php echo number_format($orderDetails['payment_info']['discount'], 0, ',', '.'); ?> VNĐ</span>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($orderDetails['payment_info']['tax'] > 0): ?>
-                        <div class="payment-row">
-                            <span class="payment-label">Thuế:</span>
-                            <span class="payment-value"><?php echo number_format($orderDetails['payment_info']['tax'], 0, ',', '.'); ?> VNĐ</span>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <div class="payment-row payment-total">
-                            <span class="payment-label">Tổng cộng:</span>
-                            <span class="payment-value"><?php echo number_format($orderDetails['payment_info']['total'], 0, ',', '.'); ?> VNĐ</span>
-                        </div>
+                    <?php if (($order['discount'] ?? 0) > 0): ?>
+                    <div class="payment-line">
+                        <span class="pay-label">Giảm giá:</span>
+                        <span class="pay-value discount">-<?php echo number_format($order['discount'], 0, ',', '.'); ?> VNĐ</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Order Timeline -->
-            <div class="order-info-card order-timeline-card">
-                <div class="order-card-header">
-                    <h3>Lịch sử đơn hàng</h3>
-                </div>
-                <div class="order-card-content">
-                    <div class="order-timeline">
-                        <?php foreach ($orderDetails['order_timeline'] as $index => $timeline): ?>
-                        <div class="timeline-item <?php echo $timeline['completed'] ? 'timeline-completed' : 'timeline-pending'; ?>">
-                            <div class="timeline-marker">
-                                <?php if ($timeline['completed']): ?>
-                                    <i class="fas fa-check"></i>
-                                <?php else: ?>
-                                    <i class="fas fa-clock"></i>
-                                <?php endif; ?>
-                            </div>
-                            <div class="timeline-content">
-                                <div class="timeline-title"><?php echo htmlspecialchars($timeline['status']); ?></div>
-                                <div class="timeline-description"><?php echo htmlspecialchars($timeline['description']); ?></div>
-                                <?php if ($timeline['date']): ?>
-                                <div class="timeline-date"><?php echo date('d/m/Y H:i', strtotime($timeline['date'])); ?></div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <div class="payment-line total-line">
+                        <span class="pay-label">Tổng cộng:</span>
+                        <span class="pay-value total-amount"><?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ</span>
                     </div>
                 </div>
             </div>
@@ -325,11 +223,6 @@ $paymentLabels = [
                 Hủy đơn hàng
             </a>
             <?php endif; ?>
-            
-            <a href="?page=contact" class="orders-btn orders-btn-secondary">
-                <i class="fas fa-headset"></i>
-                Liên hệ hỗ trợ
-            </a>
             
             <a href="?page=users&module=orders" class="orders-btn orders-btn-primary">
                 <i class="fas fa-arrow-left"></i>

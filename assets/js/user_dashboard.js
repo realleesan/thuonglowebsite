@@ -26,13 +26,82 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (chartData) {
             // Initialize all charts with data from PHP
-            if (chartData.revenue) initRevenueChart(chartData.revenue);
-            if (chartData.orderDistribution) initOrderDistributionChart(chartData.orderDistribution);
             if (chartData.orderStatus) initOrderStatusChart(chartData.orderStatus);
+            if (chartData.monthlySpending) initSpendingChart(chartData.monthlySpending);
+            if (chartData.orderDistribution) initCategoryChart(chartData.orderDistribution);
+            if (chartData.revenue) initRevenueChart(chartData.revenue);
             if (chartData.purchaseTrend) initPurchaseTrendChart(chartData.purchaseTrend);
         } else {
             console.warn('No chart data available from server');
         }
+    }
+
+    function initSpendingChart(data) {
+        const spendingCtx = document.getElementById('spendingChart');
+        if (!spendingCtx || !data.labels || !data.data) return;
+
+        new Chart(spendingCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Chi tiêu (VNĐ)',
+                    data: data.data,
+                    backgroundColor: colors.primary,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#ffffff',
+                        titleColor: '#374151',
+                        bodyColor: '#374151',
+                        borderColor: colors.border,
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Chi tiêu: ' + context.parsed.y.toLocaleString('vi-VN') + 'đ';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: colors.border,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000000) return (value / 1000000) + 'M';
+                                if (value >= 1000) return (value / 1000) + 'K';
+                                return value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6B7280',
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function initRevenueChart(data) {
@@ -106,31 +175,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function initOrderDistributionChart(data) {
-        const orderDistributionCtx = document.getElementById('orderDistributionChart');
-        if (!orderDistributionCtx || !data.labels || !data.data) return;
-
-        // Generate colors dynamically based on number of categories
-        const dynamicColors = [];
-        const baseColors = [colors.primary, colors.success, colors.info, colors.warning, colors.danger];
-        
-        for (let i = 0; i < data.labels.length; i++) {
-            dynamicColors.push(baseColors[i % baseColors.length]);
+    function initOrderStatusChart(data) {
+        const orderStatusCtx = document.getElementById('orderStatusChart');
+        if (!orderStatusCtx || !data.labels || !data.data || data.labels.length === 0) {
+            // Show empty state message
+            if (orderStatusCtx) {
+                const ctx = orderStatusCtx.getContext('2d');
+                ctx.clearRect(0, 0, orderStatusCtx.width, orderStatusCtx.height);
+                ctx.font = '14px Inter';
+                ctx.fillStyle = '#9ca3af';
+                ctx.textAlign = 'center';
+                ctx.fillText('Chưa có dữ liệu đơn hàng', orderStatusCtx.width / 2, orderStatusCtx.height / 2);
+            }
+            return;
         }
 
-        new Chart(orderDistributionCtx.getContext('2d'), {
+        // Status colors mapping
+        const statusColorMap = {
+            'Hoàn thành': colors.success,
+            'Đang xử lý': colors.info,
+            'Chờ xử lý': colors.warning,
+            'Đã hủy': colors.danger
+        };
+        
+        const dynamicColors = data.labels.map(label => statusColorMap[label] || colors.primary);
+
+        new Chart(orderStatusCtx.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: data.labels,
                 datasets: [{
                     data: data.data,
                     backgroundColor: dynamicColors,
-                    borderWidth: 0
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '60%',
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -139,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             usePointStyle: true,
                             pointStyle: 'circle',
                             font: {
-                                size: 11
+                                size: 12
                             }
                         }
                     },
@@ -150,10 +234,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         borderColor: colors.border,
                         borderWidth: 1,
                         cornerRadius: 8,
-                        displayColors: false,
                         callbacks: {
                             label: function(context) {
-                                return context.label + ': ' + context.parsed + '%';
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' đơn (' + percentage + '%)';
                             }
                         }
                     }
@@ -162,19 +247,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function initOrderStatusChart(data) {
-        const orderStatusCtx = document.getElementById('orderStatusChart');
-        if (!orderStatusCtx || !data.labels || !data.data) return;
-
-        // Generate colors dynamically based on number of status types
-        const dynamicColors = [];
-        const statusColors = [colors.success, colors.info, colors.warning, colors.danger];
-        
-        for (let i = 0; i < data.labels.length; i++) {
-            dynamicColors.push(statusColors[i % statusColors.length]);
+    function initCategoryChart(data) {
+        const categoryCtx = document.getElementById('categoryChart');
+        if (!categoryCtx || !data.labels || !data.data || data.labels.length === 0) {
+            // Show empty state message
+            if (categoryCtx) {
+                const ctx = categoryCtx.getContext('2d');
+                ctx.clearRect(0, 0, categoryCtx.width, categoryCtx.height);
+                ctx.font = '14px Inter';
+                ctx.fillStyle = '#9ca3af';
+                ctx.textAlign = 'center';
+                ctx.fillText('Chưa có dữ liệu danh mục', categoryCtx.width / 2, categoryCtx.height / 2);
+            }
+            return;
         }
 
-        new Chart(orderStatusCtx.getContext('2d'), {
+        // Generate colors dynamically
+        const baseColors = [colors.primary, colors.success, colors.info, colors.warning, colors.danger];
+        const dynamicColors = data.labels.map((_, i) => baseColors[i % baseColors.length]);
+
+        new Chart(categoryCtx.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: data.labels,
@@ -182,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Số đơn hàng',
                     data: data.data,
                     backgroundColor: dynamicColors,
-                    borderRadius: 4,
+                    borderRadius: 6,
                     borderSkipped: false
                 }]
             },
@@ -200,7 +292,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         borderColor: colors.border,
                         borderWidth: 1,
                         cornerRadius: 8,
-                        displayColors: false,
                         callbacks: {
                             label: function(context) {
                                 return context.parsed.y + ' đơn hàng';
@@ -214,6 +305,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         grid: {
                             color: colors.border,
                             drawBorder: false
+                        },
+                        ticks: {
+                            precision: 0
                         }
                     },
                     x: {

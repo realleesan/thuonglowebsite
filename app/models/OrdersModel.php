@@ -302,9 +302,12 @@ class OrdersModel extends BaseModel {
                    oi.product_name,
                    oi.product_type as type,
                    oi.product_id,
+                   oi.expiry_date,
+                   oi.used_quota,
                    p.name as product_name_db,
                    p.image as product_image,
                    p.type as product_type_db,
+                   p.quota as product_quota,
                    c.name as category_name,
                    COUNT(oi.id) as items_count
             FROM {$this->table} o

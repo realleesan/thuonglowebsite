@@ -126,6 +126,18 @@ $config = [
         'test_mode' => ($environment === 'local'), // Enable test mode in local
     ],
     
+    // PayOS Payout Configuration (for affiliate withdrawals)
+    'payos' => [
+        'enabled' => true,
+        'client_id' => Env::get('PAYOS_CLIENT_ID', 'YOUR_PAYOS_CLIENT_ID_HERE'),
+        'api_key' => Env::get('PAYOS_API_KEY', 'YOUR_PAYOS_API_KEY_HERE'),
+        'checksum_key' => Env::get('PAYOS_CHECKSUM_KEY', 'YOUR_PAYOS_CHECKSUM_KEY_HERE'),
+        'api_url' => 'https://api-merchant.payos.vn',
+        'test_mode' => ($environment === 'local'), // Enable test mode in local
+        'webhook_secret' => Env::get('PAYOS_WEBHOOK_SECRET', 'YOUR_PAYOS_WEBHOOK_SECRET_HERE'),
+        'auto_complete_on_success' => true, // Auto complete withdrawal when payout succeeds
+    ],
+    
     // Commission & Wallet Configuration
     'commission' => [
         'enabled' => true,
