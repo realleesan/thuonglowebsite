@@ -9,8 +9,8 @@ require_once __DIR__ . '/BaseModel.php';
 class CategoriesModel extends BaseModel {
     protected $table = 'categories';
     protected $fillable = [
-        'name', 'slug', 'description', 'image', 'parent_id', 
-        'sort_order', 'status'
+        'name', 'slug', 'description', 'image', 'parent_id',
+        'sort_order', 'status', 'show_in_menu', 'featured', 'show_in_filter'
     ];
     
     /**
@@ -19,6 +19,13 @@ class CategoriesModel extends BaseModel {
     public function getActive() {
         // Use direct query to avoid query builder issues
         return $this->query("SELECT * FROM categories WHERE status = 'active' ORDER BY id ASC") ?? [];
+    }
+
+    /**
+     * Get all active categories for filter display (show_in_filter = 1)
+     */
+    public function getActiveForFilter() {
+        return $this->query("SELECT * FROM categories WHERE status = 'active' AND show_in_filter = 1 ORDER BY sort_order ASC") ?? [];
     }
     
     /**
@@ -29,14 +36,14 @@ class CategoriesModel extends BaseModel {
     }
     
     /**
-     * Get categories with product count
+     * Get categories with product count (for filter display)
      */
     public function getWithProductCount() {
         $sql = "
             SELECT c.*, COUNT(p.id) as product_count
             FROM {$this->table} c
             LEFT JOIN products p ON c.id = p.category_id
-            WHERE c.status = 'active'
+            WHERE c.status = 'active' AND c.show_in_filter = 1
             GROUP BY c.id
             ORDER BY c.sort_order ASC
         ";
@@ -48,10 +55,14 @@ class CategoriesModel extends BaseModel {
      * Get parent categories (top level)
      */
     public function getParentCategories() {
-        return $this->where('parent_id', null)
-                   ->where('status', 'active')
-                   ->orderBy('sort_order', 'ASC')
-                   ->get();
+        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_menu = 1 ORDER BY sort_order ASC") ?? [];
+    }
+
+    /**
+     * Get parent categories for filter/display (show_in_filter = 1)
+     */
+    public function getParentCategoriesForFilter() {
+        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_filter = 1 ORDER BY sort_order ASC") ?? [];
     }
     
     /**
@@ -190,31 +201,31 @@ class CategoriesModel extends BaseModel {
         
         return $stats;
     }
-    
+
     /**
      * Get categories with product counts (alias for existing method)
      */
     public function getWithProductCounts() {
         return $this->getWithProductCount();
     }
-    
+
     /**
-     * Get featured categories for home page
+     * Get featured categories for home page (featured = 1 and show_in_filter = 1)
      */
     public function getFeaturedCategories($limit = 9) {
         $sql = "
             SELECT c.*, COUNT(p.id) as product_count
             FROM {$this->table} c
             LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
-            WHERE c.status = 'active' AND c.parent_id IS NULL
+            WHERE c.status = 'active' AND c.featured = 1 AND c.show_in_filter = 1
             GROUP BY c.id
             ORDER BY c.sort_order ASC
             LIMIT {$limit}
         ";
-        
+
         return $this->db->query($sql);
     }
-    
+
     /**
      * Search categories
      */

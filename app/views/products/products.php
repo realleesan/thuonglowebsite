@@ -396,7 +396,7 @@ if ($fromCount > $totalFiltered) {
                                                         <label>
                                                             <input type="radio" name="category" value="" 
                                                                    <?php echo empty($categoryId) ? 'checked' : ''; ?>>
-                                                            <span>Tìm kiếm nhiều nhất</span>
+                                                            <span>Tất cả danh mục</span>
                                                         </label>
                                                         <span class="count">(<?php echo $totalProducts; ?>)</span>
                                                     </li>

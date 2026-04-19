@@ -73,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'keywords' => $_POST['keywords'] ?? '',
             'sort_order' => (int)($_POST['sort_order'] ?? 0),
             'show_in_menu' => isset($_POST['show_in_menu']) ? 1 : 0,
-            'featured' => isset($_POST['featured']) ? 1 : 0
+            'featured' => isset($_POST['featured']) ? 1 : 0,
+            'show_in_filter' => isset($_POST['show_in_filter']) ? 1 : 0
         ];
         
         // Only update image if a new file was uploaded
@@ -145,7 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'keywords' => $category['keywords'] ?? '',
         'sort_order' => $category['sort_order'] ?? 0,
         'show_in_menu' => $category['show_in_menu'] ?? 1,
-        'featured' => $category['featured'] ?? 0
+        'featured' => $category['featured'] ?? 0,
+        'show_in_filter' => $category['show_in_filter'] ?? 1
     ];
 }
 ?>
@@ -194,155 +196,173 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Edit Category Form -->
     <div class="form-container">
         <form method="POST" class="admin-form" enctype="multipart/form-data">
-            <div class="form-grid">
-                <!-- Left Column -->
-                <div class="form-column">
-                    <div class="form-section">
-                        <h3 class="section-title">Thông Tin Cơ Bản</h3>
-                        
-                        <div class="form-group">
-                            <label for="name" class="required">Tên danh mục</label>
-                            <input type="text" id="name" name="name" 
-                                   value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" 
-                                   placeholder="Nhập tên danh mục" required>
-                            <small>Tên hiển thị của danh mục</small>
-                        </div>
 
-                        <div class="form-group">
-                            <label for="slug" class="required">Slug</label>
-                            <input type="text" id="slug" name="slug" 
-                                   value="<?= htmlspecialchars($_POST['slug'] ?? '') ?>" 
-                                   placeholder="ten-danh-muc" required>
-                            <small>URL thân thiện (chỉ chữ thường, số và dấu gạch ngang)</small>
-                            <button type="button" id="generateSlug" class="btn btn-sm btn-outline">
-                                <i class="fas fa-magic"></i>
-                                Tự động tạo từ tên
-                            </button>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="status">Trạng thái</label>
-                            <select id="status" name="status">
-                                <option value="active" <?= (($_POST['status'] ?? 'active') == 'active') ? 'selected' : '' ?>>
-                                    Hoạt động
-                                </option>
-                                <option value="inactive" <?= (($_POST['status'] ?? '') == 'inactive') ? 'selected' : '' ?>>
-                                    Không hoạt động
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-section">
-                        <h3 class="section-title">Mô Tả Danh Mục</h3>
-                        
-                        <div class="form-group">
-                            <label for="description" class="required">Mô tả chi tiết</label>
-                            <textarea id="description" name="description" rows="8" 
-                                      placeholder="Nhập mô tả chi tiết về danh mục..." required><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
-                            <small>Mô tả sẽ hiển thị trên trang danh mục</small>
-                        </div>
-                    </div>
+            <!-- Tab Navigation -->
+            <div class="category-details-tabs">
+                <div class="tabs-header">
+                    <button type="button" class="tab-btn active" data-tab="tab-basic">
+                        <i class="fas fa-info-circle"></i>
+                        Thông Tin Cơ Bản
+                    </button>
+                    <button type="button" class="tab-btn" data-tab="tab-image">
+                        <i class="fas fa-image"></i>
+                        Hình Ảnh
+                    </button>
+                    <button type="button" class="tab-btn" data-tab="tab-seo">
+                        <i class="fas fa-search"></i>
+                        SEO
+                    </button>
+                    <button type="button" class="tab-btn" data-tab="tab-display">
+                        <i class="fas fa-cog"></i>
+                        Cài Đặt Hiển Thị
+                    </button>
                 </div>
 
-                <!-- Right Column -->
-                <div class="form-column">
-                    <div class="form-section">
-                        <h3 class="section-title">Hình Ảnh Danh Mục</h3>
-                        
-                        <div class="form-group">
-                            <label for="image">Hình ảnh đại diện</label>
-                            <div class="image-upload-container">
-                                <div class="image-preview" id="imagePreview" onclick="document.getElementById('image').click()" style="cursor:pointer;">
-                                    <?php if (!empty($category['image'])): ?>
-                                        <img src="<?= htmlspecialchars($category['image']) ?>" 
-                                             alt="Current image" 
-                                             id="currentImage"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                        <div class="no-image-placeholder" style="display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;">
-                                            <i class="fas fa-image"></i>
-                                            <p>Chọn hình ảnh</p>
-                                        </div>
-                                    <?php else: ?>
-                                        <i class="fas fa-image"></i>
-                                        <p>Chọn hình ảnh</p>
-                                    <?php endif; ?>
-                                </div>
-                                <input type="file" id="image" name="image" accept="image/*" class="image-input" style="display:none;" onchange="previewUploadedImage(this)">
-                                <div class="image-upload-info">
-                                    <small>Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
-                                    <?php if (!empty($category['image'])): ?>
-                                        <small>Click vào ảnh để thay đổi</small>
-                                    <?php endif; ?>
+                <div class="tabs-content">
+                    <!-- Tab 1: Thông Tin Cơ Bản -->
+                    <div class="tab-pane active" id="tab-basic">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label for="name" class="required">Tên danh mục</label>
+                                <input type="text" id="name" name="name"
+                                       value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
+                                       placeholder="Nhập tên danh mục" required>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="slug" class="required">Slug </label>
+                                <div class="input-with-btn">
+                                    <input type="text" id="slug" name="slug"
+                                           value="<?= htmlspecialchars($_POST['slug'] ?? '') ?>"
+                                           placeholder="ten-danh-muc" required>
+                                    <button type="button" id="generateSlug" class="btn btn-sm btn-outline" title="Tự động tạo từ tên">
+                                        <i class="fas fa-magic"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="form-group" style="margin-top:16px;">
-                            <label for="image_url">Hoặc nhập URL ảnh</label>
-                            <input type="url" id="image_url" name="image_url" 
-                                   value="<?= htmlspecialchars($category['image'] ?? '') ?>" 
-                                   placeholder="https://example.com/image.jpg">
-                            <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
+
+                        <div class="form-group">
+                            <label for="description" class="required">Mô tả danh mục</label>
+                            <textarea id="description" name="description" rows="6"
+                                      placeholder="Mô tả chi tiết về danh mục..." required><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h3 class="section-title">SEO & Metadata</h3>
-                        
+                    <!-- Tab 2: Hình Ảnh -->
+                    <div class="tab-pane" id="tab-image">
                         <div class="form-group">
-                            <label for="meta_title">Tiêu đề SEO</label>
-                            <input type="text" id="meta_title" name="meta_title" 
-                                   value="<?= htmlspecialchars($_POST['meta_title'] ?? '') ?>" 
-                                   placeholder="Tiêu đề tối ưu cho SEO">
-                            <small>Tối đa 60 ký tự</small>
+                            <label>Hình ảnh đại diện danh mục</label>
+                            <div class="image-upload-box" id="imagePreview" onclick="document.getElementById('image').click()">
+                                <?php if (!empty($category['image'])): ?>
+                                    <img src="<?= htmlspecialchars($category['image']) ?>" alt="Current image" id="currentImage">
+                                    <div class="image-overlay">
+                                        <span><i class="fas fa-camera"></i> Click để thay đổi ảnh</span>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="image-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Click để tải ảnh lên</span>
+                                        <small>Hoặc kéo thả ảnh vào đây</small>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <input type="file" id="image" name="image" accept="image/*" style="display:none;" onchange="previewUploadedImage(this)">
+
+                            <div class="image-input-group">
+                                <label>Hoặc nhập URL ảnh</label>
+                                <input type="url" id="image_url" name="image_url"
+                                       value="<?= htmlspecialchars($category['image'] ?? '') ?>"
+                                       placeholder="https://example.com/image.jpg">
+                                <small class="input-hint">Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: SEO -->
+                    <div class="tab-pane" id="tab-seo">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label for="meta_title">Tiêu đề SEO</label>
+                                <input type="text" id="meta_title" name="meta_title" maxlength="60"
+                                       value="<?= htmlspecialchars($_POST['meta_title'] ?? '') ?>"
+                                       placeholder="Tiêu đề hiển thị trên Google">
+                                <small>Tối đa 60 ký tự</small>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="keywords">Từ khóa</label>
+                                <input type="text" id="keywords" name="keywords"
+                                       value="<?= htmlspecialchars($_POST['keywords'] ?? '') ?>"
+                                       placeholder="từ khóa 1, từ khóa 2, từ khóa 3">
+                                <small>Phân cách bằng dấu phẩy</small>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label for="meta_description">Mô tả SEO</label>
-                            <textarea id="meta_description" name="meta_description" rows="3" 
-                                      placeholder="Mô tả ngắn gọn cho SEO"><?= htmlspecialchars($_POST['meta_description'] ?? '') ?></textarea>
+                            <textarea id="meta_description" name="meta_description" rows="4" maxlength="160"
+                                      placeholder="Mô tả ngắn gọn hiển thị trên Google"><?= htmlspecialchars($_POST['meta_description'] ?? '') ?></textarea>
                             <small>Tối đa 160 ký tự</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="keywords">Từ khóa SEO</label>
-                            <input type="text" id="keywords" name="keywords" 
-                                   value="<?= htmlspecialchars($_POST['keywords'] ?? '') ?>" 
-                                   placeholder="từ khóa 1, từ khóa 2, từ khóa 3">
-                            <small>Phân cách bằng dấu phẩy</small>
                         </div>
                     </div>
 
-                    <div class="form-section">
-                        <h3 class="section-title">Cài Đặt Hiển Thị</h3>
-                        
-                        <div class="form-group">
-                            <label for="sort_order">Thứ tự sắp xếp</label>
-                            <input type="number" id="sort_order" name="sort_order" 
-                                   value="<?= htmlspecialchars($_POST['sort_order'] ?? '0') ?>" 
-                                   placeholder="0" min="0">
-                            <small>Số càng nhỏ càng hiển thị trước</small>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="checkbox-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="show_in_menu" value="1" 
-                                           <?= (($_POST['show_in_menu'] ?? '1') == '1') ? 'checked' : '' ?>>
-                                    <span class="checkmark"></span>
-                                    Hiển thị trong menu chính
-                                </label>
+                    <!-- Tab 4: Cài Đặt Hiển Thị -->
+                    <div class="tab-pane" id="tab-display">
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label for="status">Trạng thái</label>
+                                <select id="status" name="status">
+                                    <option value="active" <?= (($_POST['status'] ?? 'active') == 'active') ? 'selected' : '' ?>>Hoạt động</option>
+                                    <option value="inactive" <?= (($_POST['status'] ?? '') == 'inactive') ? 'selected' : '' ?>>Không hoạt động</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-6">
+                                <label for="sort_order">Thứ tự hiển thị</label>
+                                <input type="number" id="sort_order" name="sort_order"
+                                       value="<?= htmlspecialchars($_POST['sort_order'] ?? '0') ?>"
+                                       placeholder="0" min="0">
+                                <small>Số càng nhỏ càng hiển thị trước</small>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="checkbox-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="featured" value="1" 
-                                           <?= (($_POST['featured'] ?? '') == '1') ? 'checked' : '' ?>>
-                                    <span class="checkmark"></span>
-                                    Danh mục nổi bật
+                        <div class="form-section-divider"></div>
+                        <h4 class="subsection-title">Tùy chọn hiển thị</h4>
+
+                        <div class="form-row checkbox-row">
+                            <?php
+                            // Xác định giá trị checkbox: nếu đang POST (có lỗi) thì dùng isset, nếu load lần đầu thì dùng từ database
+                            $isPost = ($_SERVER['REQUEST_METHOD'] === 'POST');
+                            $showInFilter = $isPost ? (isset($_POST['show_in_filter']) ? 1 : 0) : ($_POST['show_in_filter'] ?? 1);
+                            $showInMenu = $isPost ? (isset($_POST['show_in_menu']) ? 1 : 0) : ($_POST['show_in_menu'] ?? 1);
+                            $featured = $isPost ? (isset($_POST['featured']) ? 1 : 0) : ($_POST['featured'] ?? 0);
+                            ?>
+                            <div class="form-group checkbox-col">
+                                <label class="checkbox-card">
+                                    <input type="checkbox" name="show_in_filter" value="1" <?= $showInFilter ? 'checked' : '' ?>>
+                                    <span class="check-icon"><i class="fas fa-filter"></i></span>
+                                    <span class="checkbox-info">
+                                        <strong>Hiển thị ở bộ lọc</strong>
+                                        <small>Xuất hiện ở filter sản phẩm, dropdown header</small>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="form-group checkbox-col">
+                                <label class="checkbox-card">
+                                    <input type="checkbox" name="show_in_menu" value="1" <?= $showInMenu ? 'checked' : '' ?>>
+                                    <span class="check-icon"><i class="fas fa-bars"></i></span>
+                                    <span class="checkbox-info">
+                                        <strong>Hiển thị trong menu</strong>
+                                        <small>Xuất hiện trong menu điều hướng chính</small>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="form-group checkbox-col">
+                                <label class="checkbox-card">
+                                    <input type="checkbox" name="featured" value="1" <?= $featured ? 'checked' : '' ?>>
+                                    <span class="check-icon"><i class="fas fa-star"></i></span>
+                                    <span class="checkbox-info">
+                                        <strong>Danh mục nổi bật</strong>
+                                        <small>Ưu tiên hiển thị ở vị trí đặc biệt</small>
+                                    </span>
                                 </label>
                             </div>
                         </div>
@@ -374,14 +394,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
+// Tab switching
+document.querySelectorAll('.tabs-header .tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var tabId = this.getAttribute('data-tab');
+
+        // Remove active from all buttons and panes
+        document.querySelectorAll('.tabs-header .tab-btn').forEach(function(b) {
+            b.classList.remove('active');
+        });
+        document.querySelectorAll('.tabs-content .tab-pane').forEach(function(p) {
+            p.classList.remove('active');
+        });
+
+        // Add active to clicked button and corresponding pane
+        this.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    });
+});
+
 function previewUploadedImage(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();
         reader.onload = function(e) {
-            // Update the main image preview (inside the dashed border)
             var imagePreview = document.getElementById('imagePreview');
-            imagePreview.innerHTML = '<img src="' + e.target.result + '" alt="New image" style="max-width:100%;max-height:100%;object-fit:contain;">';
-            // Clear URL input when file is selected
+            imagePreview.innerHTML = '<img src="' + e.target.result + '" alt="New image">' +
+                '<div class="image-overlay"><span><i class="fas fa-camera"></i> Click để thay đổi ảnh</span></div>';
             document.getElementById('image_url').value = '';
         };
         reader.readAsDataURL(input.files[0]);
