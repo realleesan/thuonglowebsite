@@ -13,22 +13,41 @@ $service = isset($currentService) ? $currentService : ($adminService ?? null);
 try {
     // Get category ID from URL
     $category_id = (int)($_GET['id'] ?? 0);
-    
+
     if (!$category_id) {
         header('Location: ?page=admin&module=categories&error=invalid_id');
         exit;
     }
-    
+
     // Get category data using AdminService
     $categoryData = $service->getCategoryDetailsData($category_id);
     $category = $categoryData['category'];
-    
+
     // Redirect if category not found
     if (!$category) {
         header('Location: ?page=admin&module=categories&error=not_found');
         exit;
     }
-    
+
+    // Lấy tất cả danh mục active để tính vị trí hiện tại
+    require_once __DIR__ . '/../../../models/CategoriesModel.php';
+    $categoriesModel = new CategoriesModel();
+    $allCategories = $categoriesModel->getActive();
+    $totalCategories = count($allCategories);
+
+    // Tính vị trí hiện tại của danh mục (sắp xếp theo sort_order)
+    usort($allCategories, function($a, $b) {
+        return ($a['sort_order'] ?? 0) - ($b['sort_order'] ?? 0);
+    });
+
+    $currentPosition = 1;
+    foreach ($allCategories as $index => $cat) {
+        if ($cat['id'] == $category_id) {
+            $currentPosition = $index + 1;
+            break;
+        }
+    }
+
 } catch (Exception $e) {
     $errorHandler->logError('Admin Categories Edit View Error', $e);
     header('Location: ?page=admin&module=categories&error=system_error');
@@ -71,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'meta_title' => $_POST['meta_title'] ?? '',
             'meta_description' => $_POST['meta_description'] ?? '',
             'keywords' => $_POST['keywords'] ?? '',
-            'sort_order' => (int)($_POST['sort_order'] ?? 0),
+            'sort_order' => (int)($_POST['sort_order'] ?? 1) - 1, // Convert 1-indexed position to 0-indexed sort_order
             'show_in_menu' => isset($_POST['show_in_menu']) ? 1 : 0,
             'featured' => isset($_POST['featured']) ? 1 : 0,
             'show_in_filter' => isset($_POST['show_in_filter']) ? 1 : 0
@@ -144,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'meta_title' => $category['meta_title'] ?? '',
         'meta_description' => $category['meta_description'] ?? '',
         'keywords' => $category['keywords'] ?? '',
-        'sort_order' => $category['sort_order'] ?? 0,
+        'sort_order' => ($category['sort_order'] ?? 0) + 1, // Convert 0-indexed to 1-indexed for display
         'show_in_menu' => $category['show_in_menu'] ?? 1,
         'featured' => $category['featured'] ?? 0,
         'show_in_filter' => $category['show_in_filter'] ?? 1
@@ -318,9 +337,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-group col-6">
                                 <label for="sort_order">Thứ tự hiển thị</label>
                                 <input type="number" id="sort_order" name="sort_order"
-                                       value="<?= htmlspecialchars($_POST['sort_order'] ?? '0') ?>"
-                                       placeholder="0" min="0">
-                                <small>Số càng nhỏ càng hiển thị trước</small>
+                                       value="<?= htmlspecialchars(($_POST['sort_order'] ?? $currentPosition)) ?>"
+                                       placeholder="1" min="1">
+                                <small>Vị trí hiển thị từ trái sang phải, trên xuống dưới (1, 2, 3...)</small>
                             </div>
                         </div>
 

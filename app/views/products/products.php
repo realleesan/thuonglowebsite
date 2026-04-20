@@ -97,13 +97,19 @@ try {
         $categoriesData = $service->getCategoriesWithProductCounts();
     }
     $categories = $categoriesData['categories'] ?? [];
-    
+
+    // Tính tổng số sản phẩm của tất cả danh mục (luôn không đổi)
+    $totalAllProducts = 0;
+    foreach ($categories as $cat) {
+        $totalAllProducts += $cat['product_count'] ?? 0;
+    }
+
     // Debug: Hiển thị categories để kiểm tra
-    echo "<!-- DEBUG: categories count = " . count($categories) . " -->";
+    echo "<!-- DEBUG: categories count = " . count($categories) . ", totalAllProducts = {$totalAllProducts} -->";
     foreach ($categories as $cat) {
         echo "<!-- DEBUG cat: {$cat['name']} = {$cat['product_count']} -->";
     }
-    
+
     // Debug: Log categories data
     error_log('DEBUG products.php categories: ' . print_r($categories, true));
     
@@ -394,11 +400,11 @@ if ($fromCount > $totalFiltered) {
                                                 <ul class="category-list">
                                                     <li>
                                                         <label>
-                                                            <input type="radio" name="category" value="" 
+                                                            <input type="radio" name="category" value=""
                                                                    <?php echo empty($categoryId) ? 'checked' : ''; ?>>
                                                             <span>Tất cả danh mục</span>
                                                         </label>
-                                                        <span class="count">(<?php echo $totalProducts; ?>)</span>
+                                                        <span class="count">(<?php echo $totalAllProducts; ?>)</span>
                                                     </li>
                                                     <?php if (!empty($categories)): ?>
                                                         <?php foreach ($categories as $category): ?>

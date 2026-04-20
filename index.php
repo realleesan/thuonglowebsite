@@ -38,6 +38,11 @@ if ($config['app']['debug']) {
     ini_set('display_errors', 0);
 }
 
+// Start output buffering EARLY (before any potential headers or output)
+if (ob_get_level() === 0) {
+    ob_start();
+}
+
 // Include core files
 require_once $base_dir . '/core/security.php';
 require_once $base_dir . '/core/functions.php';
@@ -46,11 +51,6 @@ require_once $base_dir . '/core/view_init.php'; // Khởi tạo ServiceManager &
 
 // Initialize URL Builder
 init_url_builder();
-
-// Enable output buffering
-if (ob_get_level() === 0) {
-    ob_start();
-}
 
 // Lấy trang hiện tại từ URL
 $page = $_GET['page'] ?? 'home';

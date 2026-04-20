@@ -668,18 +668,18 @@ class PublicService extends BaseService
             case 'course_count':
             case 'product_count':
                 usort($categories, function ($a, $b) {
-                    return ($b['products_count'] ?? 0) - ($a['products_count'] ?? 0);
+                    return ($b['product_count'] ?? 0) - ($a['product_count'] ?? 0);
                 });
                 break;
             case 'course_count_desc':
             case 'product_count_desc':
                 usort($categories, function ($a, $b) {
-                    return ($a['products_count'] ?? 0) - ($b['products_count'] ?? 0);
+                    return ($a['product_count'] ?? 0) - ($b['product_count'] ?? 0);
                 });
                 break;
             case 'popular':
                 usort($categories, function ($a, $b) {
-                    return ($b['products_count'] ?? 0) - ($a['products_count'] ?? 0);
+                    return ($b['product_count'] ?? 0) - ($a['product_count'] ?? 0);
                 });
                 break;
             default: // name

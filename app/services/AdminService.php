@@ -1211,7 +1211,7 @@ class AdminService extends BaseService
                 foreach ($categories as &$category) {
                     $productCountSql = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
                     $countResult = $productsModel->query($productCountSql, [$category['id']]);
-                    $category['products_count'] = $countResult[0]['count'] ?? 0;
+                    $category['product_count'] = $countResult[0]['count'] ?? 0;
                 }
                 unset($category); // Unset reference after loop
             }

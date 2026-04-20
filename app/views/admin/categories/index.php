@@ -170,7 +170,7 @@ function formatDate($date) {
                             </td>
                             <td>
                                 <span class="product-count-badge">
-                                    <?= $category['products_count'] ?? 0 ?> sản phẩm
+                                    <?= $category['product_count'] ?? 0 ?> sản phẩm
                                 </span>
                             </td>
                             <td>
