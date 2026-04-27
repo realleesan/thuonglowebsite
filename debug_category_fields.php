@@ -17,7 +17,6 @@ try {
     echo "<table border='1' cellpadding='5'>";
     echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Default</th></tr>";
 
-    $has_show_in_menu = false;
     $has_featured = false;
     $has_show_in_filter = false;
 
@@ -29,17 +28,15 @@ try {
         echo "<td>{$col['Default']}</td>";
         echo "</tr>";
 
-        if ($col['Field'] == 'show_in_menu') $has_show_in_menu = true;
         if ($col['Field'] == 'featured') $has_featured = true;
         if ($col['Field'] == 'show_in_filter') $has_show_in_filter = true;
     }
     echo "</table>";
 
-    echo "<h3>Kiểm tra các trường mới:</h3>";
+    echo "<h3>Kiểm tra các trường hiển thị:</h3>";
     echo "<ul>";
-    echo "<li>show_in_menu: " . ($has_show_in_menu ? "<span style='color:green'>✓ CÓ</span>" : "<span style='color:red'>✗ KHÔNG CÓ</span>") . "</li>";
-    echo "<li>featured: " . ($has_featured ? "<span style='color:green'>✓ CÓ</span>" : "<span style='color:red'>✗ KHÔNG CÓ</span>") . "</li>";
-    echo "<li>show_in_filter: " . ($has_show_in_filter ? "<span style='color:green'>✓ CÓ</span>" : "<span style='color:red'>✗ KHÔNG CÓ</span>") . "</li>";
+    echo "<li>featured (Danh mục nổi bật): " . ($has_featured ? "<span style='color:green'>✓ CÓ</span>" : "<span style='color:red'>✗ KHÔNG CÓ</span>") . "</li>";
+    echo "<li>show_in_filter (Hiển thị ở bộ lọc): " . ($has_show_in_filter ? "<span style='color:green'>✓ CÓ</span>" : "<span style='color:red'>✗ KHÔNG CÓ</span>") . "</li>";
     echo "</ul>";
 
     // Lấy dữ liệu một category để kiểm tra
@@ -55,14 +52,13 @@ try {
 
     // Kiểm tra tất cả categories
     echo "<h3>Tất cả categories:</h3>";
-    $all = $db->query("SELECT id, name, show_in_menu, featured, show_in_filter FROM categories LIMIT 10");
+    $all = $db->query("SELECT id, name, featured, show_in_filter FROM categories LIMIT 10");
     echo "<table border='1' cellpadding='5'>";
-    echo "<tr><th>ID</th><th>Name</th><th>show_in_menu</th><th>featured</th><th>show_in_filter</th></tr>";
+    echo "<tr><th>ID</th><th>Name</th><th>featured</th><th>show_in_filter</th></tr>";
     foreach ($all as $cat) {
         echo "<tr>";
         echo "<td>{$cat['id']}</td>";
         echo "<td>{$cat['name']}</td>";
-        echo "<td>" . (isset($cat['show_in_menu']) ? $cat['show_in_menu'] : 'N/A') . "</td>";
         echo "<td>" . (isset($cat['featured']) ? $cat['featured'] : 'N/A') . "</td>";
         echo "<td>" . (isset($cat['show_in_filter']) ? $cat['show_in_filter'] : 'N/A') . "</td>";
         echo "</tr>";

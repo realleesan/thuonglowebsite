@@ -100,7 +100,6 @@ class DataTransformer {
             'description' => $this->security->escapeHtml($category['description'] ?? ''),
             'status' => $category['status'] ?? 'inactive',
             'sort_order' => (int) ($category['sort_order'] ?? 0),
-            'show_in_menu' => (int) ($category['show_in_menu'] ?? 1),
             'featured' => (int) ($category['featured'] ?? 0),
             'show_in_filter' => (int) ($category['show_in_filter'] ?? 1),
             'created_at' => $category['created_at'] ?? date('Y-m-d H:i:s'),

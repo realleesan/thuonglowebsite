@@ -412,9 +412,10 @@ class PublicService extends BaseService
     public function getCategoriesPageData($page = 1, $perPage = 12, $orderBy = 'name'): array
     {
         try {
+            // Dùng getAllWithProductCounts để lấy tất cả danh mục active (không lọc show_in_filter)
             $allCategories = $this->callModelMethod(
                 'CategoriesModel',
-                'getWithProductCounts',
+                'getAllWithProductCounts',
                 [],
                 []
             );

@@ -269,7 +269,6 @@ function generateSlug($name) {
                             // Xác định giá trị checkbox: nếu đang POST (có lỗi) thì dùng isset, nếu load lần đầu thì dùng giá trị mặc định
                             $isPost = ($_SERVER['REQUEST_METHOD'] === 'POST');
                             $showInFilter = $isPost ? (isset($_POST['show_in_filter']) ? 1 : 0) : 1; // default = 1
-                            $showInMenu = $isPost ? (isset($_POST['show_in_menu']) ? 1 : 0) : 1; // default = 1
                             $featured = $isPost ? (isset($_POST['featured']) ? 1 : 0) : 0; // default = 0
                             ?>
                             <div class="form-group checkbox-col">
@@ -284,21 +283,11 @@ function generateSlug($name) {
                             </div>
                             <div class="form-group checkbox-col">
                                 <label class="checkbox-card">
-                                    <input type="checkbox" name="show_in_menu" value="1" <?= $showInMenu ? 'checked' : '' ?>>
-                                    <span class="check-icon"><i class="fas fa-bars"></i></span>
-                                    <span class="checkbox-info">
-                                        <strong>Hiển thị trong menu</strong>
-                                        <small>Xuất hiện trong menu điều hướng chính</small>
-                                    </span>
-                                </label>
-                            </div>
-                            <div class="form-group checkbox-col">
-                                <label class="checkbox-card">
                                     <input type="checkbox" name="featured" value="1" <?= $featured ? 'checked' : '' ?>>
                                     <span class="check-icon"><i class="fas fa-star"></i></span>
                                     <span class="checkbox-info">
                                         <strong>Danh mục nổi bật</strong>
-                                        <small>Ưu tiên hiển thị ở vị trí đặc biệt</small>
+                                        <small>Hiển thị ở section danh mục nổi bật trên trang chủ</small>
                                     </span>
                                 </label>
                             </div>

@@ -10,7 +10,7 @@ class CategoriesModel extends BaseModel {
     protected $table = 'categories';
     protected $fillable = [
         'name', 'slug', 'description', 'image', 'parent_id',
-        'sort_order', 'status', 'show_in_menu', 'featured', 'show_in_filter'
+        'sort_order', 'status', 'featured', 'show_in_filter'
     ];
     
     /**
@@ -52,10 +52,10 @@ class CategoriesModel extends BaseModel {
     }
     
     /**
-     * Get parent categories (top level)
+     * Get parent categories (top level) - hiển thị ở bộ lọc
      */
     public function getParentCategories() {
-        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_menu = 1 ORDER BY sort_order ASC") ?? [];
+        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_filter = 1 ORDER BY sort_order ASC") ?? [];
     }
 
     /**
@@ -207,6 +207,22 @@ class CategoriesModel extends BaseModel {
      */
     public function getWithProductCounts() {
         return $this->getWithProductCount();
+    }
+
+    /**
+     * Get ALL active categories with product counts (for categories page - không lọc show_in_filter)
+     */
+    public function getAllWithProductCounts() {
+        $sql = "
+            SELECT c.*, COUNT(p.id) as product_count
+            FROM {$this->table} c
+            LEFT JOIN products p ON c.id = p.category_id
+            WHERE c.status = 'active'
+            GROUP BY c.id
+            ORDER BY c.sort_order ASC
+        ";
+
+        return $this->db->query($sql);
     }
 
     /**

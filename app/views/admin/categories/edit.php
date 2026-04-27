@@ -91,7 +91,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'meta_description' => $_POST['meta_description'] ?? '',
             'keywords' => $_POST['keywords'] ?? '',
             'sort_order' => (int)($_POST['sort_order'] ?? 1) - 1, // Convert 1-indexed position to 0-indexed sort_order
-            'show_in_menu' => isset($_POST['show_in_menu']) ? 1 : 0,
             'featured' => isset($_POST['featured']) ? 1 : 0,
             'show_in_filter' => isset($_POST['show_in_filter']) ? 1 : 0
         ];
@@ -164,7 +163,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'meta_description' => $category['meta_description'] ?? '',
         'keywords' => $category['keywords'] ?? '',
         'sort_order' => ($category['sort_order'] ?? 0) + 1, // Convert 0-indexed to 1-indexed for display
-        'show_in_menu' => $category['show_in_menu'] ?? 1,
         'featured' => $category['featured'] ?? 0,
         'show_in_filter' => $category['show_in_filter'] ?? 1
     ];
@@ -351,7 +349,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             // Xác định giá trị checkbox: nếu đang POST (có lỗi) thì dùng isset, nếu load lần đầu thì dùng từ database
                             $isPost = ($_SERVER['REQUEST_METHOD'] === 'POST');
                             $showInFilter = $isPost ? (isset($_POST['show_in_filter']) ? 1 : 0) : ($_POST['show_in_filter'] ?? 1);
-                            $showInMenu = $isPost ? (isset($_POST['show_in_menu']) ? 1 : 0) : ($_POST['show_in_menu'] ?? 1);
                             $featured = $isPost ? (isset($_POST['featured']) ? 1 : 0) : ($_POST['featured'] ?? 0);
                             ?>
                             <div class="form-group checkbox-col">
@@ -366,21 +363,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="form-group checkbox-col">
                                 <label class="checkbox-card">
-                                    <input type="checkbox" name="show_in_menu" value="1" <?= $showInMenu ? 'checked' : '' ?>>
-                                    <span class="check-icon"><i class="fas fa-bars"></i></span>
-                                    <span class="checkbox-info">
-                                        <strong>Hiển thị trong menu</strong>
-                                        <small>Xuất hiện trong menu điều hướng chính</small>
-                                    </span>
-                                </label>
-                            </div>
-                            <div class="form-group checkbox-col">
-                                <label class="checkbox-card">
                                     <input type="checkbox" name="featured" value="1" <?= $featured ? 'checked' : '' ?>>
                                     <span class="check-icon"><i class="fas fa-star"></i></span>
                                     <span class="checkbox-info">
                                         <strong>Danh mục nổi bật</strong>
-                                        <small>Ưu tiên hiển thị ở vị trí đặc biệt</small>
+                                        <small>Hiển thị ở section danh mục nổi bật trên trang chủ</small>
                                     </span>
                                 </label>
                             </div>

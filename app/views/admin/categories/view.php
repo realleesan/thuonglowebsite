@@ -202,15 +202,6 @@ function formatPrice($price) {
                         </div>
                         
                         <div class="detail-row">
-                            <label>Hiển thị trong menu:</label>
-                            <span class="detail-value">
-                                <span class="badge <?= ($category['show_in_menu'] ?? 1) ? 'badge-success' : 'badge-secondary' ?>">
-                                    <?= ($category['show_in_menu'] ?? 1) ? 'Có' : 'Không' ?>
-                                </span>
-                            </span>
-                        </div>
-                        
-                        <div class="detail-row">
                             <label>Danh mục nổi bật:</label>
                             <span class="detail-value">
                                 <span class="badge <?= ($category['featured'] ?? 0) ? 'badge-warning' : 'badge-secondary' ?>">
