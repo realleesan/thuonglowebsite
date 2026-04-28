@@ -252,13 +252,6 @@ function generateSlug($name) {
                                     <option value="inactive" <?= (($_POST['status'] ?? '') == 'inactive') ? 'selected' : '' ?>>Không hoạt động</option>
                                 </select>
                             </div>
-                            <div class="form-group col-6">
-                                <label for="sort_order">Thứ tự hiển thị</label>
-                                <input type="number" id="sort_order" name="sort_order"
-                                       value="<?= htmlspecialchars($_POST['sort_order'] ?? '0') ?>"
-                                       placeholder="0" min="0">
-                                <small>Số càng nhỏ càng hiển thị trước</small>
-                            </div>
                         </div>
 
                         <div class="form-section-divider"></div>

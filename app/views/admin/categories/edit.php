@@ -332,13 +332,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <option value="inactive" <?= (($_POST['status'] ?? '') == 'inactive') ? 'selected' : '' ?>>Không hoạt động</option>
                                 </select>
                             </div>
-                            <div class="form-group col-6">
-                                <label for="sort_order">Thứ tự hiển thị</label>
-                                <input type="number" id="sort_order" name="sort_order"
-                                       value="<?= htmlspecialchars(($_POST['sort_order'] ?? $currentPosition)) ?>"
-                                       placeholder="1" min="1">
-                                <small>Vị trí hiển thị từ trái sang phải, trên xuống dưới (1, 2, 3...)</small>
-                            </div>
                         </div>
 
                         <div class="form-section-divider"></div>
