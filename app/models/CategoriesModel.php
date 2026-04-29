@@ -248,4 +248,31 @@ class CategoriesModel extends BaseModel {
     public function searchCategories($query) {
         return $this->search($query, ['name', 'description']);
     }
+
+    /**
+     * Lấy tất cả ID danh mục con (đệ quy) - dùng cho filter sản phẩm
+     */
+    public function getAllChildCategoryIds($parentId) {
+        $allIds = [$parentId];
+
+        // Lấy danh mục con trực tiếp
+        $children = $this->query(
+            "SELECT id FROM {$this->table} WHERE parent_id = ? AND status = 'active'",
+            [$parentId]
+        );
+
+        if (!empty($children)) {
+            foreach ($children as $child) {
+                $childId = $child['id'];
+                $allIds[] = $childId;
+                // Đệ quy lấy con của con
+                $grandChildren = $this->getAllChildCategoryIds($childId);
+                // Loại bỏ ID đầu tiên (chính nó) vì đã thêm rồi
+                array_shift($grandChildren);
+                $allIds = array_merge($allIds, $grandChildren);
+            }
+        }
+
+        return array_unique($allIds);
+    }
 }

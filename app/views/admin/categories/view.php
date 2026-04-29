@@ -194,18 +194,43 @@ function formatPrice($price) {
                 <!-- Display Settings -->
                 <div class="details-section">
                     <h3 class="section-title">Cài Đặt Hiển Thị</h3>
-                    
+
                     <div class="details-content">
                         <div class="detail-row">
-                            <label>Thứ tự sắp xếp:</label>
-                            <span class="detail-value"><?= $category['sort_order'] ?? 0 ?></span>
+                            <label>Danh mục cha:</label>
+                            <span class="detail-value">
+                                <?php if (!empty($category['parent_id'])): ?>
+                                    <?php
+                                    // Lấy thông tin danh mục cha
+                                    $parentCategory = $service->getCategoryDetailsData($category['parent_id']);
+                                    if ($parentCategory && $parentCategory['category']):
+                                    ?>
+                                        <a href="?page=admin&module=categories&action=view&id=<?= $parentCategory['category']['id'] ?>" class="badge badge-info">
+                                            <i class="fas fa-folder"></i> <?= htmlspecialchars($parentCategory['category']['name']) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="badge badge-secondary">Không xác định (ID: <?= $category['parent_id'] ?>)</span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span class="badge badge-success">Danh mục gốc</span>
+                                <?php endif; ?>
+                            </span>
                         </div>
-                        
+
                         <div class="detail-row">
                             <label>Danh mục nổi bật:</label>
                             <span class="detail-value">
                                 <span class="badge <?= ($category['featured'] ?? 0) ? 'badge-warning' : 'badge-secondary' ?>">
                                     <?= ($category['featured'] ?? 0) ? 'Có' : 'Không' ?>
+                                </span>
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <label>Hiển thị ở bộ lọc:</label>
+                            <span class="detail-value">
+                                <span class="badge <?= ($category['show_in_filter'] ?? 1) ? 'badge-success' : 'badge-secondary' ?>">
+                                    <?= ($category['show_in_filter'] ?? 1) ? 'Có' : 'Không' ?>
                                 </span>
                             </span>
                         </div>

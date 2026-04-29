@@ -82,11 +82,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // If no errors, update database
     if (empty($errors)) {
         // Prepare update data - preserve existing image if not uploading new one
+        // DEBUG: Log POST data
+        error_log("DEBUG EDIT CATEGORY - POST parent_id: " . var_export($_POST['parent_id'] ?? 'NOT SET', true));
+        
+        $parent_id_processed = !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
+        error_log("DEBUG EDIT CATEGORY - Processed parent_id: " . var_export($parent_id_processed, true));
+        
         $updateData = [
             'name' => $name,
             'slug' => $slug,
             'description' => $description,
             'status' => $status,
+            'parent_id' => $parent_id_processed,
             'meta_title' => $_POST['meta_title'] ?? '',
             'meta_description' => $_POST['meta_description'] ?? '',
             'keywords' => $_POST['keywords'] ?? '',
@@ -130,6 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $updated = $service->updateCategory($category_id, $updateData);
+        
         if ($updated) {
             // Use PRG pattern - redirect after successful POST
             if (!headers_sent($filename, $linenum)) {
@@ -159,6 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'slug' => $category['slug'],
         'description' => $category['description'],
         'status' => $category['status'],
+        'parent_id' => $category['parent_id'] ?? null,
         'meta_title' => $category['meta_title'] ?? '',
         'meta_description' => $category['meta_description'] ?? '',
         'keywords' => $category['keywords'] ?? '',
@@ -255,6 +264,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <i class="fas fa-magic"></i>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label for="parent_id">Danh mục cha</label>
+                                <select id="parent_id" name="parent_id">
+                                    <option value="">-- Không có (Danh mục gốc) --</option>
+                                    <?php
+                                    // Lấy danh sách danh mục cha cho dropdown (loại trừ chính nó)
+                                    $parentCategories = [];
+                                    if ($service && method_exists($service, 'getParentCategoriesForDropdown')) {
+                                        $allParents = $service->getParentCategoriesForDropdown();
+                                        // Loại trừ chính danh mục đang sửa để tránh chọn làm cha của chính nó
+                                        foreach ($allParents as $p) {
+                                            if ($p['id'] != $category['id']) {
+                                                $parentCategories[] = $p;
+                                            }
+                                        }
+                                    }
+                                    $selectedParent = $_POST['parent_id'] ?? '';
+                                    foreach ($parentCategories as $parent):
+                                    ?>
+                                        <option value="<?= $parent['id'] ?>" <?= ($selectedParent == $parent['id']) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($parent['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small>Chọn danh mục cha nếu đây là danh mục con</small>
                             </div>
                         </div>
 

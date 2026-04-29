@@ -45,18 +45,32 @@ class ProductsModel extends BaseModel {
     }
     
     /**
-     * Get products by category
+     * Get products by category (bao gồm cả sản phẩm từ danh mục con)
      */
     public function getByCategory($categoryId, $limit = null) {
-        $query = $this->where('category_id', $categoryId)
-                     ->where('status', 'active')
-                     ->orderBy('created_at', 'DESC');
-        
-        if ($limit) {
-            $query->limit($limit);
+        // Lấy tất cả ID danh mục con (bao gồm cả chính nó)
+        $categoryIds = [$categoryId];
+        if (class_exists('CategoriesModel')) {
+            $categoriesModel = new CategoriesModel();
+            $categoryIds = $categoriesModel->getAllChildCategoryIds($categoryId);
         }
-        
-        return $query->get();
+
+        // Tạo placeholders cho IN clause
+        $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.category_id IN ({$placeholders}) AND p.status = 'active'
+            ORDER BY p.created_at DESC
+        ";
+
+        if ($limit) {
+            $sql .= " LIMIT {$limit}";
+        }
+
+        return $this->db->query($sql, $categoryIds);
     }
     
     /**
@@ -212,21 +226,31 @@ class ProductsModel extends BaseModel {
     }
     
     /**
-     * Get products by category with pagination
+     * Get products by category with pagination (bao gồm cả sản phẩm từ danh mục con)
      */
     public function getByCategoryPaginated($categoryId, $page = 1, $limit = 12) {
         $offset = ($page - 1) * $limit;
-        
+
+        // Lấy tất cả ID danh mục con (bao gồm cả chính nó)
+        $categoryIds = [$categoryId];
+        if (class_exists('CategoriesModel')) {
+            $categoriesModel = new CategoriesModel();
+            $categoryIds = $categoriesModel->getAllChildCategoryIds($categoryId);
+        }
+
+        // Tạo placeholders cho IN clause
+        $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+
         $sql = "
             SELECT p.*, c.name as category_name, c.slug as category_slug
             FROM {$this->table} p
             LEFT JOIN categories c ON p.category_id = c.id
-            WHERE p.category_id = ? AND p.status = 'active'
+            WHERE p.category_id IN ({$placeholders}) AND p.status = 'active'
             ORDER BY p.created_at DESC
             LIMIT {$limit} OFFSET {$offset}
         ";
-        
-        return $this->db->query($sql, [$categoryId]);
+
+        return $this->db->query($sql, $categoryIds);
     }
     
     /**

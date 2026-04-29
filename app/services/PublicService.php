@@ -405,6 +405,55 @@ class PublicService extends BaseService
     }
 
     /**
+     * Lấy danh mục theo cấu trúc phân cấp cha-con cho header menu
+     * Trả về mảng các danh mục cha với children bên trong
+     */
+    public function getCategoriesHierarchy(): array
+    {
+        try {
+            // Lấy tất cả danh mục active có show_in_filter = 1
+            $allCategories = $this->callModelMethod(
+                'CategoriesModel',
+                'getWithProductCounts',
+                [],
+                []
+            );
+
+            if (!is_array($allCategories)) {
+                return [];
+            }
+
+            // Transform dữ liệu
+            $categories = $this->transformer->transformCategories($allCategories);
+
+            // Phân loại cha và con
+            $parents = [];
+            $children = [];
+
+            foreach ($categories as $cat) {
+                if (empty($cat['parent_id'])) {
+                    $parents[$cat['id']] = $cat;
+                    $parents[$cat['id']]['children'] = [];
+                } else {
+                    $children[$cat['parent_id']][] = $cat;
+                }
+            }
+
+            // Gán children vào parents
+            foreach ($children as $parentId => $childList) {
+                if (isset($parents[$parentId])) {
+                    $parents[$parentId]['children'] = $childList;
+                }
+            }
+
+            return array_values($parents);
+        } catch (\Exception $e) {
+            error_log('ERROR getCategoriesHierarchy: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Data cho trang danh mục (categories listing).
      *
      * Dựa trên ViewDataService::getCategoriesPageData (phần public).

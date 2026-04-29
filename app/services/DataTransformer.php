@@ -96,6 +96,7 @@ class DataTransformer {
             'name' => $this->security->escapeHtml($category['name'] ?? ''),
             'slug' => $category['slug'] ?? '',
             'image' => $category['image'] ?? '',
+            'parent_id' => $category['parent_id'] ?? null,
             'product_count' => (int) ($category['product_count'] ?? $category['products_count'] ?? 0),
             'description' => $this->security->escapeHtml($category['description'] ?? ''),
             'status' => $category['status'] ?? 'inactive',

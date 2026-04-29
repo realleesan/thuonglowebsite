@@ -1259,6 +1259,28 @@ class AdminService extends BaseService
         }
     }
 
+    /**
+     * Lấy danh sách danh mục cha cho dropdown (parent_id IS NULL)
+     * Dùng trong form add/edit category để chọn danh mục cha
+     */
+    public function getParentCategoriesForDropdown(): array
+    {
+        try {
+            $categoriesModel = $this->getModel('CategoriesModel');
+            if (!$categoriesModel) {
+                return [];
+            }
+
+            // Lấy tất cả danh mục cha (parent_id IS NULL) và đang active
+            $sql = "SELECT id, name FROM categories WHERE parent_id IS NULL AND status = 'active' ORDER BY name ASC";
+            $categories = $categoriesModel->query($sql);
+
+            return $categories ?: [];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getParentCategoriesForDropdown']);
+        }
+    }
+
     public function createCategory(array $data): bool
     {
         try {

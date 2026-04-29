@@ -46,7 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // If no errors, save to database
     if (empty($errors)) {
         $categoryData = $_POST;
-        
+
+        // Fix parent_id: convert empty string to NULL
+        if (empty($categoryData['parent_id'])) {
+            $categoryData['parent_id'] = null;
+        }
+
         // Handle image upload
         if (!empty($_FILES['image']['name'])) {
             $uploadDir = dirname(__DIR__, 4) . '/assets/uploads/categories/';
@@ -182,6 +187,29 @@ function generateSlug($name) {
                                         <i class="fas fa-magic"></i>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label for="parent_id">Danh mục cha</label>
+                                <select id="parent_id" name="parent_id">
+                                    <option value="">-- Không có (Danh mục gốc) --</option>
+                                    <?php
+                                    // Lấy danh sách danh mục cha cho dropdown
+                                    $parentCategories = [];
+                                    if ($service && method_exists($service, 'getParentCategoriesForDropdown')) {
+                                        $parentCategories = $service->getParentCategoriesForDropdown();
+                                    }
+                                    $selectedParent = $_POST['parent_id'] ?? '';
+                                    foreach ($parentCategories as $parent):
+                                    ?>
+                                        <option value="<?= $parent['id'] ?>" <?= ($selectedParent == $parent['id']) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($parent['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small>Chọn danh mục cha nếu đây là danh mục con</small>
                             </div>
                         </div>
 

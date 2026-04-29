@@ -12,12 +12,9 @@ $newsCategories = [];
 // Check if publicService is available in global scope
 global $publicService;
 if (isset($publicService) && is_object($publicService)) {
-    // Get product categories
+    // Get product categories with hierarchy (cha-con)
     try {
-        $categoriesResult = $publicService->getCategoriesWithProductCounts();
-        if (isset($categoriesResult['categories']) && is_array($categoriesResult['categories'])) {
-            $headerCategories = $categoriesResult['categories'];
-        }
+        $headerCategories = $publicService->getCategoriesHierarchy();
     } catch (Exception $e) {
         error_log('Header categories error: ' . $e->getMessage());
     }
@@ -76,10 +73,26 @@ if (class_exists('CategoriesModel')) {
                             <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </a>
-                    <div class="categories-menu">
+                    <div class="categories-menu categories-hierarchy">
                         <?php if (!empty($headerCategories)): ?>
-                            <?php foreach ($headerCategories as $cat): ?>
-                                <a href="<?php echo page_url('products', ['category' => $cat['id']]); ?>"><?php echo htmlspecialchars($cat['name']); ?></a>
+                            <?php foreach ($headerCategories as $parentCat): ?>
+                                <div class="category-group">
+                                    <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" class="category-parent">
+                                        <?php echo htmlspecialchars($parentCat['name']); ?>
+                                        <?php if (!empty($parentCat['children'])): ?>
+                                            <span class="has-children"><i class="fas fa-chevron-right"></i></span>
+                                        <?php endif; ?>
+                                    </a>
+                                    <?php if (!empty($parentCat['children'])): ?>
+                                        <div class="category-children">
+                                            <?php foreach ($parentCat['children'] as $childCat): ?>
+                                                <a href="<?php echo page_url('products', ['category' => $childCat['id']]); ?>">
+                                                    <?php echo htmlspecialchars($childCat['name']); ?>
+                                                </a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
