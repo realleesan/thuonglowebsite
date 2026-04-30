@@ -177,23 +177,19 @@
     font-weight: 600;
     font-size: 13px;
     color: #374151;
-    border-bottom: 1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
 }
 
 .data-table td {
     padding: 14px 16px;
-    border-bottom: 1px solid #f3f4f6;
+    border: 1px solid #e5e7eb;
     vertical-align: middle;
     font-size: 14px;
     color: #374151;
 }
 
-.data-table tr:last-child td {
-    border-bottom: none;
-}
-
-.data-table tr:hover {
-    background: #f9fafb;
+.data-table tr:hover td {
+    background: #f3f4f6;
 }
 
 /* QR Cell */
@@ -214,6 +210,19 @@
 
 .qr-thumb:hover {
     transform: scale(1.1);
+}
+
+/* QR Icon (fallback when image fails) */
+.qr-icon {
+    font-size: 28px;
+    color: #356df1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qr-icon:hover {
+    color: #1d4ed8;
+    transform: scale(1.15);
 }
 
 /* ========================================

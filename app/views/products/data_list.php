@@ -153,7 +153,7 @@ try {
                         <a href="<?php echo htmlspecialchars($row['wechat_qr']); ?>" target="_blank">
                             <img src="<?php echo htmlspecialchars($row['wechat_qr']); ?>" alt="QR" class="qr-thumb" 
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                            <span style="display:none;">Xem QR</span>
+                            <i class="fas fa-qrcode qr-icon" style="display:none;" title="Xem QR"></i>
                         </a>
                         <?php else: ?>
                         -
