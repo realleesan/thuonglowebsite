@@ -157,6 +157,27 @@
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 24px;
+    position: relative;
+}
+
+/* Watermark - THUONGLO.COM */
+.data-table-container::before {
+    content: "THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \A\A THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \A\A THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \A\A THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \A\A THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM \00a0\00a0\00a0THUONGLO.COM";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 32px;
+    font-weight: bold;
+    color: rgba(255, 120, 120, 0.10);
+    pointer-events: none;
+    z-index: 1;
+    white-space: pre;
+    line-height: 1.8;
+    letter-spacing: 2px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    width: 200%;
 }
 
 /* ========================================

@@ -232,7 +232,6 @@ $statusBg = $order['status'] === 'completed' ? '#d4edda' : '#fff3cd';
             <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
                 <a href="<?php echo page_url('home'); ?>" class="btn-place-order" style="text-decoration: none; background: #333;">Về trang chủ</a>
                 <?php if ($order['status'] === 'completed'): ?>
-                <a href="<?php echo page_url('users', 'dashboard'); ?>" class="btn-place-order" style="text-decoration: none;">Xem đơn hàng</a>
                 <?php endif; ?>
             </div>
         </div>
