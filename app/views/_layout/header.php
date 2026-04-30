@@ -73,27 +73,31 @@ if (class_exists('CategoriesModel')) {
                             <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </a>
-                    <div class="categories-menu categories-hierarchy">
+                    <div class="categories-menu categories-flyout">
                         <?php if (!empty($headerCategories)): ?>
-                            <?php foreach ($headerCategories as $parentCat): ?>
-                                <div class="category-group">
-                                    <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" class="category-parent">
-                                        <?php echo htmlspecialchars($parentCat['name']); ?>
-                                        <?php if (!empty($parentCat['children'])): ?>
-                                            <span class="has-children"><i class="fas fa-chevron-right"></i></span>
-                                        <?php endif; ?>
+                            <?php
+                            function renderFlyoutMenu($categories, $level = 1) {
+                                foreach ($categories as $cat):
+                                    $hasChildren = !empty($cat['children']);
+                            ?>
+                                <div class="flyout-item<?php echo $hasChildren ? ' has-children' : ''; ?>" data-level="<?php echo $level; ?>">
+                                    <a href="<?php echo page_url('products', ['category' => $cat['id']]); ?>" class="flyout-link">
+                                        <?php echo htmlspecialchars($cat['name']); ?>
                                     </a>
-                                    <?php if (!empty($parentCat['children'])): ?>
-                                        <div class="category-children">
-                                            <?php foreach ($parentCat['children'] as $childCat): ?>
-                                                <a href="<?php echo page_url('products', ['category' => $childCat['id']]); ?>">
-                                                    <?php echo htmlspecialchars($childCat['name']); ?>
-                                                </a>
-                                            <?php endforeach; ?>
+                                    <?php if ($hasChildren): ?>
+                                        <span class="flyout-arrow" data-submenu="submenu-<?php echo $cat['id']; ?>">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                        <div class="flyout-submenu" id="submenu-<?php echo $cat['id']; ?>">
+                                            <?php renderFlyoutMenu($cat['children'], $level + 1); ?>
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php
+                                endforeach;
+                            }
+                            renderFlyoutMenu($headerCategories);
+                            ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -466,5 +470,49 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Có lỗi xảy ra, vui lòng thử lại');
         });
     };
+
+    // Flyout menu hover handling
+    document.querySelectorAll('.flyout-arrow').forEach(function(arrow) {
+        var submenuId = arrow.getAttribute('data-submenu');
+        var submenu = document.getElementById(submenuId);
+
+        if (submenu) {
+            arrow.addEventListener('mouseenter', function() {
+                submenu.style.opacity = '1';
+                submenu.style.visibility = 'visible';
+                submenu.style.transform = 'translateX(0)';
+                submenu.style.pointerEvents = 'auto';
+            });
+
+            arrow.addEventListener('mouseleave', function() {
+                setTimeout(function() {
+                    if (!submenu.matches(':hover') && !arrow.matches(':hover')) {
+                        submenu.style.opacity = '';
+                        submenu.style.visibility = '';
+                        submenu.style.transform = '';
+                        submenu.style.pointerEvents = '';
+                    }
+                }, 100);
+            });
+
+            submenu.addEventListener('mouseenter', function() {
+                submenu.style.opacity = '1';
+                submenu.style.visibility = 'visible';
+                submenu.style.transform = 'translateX(0)';
+                submenu.style.pointerEvents = 'auto';
+            });
+
+            submenu.addEventListener('mouseleave', function() {
+                setTimeout(function() {
+                    if (!arrow.matches(':hover') && !submenu.matches(':hover')) {
+                        submenu.style.opacity = '';
+                        submenu.style.visibility = '';
+                        submenu.style.transform = '';
+                        submenu.style.pointerEvents = '';
+                    }
+                }, 100);
+            });
+        }
+    });
 });
 </script>

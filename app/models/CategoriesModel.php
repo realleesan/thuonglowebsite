@@ -85,17 +85,34 @@ class CategoriesModel extends BaseModel {
     
     /**
      * Build hierarchical tree from flat array
+     * @param array $categories Danh sách danh mục phẳng
+     * @param int|null $parentId ID của danh mục cha
+     * @param int $maxDepth Độ sâu tối đa (mặc định 10)
+     * @param int $currentDepth Độ sâu hiện tại (để kiểm tra giới hạn)
+     * @param array $visitedIds Mảng theo dõi các ID đã duyệt (tránh circular reference)
      */
-    public function buildTree($categories, $parentId = null) {
+    public function buildTree($categories, $parentId = null, $maxDepth = 10, $currentDepth = 0, $visitedIds = []) {
+        // Dừng nếu vượt quá độ sâu tối đa
+        if ($currentDepth >= $maxDepth) {
+            return [];
+        }
+
         $tree = [];
-        
+
         foreach ($categories as $category) {
             if ($category['parent_id'] == $parentId) {
-                $category['children'] = $this->buildTree($categories, $category['id']);
+                // Kiểm tra circular reference
+                if (in_array($category['id'], $visitedIds)) {
+                    error_log("Circular reference detected in buildTree at category ID: {$category['id']}");
+                    continue;
+                }
+
+                $newVisitedIds = array_merge($visitedIds, [$category['id']]);
+                $category['children'] = $this->buildTree($categories, $category['id'], $maxDepth, $currentDepth + 1, $newVisitedIds);
                 $tree[] = $category;
             }
         }
-        
+
         return $tree;
     }
     
@@ -251,9 +268,25 @@ class CategoriesModel extends BaseModel {
 
     /**
      * Lấy tất cả ID danh mục con (đệ quy) - dùng cho filter sản phẩm
+     * @param int $parentId ID danh mục cha
+     * @param array $visitedIds Mảng theo dõi các ID đã duyệt (tránh circular reference)
+     * @param int $maxDepth Độ sâu tối đa (mặc định 10)
+     * @param int $currentDepth Độ sâu hiện tại
      */
-    public function getAllChildCategoryIds($parentId) {
+    public function getAllChildCategoryIds($parentId, $visitedIds = [], $maxDepth = 10, $currentDepth = 0) {
+        // Kiểm tra circular reference
+        if (in_array($parentId, $visitedIds)) {
+            error_log("Circular reference detected in getAllChildCategoryIds at category ID: {$parentId}");
+            return [];
+        }
+
+        // Dừng nếu vượt quá độ sâu tối đa
+        if ($currentDepth >= $maxDepth) {
+            return [$parentId];
+        }
+
         $allIds = [$parentId];
+        $newVisitedIds = array_merge($visitedIds, [$parentId]);
 
         // Lấy danh mục con trực tiếp
         $children = $this->query(
@@ -264,9 +297,13 @@ class CategoriesModel extends BaseModel {
         if (!empty($children)) {
             foreach ($children as $child) {
                 $childId = $child['id'];
+                // Kiểm tra xem đã duyệt chưa
+                if (in_array($childId, $newVisitedIds)) {
+                    continue;
+                }
                 $allIds[] = $childId;
                 // Đệ quy lấy con của con
-                $grandChildren = $this->getAllChildCategoryIds($childId);
+                $grandChildren = $this->getAllChildCategoryIds($childId, $newVisitedIds, $maxDepth, $currentDepth + 1);
                 // Loại bỏ ID đầu tiên (chính nó) vì đã thêm rồi
                 array_shift($grandChildren);
                 $allIds = array_merge($allIds, $grandChildren);

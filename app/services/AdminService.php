@@ -1332,6 +1332,66 @@ class AdminService extends BaseService
         }
     }
 
+    /**
+     * Kiểm tra nếu đặt category làm cha của target sẽ tạo circular reference
+     * @param int $targetCategoryId ID danh mục muốn đặt cha
+     * @param int|null $newParentId ID danh mục cha mới (null = root)
+     * @return bool true nếu hợp lệ, false nếu sẽ tạo circular reference
+     */
+    public function isValidParent(int $targetCategoryId, ?int $newParentId): bool
+    {
+        if ($newParentId === null) {
+            return true; // Root category is always valid
+        }
+
+        // Không thể tự làm cha của chính mình
+        if ($targetCategoryId == $newParentId) {
+            return false;
+        }
+
+        $categoriesModel = $this->getModel('CategoriesModel');
+        if (!$categoriesModel) {
+            return false;
+        }
+
+        // Lấy tất cả danh mục để kiểm tra
+        $allCategories = $categoriesModel->getActive();
+        
+        // Kiểm tra xem newParentId có phải là con cháu của targetCategoryId không
+        // Bằng cách đi lên từ newParentId cho đến khi hết cha hoặc gặp targetCategoryId
+        $visitedIds = [$targetCategoryId];
+        $currentId = $newParentId;
+        $maxDepth = 10;
+        $depth = 0;
+
+        while ($currentId !== null && $depth < $maxDepth) {
+            // Nếu đã thăm thì có circular
+            if (in_array($currentId, $visitedIds)) {
+                return false;
+            }
+            $visitedIds[] = $currentId;
+
+            // Tìm cha của currentId
+            $parentId = null;
+            foreach ($allCategories as $cat) {
+                if ($cat['id'] == $currentId) {
+                    $parentId = $cat['parent_id'] ?? null;
+                    break;
+                }
+            }
+
+            // Nếu tìm thấy targetCategoryId trong tổ tiên -> circular
+            if ($parentId == $targetCategoryId) {
+                return false;
+            }
+
+            $currentId = $parentId;
+            $depth++;
+        }
+
+        return true;
+    }
+
     public function updateCategory(int $categoryId, array $data): bool
     {
         try {
@@ -1339,6 +1399,16 @@ class AdminService extends BaseService
             if (!$categoriesModel) {
                 return false;
             }
+
+            // Kiểm tra circular reference nếu đang cập nhật parent_id
+            if (isset($data['parent_id'])) {
+                $newParentId = $data['parent_id'] === null ? null : (int)$data['parent_id'];
+                if (!$this->isValidParent($categoryId, $newParentId)) {
+                    error_log("Invalid parent assignment: Category {$categoryId} cannot have parent {$newParentId} - would create circular reference");
+                    return false;
+                }
+            }
+
             $result = $categoriesModel->update($categoryId, $data);
             if ($result !== false) {
                 $this->flushDashboardCache();

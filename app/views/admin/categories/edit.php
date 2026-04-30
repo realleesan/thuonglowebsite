@@ -180,30 +180,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<style>
-    /* DEBUG: Force form actions to be visible */
-    .form-actions {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        border: 3px solid red; /* Debug border */
-        margin-top: 20px;
-        padding: 15px;
-        background: #f0f0f0;
-    }
-    .form-actions .btn {
-        display: inline-flex !important;
-        visibility: visible !important;
-    }
-    /* DEBUG: Force all tab panes to show content */
-    .tab-pane {
-        display: none;
-    }
-    .tab-pane.active {
-        display: block !important;
-    }
-</style>
-
 <div class="categories-page categories-edit-page">
     <!-- Page Header -->
     <div class="page-header">
@@ -299,26 +275,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <select id="parent_id" name="parent_id">
                                     <option value="">-- Không có (Danh mục gốc) --</option>
                                     <?php
-                                    // Lấy danh sách danh mục cha cho dropdown (loại trừ chính nó)
-                                    $parentCategories = [];
-                                    if ($service && method_exists($service, 'getParentCategoriesForDropdown')) {
-                                        $allParents = $service->getParentCategoriesForDropdown();
-                                        // Loại trừ chính danh mục đang sửa để tránh chọn làm cha của chính nó
-                                        foreach ($allParents as $p) {
-                                            if ($p['id'] != $category['id']) {
-                                                $parentCategories[] = $p;
+                                    // Lấy danh sách danh mục cho dropdown
+                                    $categoriesModel = new CategoriesModel();
+                                    $allCategoriesForLevels = $categoriesModel->getActive();
+
+                                    // Lấy tất cả ID con cháu của danh mục hiện tại (để loại trừ khỏi lựa chọn cha)
+                                    $descendantIds = [];
+                                    foreach ($allCategoriesForLevels as $cat) {
+                                        if ($cat['parent_id'] == $category['id']) {
+                                            // Đệ quy lấy tất cả con cháu
+                                            $descendantIds[] = $cat['id'];
+                                            $stack = [$cat['id']];
+                                            while (!empty($stack)) {
+                                                $currentId = array_pop($stack);
+                                                foreach ($allCategoriesForLevels as $child) {
+                                                    if ($child['parent_id'] == $currentId) {
+                                                        $descendantIds[] = $child['id'];
+                                                        $stack[] = $child['id'];
+                                                    }
+                                                }
                                             }
                                         }
                                     }
+
+                                    // Lọc: chỉ lấy danh mục active, loại trừ chính nó và tất cả con cháu của nó
+                                    $parentCategories = [];
+                                    foreach ($allCategoriesForLevels as $p) {
+                                        if ($p['id'] != $category['id'] && !in_array($p['id'], $descendantIds)) {
+                                            $parentCategories[] = $p;
+                                        }
+                                    }
+
+                                    // Tính cấp độ cho từng danh mục
+                                    $categoryLevels = [];
+                                    $maxLevelDepth = 10;
+
+                                    foreach ($parentCategories as $p) {
+                                        $level = 1;
+                                        $currentParentId = $p['parent_id'] ?? null;
+                                        $visitedIds = [$p['id']];
+
+                                        while ($currentParentId && $level < $maxLevelDepth) {
+                                            if (in_array($currentParentId, $visitedIds)) {
+                                                error_log("Circular reference detected in category hierarchy at category ID: {$p['id']}");
+                                                break;
+                                            }
+                                            $visitedIds[] = $currentParentId;
+                                            $level++;
+                                            $found = false;
+                                            foreach ($allCategoriesForLevels as $check) {
+                                                if ($check['id'] == $currentParentId) {
+                                                    $currentParentId = $check['parent_id'] ?? null;
+                                                    $found = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!$found) break;
+                                        }
+                                        $categoryLevels[$p['id']] = $level;
+                                    }
+
                                     $selectedParent = $_POST['parent_id'] ?? '';
                                     foreach ($parentCategories as $parent):
+                                        $level = $categoryLevels[$parent['id']] ?? 1;
                                     ?>
                                         <option value="<?= $parent['id'] ?>" <?= ($selectedParent == $parent['id']) ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($parent['name']) ?>
+                                            <?= str_repeat('— ', $level - 1) ?><?= htmlspecialchars($parent['name']) ?> <small style="color:#999">(cấp <?= $level ?>)</small>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <small>Chọn danh mục cha nếu đây là danh mục con</small>
+                                <small>Chọn danh mục cha. Không hiển thị danh mục con của danh mục này để tránh vòng lặp.</small>
                             </div>
                         </div>
 

@@ -40,6 +40,66 @@ try {
 function formatDate($date) {
     return date('d/m/Y H:i', strtotime($date));
 }
+
+// Load all categories to calculate levels
+try {
+    $categoriesModelPath = __DIR__ . '/../../../models/CategoriesModel.php';
+    if (!file_exists($categoriesModelPath)) {
+        throw new Exception("CategoriesModel file not found at: " . $categoriesModelPath);
+    }
+    require_once $categoriesModelPath;
+    $categoriesModel = new CategoriesModel();
+    $allCategories = $categoriesModel->getActive();
+} catch (Exception $e) {
+    echo "<div style='color:red; padding:20px; background:#fee; border:2px solid #c00;'>";
+    echo "<strong>Error loading categories:</strong> " . htmlspecialchars($e->getMessage());
+    echo "</div>";
+    $allCategories = [];
+    $categoryLevels = [];
+}
+
+// Calculate level for each category - OPTIMIZED
+$categoryLevels = [];
+$categoryMap = [];
+
+// Build lookup map for O(1) access
+foreach ($allCategories as $cat) {
+    $categoryMap[$cat['id']] = $cat;
+}
+
+// Calculate levels using memoization
+function getLevel($catId, $categoryMap, &$cache) {
+    if (isset($cache[$catId])) {
+        return $cache[$catId];
+    }
+    
+    $cat = $categoryMap[$catId] ?? null;
+    if (!$cat || empty($cat['parent_id'])) {
+        return $cache[$catId] = 1;
+    }
+    
+    $parentId = $cat['parent_id'];
+    if (!isset($categoryMap[$parentId])) {
+        return $cache[$catId] = 1;
+    }
+    
+    // Prevent infinite recursion
+    if (isset($cache['_processing_'.$catId])) {
+        return 1;
+    }
+    $cache['_processing_'.$catId] = true;
+    
+    $level = 1 + getLevel($parentId, $categoryMap, $cache);
+    $cache[$catId] = $level;
+    
+    return $level;
+}
+
+$levelCache = [];
+foreach ($allCategories as $cat) {
+    $categoryLevels[$cat['id']] = getLevel($cat['id'], $categoryMap, $levelCache);
+}
+
 ?>
 
 <div class="categories-page">
@@ -114,6 +174,7 @@ function formatDate($date) {
                     <th width="60">ID</th>
                     <th width="80">Hình ảnh</th>
                     <th>Tên danh mục</th>
+                    <th width="80">Cấp độ</th>
                     <th width="150">Slug</th>
                     <th>Mô tả</th>
                     <th width="100">Số sản phẩm</th>
@@ -151,8 +212,14 @@ function formatDate($date) {
                             </td>
                             <td>
                                 <div class="category-info">
-                                    <h4 class="category-name"><?= htmlspecialchars($category['name']) ?></h4>
+                                    <?php $level = $categoryLevels[$category['id']] ?? 1; ?>
+                                    <h4 class="category-name" style="padding-left: <?= ($level - 1) * 20 ?>px;">
+                                        <?= str_repeat('— ', $level - 1) ?><?= htmlspecialchars($category['name']) ?>
+                                    </h4>
                                 </div>
+                            </td>
+                            <td>
+                                <span class="level-badge level-<?= $level ?>">Cấp <?= $level ?></span>
                             </td>
                             <td>
                                 <code class="slug-text"><?= htmlspecialchars($category['slug']) ?></code>

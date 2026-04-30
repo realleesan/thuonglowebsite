@@ -1348,3 +1348,52 @@ html, body {
         height: 200px;
     }
 }
+
+/* ============================================
+   LEVEL BADGE STYLES - For hierarchical display
+   ============================================ */
+
+.level-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 12px;
+    min-width: 50px;
+}
+
+.level-badge.level-1 {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.level-badge.level-2 {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.level-badge.level-3 {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.level-badge.level-4,
+.level-badge.level-5 {
+    background: #fce7f3;
+    color: #be185d;
+}
+
+/* Category name with indentation */
+.category-name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Adjust table cell for better alignment */
+.admin-table td:nth-child(4) {
+    min-width: 200px;
+}

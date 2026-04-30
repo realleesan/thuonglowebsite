@@ -426,27 +426,13 @@ class PublicService extends BaseService
             // Transform dữ liệu
             $categories = $this->transformer->transformCategories($allCategories);
 
-            // Phân loại cha và con
-            $parents = [];
-            $children = [];
-
-            foreach ($categories as $cat) {
-                if (empty($cat['parent_id'])) {
-                    $parents[$cat['id']] = $cat;
-                    $parents[$cat['id']]['children'] = [];
-                } else {
-                    $children[$cat['parent_id']][] = $cat;
-                }
+            // Sử dụng buildTree đệ quy để xây dựng cây phân cấp đa cấp
+            $categoriesModel = $this->getModel('CategoriesModel');
+            if ($categoriesModel) {
+                return $categoriesModel->buildTree($categories);
             }
 
-            // Gán children vào parents
-            foreach ($children as $parentId => $childList) {
-                if (isset($parents[$parentId])) {
-                    $parents[$parentId]['children'] = $childList;
-                }
-            }
-
-            return array_values($parents);
+            return [];
         } catch (\Exception $e) {
             error_log('ERROR getCategoriesHierarchy: ' . $e->getMessage());
             return [];
