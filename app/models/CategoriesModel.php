@@ -86,7 +86,7 @@ class CategoriesModel extends BaseModel {
     /**
      * Build hierarchical tree from flat array
      */
-    private function buildTree($categories, $parentId = null) {
+    public function buildTree($categories, $parentId = null) {
         $tree = [];
         
         foreach ($categories as $category) {

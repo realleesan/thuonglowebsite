@@ -726,6 +726,53 @@ html, body {
 }
 
 /* ============================================
+   FORM CONTAINER STYLES
+   ============================================ */
+
+.form-container {
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.form-group label.required::after {
+    content: ' *';
+    color: #EF4444;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #356df1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+/* ============================================
    TAB STYLES FOR CATEGORIES
    ============================================ */
 
@@ -771,15 +818,20 @@ html, body {
 
 .category-details-tabs .tabs-content {
     padding: 24px;
+    position: relative;
+    min-height: 200px;
 }
 
 .category-details-tabs .tab-pane {
     display: none;
+    width: 100%;
 }
 
 .category-details-tabs .tab-pane.active {
-    display: block;
+    display: block !important;
     animation: fadeIn 0.3s ease;
+    visibility: visible;
+    opacity: 1;
 }
 
 @keyframes fadeIn {
@@ -1175,8 +1227,81 @@ html, body {
     color: #356df1;
 }
 
+/* Form Actions - Save/Submit buttons */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid #E5E7EB;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.form-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.form-actions .btn-primary {
+    background: #356df1;
+    color: white;
+    border: 1px solid #356df1;
+}
+
+.form-actions .btn-primary:hover {
+    background: #2551c4;
+    border-color: #2551c4;
+}
+
+.form-actions .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.form-actions .btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.form-actions .btn-info {
+    background: #3b82f6;
+    color: white;
+    border: 1px solid #3b82f6;
+}
+
+.form-actions .btn-info:hover {
+    background: #2563eb;
+}
+
+.form-actions .btn-outline {
+    background: white;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+}
+
+.form-actions .btn-outline:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
 /* Responsive for form row */
 @media (max-width: 768px) {
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
     .form-row {
         flex-direction: column;
         gap: 12px;

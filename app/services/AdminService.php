@@ -1260,10 +1260,11 @@ class AdminService extends BaseService
     }
 
     /**
-     * Lấy danh sách danh mục cha cho dropdown (parent_id IS NULL)
+     * Lấy danh sách danh mục cho dropdown (hỗ trợ đa cấp)
      * Dùng trong form add/edit category để chọn danh mục cha
+     * @param int|null $excludeId ID của danh mục cần loại trừ (tránh chọn chính mình)
      */
-    public function getParentCategoriesForDropdown(): array
+    public function getParentCategoriesForDropdown(?int $excludeId = null): array
     {
         try {
             $categoriesModel = $this->getModel('CategoriesModel');
@@ -1271,13 +1272,46 @@ class AdminService extends BaseService
                 return [];
             }
 
-            // Lấy tất cả danh mục cha (parent_id IS NULL) và đang active
-            $sql = "SELECT id, name FROM categories WHERE parent_id IS NULL AND status = 'active' ORDER BY name ASC";
+            // Lấy tất cả danh mục đang active (không chỉ cấp 1)
+            $sql = "SELECT id, name, parent_id FROM categories WHERE status = 'active' ORDER BY name ASC";
             $categories = $categoriesModel->query($sql);
 
-            return $categories ?: [];
+            if (!$categories) {
+                return [];
+            }
+
+            // Build tree để hiển thị phân cấp
+            $tree = $categoriesModel->buildTree($categories);
+            
+            // Flatten tree với prefix cho cấp độ
+            $result = [];
+            $this->flattenTreeForDropdown($tree, $result, '', $excludeId);
+
+            return $result;
         } catch (\Exception $e) {
             return $this->handleError($e, ['method' => 'getParentCategoriesForDropdown']);
+        }
+    }
+
+    /**
+     * Flatten tree với prefix để hiển thị trong dropdown
+     */
+    private function flattenTreeForDropdown(array $tree, array &$result, string $prefix = '', ?int $excludeId = null): void
+    {
+        foreach ($tree as $node) {
+            if ($excludeId !== null && $node['id'] == $excludeId) {
+                continue; // Bỏ qua chính nó
+            }
+            
+            $result[] = [
+                'id' => $node['id'],
+                'name' => $prefix . $node['name'],
+                'level' => strlen($prefix) / 2 // Mỗi cấp thêm 2 ký tự prefix
+            ];
+            
+            if (!empty($node['children'])) {
+                $this->flattenTreeForDropdown($node['children'], $result, $prefix . '— ', $excludeId);
+            }
         }
     }
 

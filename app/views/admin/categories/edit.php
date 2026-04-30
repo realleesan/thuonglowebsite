@@ -3,6 +3,8 @@
  * Admin Categories Edit
  * Sử dụng AdminService thông qua ServiceManager
  */
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
@@ -177,6 +179,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 }
 ?>
+
+<style>
+    /* DEBUG: Force form actions to be visible */
+    .form-actions {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        border: 3px solid red; /* Debug border */
+        margin-top: 20px;
+        padding: 15px;
+        background: #f0f0f0;
+    }
+    .form-actions .btn {
+        display: inline-flex !important;
+        visibility: visible !important;
+    }
+    /* DEBUG: Force all tab panes to show content */
+    .tab-pane {
+        display: none;
+    }
+    .tab-pane.active {
+        display: block !important;
+    }
+</style>
 
 <div class="categories-page categories-edit-page">
     <!-- Page Header -->
