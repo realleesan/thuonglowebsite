@@ -24,6 +24,15 @@ $error = '';
 $success = true;
 $expiresAt = null;
 
+// Progressive blur configuration (initialized with defaults)
+$ENABLE_PROGRESSIVE_BLUR = true; // Set to false to disable blur feature
+$TOTAL_DURATION = 15 * 60; // 15 minutes in seconds
+$BLUR_INTERVAL = 90; // 1 minute 30 seconds between each column blur
+$TOTAL_COLS = 8; // Total columns to blur
+$initialBlurCols = 0;
+$nextBlurInSeconds = null;
+$createdAt = null;
+
 try {
     if (!$productId) {
         throw new Exception('ID sản phẩm không hợp lệ');
@@ -53,6 +62,17 @@ try {
     
     $access = $validation['access'];
     $expiresAt = $access['expires_at'];
+    $createdAt = $access['created_at'] ?? date('Y-m-d H:i:s');
+
+    // Calculate elapsed time and which columns should be blurred
+    $elapsedTime = time() - strtotime($createdAt);
+    // Column i gets blurred when: elapsedTime >= (15min - (8-i)*1.5min)
+    // Or: elapsedTime >= (i+1) * 90s when counting from rightmost column
+    // Actually: col 0 blurs when 14:30 left (90s passed), col 1 at 13:00 left (180s passed), etc.
+    $blurStagesPassed = floor($elapsedTime / $BLUR_INTERVAL);
+    $initialBlurCols = max(0, min($TOTAL_COLS, $blurStagesPassed));
+    // Time until next column should be blurred
+    $nextBlurInSeconds = ($blurStagesPassed < $TOTAL_COLS) ? (($blurStagesPassed + 1) * $BLUR_INTERVAL - $elapsedTime) : null;
     
     // Verify this token belongs to this user and product
     if ($access['user_id'] != $userId || $access['product_id'] != $productId) {
@@ -134,6 +154,8 @@ try {
                     <th>Địa chỉ</th>
                     <th>WeChat</th>
                     <th>Điện thoại</th>
+                    <th>Phân loại phong cách</th>
+                    <th>Ảnh cửa hàng</th>
                     <th>QR WeChat</th>
                 </tr>
             </thead>
@@ -143,18 +165,28 @@ try {
                 foreach ($dataList as $index => $row): 
                 ?>
                 <tr>
-                    <td><?php echo $startIndex + $index + 1; ?></td>
-                    <td><?php echo htmlspecialchars($row['supplier_name'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($row['address'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($row['wechat_account'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($row['phone'] ?? ''); ?></td>
-                    <td class="qr-cell">
+                    <td data-col="0"><?php echo $startIndex + $index + 1; ?></td>
+                    <td data-col="1"><?php echo htmlspecialchars($row['supplier_name'] ?? ''); ?></td>
+                    <td data-col="2"><?php echo htmlspecialchars($row['address'] ?? ''); ?></td>
+                    <td data-col="3"><?php echo htmlspecialchars($row['wechat_account'] ?? ''); ?></td>
+                    <td data-col="4"><?php echo htmlspecialchars($row['phone'] ?? ''); ?></td>
+                    <td data-col="5"><?php echo htmlspecialchars($row['style_classification'] ?? ''); ?></td>
+                    <td data-col="6" class="store-image-cell">
+                        <?php if (!empty($row['store_image'])): ?>
+                        <span class="store-image-trigger" onclick="openQrModal('<?php echo htmlspecialchars($row['store_image']); ?>')" title="Xem ảnh cửa hàng">
+                            <i class="fas fa-store store-image-icon"></i>
+                        </span>
+                        <?php else: ?>
+                        -
+                        <?php endif; ?>
+                    </td>
+                    <td data-col="7" class="qr-cell">
                         <?php if (!empty($row['wechat_qr'])): ?>
-                        <a href="<?php echo htmlspecialchars($row['wechat_qr']); ?>" target="_blank">
-                            <img src="<?php echo htmlspecialchars($row['wechat_qr']); ?>" alt="QR" class="qr-thumb" 
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                        <span class="qr-trigger" onclick="openQrModal('<?php echo htmlspecialchars($row['wechat_qr']); ?>')" title="Xem QR">
+                            <img src="<?php echo htmlspecialchars($row['wechat_qr']); ?>" alt="QR" class="qr-thumb"
+                                 onerror="this.style.display='none'; this.parentNode.querySelector('.qr-icon').style.display='inline-flex';">
                             <i class="fas fa-qrcode qr-icon" style="display:none;" title="Xem QR"></i>
-                        </a>
+                        </span>
                         <?php else: ?>
                         -
                         <?php endif; ?>
@@ -201,3 +233,98 @@ try {
     
     <?php endif; ?>
 </div>
+
+<!-- QR Modal Lightbox -->
+<div id="qrModal" class="qr-modal" onclick="closeQrModal(event)">
+    <div class="qr-modal-content" onclick="event.stopPropagation()">
+        <span class="qr-modal-close" onclick="closeQrModal()">&times;</span>
+        <img id="qrModalImage" src="" alt="QR Code">
+    </div>
+</div>
+
+<script>
+// Progressive Blur Configuration
+const ENABLE_PROGRESSIVE_BLUR = <?php echo $ENABLE_PROGRESSIVE_BLUR ? 'true' : 'false'; ?>;
+const BLUR_CONFIG = {
+    totalCols: <?php echo $TOTAL_COLS; ?>,
+    blurInterval: <?php echo $BLUR_INTERVAL * 1000; ?>, // Convert to milliseconds
+    initialBlurCols: <?php echo $initialBlurCols; ?>,
+    nextBlurInMs: <?php echo $nextBlurInSeconds !== null ? $nextBlurInSeconds * 1000 : 'null'; ?>
+};
+
+let qrModalTimer = null;
+
+function openQrModal(imageSrc) {
+    const modal = document.getElementById('qrModal');
+    const modalImg = document.getElementById('qrModalImage');
+    modalImg.src = imageSrc;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // Auto-close after 5 seconds
+    clearTimeout(qrModalTimer);
+    qrModalTimer = setTimeout(() => {
+        closeQrModal();
+    }, 5000);
+}
+
+function closeQrModal(event) {
+    // If event is provided, only close if clicking the overlay (not the image)
+    if (event && event.target !== event.currentTarget) return;
+
+    const modal = document.getElementById('qrModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+
+    // Clear src after animation
+    setTimeout(() => {
+        document.getElementById('qrModalImage').src = '';
+    }, 300);
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeQrModal();
+    }
+});
+
+// Progressive blur effect - columns blur based on time elapsed from session start
+(function startProgressiveBlur() {
+    if (!ENABLE_PROGRESSIVE_BLUR) return;
+
+    const { totalCols, blurInterval, initialBlurCols, nextBlurInMs } = BLUR_CONFIG;
+
+    // Blur columns that should already be blurred based on elapsed time
+    for (let i = 0; i < initialBlurCols; i++) {
+        const cells = document.querySelectorAll(`td[data-col="${i}"]`);
+        cells.forEach(cell => {
+            cell.classList.add('blurred-cell');
+        });
+    }
+
+    // If there are more columns to blur, schedule the next one
+    let currentCol = initialBlurCols;
+
+    function scheduleNextBlur() {
+        if (currentCol >= totalCols) return;
+
+        const delay = (currentCol === initialBlurCols && nextBlurInMs !== null)
+            ? nextBlurInMs  // First upcoming blur uses calculated time
+            : blurInterval; // Subsequent blurs use fixed interval
+
+        setTimeout(() => {
+            // Add blur class to all cells with this column index
+            const cells = document.querySelectorAll(`td[data-col="${currentCol}"]`);
+            cells.forEach(cell => {
+                cell.classList.add('blurred-cell');
+            });
+
+            currentCol++;
+            scheduleNextBlur(); // Schedule next column
+        }, delay);
+    }
+
+    scheduleNextBlur();
+})();
+</script>
