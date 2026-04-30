@@ -33,6 +33,9 @@ $initialBlurCols = 0;
 $nextBlurInSeconds = null;
 $createdAt = null;
 
+// Content protection configuration
+$ENABLE_CONTENT_PROTECTION = true; // Set to false to disable copy/print protection
+
 try {
     if (!$productId) {
         throw new Exception('ID sản phẩm không hợp lệ');
@@ -243,6 +246,9 @@ try {
 </div>
 
 <script>
+// Content Protection Configuration
+const ENABLE_CONTENT_PROTECTION = <?php echo $ENABLE_CONTENT_PROTECTION ? 'true' : 'false'; ?>;
+
 // Progressive Blur Configuration
 const ENABLE_PROGRESSIVE_BLUR = <?php echo $ENABLE_PROGRESSIVE_BLUR ? 'true' : 'false'; ?>;
 const BLUR_CONFIG = {
@@ -326,5 +332,124 @@ document.addEventListener('keydown', function(e) {
     }
 
     scheduleNextBlur();
+})();
+
+// Content Protection - Prevent copy, print, screenshot, right-click
+(function initContentProtection() {
+    if (!ENABLE_CONTENT_PROTECTION) return;
+
+    // Create overlay element for blur protection
+    const overlay = document.createElement('div');
+    overlay.id = 'protection-overlay';
+    overlay.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;backdrop-filter:blur(20px);';
+    document.body.appendChild(overlay);
+
+    // Disable keyboard shortcuts: Ctrl+C, Ctrl+V, Ctrl+U, Print Screen
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+C (Copy)
+        if (e.ctrlKey && e.key === 'c') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+V (Paste)
+        if (e.ctrlKey && e.key === 'v') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && e.key === 'u') {
+            e.preventDefault();
+            return false;
+        }
+        // Print Screen key detection (limited, will trigger overlay)
+        if (e.key === 'PrintScreen' || e.keyCode === 44 || e.code === 'PrintScreen') {
+            e.preventDefault();
+            showProtectionOverlay();
+            // Try to clear clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText('[Protected Content]').catch(() => {});
+            }
+            setTimeout(hideProtectionOverlay, 500);
+            return false;
+        }
+        // Ctrl+P (Print)
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+S (Save)
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+A (Select All) - only on data table
+        if (e.ctrlKey && e.key === 'a') {
+            if (e.target.closest('.data-table-container')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+    });
+
+    // Show overlay protection
+    function showProtectionOverlay() {
+        overlay.style.display = 'block';
+    }
+    function hideProtectionOverlay() {
+        overlay.style.display = 'none';
+    }
+
+    // Blur content when window/tab loses focus (print screen often causes this)
+    window.addEventListener('blur', function() {
+        showProtectionOverlay();
+    });
+
+    // Remove blur when window regains focus
+    window.addEventListener('focus', function() {
+        hideProtectionOverlay();
+    });
+
+    // Detect tab visibility change
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            showProtectionOverlay();
+        } else {
+            hideProtectionOverlay();
+        }
+    });
+
+    // Disable right-click context menu
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    // Disable text selection on data table
+    const dataTable = document.querySelector('.data-table');
+    if (dataTable) {
+        dataTable.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        dataTable.style.userSelect = 'none';
+        dataTable.style.webkitUserSelect = 'none';
+        dataTable.style.msUserSelect = 'none';
+    }
+
+    // Disable drag on images
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    });
+
+    // Warn on leaving page (optional protection)
+    window.addEventListener('beforeunload', function(e) {
+        if (document.querySelector('.blurred-cell')) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 })();
 </script>
