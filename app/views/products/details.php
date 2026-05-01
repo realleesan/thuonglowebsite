@@ -84,6 +84,19 @@ if (!function_exists('getProductImage')) {
     }
 }
 
+// Helper function to format record count
+if (!function_exists('formatRecordCount')) {
+    function formatRecordCount($count) {
+        if (!$count || $count == 0) {
+            return 'Liên hệ';
+        }
+        if ($count >= 1000) {
+            return number_format($count, 0, ',', '.') . ' records';
+        }
+        return number_format($count, 0, ',', '.') . ' records';
+    }
+}
+
 // Calculate rating distribution
 function calculateRatingDistribution($reviews) {
     $distribution = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
@@ -633,37 +646,92 @@ $averageRating = round($averageRating, 1);
             <section class="related-products-section">
                 <div class="container">
                     <h3 class="related-title">Sản phẩm liên quan</h3>
-                    <div class="products-grid">
+                    <div class="products-grid related-products-grid">
                         <?php foreach ($relatedProducts as $relatedProduct): ?>
-                        <div class="product-item">
-                            <div class="product-image">
-                                <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>">
-                                    <img src="<?php echo getProductImage($relatedProduct); ?>" 
-                                         alt="<?php echo htmlspecialchars($relatedProduct['name']); ?>" loading="lazy">
+                        <!-- Product Item -->
+                        <div class="course-item related-course-item">
+                            <div class="course-category">
+                                <a href="?page=products&category=<?php echo $relatedProduct['category_id'] ?? ''; ?>" class="category-tag">
+                                    <?php echo $relatedProduct['category_name'] ?: 'Sản phẩm'; ?>
                                 </a>
                             </div>
-                            <div class="product-content">
-                                <h4 class="product-title">
+                            <div class="course-image">
+                                <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>">
+                                    <img src="<?php echo getProductImage($relatedProduct); ?>"
+                                         alt="<?php echo htmlspecialchars($relatedProduct['name']); ?>" loading="lazy">
+                                </a>
+                                <button class="wishlist-icon-btn" onclick="toggleWishlist(<?php echo $relatedProduct['id']; ?>, this)" title="Thêm vào yêu thích" style="position: absolute; top: 8px; right: 8px; z-index: 100;">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="course-content">
+                                <h4 class="course-title">
                                     <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>">
                                         <?php echo htmlspecialchars($relatedProduct['name']); ?>
                                     </a>
                                 </h4>
-                                <?php if (!empty($relatedProduct['short_description'])): ?>
-                                <div class="product-excerpt">
-                                    <?php echo htmlspecialchars(substr($relatedProduct['short_description'], 0, 100)) . '...'; ?>
+                                <div class="course-excerpt">
+                                    <?php echo $relatedProduct['short_description'] ?: 'Sản phẩm chất lượng cao từ ThuongLo.com'; ?>
                                 </div>
-                                <?php endif; ?>
-                                <div class="product-price">
-                                    <?php if (!empty($relatedProduct['sale_price']) && $relatedProduct['sale_price'] < $relatedProduct['price']): ?>
+                                <div class="course-instructor">
+                                    <a href="#" class="instructor-name"><?php echo $relatedProduct['supplier_name'] ?? 'ThuongLo.com'; ?></a>
+                                </div>
+                                <div class="course-meta">
+                                    <div class="course-lessons">
+                                        <!-- Database icon for logistics data -->
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <ellipse cx="12" cy="6" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
+                                            <path d="M3 6V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V6" stroke="#356DF1" stroke-width="2"/>
+                                            <path d="M3 12V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V12" stroke="#356DF1" stroke-width="2"/>
+                                            <path d="M21 6V18" stroke="#356DF1" stroke-width="2"/>
+                                            <ellipse cx="12" cy="12" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
+                                        </svg>
+                                        <!-- Display record count for logistics data -->
+                                        <span><?php echo formatRecordCount($relatedProduct['record_count'] ?? $relatedProduct['in_stock'] ?? 0); ?></span>
+                                    </div>
+                                    <?php if (!empty($relatedProduct['is_purchased'])): ?>
+                                    <?php
+                                        $expiryText = '';
+                                        $quotaText = '';
+                                        $badgeStyle = 'background: #28a745;';
+                                        if (!empty($relatedProduct['expiry_date'])) {
+                                            $expiry = strtotime($relatedProduct['expiry_date']);
+                                            $now = time();
+                                            $daysLeft = floor(($expiry - $now) / (60 * 60 * 24));
+                                            if ($daysLeft > 0) {
+                                                $expiryText = ' - Còn ' . $daysLeft . ' ngày';
+                                            } elseif ($daysLeft == 0) {
+                                                $expiryText = ' - Hết hôm nay';
+                                                $badgeStyle = 'background: #ff971a;';
+                                            } else {
+                                                $expiryText = ' - Đã hết hạn';
+                                                $badgeStyle = 'background: #dc3545;';
+                                            }
+                                        }
+
+                                        // Add quota info
+                                        if (!empty($relatedProduct['quota_info'])) {
+                                            $qi = $relatedProduct['quota_info'];
+                                            $quotaText = ' - Quota ' . $qi['remaining'] . '/' . $qi['total'];
+                                        }
+                                    ?>
+                                    <div class="purchased-badge" style="display: inline-flex; align-items: center; gap: 4px; <?php echo $badgeStyle; ?> color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px;">
+                                        <i class="fas fa-check-circle"></i> Đã mua<?php echo $expiryText; ?><?php echo $quotaText; ?>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="course-price">
+                                    <?php if ($relatedProduct['sale_price']): ?>
                                         <span class="price"><?php echo $relatedProduct['formatted_sale_price']; ?></span>
                                         <span class="old-price"><?php echo $relatedProduct['formatted_price']; ?></span>
                                     <?php else: ?>
                                         <span class="price"><?php echo $relatedProduct['formatted_price']; ?></span>
                                     <?php endif; ?>
                                 </div>
-                                <div class="product-button">
-                                    <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>" class="btn-view-details">
-                                        Xem chi tiết
+                                <div class="course-button">
+                                    <a href="?page=details&id=<?php echo $relatedProduct['id']; ?>" class="btn-start-learning">
+                                        <i class="fas fa-database"></i>
+                                        <span>Xem chi tiết</span>
                                     </a>
                                 </div>
                             </div>
