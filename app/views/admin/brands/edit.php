@@ -10,6 +10,9 @@ require_once __DIR__ . '/../../../../core/view_init.php';
 // Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
+// Check for success message after redirect
+$updated = isset($_GET['updated']) && $_GET['updated'] == '1';
+
 try {
     // Get brand ID from URL
     $brand_id = (int)($_GET['id'] ?? 0);
@@ -64,7 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'description' => $description,
             'status' => $status,
             'website' => $_POST['website'] ?? '',
-            'sort_order' => (int)($_POST['sort_order'] ?? 0)
+            'sort_order' => (int)($_POST['sort_order'] ?? 0),
+            'show_in_filter' => isset($_POST['show_in_filter']) ? 1 : 0,
+            'is_featured' => isset($_POST['is_featured']) ? 1 : 0
         ];
 
         // Only update image if a new file was uploaded
@@ -101,22 +106,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($updateData['image']);
         }
 
+        // Update using service
         $updated = $service->updateBrand($brand_id, $updateData);
 
         if ($updated) {
             // Use PRG pattern - redirect after successful POST
             if (!headers_sent($filename, $linenum)) {
-                header('Location: ?page=admin&module=brands&action=view&id=' . $brand_id . '&updated=1');
+                header('Location: ?page=admin&module=brands&action=edit&id=' . $brand_id . '&updated=1');
                 exit;
             } else {
                 // Fallback: if headers sent, use JavaScript redirect
                 ?>
                 <script>
-                window.location.href = "?page=admin&module=brands&action=view&id=<?= $brand_id ?>&updated=1";
+                window.location.href = "?page=admin&module=brands&action=edit&id=<?= $brand_id ?>&updated=1";
                 </script>
                 <div style="padding:20px;text-align:center;">
                     <p>Đang chuyển hướng...</p>
-                    <a href="?page=admin&module=brands&action=view&id=<?= $brand_id ?>&updated=1">Nhấn vào đây nếu không tự chuyển</a>
+                    <a href="?page=admin&module=brands&action=edit&id=<?= $brand_id ?>&updated=1">Nhấn vào đây nếu không tự chuyển</a>
                 </div>
                 <?php
                 exit;
@@ -134,7 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'website' => $brand['website'] ?? '',
         'status' => $brand['status'],
         'sort_order' => $brand['sort_order'] ?? 0,
-        'image' => $brand['image'] ?? ''
+        'image' => $brand['image'] ?? '',
+        'show_in_filter' => $brand['show_in_filter'] ?? 0,
+        'is_featured' => $brand['is_featured'] ?? 0
     ];
 }
 ?>
@@ -160,6 +168,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
         </div>
     </div>
+
+    <!-- Success Message -->
+    <?php if ($updated): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            Thương hiệu đã được cập nhật thành công!
+        </div>
+    <?php endif; ?>
 
     <!-- Error Messages -->
     <?php if (!empty($errors)): ?>
@@ -286,34 +302,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group col-6">
-                                <label>Hiển thị ở bộ lọc</label>
-                                <div class="radio-group">
-                                    <label class="radio-label">
-                                        <input type="radio" name="show_in_filter" value="1" <?= (($_POST['show_in_filter'] ?? ($brand['show_in_filter'] ?? '1')) == '1') ? 'checked' : '' ?>>
-                                        <span>Có</span>
-                                    </label>
-                                    <label class="radio-label">
-                                        <input type="radio" name="show_in_filter" value="0" <?= (($_POST['show_in_filter'] ?? ($brand['show_in_filter'] ?? '')) == '0') ? 'checked' : '' ?>>
-                                        <span>Không</span>
-                                    </label>
-                                </div>
-                                <small class="input-hint">Hiển thị trong dropdown bộ lọc ở header và sidebar</small>
+                        <div class="form-section-divider"></div>
+                        <h4 class="subsection-title">Tùy chọn hiển thị</h4>
+
+                        <div class="form-row checkbox-row">
+                            <?php
+                            // Xác định giá trị checkbox: nếu đang POST (có lỗi) thì dùng isset, nếu load lần đầu thì dùng từ $_POST đã được gán
+                            $isPost = ($_SERVER['REQUEST_METHOD'] === 'POST');
+                            $showInFilter = $isPost ? (isset($_POST['show_in_filter']) ? 1 : 0) : ($_POST['show_in_filter'] ?? 0);
+                            $featured = $isPost ? (isset($_POST['is_featured']) ? 1 : 0) : ($_POST['is_featured'] ?? 0);
+                            ?>
+                            <div class="form-group checkbox-col">
+                                <label class="checkbox-card">
+                                    <input type="checkbox" name="show_in_filter" value="1" <?= $showInFilter ? 'checked' : '' ?>>
+                                    <span class="check-icon"><i class="fas fa-filter"></i></span>
+                                    <span class="checkbox-info">
+                                        <strong>Hiển thị ở bộ lọc</strong>
+                                        <small>Xuất hiện ở filter sản phẩm, dropdown header</small>
+                                    </span>
+                                </label>
                             </div>
-                            <div class="form-group col-6">
-                                <label>Thương hiệu nổi bật</label>
-                                <div class="radio-group">
-                                    <label class="radio-label">
-                                        <input type="radio" name="is_featured" value="1" <?= (($_POST['is_featured'] ?? ($brand['is_featured'] ?? '')) == '1') ? 'checked' : '' ?>>
-                                        <span>Có</span>
-                                    </label>
-                                    <label class="radio-label">
-                                        <input type="radio" name="is_featured" value="0" <?= (($_POST['is_featured'] ?? ($brand['is_featured'] ?? '0')) == '0') ? 'checked' : '' ?>>
-                                        <span>Không</span>
-                                    </label>
-                                </div>
-                                <small class="input-hint">Đánh dấu là thương hiệu nổi bật để hiển thị ưu tiên</small>
+                            <div class="form-group checkbox-col">
+                                <label class="checkbox-card">
+                                    <input type="checkbox" name="is_featured" value="1" <?= $featured ? 'checked' : '' ?>>
+                                    <span class="check-icon"><i class="fas fa-star"></i></span>
+                                    <span class="checkbox-info">
+                                        <strong>Thương hiệu nổi bật</strong>
+                                        <small>Hiển thị ở section thương hiệu nổi bật trên trang chủ</small>
+                                    </span>
+                                </label>
                             </div>
                         </div>
                     </div>

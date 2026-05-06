@@ -2843,7 +2843,8 @@ class AdminService extends BaseService
     public function createBrand(array $data): bool
     {
         try {
-            $brandsModel = $this->getModel('BrandsModel');
+            // Force fresh BrandsModel instance to avoid cache issues
+            $brandsModel = new BrandsModel();
             if (!$brandsModel) {
                 return false;
             }
@@ -2857,6 +2858,9 @@ class AdminService extends BaseService
         }
     }
 
+    /**
+     * Update a brand
+     */
     public function updateBrand(int $brandId, array $data): bool
     {
         try {
@@ -2874,6 +2878,9 @@ class AdminService extends BaseService
         }
     }
 
+    /**
+     * Delete a brand
+     */
     public function deleteBrand(int $brandId): bool
     {
         try {

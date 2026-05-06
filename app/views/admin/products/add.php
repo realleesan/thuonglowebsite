@@ -16,8 +16,15 @@ try {
     $categoriesData = $service->getActiveCategoriesForDropdown();
     $categories = $categoriesData['categories'] ?? [];
 
-    // Get brands for dropdown
-    $brands = $service->getBrandsForDropdown();
+    // Get brands for dropdown using AdminService
+    try {
+        $brandsModel = new BrandsModel();
+        $brands = $brandsModel->getForDropdown();
+    } catch (Exception $e) {
+        $brands = [];
+        // Log error but don't crash the page
+        error_log('Error getting brands: ' . $e->getMessage());
+    }
 
 } catch (Exception $e) {
     $errorHandler->logError('Admin Products Add View Error', $e);

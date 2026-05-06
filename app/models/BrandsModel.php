@@ -10,7 +10,7 @@ class BrandsModel extends BaseModel {
     protected $table = 'brands';
     protected $fillable = [
         'name', 'slug', 'description', 'image', 'website',
-        'status', 'sort_order'
+        'status', 'sort_order', 'show_in_filter', 'is_featured'
     ];
     
     /**
@@ -59,7 +59,7 @@ class BrandsModel extends BaseModel {
             $data['slug'] = $this->generateUniqueSlug($data['name']);
         }
         
-        return parent::create($data);
+        return $this->db->table($this->table)->insert($data);
     }
     
     /**

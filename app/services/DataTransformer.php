@@ -137,6 +137,8 @@ class DataTransformer {
             'description' => $this->security->escapeHtml($brand['description'] ?? ''),
             'status' => $brand['status'] ?? 'inactive',
             'sort_order' => (int) ($brand['sort_order'] ?? 0),
+            'show_in_filter' => (int) ($brand['show_in_filter'] ?? 0),
+            'is_featured' => (int) ($brand['is_featured'] ?? 0),
             'created_at' => $brand['created_at'] ?? date('Y-m-d H:i:s'),
             'updated_at' => $brand['updated_at'] ?? date('Y-m-d H:i:s'),
         ];

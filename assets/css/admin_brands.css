@@ -819,6 +819,93 @@
     margin-bottom: 4px;
 }
 
+/* Checkbox Cards - Match Categories Style */
+.brands-page .form-section-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 24px 0;
+    border: none;
+}
+
+.brands-page .subsection-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 20px 0;
+}
+
+.brands-page .checkbox-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.brands-page .checkbox-col {
+    flex: 1;
+    min-width: 250px;
+}
+
+.brands-page .checkbox-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #ffffff;
+}
+
+.brands-page .checkbox-card:hover {
+    border-color: #356df1;
+    background: #eff6ff;
+}
+
+.brands-page .checkbox-card input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #356df1;
+    cursor: pointer;
+}
+
+.brands-page .check-icon {
+    width: 40px;
+    height: 40px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.brands-page .checkbox-card input:checked + .check-icon {
+    background: #356df1;
+    color: white;
+}
+
+.brands-page .checkbox-info {
+    flex: 1;
+}
+
+.brands-page .checkbox-info strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.brands-page .checkbox-info small {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
 /* Responsive Design - Match Products/Categories Style */
 @media (max-width: 1024px) {
     .brands-page .stats-row {
