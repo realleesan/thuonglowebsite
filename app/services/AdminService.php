@@ -2752,6 +2752,158 @@ class AdminService extends BaseService
         }
     }
 
+    // ==================== BRANDS ====================
+
+    public function getBrandsData(int $page = 1, int $perPage = 10, array $filters = []): array
+    {
+        try {
+            $brandsModel = $this->getModel('BrandsModel');
+            $productsModel = $this->getModel('ProductsModel');
+
+            if (!$brandsModel) {
+                return $this->getEmptyData();
+            }
+
+            $conditions = [];
+            $bindings = [];
+
+            if (!empty($filters['search'])) {
+                $conditions[] = "(name LIKE ? OR description LIKE ? OR slug LIKE ?)";
+                $searchTerm = "%{$filters['search']}%";
+                $bindings = array_merge($bindings, [$searchTerm, $searchTerm, $searchTerm]);
+            }
+
+            if (!empty($filters['status'])) {
+                $conditions[] = "status = ?";
+                $bindings[] = $filters['status'];
+            }
+
+            $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
+            $countSql = "SELECT COUNT(*) as total FROM brands {$whereClause}";
+            $totalResult = $brandsModel->query($countSql, $bindings);
+            $total = $totalResult[0]['total'] ?? 0;
+
+            $offset = ($page - 1) * $perPage;
+            $brandsSql = "SELECT * FROM brands {$whereClause} ORDER BY sort_order ASC, name ASC LIMIT {$perPage} OFFSET {$offset}";
+            $brands = $brandsModel->query($brandsSql, $bindings);
+
+            // Get product counts
+            if ($productsModel) {
+                foreach ($brands as &$brand) {
+                    $productCountSql = "SELECT COUNT(*) as count FROM products WHERE brand_id = ?";
+                    $countResult = $productsModel->query($productCountSql, [$brand['id']]);
+                    $brand['product_count'] = $countResult[0]['count'] ?? 0;
+                }
+                unset($brand);
+            }
+
+            $transformedBrands = [];
+            foreach ($brands as $brand) {
+                $transformedBrands[] = $this->transformer->transformBrand($brand);
+            }
+
+            return [
+                'brands' => $transformedBrands,
+                'pagination' => $this->calculatePagination($page, $perPage, $total),
+                'filters' => $filters,
+                'total' => $total,
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getBrandsData']);
+        }
+    }
+
+    public function getBrandDetailsData(int $brandId): array
+    {
+        try {
+            $brand = $this->callModelMethod('BrandsModel', 'find', [$brandId]);
+            if (!$brand) {
+                return ['brand' => null, 'products' => []];
+            }
+
+            $products = $this->callModelMethod('ProductsModel', 'getByBrand', [$brandId, 10], []);
+
+            // Get product count
+            $productsModel = $this->getModel('ProductsModel');
+            if ($productsModel) {
+                $productCountSql = "SELECT COUNT(*) as count FROM products WHERE brand_id = ?";
+                $countResult = $productsModel->query($productCountSql, [$brandId]);
+                $brand['product_count'] = $countResult[0]['count'] ?? 0;
+            }
+
+            return [
+                'brand' => $this->transformer->transformBrand($brand),
+                'products' => $this->transformer->transformProducts($products),
+            ];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getBrandDetailsData', 'brand_id' => $brandId]);
+        }
+    }
+
+    public function createBrand(array $data): bool
+    {
+        try {
+            $brandsModel = $this->getModel('BrandsModel');
+            if (!$brandsModel) {
+                return false;
+            }
+            $result = $brandsModel->create($data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'createBrand']) !== null;
+        }
+    }
+
+    public function updateBrand(int $brandId, array $data): bool
+    {
+        try {
+            $brandsModel = $this->getModel('BrandsModel');
+            if (!$brandsModel) {
+                return false;
+            }
+            $result = $brandsModel->update($brandId, $data);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'updateBrand', 'brand_id' => $brandId]) !== null;
+        }
+    }
+
+    public function deleteBrand(int $brandId): bool
+    {
+        try {
+            $brandsModel = $this->getModel('BrandsModel');
+            if (!$brandsModel) {
+                return false;
+            }
+            $result = $brandsModel->delete($brandId);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+            }
+            return $result !== false;
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'deleteBrand', 'brand_id' => $brandId]) !== null;
+        }
+    }
+
+    public function getBrandsForDropdown(): array
+    {
+        try {
+            $brandsModel = $this->getModel('BrandsModel');
+            if (!$brandsModel) {
+                return [];
+            }
+            return $brandsModel->getForDropdown();
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getBrandsForDropdown']);
+        }
+    }
+
     // ==================== HELPERS ====================
 
     /**

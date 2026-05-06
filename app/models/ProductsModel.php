@@ -9,7 +9,7 @@ require_once __DIR__ . '/BaseModel.php';
 class ProductsModel extends BaseModel {
     protected $table = 'products';
     protected $fillable = [
-        'name', 'slug', 'category_id', 'price', 'sale_price', 'stock', 'sku',
+        'name', 'slug', 'category_id', 'brand_id', 'price', 'sale_price', 'stock', 'sku',
         'status', 'type', 'description', 'short_description', 'image', 'gallery',
         'meta_title', 'meta_description', 'featured', 'digital', 'downloadable',
         'download_limit', 'download_expiry', 'weight', 'dimensions',
@@ -71,6 +71,25 @@ class ProductsModel extends BaseModel {
         }
 
         return $this->db->query($sql, $categoryIds);
+    }
+    
+    /**
+     * Get products by brand
+     */
+    public function getByBrand($brandId, $limit = null) {
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.brand_id = ? AND p.status = 'active'
+            ORDER BY p.created_at DESC
+        ";
+
+        if ($limit) {
+            $sql .= " LIMIT {$limit}";
+        }
+
+        return $this->db->query($sql, [$brandId]);
     }
     
     /**

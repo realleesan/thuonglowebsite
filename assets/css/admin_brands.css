@@ -1,0 +1,890 @@
+/**
+ * Admin Brands CSS
+ * Styles for brands management pages
+ */
+
+/* Brands Page Container */
+.brands-page {
+    padding: 24px;
+}
+
+.brands-add-page,
+.brands-edit-page,
+.brands-view-page {
+    padding: 0;
+}
+
+/* Page Header - Match Products/Categories Style */
+.brands-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.brands-page .page-header-left h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brands-page .page-header-left h1 i {
+    color: #356DF1;
+}
+
+.brands-page .page-header-left .page-description {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.brands-page .page-header-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* Filters Section - Match Products/Categories Style */
+.brands-page .filters-section {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.brands-page .filters-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.brands-page .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    flex: 1;
+}
+
+.brands-page .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.brands-page .filter-item label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.brands-page .filter-item input,
+.brands-page .filter-item select {
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #374151;
+    background: #ffffff;
+    transition: border-color 0.3s ease;
+}
+
+.brands-page .filter-item input:focus,
+.brands-page .filter-item select:focus {
+    outline: none;
+    border-color: #356DF1;
+}
+
+.brands-page .filter-actions {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+/* Stats Cards - Match Products/Categories Style */
+.brands-page .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.brands-page .stat-card-simple {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.brands-page .stat-icon-simple {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 20px;
+}
+
+.stat-blue { background: #dbeafe; color: #1e40af; }
+.stat-green { background: #d1fae5; color: #065f46; }
+.stat-orange { background: #fef3c7; color: #92400e; }
+.stat-purple { background: #f3e8ff; color: #7c3aed; }
+
+.brands-page .stat-content-simple {
+    flex: 1;
+}
+
+.brands-page .stat-number-simple {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.brands-page .stat-label-simple {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Results Info - Match Products/Categories Style */
+.brands-page .results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.brands-page .results-count {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.brands-page .results-count strong {
+    color: #111827;
+}
+
+/* Table Container - Match Products/Categories Style */
+.brands-page .table-container {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+.brands-page .admin-table {
+    width: 100%;
+    min-width: 1000px;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+.brands-page .admin-table thead {
+    background: #f9fafb;
+}
+
+.brands-page .admin-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.brands-page .admin-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.2s ease;
+}
+
+.brands-page .admin-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.brands-page .admin-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.brands-page .admin-table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.brands-page .admin-table .brand-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Brand Info Cell - Match Products/Categories Style */
+.brands-page .category-info h4.category-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 4px 0;
+}
+
+.brands-page .category-thumbnail {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.brands-page .category-image-placeholder {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    border-radius: 6px;
+    color: #9ca3af;
+    font-size: 18px;
+}
+
+.brands-page .slug-text {
+    background: #f3f4f6;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.brands-page .product-count-badge {
+    background: #e5e7eb;
+    color: #374151;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Status Badge - Match Products/Categories Style */
+.brands-page .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.brands-page .status-badge.status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.brands-page .status-badge.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Action Buttons - Match Products/Categories Style */
+.brands-page .action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.brands-page .action-buttons .btn-sm {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.brands-page .action-buttons .btn-info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.brands-page .action-buttons .btn-info:hover {
+    background: #bfdbfe;
+}
+
+.brands-page .action-buttons .btn-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.brands-page .action-buttons .btn-warning:hover {
+    background: #fde68a;
+}
+
+.brands-page .action-buttons .btn-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.brands-page .action-buttons .btn-danger:hover {
+    background: #fecaca;
+}
+
+/* Pagination - Match Products/Categories Style */
+.brands-page .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.brands-page .pagination {
+    display: flex;
+    gap: 8px;
+}
+
+.brands-page .pagination-btn,
+.brands-page .pagination-number {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.brands-page .pagination-btn:hover,
+.brands-page .pagination-number:hover {
+    border-color: #356DF1;
+    color: #356DF1;
+}
+
+.brands-page .pagination-number.active {
+    background: #356DF1;
+    border-color: #356DF1;
+    color: #fff;
+}
+
+.brands-page .pagination-info {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Delete Modal */
+.brands-page .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.brands-page .modal-overlay.active {
+    display: flex;
+}
+
+.brands-page .modal-content {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    overflow: hidden;
+}
+
+.brands-page .modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brands-page .modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.brands-page .modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #999;
+    cursor: pointer;
+}
+
+.brands-page .modal-body {
+    padding: 20px;
+}
+
+.brands-page .modal-body p {
+    margin: 0 0 10px 0;
+    color: #666;
+}
+
+.brands-page .modal-body .warning-text {
+    color: #c2185b;
+    font-size: 13px;
+    padding: 10px;
+    background: #fce4ec;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.brands-page .modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Add/Edit Form Styles - Match Products/Categories Style */
+.brands-page.brands-add-page,
+.brands-page.brands-edit-page {
+    max-width: 100%;
+    margin: 0;
+}
+
+.brands-page .form-container {
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 24px;
+    margin: 24px;
+}
+
+.brands-page .form-group {
+    margin-bottom: 20px;
+}
+
+.brands-page .form-group label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.brands-page .form-group label.required::after {
+    content: ' *';
+    color: #EF4444;
+}
+
+.brands-page .form-group input,
+.brands-page .form-group select,
+.brands-page .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.brands-page .form-group input:focus,
+.brands-page .form-group select:focus,
+.brands-page .form-group textarea:focus {
+    outline: none;
+    border-color: #356df1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+.brands-page .form-group small {
+    display: block;
+    margin-top: 5px;
+    color: #888;
+    font-size: 12px;
+}
+
+/* Form Row Layout - Match Products/Categories Style */
+.brands-page .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.brands-page .form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.brands-page .form-row .form-group.col-6 {
+    flex: 0 0 calc(50% - 8px);
+    max-width: calc(50% - 8px);
+}
+
+.brands-page .input-with-btn {
+    display: flex;
+    gap: 8px;
+}
+
+.brands-page .input-with-btn input {
+    flex: 1;
+}
+
+.brands-page .input-with-btn .btn {
+    white-space: nowrap;
+    padding: 10px 12px;
+}
+
+/* Tab Styles - Match Products/Categories Style */
+.brands-page .category-details-tabs {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.brands-page .category-details-tabs .tabs-header {
+    display: flex;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+.brands-page .category-details-tabs .tab-btn {
+    padding: 14px 20px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brands-page .category-details-tabs .tab-btn:hover {
+    color: #374151;
+    background: #f3f4f6;
+}
+
+.brands-page .category-details-tabs .tab-btn.active {
+    color: #356DF1;
+    background: #fff;
+    border-bottom: 2px solid #356DF1;
+}
+
+.brands-page .category-details-tabs .tabs-content {
+    padding: 24px;
+    position: relative;
+    min-height: 200px;
+}
+
+.brands-page .category-details-tabs .tab-pane {
+    display: none;
+    width: 100%;
+}
+
+.brands-page .category-details-tabs .tab-pane.active {
+    display: block !important;
+    animation: fadeIn 0.3s ease;
+    visibility: visible;
+    opacity: 1;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Image Upload Styles - Match Products/Categories Style */
+.brands-page .image-upload-box {
+    width: 100%;
+    max-width: 400px;
+    height: 250px;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background: #f9fafb;
+    transition: all 0.2s;
+}
+
+.brands-page .image-upload-box:hover {
+    border-color: #356df1;
+    background: #eff6ff;
+}
+
+.brands-page .image-upload-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.brands-page .image-upload-box .image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #9ca3af;
+}
+
+.brands-page .image-upload-box .image-placeholder i {
+    font-size: 48px;
+}
+
+.brands-page .image-upload-box .image-placeholder span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.brands-page .image-upload-box .image-placeholder small {
+    font-size: 12px;
+}
+
+.brands-page .image-input-group {
+    margin-top: 16px;
+    max-width: 400px;
+}
+
+.brands-page .image-input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.brands-page .image-input-group input[type="url"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.brands-page .image-input-group .input-hint {
+    display: block;
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* Form Actions - Match Products/Categories Style */
+.brands-page .form-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid #E5E7EB;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.brands-page .form-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.brands-page .form-actions .btn-primary {
+    background: #356df1;
+    color: white;
+    border: 1px solid #356df1;
+}
+
+.brands-page .form-actions .btn-primary:hover {
+    background: #2551c4;
+    border-color: #2551c4;
+}
+
+.brands-page .form-actions .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.brands-page .form-actions .btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.brands-page .form-actions .btn-outline {
+    background: white;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+}
+
+.brands-page .form-actions .btn-outline:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+/* Radio Group - Match Products/Categories Style */
+.brands-page .radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.brands-page .radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+}
+
+.brands-page .radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #356df1;
+    cursor: pointer;
+}
+
+.brands-page .input-hint {
+    display: block;
+    margin-top: 5px;
+    color: #888;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Alert Messages - Match Products/Categories Style */
+.brands-page .alert {
+    display: flex;
+    align-items: flex-start;
+    padding: 14px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.brands-page .alert i {
+    margin-right: 10px;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.brands-page .alert-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.brands-page .alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.brands-page .error-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.brands-page .error-list li {
+    margin-bottom: 4px;
+}
+
+/* Responsive Design - Match Products/Categories Style */
+@media (max-width: 1024px) {
+    .brands-page .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .brands-page {
+        padding: 16px;
+    }
+    
+    .brands-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px;
+    }
+    
+    .brands-page .stats-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .brands-page .form-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .brands-page .form-row .form-group.col-6 {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+    
+    .brands-page .form-actions {
+        flex-direction: column;
+    }
+    
+    .brands-page .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .brands-page .category-details-tabs .tabs-header {
+        overflow-x: auto;
+    }
+    
+    .brands-page .category-details-tabs .tab-btn {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+    
+    .brands-page .category-details-tabs .tabs-content {
+        padding: 16px;
+    }
+    
+    .brands-page .image-upload-box {
+        max-width: 100%;
+        height: 200px;
+    }
+    
+    .brands-page .pagination-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .brands-page .pagination {
+        justify-content: center;
+    }
+}

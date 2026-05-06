@@ -1,0 +1,489 @@
+/* Brands Page Styles - Match with Products Page */
+
+/* Products Section */
+.products-section {
+    padding: 40px 0;
+}
+
+.products-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 40px;
+    align-items: start;
+}
+
+/* Products Main */
+.products-main {
+    min-height: 100vh;
+}
+
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #212427;
+    margin: 0;
+}
+
+.filter-toggle-btn {
+    display: none;
+    background: none;
+    border: 2px solid #356df1;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-toggle-btn:hover {
+    background-color: #356df1;
+}
+
+.filter-toggle-btn:hover svg path {
+    fill: #ffffff;
+}
+
+/* Products Topbar */
+.products-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.results-count {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.sort-select {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background-color: #ffffff;
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+    min-width: 180px;
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: #356df1;
+    box-shadow: 0 0 0 2px rgba(53, 109, 241, 0.1);
+}
+
+/* Products Grid */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+/* Course Item - Same as products */
+.course-item {
+    background: #f5f7f8;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    border: 1px solid #e9ecef;
+}
+
+.course-item:hover {
+    transform: translateY(-5px);
+    border-color: #356df1;
+}
+
+.course-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.course-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+    transition: transform 0.3s ease;
+}
+
+.course-item:hover .course-image img {
+    transform: scale(1.05);
+}
+
+.course-content {
+    padding: 20px;
+}
+
+.course-title {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.course-title a {
+    color: #212427;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.course-title a:hover {
+    color: #356df1;
+}
+
+.course-excerpt {
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.course-instructor {
+    margin-bottom: 12px;
+}
+
+.instructor-name {
+    color: #356df1;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.instructor-name:hover {
+    color: #000000;
+}
+
+.course-meta {
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    row-gap: 8px;
+}
+
+.course-lessons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.course-lessons svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.course-button {
+    margin-top: auto;
+}
+
+.btn-start-learning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #356df1;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-start-learning:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.btn-start-learning i {
+    font-size: 12px;
+}
+
+/* No Products State */
+.no-products {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 2px solid #6c757d;
+    border-radius: 50%;
+    color: #6c757d;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover,
+.page-link.active {
+    background-color: #356df1;
+    border-color: #356df1;
+    color: #ffffff;
+}
+
+.page-link.prev,
+.page-link.next {
+    font-size: 14px;
+}
+
+.page-link.prev svg,
+.page-link.next svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Sidebar */
+.products-sidebar {
+    background: #f5f7f8;
+    border-radius: 10px;
+    padding: 0;
+    position: sticky;
+    top: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.sidebar-header {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #212427;
+}
+
+.sidebar-close {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+/* Filter Section */
+.filter-section {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.filter-section:last-child {
+    border-bottom: none;
+}
+
+.filter-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #212427;
+    margin: 0 0 16px 0;
+    text-transform: uppercase;
+}
+
+.filter-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter-content li {
+    margin-bottom: 12px;
+}
+
+.filter-content li:last-child {
+    margin-bottom: 0;
+}
+
+.filter-content label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #495057;
+    transition: color 0.3s ease;
+}
+
+.filter-content label:hover {
+    color: #356df1;
+}
+
+.filter-content input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #356df1;
+    cursor: pointer;
+}
+
+.filter-content .count {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: auto;
+}
+
+/* Filter Buttons */
+.apply-filters-btn,
+.reset-filters-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.apply-filters-btn {
+    background: #356df1;
+    color: #fff;
+}
+
+.apply-filters-btn:hover {
+    background: #000000;
+}
+
+.reset-filters-btn {
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+
+.reset-filters-btn:hover {
+    background: #e9ecef;
+    color: #212427;
+}
+
+/* Error Message */
+.error-message {
+    background: #fff3e0;
+    border: 1px solid #ffcc80;
+    border-radius: 8px;
+    padding: 15px 20px;
+    color: #e65100;
+    margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1199px) {
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 991px) {
+    .products-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-toggle-btn {
+        display: block;
+    }
+    
+    .products-sidebar {
+        position: fixed;
+        top: 0;
+        right: -320px;
+        width: 300px;
+        height: 100vh;
+        z-index: 1000;
+        padding: 0;
+        transition: right 0.3s ease;
+        border-radius: 0;
+    }
+    
+    .products-sidebar.active {
+        right: 0;
+    }
+    
+    .sidebar-header {
+        display: flex;
+    }
+    
+    .sidebar-close {
+        display: block;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
+
+@media (max-width: 767px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .products-topbar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+}

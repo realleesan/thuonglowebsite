@@ -112,6 +112,19 @@ switch($page) {
         $currentService = $publicService ?? $currentService;
         break;
         
+    case 'brands':
+        $title = 'Thương hiệu - Thuong Lo';
+        $content = 'app/views/brands/brands.php';
+        $showPageHeader = true;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = [
+            ['title' => 'Trang chủ', 'url' => './'],
+            ['title' => 'Thương hiệu']
+        ];
+        $currentService = $publicService ?? $currentService;
+        break;
+        
     case 'details':
     case 'course-details':
         $title = 'Gói Data Nguồn Hàng Premium - Thuong Lo';
@@ -1021,6 +1034,46 @@ switch($page) {
                 }
                 break;
                 
+            case 'brands':
+                $page_title = 'Quản lý Thương hiệu';
+
+                // Handle delete action BEFORE including layout
+                if ($action === 'delete' && isset($_GET['id'])) {
+                    $delete_id = (int)$_GET['id'];
+                    if ($delete_id > 0 && $adminService) {
+                        try {
+                            // Check if brand has products before deleting
+                            $brandData = $adminService->getBrandDetailsData($delete_id);
+                            if ($brandData['brand'] && $brandData['brand']['product_count'] > 0) {
+                                header('Location: ?page=admin&module=brands&error=has_products');
+                                exit;
+                            }
+                            $adminService->deleteBrand($delete_id);
+                        } catch (Exception $e) {
+                            error_log('Delete brand error: ' . $e->getMessage());
+                        }
+                    }
+                    // Redirect after delete
+                    header('Location: ?page=admin&module=brands&success=deleted');
+                    exit;
+                }
+
+                switch($action) {
+                    case 'add':
+                        $content = 'app/views/admin/brands/add.php';
+                        break;
+                    case 'edit':
+                        $content = 'app/views/admin/brands/edit.php';
+                        break;
+                    case 'view':
+                        $content = 'app/views/admin/brands/view.php';
+                        break;
+                    default:
+                        $content = 'app/views/admin/brands/index.php';
+                        break;
+                }
+                break;
+
             case 'news':
                 $page_title = 'Quản lý Tin tức';
                 

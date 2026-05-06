@@ -24,23 +24,28 @@ if (!$product_id) {
 try {
     require_once __DIR__ . '/../../../models/ProductsModel.php';
     require_once __DIR__ . '/../../../models/CategoriesModel.php';
-    
+    require_once __DIR__ . '/../../../models/BrandsModel.php';
+
     $productsModel = new ProductsModel();
     $categoriesModel = new CategoriesModel();
-    
+    $brandsModel = new BrandsModel();
+
     // Get product
     $products = $productsModel->query("SELECT * FROM products WHERE id = ?", [$product_id]);
     $product = !empty($products) ? $products[0] : null;
-    
+
     // Get categories
     $categories = $categoriesModel->getActive();
-    
+
+    // Get brands for dropdown
+    $brands = $brandsModel->getActive();
+
     // Redirect if product not found
     if (!$product) {
         header('Location: ?page=admin&module=products&error=not_found');
         exit;
     }
-    
+
 } catch (Exception $e) {
     error_log('Admin Products Edit Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
     echo '<div style="padding:20px;background:#ffebee;color:#c62828;">';
@@ -116,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST['data_action'])) {
             $updateData = [
                 'name'             => $name,
                 'category_id'      => $category_id,
+                'brand_id'         => !empty($_POST['brand_id']) ? (int)$_POST['brand_id'] : null,
                 'price'            => $price,
                 'description'      => $description,
                 'status'           => $status,
@@ -286,17 +292,33 @@ $data_structure_json = $form_data['data_structure'] ?? '';
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="category_id" class="required">Danh mục</label>
-                        <select id="category_id" name="category_id" required>
-                            <option value="">Chọn danh mục</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?= $category['id'] ?>" 
-                                        <?= (($form_data['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($category['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category_id" class="required">Danh mục</label>
+                            <select id="category_id" name="category_id" required>
+                                <option value="">Chọn danh mục</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= $category['id'] ?>"
+                                            <?= (($form_data['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($category['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="brand_id">Thương hiệu</label>
+                            <select id="brand_id" name="brand_id">
+                                <option value="">-- Chọn thương hiệu --</option>
+                                <?php foreach ($brands as $brand): ?>
+                                    <option value="<?= $brand['id'] ?>"
+                                            <?= (($form_data['brand_id'] ?? '') == $brand['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($brand['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small>Chọn thương hiệu cho sản phẩm (nếu có)</small>
+                        </div>
                     </div>
 
                     <div class="form-row">

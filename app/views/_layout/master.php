@@ -48,6 +48,9 @@ mb_http_output('UTF-8');
         case 'categories':
             echo '<link rel="stylesheet" href="' . versioned_css('categories.css') . '">';
             break;
+        case 'brands':
+            echo '<link rel="stylesheet" href="' . versioned_css('brands.css') . '">';
+            break;
         case 'contact':
             echo '<link rel="stylesheet" href="' . versioned_css('contact.css') . '">';
             break;
@@ -223,6 +226,9 @@ mb_http_output('UTF-8');
             break;
          case 'categories':
             echo '<script src="' . versioned_js('categories.js') . '"></script>';
+            break;
+        case 'brands':
+            echo '<script src="' . versioned_js('brands.js') . '"></script>';
             break;
         case 'contact':
             echo '<script src="' . versioned_js('contact.js') . '"></script>';

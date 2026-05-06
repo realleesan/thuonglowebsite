@@ -8,6 +8,7 @@ $isAuthenticated = $authService->isAuthenticated();
 // Try to get categories from global $publicService
 $headerCategories = [];
 $newsCategories = [];
+$headerBrands = []; // Brands for header dropdown
 
 // Check if publicService is available in global scope
 global $publicService;
@@ -17,6 +18,16 @@ if (isset($publicService) && is_object($publicService)) {
         $headerCategories = $publicService->getCategoriesHierarchy();
     } catch (Exception $e) {
         error_log('Header categories error: ' . $e->getMessage());
+    }
+    
+    // Get brands for header dropdown
+    try {
+        if (method_exists($publicService, 'getBrandsForFilter')) {
+            $brandsData = $publicService->getBrandsForFilter();
+            $headerBrands = $brandsData['brands'] ?? [];
+        }
+    } catch (Exception $e) {
+        error_log('Header brands error: ' . $e->getMessage());
     }
 }
 
@@ -167,6 +178,18 @@ if (class_exists('CategoriesModel')) {
                             <?php if (!empty($newsCategories)): ?>
                                 <?php foreach ($newsCategories as $cat): ?>
                                     <a href="<?php echo page_url('news', ['category' => $cat['id']]); ?>"><?php echo htmlspecialchars($cat['name']); ?></a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </li>
+                    <li class="has-dropdown <?php echo ($currentPage == 'brands') ? 'active' : ''; ?>">
+                        <a href="<?php echo nav_url('brands'); ?>">Thương hiệu <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                        <div class="dropdown-menu">
+                            <?php if (!empty($headerBrands)): ?>
+                                <?php foreach ($headerBrands as $brand): ?>
+                                    <?php if (($brand['show_in_filter'] ?? 0) == 1): ?>
+                                    <a href="<?php echo page_url('products', ['brand' => $brand['id']]); ?>"><?php echo htmlspecialchars($brand['name']); ?></a>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>

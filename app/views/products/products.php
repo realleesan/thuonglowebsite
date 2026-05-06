@@ -27,16 +27,24 @@ $search = $_GET['search'] ?? '';
 
 // Get filter parameters from sidebar
 $priceType = $_GET['price_type'] ?? ''; // Single value: 'free', 'paid', or empty
+$brandId = $_GET['brand'] ?? null;
+if ($brandId === '' || $brandId === 'null') {
+    $brandId = null;
+} else {
+    $brandId = (int) $brandId;
+}
 
 // Store current filters for UI highlighting
 $currentFilters = [
     'category' => $categoryId,
-    'price_type' => $priceType
+    'price_type' => $priceType,
+    'brand' => $brandId
 ];
 
 // Initialize data variables
 $products = [];
 $categories = [];
+$brands = [];
 $pagination = [];
 $totalProducts = 0;
 $showErrorMessage = false;
@@ -48,6 +56,7 @@ try {
         'page' => $page,
         'limit' => $limit,
         'category_id' => $categoryId,
+        'brand_id' => $brandId,
         'order_by' => $orderBy,
         'search' => $search,
         'price_type' => $priceType
@@ -97,6 +106,27 @@ try {
         $categoriesData = $service->getCategoriesWithProductCounts();
     }
     $categories = $categoriesData['categories'] ?? [];
+
+    // Get brands for sidebar filter
+    $brandsData = [];
+    if ($service && method_exists($service, 'getBrandsForFilter')) {
+        $brandsData = $service->getBrandsForFilter();
+    } else {
+        // Fallback: get from BrandsModel
+        require_once __DIR__ . '/../../models/BrandsModel.php';
+        $brandsModel = new BrandsModel();
+        $allBrands = $brandsModel->getActive();
+        // Get product count for each brand
+        require_once __DIR__ . '/../../models/ProductsModel.php';
+        $productsModel = new ProductsModel();
+        foreach ($allBrands as &$b) {
+            $countResult = $productsModel->query("SELECT COUNT(*) as count FROM products WHERE brand_id = ? AND status = 'active'", [$b['id']]);
+            $b['product_count'] = $countResult[0]['count'] ?? 0;
+        }
+        unset($b);
+        $brandsData = ['brands' => $allBrands];
+    }
+    $brands = $brandsData['brands'] ?? [];
 
     // Tính tổng số sản phẩm của tất cả danh mục (luôn không đổi)
     $totalAllProducts = 0;
@@ -386,6 +416,9 @@ if ($fromCount > $totalFiltered) {
                                     <?php if ($orderBy): ?>
                                         <input type="hidden" name="order_by" value="<?php echo htmlspecialchars($orderBy); ?>">
                                     <?php endif; ?>
+                                    <?php if ($brandId): ?>
+                                        <input type="hidden" name="brand" value="<?php echo htmlspecialchars($brandId); ?>">
+                                    <?php endif; ?>
                                     <div class="sidebar-header">
                                         <h3>Bộ lọc</h3>
                                         <button type="button" class="sidebar-close" id="sidebarClose">
@@ -448,6 +481,36 @@ if ($fromCount > $totalFiltered) {
                                                             <span>Có phí</span>
                                                         </label>
                                                     </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <!-- Brand Filter -->
+                                        <div class="filter-section">
+                                            <h3 class="filter-title">Thương hiệu</h3>
+                                            <div class="filter-content">
+                                                <ul class="brand-list">
+                                                    <li>
+                                                        <label>
+                                                            <input type="radio" name="brand" value=""
+                                                                   <?php echo empty($brandId) ? 'checked' : ''; ?>>
+                                                            <span>Tất cả thương hiệu</span>
+                                                        </label>
+                                                    </li>
+                                                    <?php if (!empty($brands)): ?>
+                                                        <?php foreach ($brands as $brand): ?>
+                                                            <?php if (($brand['product_count'] ?? 0) > 0): ?>
+                                                            <li>
+                                                                <label>
+                                                                    <input type="radio" name="brand" value="<?php echo $brand['id']; ?>"
+                                                                           <?php echo $brandId == $brand['id'] ? 'checked' : ''; ?>>
+                                                                    <span><?php echo htmlspecialchars($brand['name']); ?></span>
+                                                                </label>
+                                                                <span class="count">(<?php echo $brand['product_count']; ?>)</span>
+                                                            </li>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
                                                 </ul>
                                             </div>
                                         </div>

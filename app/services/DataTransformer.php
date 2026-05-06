@@ -118,7 +118,41 @@ class DataTransformer {
         
         return array_map([$this, 'transformCategory'], $categories);
     }
-    
+
+    /**
+     * Transform single brand data for display
+     */
+    public function transformBrand($brand): array {
+        if (!$brand) {
+            return [];
+        }
+
+        return [
+            'id' => (int) $brand['id'],
+            'name' => $this->security->escapeHtml($brand['name'] ?? ''),
+            'slug' => $brand['slug'] ?? '',
+            'image' => $brand['image'] ?? '',
+            'website' => $brand['website'] ?? '',
+            'product_count' => (int) ($brand['product_count'] ?? $brand['products_count'] ?? 0),
+            'description' => $this->security->escapeHtml($brand['description'] ?? ''),
+            'status' => $brand['status'] ?? 'inactive',
+            'sort_order' => (int) ($brand['sort_order'] ?? 0),
+            'created_at' => $brand['created_at'] ?? date('Y-m-d H:i:s'),
+            'updated_at' => $brand['updated_at'] ?? date('Y-m-d H:i:s'),
+        ];
+    }
+
+    /**
+     * Transform multiple brands
+     */
+    public function transformBrands($brands): array {
+        if (!is_array($brands)) {
+            return [];
+        }
+
+        return array_map([$this, 'transformBrand'], $brands);
+    }
+
     /**
      * Transform single user data for display
      */

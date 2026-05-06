@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="<?php echo css_url('admin_pages.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_products.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_categories.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_brands.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_news.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_events.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_orders.css'); ?>">
@@ -72,6 +73,7 @@
     <script src="<?php echo js_url('admin_dashboard.js'); ?>"></script>
     <script src="<?php echo js_url('admin_products.js'); ?>"></script>
     <script src="<?php echo js_url('admin_categories.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_brands.js'); ?>"></script>
     <script src="<?php echo js_url('admin_news.js'); ?>"></script>
     <script src="<?php echo js_url('admin_events.js'); ?>"></script>
     <script src="<?php echo js_url('admin_orders.js'); ?>"></script>

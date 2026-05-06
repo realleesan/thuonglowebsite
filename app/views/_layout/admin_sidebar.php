@@ -37,6 +37,7 @@ $current_action = $_GET['action'] ?? 'index';
                     ['name' => 'Đơn hàng', 'url' => '?page=admin&module=orders', 'icon' => 'fas fa-shopping-cart'],
                     ['name' => 'Người dùng', 'url' => '?page=admin&module=users', 'icon' => 'fas fa-users'],
                     ['name' => 'Danh mục', 'url' => '?page=admin&module=categories', 'icon' => 'fas fa-tags'],
+                    ['name' => 'Thương hiệu', 'url' => '?page=admin&module=brands', 'icon' => 'fas fa-copyright'],
                     ['name' => 'Tin tức', 'url' => '?page=admin&module=news', 'icon' => 'fas fa-newspaper'],
                     ['name' => 'Liên hệ', 'url' => '?page=admin&module=contact', 'icon' => 'fas fa-envelope'],
                     ['name' => 'Đại lý', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-store', 'submenus' => [

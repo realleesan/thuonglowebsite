@@ -36,7 +36,23 @@ try {
     $featuredProducts = $homeData['featured_products'] ?? [];
     $latestProducts = $homeData['latest_products'] ?? [];
     $featuredCategories = $homeData['featured_categories'] ?? [];
+    $featuredBrands = $homeData['featured_brands'] ?? [];
     $latestNews = $homeData['latest_news'] ?? [];
+    
+    // Fallback: fetch featured brands directly if service doesn't provide them
+    if (empty($featuredBrands) && isset($service) && method_exists($service, 'getFeaturedBrands')) {
+        $featuredBrands = $service->getFeaturedBrands(6);
+    } elseif (empty($featuredBrands) && $service !== null) {
+        // Fallback to direct model access
+        try {
+            $brandsModel = $service->getModel('BrandsModel') ?? null;
+            if ($brandsModel && method_exists($brandsModel, 'getFeatured')) {
+                $featuredBrands = $brandsModel->getFeatured(6);
+            }
+        } catch (Exception $e) {
+            $featuredBrands = [];
+        }
+    }
     
     // Use latest products as fallback if no featured products
     if (empty($featuredProducts)) {
@@ -233,6 +249,9 @@ try {
                         <a href="?page=categories">
                             <img loading="lazy" decoding="async" src="<?php echo img_url('home/cta-final.png'); ?>" alt="Data nguồn hàng" width="380" height="126"> 
                             <span class="category-title">Đang cập nhật danh mục...</span>
+                            <p class="count-course">
+                                Đang cập nhật...
+                            </p>
                         </a>
                     </li>
                 <?php endif; ?>
@@ -241,12 +260,12 @@ try {
     </div>
 </section>
 
-<!-- Latest Products Section -->
-<section class="new-release-section">
+<!-- Featured Brands Section -->
+<section class="popular-courses-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Sản phẩm <span class="highlight">Mới nhất</span></h2>
-            <a href="?page=products" class="see-more-btn">
+            <h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>
+            <a href="?page=brands" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -254,96 +273,42 @@ try {
             </a>
         </div>
         
-        <div class="courses-slider-wrapper">
-            <div class="courses-slider">
-                <div class="slider-nav slider-nav-prev" title="Previous">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="slider-nav slider-nav-next" title="Next">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                
-                <div class="courses-container">
-                    <div class="courses-grid">
-                        <?php if (!empty($latestProducts)): ?>
-                            <?php foreach ($latestProducts as $product): ?>
-                                <div class="course-item">
-                                    <div class="course-category">
-                                        <a href="?page=categories&id=<?php echo $product['category_id'] ?? ''; ?>" class="category-tag">
-                                            <?php echo $product['category_name'] ?: 'Sản phẩm'; ?>
-                                        </a>
-                                    </div>
-                                    <div class="course-image">
-                                        <a href="?page=details&id=<?php echo $product['id']; ?>">
-                                            <img src="<?php echo getProductImage($product); ?>" 
-                                                 alt="<?php echo htmlspecialchars($product['name']); ?>" loading="lazy">
-                                        </a>
-                                    </div>
-                                    <div class="course-content">
-                                        <h4 class="course-title">
-                                            <a href="?page=details&id=<?php echo $product['id']; ?>">
-                                                <?php echo htmlspecialchars($product['name']); ?>
-                                            </a>
-                                        </h4>
-                                        <div class="course-excerpt">
-                                            <?php echo htmlspecialchars($product['short_description'] ?: 'Sản phẩm mới nhất từ ' . ($product['supplier_name'] ?? 'ThuongLo.com')); ?>
-                                        </div>
-                                        <div class="course-instructor">
-                                            <a href="#" class="instructor-name"><?php echo $product['supplier_name'] ?? 'ThuongLo.com'; ?></a>
-                                        </div>
-                                        <div class="course-meta">
-                                            <div class="course-lessons">
-                                                <!-- Database icon for logistics data -->
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <ellipse cx="12" cy="6" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
-                                                    <path d="M3 6V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V6" stroke="#356DF1" stroke-width="2"/>
-                                                    <path d="M3 12V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V12" stroke="#356DF1" stroke-width="2"/>
-                                                    <path d="M21 6V18" stroke="#356DF1" stroke-width="2"/>
-                                                    <ellipse cx="12" cy="12" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
-                                                </svg>
-                                                <!-- Display record count for logistics data -->
-                                                <span><?php echo formatRecordCount($product['record_count'] ?? $product['in_stock'] ?? 0); ?></span>
-                                            </div>
-                                        </div>
-                                        <div class="course-price">
-                                            <?php if (!empty($product['sale_price'])): ?>
-                                                <span class="price"><?php echo $product['formatted_sale_price']; ?></span>
-                                                <span class="old-price"><?php echo $product['formatted_price']; ?></span>
-                                            <?php else: ?>
-                                                <span class="price"><?php echo $product['formatted_price']; ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="course-button">
-                                            <a href="?page=details&id=<?php echo $product['id']; ?>" class="btn-start-learning">
-                                                <i class="fas fa-database"></i>
-                                                <span>Xem chi tiết</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="empty-state">
-                                <p>Chưa có sản phẩm mới nào. Vui lòng quay lại sau.</p>
+        <div class="courses-grid">
+            <?php if (!empty($featuredBrands)): ?>
+                <?php foreach ($featuredBrands as $brand): ?>
+                    <div class="course-item">
+                        <div class="course-image">
+                            <a href="?page=products&brand=<?php echo $brand['id']; ?>">
+                                <img src="<?php echo getBrandImage($brand); ?>" 
+                                     alt="<?php echo htmlspecialchars($brand['name']); ?>" loading="lazy">
+                            </a>
+                        </div>
+                        <div class="course-content">
+                            <h4 class="course-title">
+                                <a href="?page=products&brand=<?php echo $brand['id']; ?>">
+                                    <?php echo htmlspecialchars($brand['name']); ?>
+                                </a>
+                            </h4>
+                            <div class="course-excerpt">
+                                <?php echo !empty($brand['description']) ? htmlspecialchars(substr($brand['description'], 0, 80)) . (strlen($brand['description']) > 80 ? '...' : '') : 'Khám phá các sản phẩm từ thương hiệu này'; ?>
                             </div>
-                        <?php endif; ?>
+                            <div class="course-instructor">
+                                <span class="instructor-name"><?php echo ($brand['product_count'] ?? 0); ?> sản phẩm</span>
+                            </div>
+                            <div class="course-button">
+                                <a href="?page=products&brand=<?php echo $brand['id']; ?>" class="btn-start-learning">
+                                    <i class="fas fa-eye"></i>
+                                    <span>Xem sản phẩm</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="slider-pagination">
-                        <?php 
-                        $latestProductCount = count($latestProducts);
-                        $maxBullets = min(5, max(1, ceil($latestProductCount / 4))); 
-                        for ($i = 0; $i < $maxBullets; $i++): 
-                        ?>
-                            <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
-                        <?php endfor; ?>
-                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="empty-state">
+                    <p>Chưa có thương hiệu nổi bật nào. Vui lòng quay lại sau.</p>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>

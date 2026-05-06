@@ -15,10 +15,14 @@ try {
     // Get categories for dropdown using AdminService
     $categoriesData = $service->getActiveCategoriesForDropdown();
     $categories = $categoriesData['categories'] ?? [];
-    
+
+    // Get brands for dropdown
+    $brands = $service->getBrandsForDropdown();
+
 } catch (Exception $e) {
     $errorHandler->logError('Admin Products Add View Error', $e);
     $categories = [];
+    $brands = [];
 }
 
 // Handle form submission
@@ -84,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'name'             => $name,
             'slug'             => createSlugProduct($name),
             'category_id'      => $category_id,
+            'brand_id'         => !empty($_POST['brand_id']) ? (int)$_POST['brand_id'] : null,
             'price'            => $price,
             'stock'            => $record_count,
             'description'      => $description,
@@ -233,17 +238,33 @@ if (!function_exists('createSlugProduct')) {
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="category_id" class="required">Danh mục</label>
-                        <select id="category_id" name="category_id" required>
-                            <option value="">Chọn danh mục</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?= $category['id'] ?>" 
-                                        <?= (($_POST['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($category['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category_id" class="required">Danh mục</label>
+                            <select id="category_id" name="category_id" required>
+                                <option value="">Chọn danh mục</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= $category['id'] ?>"
+                                            <?= (($_POST['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($category['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="brand_id">Thương hiệu</label>
+                            <select id="brand_id" name="brand_id">
+                                <option value="">-- Chọn thương hiệu --</option>
+                                <?php foreach ($brands as $brand): ?>
+                                    <option value="<?= $brand['id'] ?>"
+                                            <?= (($_POST['brand_id'] ?? '') == $brand['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($brand['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small>Chọn thương hiệu cho sản phẩm (nếu có)</small>
+                        </div>
                     </div>
 
                     <div class="form-row">
