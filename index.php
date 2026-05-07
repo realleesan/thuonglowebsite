@@ -1488,8 +1488,7 @@ switch($page) {
                                         'bank_code' => $bankBin,
                                         'account_number' => $withdrawal['bank_account'] ?? '',
                                         'account_holder' => $withdrawal['account_holder'] ?? ''
-                                    ],
-                                    "Rut tien hoa hong {$withdrawal['withdraw_code']}"
+                                    ]
                                 );
                                 
                                 if (!$payoutResult['success']) {

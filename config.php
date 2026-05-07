@@ -29,11 +29,12 @@ if (!function_exists('detect_environment')) {
             
             // Check for local development indicators
             if (in_array($host, ['localhost', '127.0.0.1']) ||
-                strpos($host, '.local') !== false ||
-                strpos($host, '.test') !== false ||
-                strpos($host, 'localhost:') !== false) {
+                strpos($host, '.local') !== false) {
                 return 'local';
             }
+            
+            // Default to hosting for safety
+            return 'hosting';
         }
         
         // Default to hosting for safety
@@ -131,9 +132,11 @@ $config = [
         'enabled' => true,
         'client_id' => Env::get('PAYOS_CLIENT_ID', 'YOUR_PAYOS_CLIENT_ID_HERE'),
         'api_key' => Env::get('PAYOS_API_KEY', 'YOUR_PAYOS_API_KEY_HERE'),
-        'checksum_key' => Env::get('PAYOS_CHECKSUM_KEY', 'YOUR_PAYOS_CHECKSUM_KEY_HERE'),
-        'api_url' => 'https://api-merchant.payos.vn',
-        'test_mode' => ($environment === 'local'), // Enable test mode in local
+        'checksum_key' => Env::get('PAYOS_CHECKSUM_KEY', 'YOUR_PAYOS_CHECKSUM_KEY_HERE'), // For payment requests
+        'payout_checksum_key' => Env::get('PAYOS_PAYOUT_CHECKSUM_KEY', Env::get('PAYOS_CHECKSUM_KEY', 'YOUR_PAYOS_CHECKSUM_KEY_HERE')), // For payouts - different from payment
+        'api_url' => 'https://api-merchant.payos.vn', // Production URL
+        'api_url_sandbox' => 'https://api-sandbox.payos.vn', // Sandbox URL
+        'test_mode' => false, // Use production API
         'webhook_secret' => Env::get('PAYOS_WEBHOOK_SECRET', 'YOUR_PAYOS_WEBHOOK_SECRET_HERE'),
         'auto_complete_on_success' => true, // Auto complete withdrawal when payout succeeds
     ],

@@ -25,16 +25,28 @@ class PayOSService extends BaseService
     {
         parent::__construct($errorHandler, 'payos');
         
+        // Clear any potential cache
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate(__FILE__);
+        }
+        
         // Load config
         $globalConfig = require __DIR__ . '/../../config.php';
         $this->config = $globalConfig['payos'] ?? [];
         
         // Set properties
-        $this->testMode = $this->config['test_mode'] ?? true;
-        $this->apiUrl = $this->config['api_url'] ?? 'https://api-merchant.payos.vn';
+        $this->testMode = $this->config['test_mode'] ?? false;
+        
+        // Choose API URL based on test mode
+        if ($this->testMode && !empty($this->config['api_url_sandbox'])) {
+            $this->apiUrl = $this->config['api_url_sandbox'];
+        } else {
+            $this->apiUrl = $this->config['api_url'] ?? 'https://api-merchant.payos.vn';
+        }
+        
         $this->clientId = $this->config['client_id'] ?? '';
         $this->apiKey = $this->config['api_key'] ?? '';
-        $this->checksumKey = $this->config['checksum_key'] ?? '';
+        $this->checksumKey = $this->config['payout_checksum_key'] ?? $this->config['checksum_key'] ?? '';
         
         // Validate required config
         if (empty($this->clientId) || empty($this->apiKey)) {
@@ -42,6 +54,15 @@ class PayOSService extends BaseService
                 $this->errorHandler->logWarning('PayOS credentials not configured');
             }
         }
+        
+        // Log configuration for debugging
+        $this->logPayout('config_loaded', [
+            'test_mode' => $this->testMode,
+            'api_url' => $this->apiUrl,
+            'client_id' => substr($this->clientId, 0, 8) . '...',
+            'api_key' => substr($this->apiKey, 0, 8) . '...',
+            'checksum_key_length' => strlen($this->checksumKey)
+        ]);
     }
     
     /**
@@ -67,18 +88,32 @@ class PayOSService extends BaseService
             // Convert amount to integer (VND, no decimal)
             $amountInt = (int)round($amount);
             
+            // Generate description for debugging
+            $finalDescription = $description ?: $this->generateDescription($withdrawCode);
+            $this->logPayout('debug_description', [
+                'original_description' => $description,
+                'withdraw_code' => $withdrawCode,
+                'final_description' => $finalDescription,
+                'description_length' => strlen($finalDescription)
+            ]);
+            
             // Prepare request data
+            // Note: toAccountName is NOT included in request because PayOS API
+            // does not list it in the payout creation request body.
+            // PayOS will automatically resolve the account name from the bank.
             $requestData = [
                 'referenceId' => $withdrawCode,
                 'amount' => $amountInt,
-                'description' => $description ?: "Rut tien hoa hong {$withdrawCode}",
+                'description' => $finalDescription, // Use the generated description
                 'toBin' => $bankInfo['bank_code'],        // Bank BIN code (e.g., 970422 for MB)
                 'toAccountNumber' => $bankInfo['account_number'],
-                'category' => ['affiliate_withdrawal']
+                'category' => ['salary'] // Required field: array of strings, not object
             ];
             
             // Generate signature
+            $this->logPayout('debug_request_data', ['requestData' => $requestData]);
             $signature = $this->generatePayoutSignature($requestData);
+            $this->logPayout('debug_generated_signature', ['signature' => $signature]);
             $idempotencyKey = $this->generateIdempotencyKey($withdrawCode);
             
             // In test mode, return mock response
@@ -92,11 +127,26 @@ class PayOSService extends BaseService
                 'x-idempotency-key' => $idempotencyKey,
             ]);
             
+            // Log API response for debugging
+            $this->logPayout('api_response', [
+                'withdraw_code' => $withdrawCode,
+                'request_data' => $requestData,
+                'signature' => $signature,
+                'idempotency_key' => $idempotencyKey,
+                'response' => $response,
+                'http_status' => $response['code'] ?? 'unknown'
+            ]);
+            
             if (!$response['success']) {
                 return [
                     'success' => false,
                     'message' => $response['message'] ?? 'Failed to create payout',
-                    'error_code' => $response['code'] ?? null
+                    'error_code' => $response['code'] ?? null,
+                    'debug_info' => [
+                        'signature_used' => $signature,
+                        'request_data' => $requestData,
+                        'payos_response' => $response
+                    ]
                 ];
             }
             
@@ -201,10 +251,33 @@ class PayOSService extends BaseService
                 return false;
             }
 
+            // For webhooks, PayOS sends the signature in a specific format
+            // The webhook data structure is different from payout requests
             $payloadData = $data['data'] ?? $data;
+            
+            // Log for debugging
+            $this->logPayout('webhook_signature_debug', [
+                'webhook_data' => $data,
+                'payload_data' => $payloadData,
+                'received_signature' => $signature
+            ]);
+            
+            // Use the same signature generation method
             $computedSignature = $this->generatePayoutSignature($payloadData);
+            
+            $this->logPayout('webhook_signature_result', [
+                'computed_signature' => $computedSignature,
+                'received_signature' => $signature,
+                'signatures_match' => hash_equals($computedSignature, $signature)
+            ]);
+            
             return hash_equals($computedSignature, $signature);
         } catch (Exception $e) {
+            $this->logPayout('webhook_signature_error', [
+                'error' => $e->getMessage(),
+                'data' => $data,
+                'signature' => $signature
+            ]);
             return false;
         }
     }
@@ -357,29 +430,107 @@ class PayOSService extends BaseService
     
     /**
      * Generate signature for request authentication
+     *
+     * PayOS Payout signature requirements (from official documentation):
+     * 1. Use HMAC_SHA256 algorithm
+     * 2. Data format: key1=value1&key2=value2...
+     * 3. Keys and values must be URL encoded (encodeURI / encodeURIComponent)
+     * 4. Sort keys alphabetically
+     * 5. null/undefined values become empty string ""
+     * 6. Arrays maintain element order, but objects inside arrays get sorted
      */
     private function generatePayoutSignature(array $data): string
     {
-        // Sort data by key
-        ksort($data);
-        
-        // Create data string with key=value pairs joined by '&'
-        $pairs = [];
+        $signatureData = [];
+
         foreach ($data as $key => $value) {
+            // Handle null/undefined values as empty string
             if ($value === null) {
-                $value = '';
-            }
-            if (is_array($value)) {
-                foreach ($value as $arrayValue) {
-                    $pairs[] = $key . '=' . rawurlencode((string)$arrayValue);
-                }
+                $signatureData[$key] = '';
                 continue;
             }
-            $pairs[] = $key . '=' . rawurlencode((string)$value);
+
+            // Handle arrays and objects
+            if (is_array($value) || is_object($value)) {
+                // Deep sort object keys recursively before JSON encoding
+                $sortedValue = $this->deepSortData($value);
+                $signatureData[$key] = json_encode($sortedValue, JSON_UNESCAPED_UNICODE);
+            } else {
+                // Convert primitive values to string
+                $signatureData[$key] = (string)$value;
+            }
+        }
+
+        // Sort keys alphabetically at the top level
+        ksort($signatureData);
+
+        // Build query string WITH URL encoding (required by PayOS payout API)
+        // ALL values must be URI encoded according to PayOS documentation
+        // Use rawurlencode() which is equivalent to JavaScript's encodeURI()
+        $pairs = [];
+        foreach ($signatureData as $key => $value) {
+            // Apply encodeURI equivalent to both key and value
+            $pairs[] = rawurlencode($key) . '=' . rawurlencode($value);
         }
 
         $dataString = implode('&', $pairs);
-        return hash_hmac('sha256', $dataString, $this->checksumKey);
+
+        // Generate HMAC-SHA256 signature
+        $signature = hash_hmac('sha256', $dataString, $this->checksumKey);
+
+        // Create log directory if it doesn't exist
+        $logDir = __DIR__ . '/../../logs';
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0755, true);
+        }
+
+        // Log for debugging
+        $logFile = $logDir . '/payos_signature_debug.log';
+        $logEntry = date('Y-m-d H:i:s') . " | Signature Generation\n" .
+                   "Original Data: " . json_encode($data, JSON_UNESCAPED_UNICODE) . "\n" .
+                   "Signature Data: " . json_encode($signatureData, JSON_UNESCAPED_UNICODE) . "\n" .
+                   "Data String: " . $dataString . "\n" .
+                   "Generated Signature: " . $signature . "\n" .
+                   "Checksum Key (first 10): " . substr($this->checksumKey, 0, 10) . "...\n" .
+                   "---\n";
+        @file_put_contents($logFile, $logEntry, FILE_APPEND);
+
+        return $signature;
+    }
+
+    /**
+     * Recursively sort object/array keys alphabetically.
+     * Arrays keep element order; objects/associative arrays get sorted.
+     */
+    private function deepSortData($data)
+    {
+        if (is_array($data)) {
+            // Check if this is an associative array (object-like)
+            $isAssoc = array_keys($data) !== range(0, count($data) - 1);
+
+            if ($isAssoc) {
+                ksort($data);
+            }
+
+            // Recursively sort nested values
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->deepSortData($value);
+            }
+
+            return $data;
+        }
+
+        if (is_object($data)) {
+            // Convert object to array, sort, then convert back
+            $arr = (array)$data;
+            ksort($arr);
+            foreach ($arr as $key => $value) {
+                $arr[$key] = $this->deepSortData($value);
+            }
+            return (object)$arr;
+        }
+
+        return $data;
     }
 
     /**
@@ -388,6 +539,30 @@ class PayOSService extends BaseService
     private function generateIdempotencyKey(string $withdrawCode): string
     {
         return 'wd-' . strtolower($withdrawCode);
+    }
+    
+    /**
+     * Generate description within 25 character limit
+     */
+    private function generateDescription(string $withdrawCode): string
+    {
+        // Try different patterns to fit within 25 characters
+        $patterns = [
+            "Rut {$withdrawCode}",           // "Rut RUT12345" = 11 chars
+            "Rutien {$withdrawCode}",         // "Rutien RUT12345" = 15 chars
+            "TT {$withdrawCode}",             // "TT RUT12345" = 10 chars
+            "Chi {$withdrawCode}",            // "Chi RUT12345" = 11 chars
+            substr($withdrawCode, -15),       // Last 15 chars of code
+        ];
+        
+        foreach ($patterns as $pattern) {
+            if (strlen($pattern) <= 25) {
+                return $pattern;
+            }
+        }
+        
+        // Fallback: just use the code (truncated if needed)
+        return substr($withdrawCode, 0, 25);
     }
     
     /**
@@ -423,8 +598,14 @@ class PayOSService extends BaseService
      */
     private function logPayout(string $action, array $data): void
     {
-        $logFile = __DIR__ . '/../../logs/payos_payout.log';
-        $logEntry = date('Y-m-d H:i:s') . " | $action | " . json_encode($data) . PHP_EOL;
+        // Create log directory if it doesn't exist
+        $logDir = __DIR__ . '/../../logs';
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0755, true);
+        }
+        
+        $logFile = $logDir . '/payos_payout.log';
+        $logEntry = date('Y-m-d H:i:s') . " | $action | " . json_encode($data, JSON_UNESCAPED_UNICODE) . PHP_EOL;
         @file_put_contents($logFile, $logEntry, FILE_APPEND);
     }
 }

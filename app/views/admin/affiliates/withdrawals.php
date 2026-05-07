@@ -81,26 +81,7 @@ function getStatusBadge($status) {
         </div>
         <div class="page-header-right">
             <!-- Bulk Export Actions - Only show when viewing pending withdrawals -->
-            <?php if ($status_filter === '' || $status_filter === 'pending'): ?>
-            <form id="bulkExportForm" method="POST" action="?page=admin&module=affiliates&action=export_withdrawals" style="display: inline;">
-                <input type="hidden" name="selected_ids" id="selectedIds" value="">
-                <div class="bulk-actions" style="display: flex; gap: 10px; align-items: center;">
-                    <select name="bank_format" class="form-select" style="padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd;">
-                        <option value="mbbank">MB Bank</option>
-                        <option value="tpbank">TPBank</option>
-                        <option value="vietcombank">Vietcombank</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary" onclick="return prepareExport();">
-                        <i class="fas fa-file-export"></i>
-                        Xuất file chuyển tiền
-                    </button>
-                </div>
-            </form>
-            <?php elseif ($status_filter === 'processing'): ?>
-            <div class="alert alert-warning" style="margin: 0; padding: 10px 15px;">
-                <i class="fas fa-info-circle"></i> Chuyển sang tab "Đang chờ" để xuất file chuyển tiền
-            </div>
-            <?php endif; ?>
+            <!-- Automated Payout via PayOS is enabled. Approval will trigger automatic bank transfer. -->
         </div>
     </div>
     
@@ -191,9 +172,7 @@ function getStatusBadge($status) {
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th width="40">
-                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
-                    </th>
+
                     <th width="40">ID</th>
                     <th>Mã rút tiền</th>
                     <th>Đại lý</th>
@@ -217,11 +196,7 @@ function getStatusBadge($status) {
                         $statusBadge = getStatusBadge($withdrawal['status']);
                     ?>
                         <tr>
-                            <td>
-                                <?php if ($withdrawal['status'] === 'pending'): ?>
-                                    <input type="checkbox" name="withdrawal_ids[]" value="<?= $withdrawal['id'] ?>" class="withdrawal-checkbox">
-                                <?php endif; ?>
-                            </td>
+
                             <td><?= $withdrawal['id'] ?></td>
                             <td>
                                 <strong><?= htmlspecialchars($withdrawal['withdraw_code']) ?></strong>
@@ -280,23 +255,7 @@ function getStatusBadge($status) {
         </table>
         </form>
         
-        <!-- Bulk Mark as Paid -->
-        <?php if (!empty($withdrawals) && $status_filter === 'processing'): ?>
-        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-            <form method="POST" action="?page=admin&module=affiliates&action=bulk_mark_paid" style="display: flex; align-items: center; gap: 15px;">
-                <label style="margin: 0;">
-                    <input type="checkbox" name="confirm_mark_paid" required>
-                    Tôi đã chuyển tiền cho các yêu cầu đang xử lý
-                </label>
-                <input type="hidden" name="processing_ids" value="<?= implode(',', array_column(array_filter($withdrawals, fn($w) => $w['status'] === 'processing'), 'id')) ?>">
-                <button type="submit" class="btn btn-success" onclick="return confirm('Đánh dấu tất cả các yêu cầu đang xử lý là đã thanh toán?');">
-                    <i class="fas fa-check-double"></i>
-                    Đánh dấu đã thanh toán hàng loạt
-                </button>
-            </form>
-        </div>
-        <?php endif; ?>
-    </div>
+
 
     <!-- Pagination -->
     <?php if ($total_pages > 1): ?>
@@ -440,51 +399,10 @@ function getStatusBadge($status) {
 </style>
 
 <script>
-// Toggle select all checkboxes
-function toggleSelectAll() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.withdrawal-checkbox');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = selectAllCheckbox.checked;
-    });
-}
-
-// Prepare export - collect selected IDs
-function prepareExport() {
-    const selectedCheckboxes = document.querySelectorAll('.withdrawal-checkbox:checked');
-    
-    if (selectedCheckboxes.length === 0) {
-        alert('Vui lòng chọn ít nhất một yêu cầu rút tiền để xuất file!');
-        return false;
-    }
-    
-    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value).join(',');
-    document.getElementById('selectedIds').value = selectedIds;
-    
-    return true;
-}
-
-// Quick approve single withdrawal - change status to processing
+// Quick approve single withdrawal - trigger PayOS automated payout
 function quickApprove(withdrawalId) {
-    if (confirm('Duyệt yêu cầu này? Trạng thái sẽ chuyển sang "Đang xử lý" để bạn chuyển tiền sau.')) {
-        window.location.href = '?page=admin&module=affiliates&action=approve_to_processing&id=' + withdrawalId;
+    if (confirm('Bạn có chắc muốn DUYỆT và chuyển tiền tự động cho yêu cầu này thông qua PayOS?')) {
+        window.location.href = '?page=admin&module=affiliates&action=approve_withdrawal&id=' + withdrawalId;
     }
 }
-
-// Update select all checkbox state when individual checkboxes change
-document.addEventListener('DOMContentLoaded', function() {
-    const checkboxes = document.querySelectorAll('.withdrawal-checkbox');
-    const selectAllCheckbox = document.getElementById('selectAll');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-            const someChecked = Array.from(checkboxes).some(cb => cb.checked);
-            
-            selectAllCheckbox.checked = allChecked;
-            selectAllCheckbox.indeterminate = someChecked && !allChecked;
-        });
-    });
-});
 </script>

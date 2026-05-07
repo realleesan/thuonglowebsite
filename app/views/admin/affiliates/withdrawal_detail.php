@@ -198,7 +198,7 @@ $statusBadge = getStatusBadge($withdrawal['status']);
     <div class="detail-actions">
         <a href="?page=admin&module=affiliates&action=approve_withdrawal&id=<?= $withdrawal['id'] ?>"
            class="btn btn-success btn-lg"
-           onclick="return confirm('Bạn có chắc muốn DUỆT và chuyển tiền cho yêu cầu này?');">
+           onclick="return confirm('Bạn có chắc muốn DUỆT và chuyển tiền tự động thông qua PayOS cho yêu cầu này?');">
             <i class="fas fa-check"></i>
             Duyệt & Chuyển tiền
         </a>
