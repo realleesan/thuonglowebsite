@@ -1509,7 +1509,7 @@ switch($page) {
                                 $payosConfig = require __DIR__ . '/config.php';
                                 $autoComplete = $payosConfig['payos']['auto_complete_on_success'] ?? true;
                                 
-                                if ($autoComplete && $payoutResult['status'] === 'COMPLETED') {
+                                if ($autoComplete && in_array($payoutResult['status'], ['COMPLETED', 'SUCCEEDED'], true)) {
                                     // Complete withdrawal immediately if already completed
                                     $walletService->completeWithdrawal($withdrawal_id);
                                 }

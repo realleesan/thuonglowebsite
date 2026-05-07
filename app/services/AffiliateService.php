@@ -522,19 +522,23 @@ class AffiliateService extends BaseService
     public function getWithdrawalSettings(int $userId = 0): array
     {
         try {
+            $appConfig = require __DIR__ . '/../../config.php';
+            $withdrawalConfig = $appConfig['withdrawal'] ?? [];
+            $defaultSettings = $this->getDefaultWithdrawalSettings($withdrawalConfig);
+
             $settingsModel = $this->getModel('SettingsModel');
             if (!$settingsModel) {
-                return $this->getDefaultWithdrawalSettings();
+                return $defaultSettings;
             }
 
             $settings = $settingsModel->getByKey('affiliate_withdrawal');
             if (!$settings) {
-                return $this->getDefaultWithdrawalSettings();
+                return $defaultSettings;
             }
 
             return [
-                'min_amount' => $settings['min_amount'] ?? 100000,
-                'max_amount' => $settings['max_amount'] ?? 10000000,
+                'min_amount' => $settings['min_amount'] ?? $defaultSettings['min_amount'],
+                'max_amount' => $settings['max_amount'] ?? $defaultSettings['max_amount'],
                 'fee_percent' => $settings['fee_percent'] ?? 0,
                 'fee_fixed' => $settings['fee_fixed'] ?? 0,
                 'processing_days' => $settings['processing_days'] ?? 3,
@@ -846,11 +850,11 @@ class AffiliateService extends BaseService
     /**
      * Trả về cài đặt rút tiền mặc định.
      */
-    private function getDefaultWithdrawalSettings(): array
+    private function getDefaultWithdrawalSettings(array $config = []): array
     {
         return [
-            'min_amount' => 100000,
-            'max_amount' => 10000000,
+            'min_amount' => (float)($config['min_amount'] ?? 5000),
+            'max_amount' => (float)($config['max_amount'] ?? 50000000),
             'fee_percent' => 0,
             'fee_fixed' => 0,
             'processing_days' => 3,

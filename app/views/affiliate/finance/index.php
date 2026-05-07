@@ -18,6 +18,8 @@ $wallet = [
     'pending' => 0
 ];
 $transactions = [];
+$appConfig = require __DIR__ . '/../../../../config.php';
+$withdrawalConfig = $appConfig['withdrawal'] ?? [];
 
 try {
     if ($service) {
@@ -49,8 +51,8 @@ try {
         
         // Get withdrawal settings from service
         $withdrawalSettings = $service->getWithdrawalSettings($affiliateId) ?? [
-            'min_amount' => 100000,
-            'max_amount' => 10000000,
+            'min_amount' => (float)($withdrawalConfig['min_amount'] ?? 5000),
+            'max_amount' => (float)($withdrawalConfig['max_amount'] ?? 50000000),
             'fee_percentage' => 0,
             'processing_time' => '1-3 ngày làm việc'
         ];
@@ -63,8 +65,8 @@ try {
 // Fallback default settings if not available from service
 if (!isset($withdrawalSettings)) {
     $withdrawalSettings = [
-        'min_amount' => 100000,
-        'max_amount' => 10000000,
+        'min_amount' => (float)($withdrawalConfig['min_amount'] ?? 5000),
+        'max_amount' => (float)($withdrawalConfig['max_amount'] ?? 50000000),
         'fee_percentage' => 0,
         'processing_time' => '1-3 ngày làm việc'
     ];

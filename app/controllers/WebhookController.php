@@ -501,7 +501,7 @@ class WebhookController {
             
             // Verify webhook signature
             $headers = $this->getRequestHeaders();
-            $signature = $headers['X-Signature'] ?? $headers['x-signature'] ?? '';
+            $signature = $headers['X-Signature'] ?? $headers['x-signature'] ?? ($webhookData['signature'] ?? '');
             
             require_once __DIR__ . '/../services/PayOSService.php';
             $payosService = new PayOSService();
@@ -537,13 +537,13 @@ class WebhookController {
             ]);
             
             // Process based on status
-            if ($parsedData['status'] === 'COMPLETED') {
+            if (in_array($parsedData['status'], ['COMPLETED', 'SUCCEEDED'], true)) {
                 // Complete withdrawal if not already completed
                 if ($withdrawal['status'] !== WithdrawalRequestModel::STATUS_COMPLETED) {
                     $this->walletService->completeWithdrawal($withdrawal['id']);
                     @file_put_contents($debugLogFile, "✅ Withdrawal {$withdrawal['id']} completed\n", FILE_APPEND);
                 }
-            } elseif ($parsedData['status'] === 'FAILED' || $parsedData['status'] === 'CANCELLED') {
+            } elseif (in_array($parsedData['status'], ['FAILED', 'CANCELLED'], true)) {
                 // Cancel withdrawal and return money to affiliate
                 $this->walletService->cancelWithdrawal($withdrawal['id'], 'PayOS payout failed: ' . $parsedData['status']);
                 @file_put_contents($debugLogFile, "❌ Withdrawal {$withdrawal['id']} cancelled due to payout failure\n", FILE_APPEND);

@@ -1026,6 +1026,9 @@ try {
                 }
                 
                 try {
+                    $appConfig = require __DIR__ . '/config.php';
+                    $withdrawalConfig = $appConfig['withdrawal'] ?? [];
+
                     require_once __DIR__ . '/app/models/AffiliateModel.php';
                     require_once __DIR__ . '/app/models/WithdrawalRequestModel.php';
                     
@@ -1039,15 +1042,21 @@ try {
                         exit;
                     }
                     
-                    // Check minimum/maximum withdrawal amount
-                    $minAmount = 100000; // 100k
-                    $maxAmount = 10000000; // 10M
+                    // Check minimum/maximum withdrawal amount (configurable from config.php)
+                    $minAmount = (float)($withdrawalConfig['min_amount'] ?? 5000);
+                    $maxAmount = (float)($withdrawalConfig['max_amount'] ?? 50000000);
                     if ($amount < $minAmount) {
-                        echo json_encode(['success' => false, 'message' => 'Số tiền rút tối thiểu là 100,000 đ']);
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Số tiền rút tối thiểu là ' . number_format($minAmount, 0, ',', '.') . ' đ'
+                        ]);
                         exit;
                     }
                     if ($amount > $maxAmount) {
-                        echo json_encode(['success' => false, 'message' => 'Số tiền rút tối đa là 10,000,000 đ']);
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Số tiền rút tối đa là ' . number_format($maxAmount, 0, ',', '.') . ' đ'
+                        ]);
                         exit;
                     }
                     

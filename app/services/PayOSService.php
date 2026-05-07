@@ -31,9 +31,7 @@ class PayOSService extends BaseService
         
         // Set properties
         $this->testMode = $this->config['test_mode'] ?? true;
-        $this->apiUrl = $this->testMode 
-            ? 'https://api-merchant.payos.vn' 
-            : 'https://api-merchant.payos.vn';
+        $this->apiUrl = $this->config['api_url'] ?? 'https://api-merchant.payos.vn';
         $this->clientId = $this->config['client_id'] ?? '';
         $this->apiKey = $this->config['api_key'] ?? '';
         $this->checksumKey = $this->config['checksum_key'] ?? '';
@@ -76,11 +74,12 @@ class PayOSService extends BaseService
                 'description' => $description ?: "Rut tien hoa hong {$withdrawCode}",
                 'toBin' => $bankInfo['bank_code'],        // Bank BIN code (e.g., 970422 for MB)
                 'toAccountNumber' => $bankInfo['account_number'],
-                'category' => 'payout'
+                'category' => ['affiliate_withdrawal']
             ];
             
             // Generate signature
-            $signature = $this->generateSignature($requestData);
+            $signature = $this->generatePayoutSignature($requestData);
+            $idempotencyKey = $this->generateIdempotencyKey($withdrawCode);
             
             // In test mode, return mock response
             if ($this->testMode) {
@@ -88,7 +87,10 @@ class PayOSService extends BaseService
             }
             
             // Call PayOS API
-            $response = $this->callAPI('/v1/payment-requests', 'POST', $requestData, $signature);
+            $response = $this->callAPI('/v1/payouts', 'POST', $requestData, [
+                'x-signature' => $signature,
+                'x-idempotency-key' => $idempotencyKey,
+            ]);
             
             if (!$response['success']) {
                 return [
@@ -152,7 +154,7 @@ class PayOSService extends BaseService
                 ];
             }
             
-            $response = $this->callAPI("/v1/payment-requests/{$payoutId}", 'GET');
+            $response = $this->callAPI("/v1/payouts/{$payoutId}", 'GET');
             
             if (!$response['success']) {
                 return [
@@ -192,7 +194,15 @@ class PayOSService extends BaseService
     public function verifyWebhookSignature(array $data, string $signature): bool
     {
         try {
-            $computedSignature = $this->generateSignature($data);
+            if (empty($signature)) {
+                $signature = $data['signature'] ?? '';
+            }
+            if (empty($signature)) {
+                return false;
+            }
+
+            $payloadData = $data['data'] ?? $data;
+            $computedSignature = $this->generatePayoutSignature($payloadData);
             return hash_equals($computedSignature, $signature);
         } catch (Exception $e) {
             return false;
@@ -207,13 +217,16 @@ class PayOSService extends BaseService
      */
     public function parsePayoutWebhook(array $webhookData): array
     {
+        $payload = $webhookData['data'] ?? $webhookData;
+        $approvalState = $payload['approvalState'] ?? null;
+
         return [
-            'payout_id' => $webhookData['id'] ?? null,
-            'reference_id' => $webhookData['referenceId'] ?? null,
-            'status' => $webhookData['approvalState'] ?? null,
-            'amount' => $webhookData['amount'] ?? 0,
-            'description' => $webhookData['description'] ?? null,
-            'transactions' => $webhookData['transactions'] ?? [],
+            'payout_id' => $payload['id'] ?? null,
+            'reference_id' => $payload['referenceId'] ?? null,
+            'status' => $approvalState,
+            'amount' => $payload['amount'] ?? 0,
+            'description' => $payload['description'] ?? null,
+            'transactions' => $payload['transactions'] ?? [],
             'raw_data' => $webhookData
         ];
     }
@@ -279,7 +292,7 @@ class PayOSService extends BaseService
     /**
      * Call PayOS API
      */
-    private function callAPI(string $endpoint, string $method = 'GET', array $data = [], ?string $signature = null): array
+    private function callAPI(string $endpoint, string $method = 'GET', array $data = [], array $extraHeaders = []): array
     {
         $url = $this->apiUrl . $endpoint;
         
@@ -289,8 +302,10 @@ class PayOSService extends BaseService
             'Content-Type: application/json',
         ];
         
-        if ($signature) {
-            $headers[] = 'x-signature: ' . $signature;
+        foreach ($extraHeaders as $headerKey => $headerValue) {
+            if ($headerValue !== null && $headerValue !== '') {
+                $headers[] = $headerKey . ': ' . $headerValue;
+            }
         }
         
         $ch = curl_init();
@@ -343,25 +358,36 @@ class PayOSService extends BaseService
     /**
      * Generate signature for request authentication
      */
-    private function generateSignature(array $data): string
+    private function generatePayoutSignature(array $data): string
     {
         // Sort data by key
         ksort($data);
         
-        // Create data string
-        $dataString = '';
+        // Create data string with key=value pairs joined by '&'
+        $pairs = [];
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                $value = json_encode($value);
+            if ($value === null) {
+                $value = '';
             }
-            $dataString .= $key . '=' . $value;
+            if (is_array($value)) {
+                foreach ($value as $arrayValue) {
+                    $pairs[] = $key . '=' . rawurlencode((string)$arrayValue);
+                }
+                continue;
+            }
+            $pairs[] = $key . '=' . rawurlencode((string)$value);
         }
-        
-        // Add checksum key
-        $dataString .= $this->checksumKey;
-        
-        // Generate HMAC SHA256
+
+        $dataString = implode('&', $pairs);
         return hash_hmac('sha256', $dataString, $this->checksumKey);
+    }
+
+    /**
+     * Generate deterministic idempotency key for payout request
+     */
+    private function generateIdempotencyKey(string $withdrawCode): string
+    {
+        return 'wd-' . strtolower($withdrawCode);
     }
     
     /**

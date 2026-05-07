@@ -16,9 +16,11 @@ $wallet = [
     'total_withdrawn' => 0
 ];
 $bankAccounts = [];
+$appConfig = require __DIR__ . '/../../../../config.php';
+$withdrawalConfig = $appConfig['withdrawal'] ?? [];
 $withdrawalSettings = [
-    'min_amount' => 100000,
-    'max_amount' => 10000000,
+    'min_amount' => (float)($withdrawalConfig['min_amount'] ?? 5000),
+    'max_amount' => (float)($withdrawalConfig['max_amount'] ?? 50000000),
     'fee_percentage' => 0,
     'processing_time' => '1-3 ngày làm việc',
     'rules' => []
@@ -173,6 +175,8 @@ ob_start();
                            class="form-input" 
                            id="withdrawalAmount" 
                            name="amount" 
+                           data-min-amount="<?php echo (int)($withdrawalSettings['min_amount'] ?? 5000); ?>"
+                           data-max-amount="<?php echo (int)($withdrawalSettings['max_amount'] ?? 50000000); ?>"
                            placeholder="Nhập số tiền"
                            required>
                     <span class="amount-suffix">VNĐ</span>
@@ -186,8 +190,8 @@ ob_start();
                 </div>
                 <small class="form-help">
                     <i class="fas fa-info-circle"></i>
-                    Tối thiểu: <?php echo number_format($withdrawalSettings['min_amount'] ?? 100000); ?> đ - 
-                    Tối đa: <?php echo number_format($withdrawalSettings['max_amount'] ?? 10000000); ?> đ
+                    Tối thiểu: <?php echo number_format($withdrawalSettings['min_amount'] ?? 5000); ?> đ - 
+                    Tối đa: <?php echo number_format($withdrawalSettings['max_amount'] ?? 50000000); ?> đ
                 </small>
             </div>
 
