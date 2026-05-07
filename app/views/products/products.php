@@ -26,7 +26,10 @@ $orderBy = $_GET['order_by'] ?? 'post_date';
 $search = $_GET['search'] ?? '';
 
 // Get filter parameters from sidebar
-$priceType = $_GET['price_type'] ?? ''; // Single value: 'free', 'paid', or empty
+$minPriceInput = trim((string)($_GET['min_price'] ?? ''));
+$maxPriceInput = trim((string)($_GET['max_price'] ?? ''));
+$minPrice = ($minPriceInput !== '' && is_numeric($minPriceInput)) ? (float)$minPriceInput : null;
+$maxPrice = ($maxPriceInput !== '' && is_numeric($maxPriceInput)) ? (float)$maxPriceInput : null;
 $brandId = $_GET['brand'] ?? null;
 if ($brandId === '' || $brandId === 'null') {
     $brandId = null;
@@ -37,13 +40,15 @@ if ($brandId === '' || $brandId === 'null') {
 // Store current filters for UI highlighting
 $currentFilters = [
     'category' => $categoryId,
-    'price_type' => $priceType,
+    'min_price' => $minPrice,
+    'max_price' => $maxPrice,
     'brand' => $brandId
 ];
 
 // Initialize data variables
 $products = [];
 $categories = [];
+$hierarchicalCategories = [];
 $brands = [];
 $pagination = [];
 $totalProducts = 0;
@@ -59,7 +64,8 @@ try {
         'brand_id' => $brandId,
         'order_by' => $orderBy,
         'search' => $search,
-        'price_type' => $priceType
+        'min_price' => $minPrice,
+        'max_price' => $maxPrice
     ];
     
     // Get product listing data từ PublicService
@@ -106,6 +112,35 @@ try {
         $categoriesData = $service->getCategoriesWithProductCounts();
     }
     $categories = $categoriesData['categories'] ?? [];
+    $hierarchicalCategories = [];
+
+    if (!empty($categories)) {
+        $categoryByParent = [];
+        foreach ($categories as $category) {
+            $parentKey = $category['parent_id'] ?? null;
+            $categoryByParent[$parentKey][] = $category;
+        }
+
+        $flattenCategoryTree = function ($parentId = null, $depth = 0) use (&$flattenCategoryTree, &$hierarchicalCategories, $categoryByParent) {
+            $nodes = $categoryByParent[$parentId] ?? [];
+            usort($nodes, function ($a, $b) {
+                $sortA = (int)($a['sort_order'] ?? 0);
+                $sortB = (int)($b['sort_order'] ?? 0);
+                if ($sortA === $sortB) {
+                    return strcmp((string)($a['name'] ?? ''), (string)($b['name'] ?? ''));
+                }
+                return $sortA <=> $sortB;
+            });
+
+            foreach ($nodes as $node) {
+                $node['depth'] = $depth;
+                $hierarchicalCategories[] = $node;
+                $flattenCategoryTree($node['id'], $depth + 1);
+            }
+        };
+
+        $flattenCategoryTree(null, 0);
+    }
 
     // Get brands for sidebar filter
     $brandsData = [];
@@ -255,6 +290,15 @@ if ($fromCount > $totalFiltered) {
                                             <?php endif; ?>
                                             <?php if ($search): ?>
                                                 <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                            <?php endif; ?>
+                                            <?php if ($brandId): ?>
+                                                <input type="hidden" name="brand" value="<?php echo htmlspecialchars($brandId); ?>">
+                                            <?php endif; ?>
+                                            <?php if ($minPriceInput !== ''): ?>
+                                                <input type="hidden" name="min_price" value="<?php echo htmlspecialchars($minPriceInput); ?>">
+                                            <?php endif; ?>
+                                            <?php if ($maxPriceInput !== ''): ?>
+                                                <input type="hidden" name="max_price" value="<?php echo htmlspecialchars($maxPriceInput); ?>">
                                             <?php endif; ?>
                                             <select name="order_by" class="sort-select" onchange="this.form.submit()">
                                                 <?php foreach (getSortOptions() as $value => $label): ?>
@@ -416,9 +460,6 @@ if ($fromCount > $totalFiltered) {
                                     <?php if ($orderBy): ?>
                                         <input type="hidden" name="order_by" value="<?php echo htmlspecialchars($orderBy); ?>">
                                     <?php endif; ?>
-                                    <?php if ($brandId): ?>
-                                        <input type="hidden" name="brand" value="<?php echo htmlspecialchars($brandId); ?>">
-                                    <?php endif; ?>
                                     <div class="sidebar-header">
                                         <h3>Bộ lọc</h3>
                                         <button type="button" class="sidebar-close" id="sidebarClose">
@@ -431,7 +472,7 @@ if ($fromCount > $totalFiltered) {
                                             <h3 class="filter-title">Danh mục</h3>
                                             <div class="filter-content">
                                                 <ul class="category-list">
-                                                    <li>
+                                                    <li class="category-item category-root-item">
                                                         <label>
                                                             <input type="radio" name="category" value=""
                                                                    <?php echo empty($categoryId) ? 'checked' : ''; ?>>
@@ -439,48 +480,24 @@ if ($fromCount > $totalFiltered) {
                                                         </label>
                                                         <span class="count">(<?php echo $totalAllProducts; ?>)</span>
                                                     </li>
-                                                    <?php if (!empty($categories)): ?>
-                                                        <?php foreach ($categories as $category): ?>
-                                                            <li>
+                                                    <?php if (!empty($hierarchicalCategories)): ?>
+                                                        <?php foreach ($hierarchicalCategories as $category): ?>
+                                                            <?php $depth = (int)($category['depth'] ?? 0); ?>
+                                                            <li class="category-item <?php echo $depth > 0 ? 'category-child-item' : 'category-root-item'; ?>">
                                                                 <label>
                                                                     <input type="radio" name="category" value="<?php echo $category['id']; ?>" 
                                                                            <?php echo $categoryId == $category['id'] ? 'checked' : ''; ?>>
-                                                                        <span><?php echo htmlspecialchars($category['name']); ?></span>
+                                                                        <span class="category-label depth-<?php echo $depth; ?>" style="padding-left: <?php echo $depth * 16; ?>px;">
+                                                                            <?php if ($depth > 0): ?>
+                                                                                <span class="category-branch">↳</span>
+                                                                            <?php endif; ?>
+                                                                            <?php echo htmlspecialchars($category['name']); ?>
+                                                                        </span>
                                                                 </label>
                                                                 <span class="count">(<?php echo $category['product_count']; ?>)</span>
                                                             </li>
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        <!-- Price Filter (radio buttons: Tất cả/Miễn phí/Có phí) -->
-                                        <div class="filter-section">
-                                            <h3 class="filter-title">Giá</h3>
-                                            <div class="filter-content">
-                                                <ul class="price-list">
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="price_type" value="" 
-                                                                   <?php echo empty($priceType) ? 'checked' : ''; ?>>
-                                                            <span>Tất cả</span>
-                                                        </label>
-                                                    </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="price_type" value="free" 
-                                                                   <?php echo $priceType === 'free' ? 'checked' : ''; ?>>
-                                                            <span>Miễn phí</span>
-                                                        </label>
-                                                    </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="price_type" value="paid" 
-                                                                   <?php echo $priceType === 'paid' ? 'checked' : ''; ?>>
-                                                            <span>Có phí</span>
-                                                        </label>
-                                                    </li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -512,6 +529,25 @@ if ($fromCount > $totalFiltered) {
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
                                                 </ul>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price Range Filter -->
+                                        <div class="filter-section">
+                                            <h3 class="filter-title">Giá</h3>
+                                            <div class="filter-content">
+                                                <div class="price-range-fields">
+                                                    <div class="price-input-group">
+                                                        <label for="min_price">Từ</label>
+                                                        <input type="number" id="min_price" name="min_price" min="0" step="1000"
+                                                               value="<?php echo htmlspecialchars($minPriceInput); ?>" placeholder="VD: 50000">
+                                                    </div>
+                                                    <div class="price-input-group">
+                                                        <label for="max_price">Đến</label>
+                                                        <input type="number" id="max_price" name="max_price" min="0" step="1000"
+                                                               value="<?php echo htmlspecialchars($maxPriceInput); ?>" placeholder="VD: 300000">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 

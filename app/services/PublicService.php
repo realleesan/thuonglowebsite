@@ -99,9 +99,12 @@ class PublicService extends BaseService
             $page = $filters['page'] ?? 1;
             $limit = $filters['limit'] ?? 12;
             $categoryId = $filters['category_id'] ?? null;
+            $brandId = $filters['brand_id'] ?? null;
             $orderBy = $filters['order_by'] ?? 'post_date';
             $search = $filters['search'] ?? '';
             $priceType = $filters['price_type'] ?? ''; // 'free', 'paid', or empty string
+            $minPrice = isset($filters['min_price']) && $filters['min_price'] !== '' ? (float) $filters['min_price'] : null;
+            $maxPrice = isset($filters['max_price']) && $filters['max_price'] !== '' ? (float) $filters['max_price'] : null;
             $supplier = $filters['supplier'] ?? '';
 
             // Lấy danh sách sản phẩm (lấy tất cả rồi lọc thủ công)
@@ -120,8 +123,23 @@ class PublicService extends BaseService
             // Filter by category
             if ($categoryId) {
                 $catId = (int) $categoryId;
-                $products = array_filter($products, function ($product) use ($catId) {
-                    return (int) ($product['category_id'] ?? 0) === $catId;
+                $categoryIds = [$catId];
+                $categoriesModel = $this->getModel('CategoriesModel');
+                if ($categoriesModel && method_exists($categoriesModel, 'getAllChildCategoryIds')) {
+                    $categoryIds = $categoriesModel->getAllChildCategoryIds($catId);
+                }
+                $categoryIds = array_map('intval', is_array($categoryIds) ? $categoryIds : [$catId]);
+
+                $products = array_filter($products, function ($product) use ($categoryIds) {
+                    return in_array((int) ($product['category_id'] ?? 0), $categoryIds, true);
+                });
+            }
+
+            // Filter by brand
+            if ($brandId) {
+                $selectedBrandId = (int) $brandId;
+                $products = array_filter($products, function ($product) use ($selectedBrandId) {
+                    return (int) ($product['brand_id'] ?? 0) === $selectedBrandId;
                 });
             }
 
@@ -139,6 +157,24 @@ class PublicService extends BaseService
                     $price = floatval($product['price'] ?? 0);
                     $salePrice = floatval($product['sale_price'] ?? 0);
                     return $price > 0 || $salePrice > 0;
+                });
+            }
+
+            // Filter by custom price range
+            if ($minPrice !== null || $maxPrice !== null) {
+                $products = array_filter($products, function ($product) use ($minPrice, $maxPrice) {
+                    $price = floatval($product['price'] ?? 0);
+                    $salePrice = floatval($product['sale_price'] ?? 0);
+                    $effectivePrice = $salePrice > 0 ? $salePrice : $price;
+
+                    if ($minPrice !== null && $effectivePrice < $minPrice) {
+                        return false;
+                    }
+                    if ($maxPrice !== null && $effectivePrice > $maxPrice) {
+                        return false;
+                    }
+
+                    return true;
                 });
             }
 
