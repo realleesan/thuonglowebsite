@@ -73,6 +73,15 @@ class PublicService extends BaseService
             // Lưu ý: trong DataTransformer có transformNewsItems()
             $data['latest_news'] = $this->transformer->transformNewsItems($latestNews);
 
+            // Featured brands
+            $featuredBrands = $this->callModelMethod(
+                'BrandsModel',
+                'getFeatured',
+                [6],
+                []
+            );
+            $data['featured_brands'] = $this->transformer->transformBrands($featuredBrands);
+
             return $data;
         } catch (\Exception $e) {
             return $this->handleError($e, ['page' => 'home']);
@@ -405,6 +414,50 @@ class PublicService extends BaseService
     }
 
     /**
+     * Lấy thương hiệu hiển thị ở bộ lọc/header dropdown.
+     */
+    public function getBrandsForFilter(): array
+    {
+        try {
+            $brands = $this->callModelMethod(
+                'BrandsModel',
+                'getForFilter',
+                [],
+                []
+            );
+
+            return [
+                'brands' => $this->transformer->transformBrands($brands),
+            ];
+        } catch (\Exception $e) {
+            error_log('ERROR getBrandsForFilter: ' . $e->getMessage());
+            return [
+                'brands' => [],
+            ];
+        }
+    }
+
+    /**
+     * Lấy thương hiệu nổi bật cho trang chủ.
+     */
+    public function getFeaturedBrands(int $limit = 6): array
+    {
+        try {
+            $brands = $this->callModelMethod(
+                'BrandsModel',
+                'getFeatured',
+                [$limit],
+                []
+            );
+
+            return $this->transformer->transformBrands($brands);
+        } catch (\Exception $e) {
+            error_log('ERROR getFeaturedBrands: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Lấy danh mục theo cấu trúc phân cấp cha-con cho header menu
      * Trả về mảng các danh mục cha với children bên trong
      */
@@ -520,11 +573,7 @@ class PublicService extends BaseService
         try {
             $refCodeFromUrl = '';
             if (isset($_GET['ref']) && !empty($_GET['ref'])) {
-                if (function_exists('sanitize')) {
-                    $refCodeFromUrl = sanitize($_GET['ref']);
-                } else {
-                    $refCodeFromUrl = htmlspecialchars(strip_tags(trim($_GET['ref'])));
-                }
+                $refCodeFromUrl = htmlspecialchars(strip_tags(trim((string)$_GET['ref'])));
             }
 
             return [

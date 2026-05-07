@@ -19,6 +19,16 @@ if (!function_exists('formatRecordCount')) {
     }
 }
 
+// Helper function to get brand image on home page
+if (!function_exists('getBrandImage')) {
+    function getBrandImage($brand) {
+        if (!empty($brand['image'])) {
+            return $brand['image'];
+        }
+        return 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg';
+    }
+}
+
 // 2. Chọn service phù hợp (ưu tiên biến được inject từ routing)
 $service = isset($currentService) ? $currentService : ($publicService ?? null);
 

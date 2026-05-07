@@ -49,6 +49,42 @@ class BrandsModel extends BaseModel {
         
         return $this->db->query($sql);
     }
+
+    /**
+     * Get brands for public filter/header dropdown
+     */
+    public function getForFilter() {
+        $sql = "
+            SELECT b.*, COUNT(p.id) as product_count
+            FROM {$this->table} b
+            LEFT JOIN products p ON b.id = p.brand_id AND p.status = 'active'
+            WHERE b.status = 'active'
+              AND b.show_in_filter = 1
+            GROUP BY b.id
+            ORDER BY b.sort_order ASC, b.name ASC
+        ";
+
+        return $this->db->query($sql) ?? [];
+    }
+
+    /**
+     * Get featured brands for home page section
+     */
+    public function getFeatured($limit = 6) {
+        $limit = max(1, (int)$limit);
+        $sql = "
+            SELECT b.*, COUNT(p.id) as product_count
+            FROM {$this->table} b
+            LEFT JOIN products p ON b.id = p.brand_id
+            WHERE b.status = 'active'
+              AND b.is_featured = 1
+            GROUP BY b.id
+            ORDER BY b.sort_order ASC, b.name ASC
+            LIMIT {$limit}
+        ";
+
+        return $this->db->query($sql) ?? [];
+    }
     
     /**
      * Create brand with auto-generated slug

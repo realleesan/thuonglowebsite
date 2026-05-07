@@ -390,6 +390,7 @@
 .category-list,
 .author-list,
 .price-list,
+.brand-list,
 .course-category-list {
     list-style: none;
     padding: 0;
@@ -399,6 +400,7 @@
 .category-list li,
 .author-list li,
 .price-list li,
+.brand-list li,
 .course-category-list li {
     margin-bottom: 8px;
     display: flex;
@@ -409,6 +411,7 @@
 .category-list a,
 .author-list a,
 .price-list a,
+.brand-list a,
 .course-category-list a {
     color: #495057;
     text-decoration: none;
@@ -420,6 +423,7 @@
 .category-list a:hover,
 .author-list a:hover,
 .price-list a:hover,
+.brand-list a:hover,
 .course-category-list a:hover {
     color: #356df1;
 }
