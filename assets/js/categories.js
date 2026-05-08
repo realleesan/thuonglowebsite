@@ -325,9 +325,11 @@ function initializePagination() {
     
     pageLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            e.preventDefault();
+            // Don't prevent default - allow actual navigation
+            // Only show loading state before navigation
             
             if (this.classList.contains('active')) {
+                e.preventDefault(); // Prevent navigation if already on this page
                 return;
             }
             
@@ -342,14 +344,11 @@ function initializePagination() {
             const pageNumber = this.textContent.trim();
             console.log('Navigate to page:', pageNumber);
             
-            // Show loading state
+            // Show loading state briefly before navigation
             showLoadingState();
             
-            // Simulate page load
-            setTimeout(() => {
-                hideLoadingState();
-                scrollToTop();
-            }, 500);
+            // Let browser handle navigation naturally
+            // The href attribute contains the correct URL
         });
     });
 }

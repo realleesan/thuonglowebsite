@@ -11,7 +11,7 @@ $service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Get pagination parameters
 // Get pagination parameters
-$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$page = isset($_GET['p']) ? (int) $_GET['p'] : 1;
 // Ensure page is at least 1
 $page = max(1, $page);
 $limit = 12; // Products per page
@@ -417,7 +417,11 @@ if ($fromCount > $totalFiltered) {
                                     <nav class="pagination">
                                         <!-- Previous Page -->
                                         <?php if ($pagination['current_page'] > 1): ?>
-                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $pagination['current_page'] - 1])); ?>" class="page-link prev">
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['p'] = $pagination['current_page'] - 1;
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" class="page-link prev">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
@@ -431,7 +435,11 @@ if ($fromCount > $totalFiltered) {
                                         
                                         for ($i = $startPage; $i <= $endPage; $i++):
                                         ?>
-                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>" 
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['p'] = $i;
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" 
                                                class="page-link <?php echo $i === $pagination['current_page'] ? 'active' : ''; ?>">
                                                 <?php echo $i; ?>
                                             </a>
@@ -439,7 +447,11 @@ if ($fromCount > $totalFiltered) {
                                         
                                         <!-- Next Page -->
                                         <?php if ($pagination['current_page'] < $pagination['last_page']): ?>
-                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['page' => $pagination['current_page'] + 1])); ?>" class="page-link next">
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['p'] = $pagination['current_page'] + 1;
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" class="page-link next">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>

@@ -103,6 +103,7 @@ switch($page) {
         break;
         
     case 'categories':
+    case 'view':
         $title = 'Danh mục - Thuong Lo';
         $content = 'app/views/categories/categories.php';
         $showPageHeader = true;
