@@ -45,7 +45,7 @@ $current_action = $_GET['action'] ?? 'index';
                         ['name' => 'Yêu cầu', 'url' => '?page=admin&module=affiliates&action=requests', 'icon' => 'fas fa-user-plus'],
                         ['name' => 'Rút tiền', 'url' => '?page=admin&module=affiliates&action=withdrawals', 'icon' => 'fas fa-money-bill-wave']
                     ]],
-                    ['name' => 'Doanh thu', 'url' => '?page=admin&module=revenue', 'icon' => 'fas fa-chart-line'],
+                    
                 ];
             } else {
                 // Database menus - convert products and affiliates to have submenu

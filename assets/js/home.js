@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initGenericSlider('.customer-says-section');
     initGenericSlider('.upcoming-events-section');
     initGenericSlider('.latest-news-section');
+    initGenericSlider('.featured-brands-section');
 
     // 5. Initialize Other Animations
     initCourseAnimations();
@@ -91,6 +92,13 @@ function initGenericSlider(sectionSelector) {
         bullets = section.querySelectorAll('.pagination-bullet');
         prevBtn = slider?.querySelector('.slider-nav-prev');
         nextBtn = slider?.querySelector('.slider-nav-next');
+    } else if (sectionSelector === '.featured-brands-section') {
+        // Featured Brands structure - same as courses
+        slider = section.querySelector('.courses-slider');
+        slidesGrid = slider?.querySelector('.courses-grid');
+        bullets = section.querySelectorAll('.pagination-bullet');
+        prevBtn = slider?.querySelector('.slider-nav-prev');
+        nextBtn = slider?.querySelector('.slider-nav-next');
     } else {
         // Popular Courses and New Release structure
         slider = section.querySelector('.courses-slider');
@@ -108,6 +116,19 @@ function initGenericSlider(sectionSelector) {
     // Debug logging for customer says
     if (sectionSelector === '.customer-says-section') {
         console.log('Customer Says Debug:', {
+            section: !!section,
+            slider: !!slider,
+            slidesGrid: !!slidesGrid,
+            bullets: bullets.length,
+            prevBtn: !!prevBtn,
+            nextBtn: !!nextBtn,
+            totalItems: slidesGrid.children.length
+        });
+    }
+    
+    // Debug logging for featured brands
+    if (sectionSelector === '.featured-brands-section') {
+        console.log('Featured Brands Debug:', {
             section: !!section,
             slider: !!slider,
             slidesGrid: !!slidesGrid,
@@ -142,6 +163,12 @@ function initGenericSlider(sectionSelector) {
         itemWidth = 360; // News item width
         gap = 15;
         moveDistance = itemWidth + gap;
+    } else if (sectionSelector === '.featured-brands-section') {
+        itemsPerView = 4; // Show 4 brands at a time
+        maxIndex = Math.max(0, totalItems - itemsPerView);
+        itemWidth = 270;
+        gap = 15;
+        moveDistance = itemWidth + gap;
     } else {
         itemsPerView = 4; // Show 4 courses at a time
         maxIndex = Math.max(0, totalItems - itemsPerView);
@@ -157,6 +184,11 @@ function initGenericSlider(sectionSelector) {
         // Debug logging for customer says
         if (sectionSelector === '.customer-says-section') {
             console.log(`Customer Says Update: currentIndex=${currentIndex}, translateX=${translateX}px`);
+        }
+        
+        // Debug logging for featured brands
+        if (sectionSelector === '.featured-brands-section') {
+            console.log(`Featured Brands Update: currentIndex=${currentIndex}, translateX=${translateX}px`);
         }
 
         // Update pagination bullets

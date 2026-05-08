@@ -15,7 +15,7 @@ try {
     // Search and filter parameters
     $search = $_GET['search'] ?? '';
     $status_filter = $_GET['status'] ?? '';
-    $current_page = max(1, (int)($_GET['page'] ?? 1));
+    $current_page = max(1, (int)($_GET['p'] ?? 1));
     $per_page = 10;
 
     // Prepare filters for AdminService
@@ -278,7 +278,7 @@ function formatDate($date) {
         <div class="pagination-container">
             <div class="pagination">
                 <?php if ($current_page > 1): ?>
-                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['page' => $current_page - 1])) ?>" 
+                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['p' => $current_page - 1])) ?>" 
                        class="pagination-btn">
                         <i class="fas fa-chevron-left"></i>
                         Trước
@@ -290,7 +290,7 @@ function formatDate($date) {
                 $end_page = min($total_pages, $current_page + 2);
                 
                 if ($start_page > 1): ?>
-                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['page' => 1])) ?>" 
+                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['p' => 1])) ?>" 
                        class="pagination-number">1</a>
                     <?php if ($start_page > 2): ?>
                         <span class="pagination-dots">...</span>
@@ -298,7 +298,7 @@ function formatDate($date) {
                 <?php endif; ?>
 
                 <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>" 
+                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['p' => $i])) ?>" 
                        class="pagination-number <?= $i == $current_page ? 'active' : '' ?>"><?= $i ?></a>
                 <?php endfor; ?>
 
@@ -306,12 +306,12 @@ function formatDate($date) {
                     <?php if ($end_page < $total_pages - 1): ?>
                         <span class="pagination-dots">...</span>
                     <?php endif; ?>
-                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['page' => $total_pages])) ?>" 
+                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['p' => $total_pages])) ?>" 
                        class="pagination-number"><?= $total_pages ?></a>
                 <?php endif; ?>
 
                 <?php if ($current_page < $total_pages): ?>
-                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['page' => $current_page + 1])) ?>" 
+                    <a href="?page=admin&module=brands&<?= http_build_query(array_merge($_GET, ['p' => $current_page + 1])) ?>" 
                        class="pagination-btn">
                         Sau
                         <i class="fas fa-chevron-right"></i>

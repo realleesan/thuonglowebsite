@@ -271,7 +271,7 @@ try {
 </section>
 
 <!-- Featured Brands Section -->
-<section class="popular-courses-section">
+<section class="featured-brands-section">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>

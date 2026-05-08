@@ -4,6 +4,18 @@
  * Designed for digital products / data products
  */
 
+// Make errorHandler available globally
+/** @var ErrorHandler $errorHandler */
+global $errorHandler;
+
+// Ensure ErrorHandler class is loaded
+if (!class_exists('ErrorHandler')) {
+    require_once __DIR__ . '/../../app/services/ErrorHandler.php';
+    if (!isset($errorHandler)) {
+        $errorHandler = new ErrorHandler();
+    }
+}
+
 // Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
@@ -15,7 +27,7 @@ if (!$service) {
 $search = $_GET['search'] ?? '';
 $category_filter = $_GET['category'] ?? '';
 $status_filter = $_GET['status'] ?? '';
-$current_page = max(1, (int)($_GET['page'] ?? 1));
+$current_page = max(1, (int)($_GET['p'] ?? 1));
 $per_page = 15;
 
 // Build filters
@@ -62,15 +74,15 @@ try {
 }
 
 // Helper functions
-function formatPrice($price) {
+function formatPrice(float $price): string {
     return number_format($price, 0, ',', '.') . ' VNĐ';
 }
 
-function formatDate($date) {
+function formatDate(string $date): string {
     return date('d/m/Y', strtotime($date));
 }
 
-function getTypeLabel($type) {
+function getTypeLabel(string $type): string {
     $types = [
         'data_nguon_hang' => 'Data Nguồn Hàng',
         'khoa_hoc' => 'Khóa Học',
@@ -310,7 +322,7 @@ function getTypeLabel($type) {
         <div class="pagination-container">
             <div class="pagination">
                 <?php if ($current_page > 1): ?>
-                    <a href="?page=admin&module=products&<?= http_build_query(array_merge($_GET, ['page' => $current_page - 1])) ?>" 
+                    <a href="?page=admin&module=products&<?= http_build_query(array_merge($_GET, ['p' => $current_page - 1])) ?>" 
                        class="pagination-btn">
                         <i class="fas fa-chevron-left"></i>
                         Trước
@@ -323,12 +335,12 @@ function getTypeLabel($type) {
                 $end_page = min($total_pages, $current_page + 2);
                 
                 for ($i = $start_page; $i <= $end_page; $i++): ?>
-                    <a href="?page=admin&module=products&<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>" 
+                    <a href="?page=admin&module=products&p=<?= $i ?>" 
                        class="pagination-number <?= $i == $current_page ? 'active' : '' ?>"><?= $i ?></a>
                 <?php endfor; ?>
 
                 <?php if ($current_page < $total_pages): ?>
-                    <a href="?page=admin&module=products&<?= http_build_query(array_merge($_GET, ['page' => $current_page + 1])) ?>" 
+                    <a href="?page=admin&module=products&p=<?= $current_page + 1 ?>" 
                        class="pagination-btn">
                         Sau
                         <i class="fas fa-chevron-right"></i>

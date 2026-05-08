@@ -28,26 +28,7 @@ $headerUserRole  = $_SESSION['user_role']  ?? 'admin';
     </div>
     
     <div class="header-right">
-        <!-- Notifications -->
-        <div class="header-item notifications-dropdown">
-            <button class="header-btn" id="notificationsBtn">
-                <i class="fas fa-bell"></i>
-            </button>
-            <div class="dropdown-menu notifications-menu" id="notificationsMenu">
-                <div class="dropdown-header">
-                    <h6>Thông báo</h6>
-                </div>
-                <div class="dropdown-body">
-                    <div class="notification-empty" style="text-align: center; padding: 20px; color: #6B7280;">
-                        <i class="fas fa-bell-slash" style="font-size: 24px; margin-bottom: 8px;"></i>
-                        <p style="margin: 0;">Không có thông báo nào</p>
-                    </div>
-                </div>
-                <div class="dropdown-footer">
-                    <a href="?page=admin&module=notifications" class="view-all-btn">Xem tất cả</a>
-                </div>
-            </div>
-        </div>
+        
         
         <!-- User Profile -->
         <div class="header-item user-dropdown">
@@ -67,14 +48,7 @@ $headerUserRole  = $_SESSION['user_role']  ?? 'admin';
                     </div>
                 </div>
                 <div class="dropdown-body">
-                    <a href="?page=admin&module=profile" class="dropdown-item">
-                        <i class="fas fa-user"></i>
-                        <span>Hồ sơ cá nhân</span>
-                    </a>
-                    <a href="?page=admin&module=settings" class="dropdown-item">
-                        <i class="fas fa-cog"></i>
-                        <span>Cài đặt</span>
-                    </a>
+                   
                     <div class="dropdown-divider"></div>
                     <a href="?page=logout" class="dropdown-item text-danger">
                         <i class="fas fa-sign-out-alt"></i>
