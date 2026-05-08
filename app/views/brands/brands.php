@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../core/view_init.php';
 $service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Get pagination and sorting parameters
-$page = isset($_GET['page_num']) ? (int) $_GET['page_num'] : 1;
+$page = isset($_GET['p']) ? (int) $_GET['p'] : 1;
 $page = max(1, $page);
 $perPage = 12;
 $orderBy = $_GET['order_by'] ?? 'name';
@@ -228,7 +228,13 @@ if (!function_exists('getBrandSortOptions')) {
                                 <div class="pagination-wrapper">
                                     <nav class="pagination">
                                         <?php if ($page > 1): ?>
-                                            <a href="?page=brands&page_num=<?php echo $page - 1; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?><?php echo $minProducts ? '&min_products=' . $minProducts : ''; ?>" class="page-link prev">
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['page'] = 'brands';
+                                            $getParams['p'] = $page - 1;
+                                            unset($getParams['page_num']); // Remove old parameter
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" class="page-link prev">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
@@ -236,14 +242,26 @@ if (!function_exists('getBrandSortOptions')) {
                                         <?php endif; ?>
                                         
                                         <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
-                                            <a href="?page=brands&page_num=<?php echo $i; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?><?php echo $minProducts ? '&min_products=' . $minProducts : ''; ?>" 
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['page'] = 'brands';
+                                            $getParams['p'] = $i;
+                                            unset($getParams['page_num']); // Remove old parameter
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" 
                                                class="page-link <?php echo $i === $page ? 'active' : ''; ?>">
                                                 <?php echo $i; ?>
                                             </a>
                                         <?php endfor; ?>
                                         
                                         <?php if ($page < $totalPages): ?>
-                                            <a href="?page=brands&page_num=<?php echo $page + 1; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?><?php echo $minProducts ? '&min_products=' . $minProducts : ''; ?>" class="page-link next">
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['page'] = 'brands';
+                                            $getParams['p'] = $page + 1;
+                                            unset($getParams['page_num']); // Remove old parameter
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" class="page-link next">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>

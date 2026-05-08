@@ -10,7 +10,8 @@ require_once __DIR__ . '/../../../core/view_init.php';
 $service = isset($currentService) ? $currentService : ($publicService ?? null);
 
 // Get pagination and sorting parameters
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page = isset($_GET['p']) ? (int) $_GET['p'] : 1;
+$page = max(1, $page);
 $perPage = 12;
 $orderBy = $_GET['order_by'] ?? 'name';
 
@@ -101,9 +102,9 @@ $displayedCategories = $categories; // Already paginated by service
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">
-                                            <input type="hidden" name="view" value="categories">
-                                            <?php if (isset($_GET['page']) && $_GET['page'] > 1): ?>
-                                                <input type="hidden" name="page" value="<?php echo $page; ?>">
+                                            <input type="hidden" name="page" value="categories">
+                                            <?php if ($page > 1): ?>
+                                                <input type="hidden" name="p" value="<?php echo $page; ?>">
                                             <?php endif; ?>
                                             <select name="order_by" class="sort-select" onchange="this.form.submit()">
                                                 <option value="name" <?php echo $orderBy === 'name' ? 'selected' : ''; ?>>Tên A-Z</option>
@@ -167,7 +168,13 @@ $displayedCategories = $categories; // Already paginated by service
                                 <div class="pagination-wrapper">
                                     <nav class="pagination">
                                         <?php if ($page > 1): ?>
-                                            <a href="?view=categories&page=<?php echo $page - 1; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?>" class="page-link prev">
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['page'] = 'categories';
+                                            $getParams['p'] = $page - 1;
+                                            unset($getParams['view']); // Remove view parameter
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" class="page-link prev">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
@@ -181,14 +188,26 @@ $displayedCategories = $categories; // Already paginated by service
                                         
                                         for ($i = $startPage; $i <= $endPage; $i++):
                                         ?>
-                                            <a href="?view=categories&page=<?php echo $i; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?>" 
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['page'] = 'categories';
+                                            $getParams['p'] = $i;
+                                            unset($getParams['view']); // Remove view parameter
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" 
                                                class="page-link <?php echo $i === $page ? 'active' : ''; ?>">
                                                 <?php echo $i; ?>
                                             </a>
                                         <?php endfor; ?>
                                         
                                         <?php if ($page < $totalPages): ?>
-                                            <a href="?view=categories&page=<?php echo $page + 1; ?><?php echo $orderBy !== 'name' ? '&order_by=' . $orderBy : ''; ?>" class="page-link next">
+                                            <?php 
+                                            $getParams = $_GET;
+                                            $getParams['page'] = 'categories';
+                                            $getParams['p'] = $page + 1;
+                                            unset($getParams['view']); // Remove view parameter
+                                            ?>
+                                            <a href="?<?php echo http_build_query($getParams); ?>" class="page-link next">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
@@ -201,7 +220,7 @@ $displayedCategories = $categories; // Already paginated by service
 
                             <!-- Right Column - Sidebar -->
                             <div class="categories-sidebar" id="categoriesSidebar">
-                                <form method="get" action="?view=categories">
+                                <form method="get" action="">
                                     <input type="hidden" name="page" value="categories">
                                     <div class="sidebar-header">
                                         <h3>Bộ Lọc</h3>
@@ -271,7 +290,7 @@ $displayedCategories = $categories; // Already paginated by service
 
                                         <!-- Reset Button -->
                                         <div class="filter-section">
-                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?view=categories'">Đặt Lại</button>
+                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=categories'">Đặt Lại</button>
                                         </div>
                                     </div>
                                 </form>
@@ -291,7 +310,7 @@ function applyCategoryFilters() {
     const minProducts = minProductsRadio ? minProductsRadio.value : '';
     
     // Build URL - stay on categories page with min_products filter
-    let url = '?view=categories';
+    let url = '?page=categories';
     
     if (minProducts) {
         url += '&min_products=' + minProducts;

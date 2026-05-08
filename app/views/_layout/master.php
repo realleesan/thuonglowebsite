@@ -54,6 +54,16 @@ mb_http_output('UTF-8');
         case 'contact':
             echo '<link rel="stylesheet" href="' . versioned_css('contact.css') . '">';
             break;
+        case 'faq':
+            echo '<link rel="stylesheet" href="' . versioned_css('faq.css') . '">';
+            break;
+        case 'shopping-guide':
+            echo '<link rel="stylesheet" href="' . versioned_css('shopping-guide.css') . '">';
+            break;
+        case 'terms':
+        case 'privacy':
+            echo '<link rel="stylesheet" href="' . versioned_css('terms-privacy.css') . '">';
+            break;
         case 'about':
             echo '<link rel="stylesheet" href="' . versioned_css('about.css') . '">';
             break;
@@ -232,6 +242,16 @@ mb_http_output('UTF-8');
             break;
         case 'contact':
             echo '<script src="' . versioned_js('contact.js') . '"></script>';
+            break;
+        case 'faq':
+            echo '<script src="' . versioned_js('faq.js') . '"></script>';
+            break;
+        case 'shopping-guide':
+            echo '<script src="' . versioned_js('shopping-guide.js') . '"></script>';
+            break;
+        case 'terms':
+        case 'privacy':
+            echo '<script src="' . versioned_js('terms-privacy.js') . '"></script>';
             break;
         case 'about':
             echo '<script src="' . versioned_js('about.js') . '"></script>';

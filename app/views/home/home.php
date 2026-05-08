@@ -283,42 +283,71 @@ try {
             </a>
         </div>
         
-        <div class="courses-grid">
-            <?php if (!empty($featuredBrands)): ?>
-                <?php foreach ($featuredBrands as $brand): ?>
-                    <div class="course-item">
-                        <div class="course-image">
-                            <a href="?page=products&brand=<?php echo $brand['id']; ?>">
-                                <img src="<?php echo getBrandImage($brand); ?>" 
-                                     alt="<?php echo htmlspecialchars($brand['name']); ?>" loading="lazy">
-                            </a>
-                        </div>
-                        <div class="course-content">
-                            <h4 class="course-title">
-                                <a href="?page=products&brand=<?php echo $brand['id']; ?>">
-                                    <?php echo htmlspecialchars($brand['name']); ?>
-                                </a>
-                            </h4>
-                            <div class="course-excerpt">
-                                <?php echo !empty($brand['description']) ? htmlspecialchars(substr($brand['description'], 0, 80)) . (strlen($brand['description']) > 80 ? '...' : '') : 'Khám phá các sản phẩm từ thương hiệu này'; ?>
-                            </div>
-                            <div class="course-instructor">
-                                <span class="instructor-name"><?php echo ($brand['product_count'] ?? 0); ?> sản phẩm</span>
-                            </div>
-                            <div class="course-button">
-                                <a href="?page=products&brand=<?php echo $brand['id']; ?>" class="btn-start-learning">
-                                    <i class="fas fa-eye"></i>
-                                    <span>Xem sản phẩm</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="empty-state">
-                    <p>Chưa có thương hiệu nổi bật nào. Vui lòng quay lại sau.</p>
+        <div class="courses-slider-wrapper">
+            <div class="courses-slider">
+                <!-- Slider Navigation -->
+                <div class="slider-nav slider-nav-prev" title="Previous">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-            <?php endif; ?>
+                <div class="slider-nav slider-nav-next" title="Next">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                
+                <!-- Brands Container -->
+                <div class="courses-container">
+                    <div class="courses-grid">
+                        <?php if (!empty($featuredBrands)): ?>
+                            <?php foreach ($featuredBrands as $brand): ?>
+                                <div class="course-item">
+                                    <div class="course-image">
+                                        <a href="?page=products&brand=<?php echo $brand['id']; ?>">
+                                            <img src="<?php echo getBrandImage($brand); ?>" 
+                                                 alt="<?php echo htmlspecialchars($brand['name']); ?>" loading="lazy">
+                                        </a>
+                                    </div>
+                                    <div class="course-content">
+                                        <h4 class="course-title">
+                                            <a href="?page=products&brand=<?php echo $brand['id']; ?>">
+                                                <?php echo htmlspecialchars($brand['name']); ?>
+                                            </a>
+                                        </h4>
+                                        <div class="course-excerpt">
+                                            <?php echo !empty($brand['description']) ? htmlspecialchars(substr($brand['description'], 0, 80)) . (strlen($brand['description']) > 80 ? '...' : '') : 'Khám phá các sản phẩm từ thương hiệu này'; ?>
+                                        </div>
+                                        <div class="course-instructor">
+                                            <span class="instructor-name"><?php echo ($brand['product_count'] ?? 0); ?> sản phẩm</span>
+                                        </div>
+                                        <div class="course-button">
+                                            <a href="?page=products&brand=<?php echo $brand['id']; ?>" class="btn-start-learning">
+                                                <i class="fas fa-eye"></i>
+                                                <span>Xem sản phẩm</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="empty-state">
+                                <p>Chưa có thương hiệu nổi bật nào. Vui lòng quay lại sau.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="slider-pagination">
+                        <?php 
+                        $brandCount = count($featuredBrands);
+                        $maxBullets = min(5, max(1, ceil($brandCount / 4))); 
+                        for ($i = 0; $i < $maxBullets; $i++): 
+                        ?>
+                            <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

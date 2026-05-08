@@ -252,6 +252,46 @@ switch($page) {
         $currentService = $publicService ?? $currentService;
         break;
         
+    case 'faq':
+        $title = 'Câu hỏi thường gặp - Thuong Lo';
+        $content = 'app/views/faq/faq.php';
+        $showPageHeader = true;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = generate_breadcrumb('faq');
+        $currentService = $publicService ?? $currentService;
+        break;
+        
+    case 'shopping-guide':
+        $title = 'Hướng dẫn mua hàng - Thuong Lo';
+        $content = 'app/views/shopping-guide/shopping-guide.php';
+        $showPageHeader = true;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = generate_breadcrumb('shopping-guide');
+        $currentService = $publicService ?? $currentService;
+        break;
+        
+    case 'terms':
+        $title = 'Điều khoản dịch vụ - Thuong Lo';
+        $content = 'app/views/terms/terms.php';
+        $showPageHeader = true;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = generate_breadcrumb('terms');
+        $currentService = $publicService ?? $currentService;
+        break;
+        
+    case 'privacy':
+        $title = 'Chính sách bảo mật - Thuong Lo';
+        $content = 'app/views/privacy/privacy.php';
+        $showPageHeader = true;
+        $showCTA = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = generate_breadcrumb('privacy');
+        $currentService = $publicService ?? $currentService;
+        break;
+        
     case 'login':
         $action = $_GET['action'] ?? '';
         if ($action === 'process' && $_SERVER['REQUEST_METHOD'] === 'POST') {

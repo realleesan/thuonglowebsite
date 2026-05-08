@@ -165,9 +165,7 @@ if (class_exists('CategoriesModel')) {
                         <button type="button" class="dropdown-btn">Hướng dẫn <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                         <div class="dropdown-menu">
                             <a href="<?php echo nav_url('about'); ?>">Giới thiệu</a>
-                            <a href="<?php echo page_url('guide', ['type' => 'how-to-order']); ?>">Cách đặt hàng</a>
-                            <a href="<?php echo page_url('guide', ['type' => 'payment']); ?>">Hướng dẫn thanh toán</a>
-                            <a href="<?php echo page_url('guide', ['type' => 'shipping']); ?>">Quy trình vận chuyển</a>
+                            
                             <a href="<?php echo nav_url('contact'); ?>">Liên hệ hỗ trợ</a>
                             <a href="<?php echo nav_url('faq'); ?>">Câu hỏi thường gặp</a>
                         </div>
