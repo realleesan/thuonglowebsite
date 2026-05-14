@@ -1102,6 +1102,145 @@ try {
             }
             break;
 
+        // ==========================================
+        // HERO SECTION MANAGEMENT API
+        // ==========================================
+        
+        case 'hero-section':
+            // Get hero section for public display
+            if ($method === 'GET') {
+                require_once __DIR__ . '/app/models/HeroSectionModel.php';
+                $heroSectionModel = new HeroSectionModel();
+                $heroSection = $heroSectionModel->getForApi();
+                
+                if ($heroSection) {
+                    echo json_encode(['success' => true, 'data' => $heroSection]);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Hero Section không tồn tại']);
+                }
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+            
+        case 'admin/hero-section':
+            // Admin hero section management
+            if (empty($_SESSION['user_id'])) {
+                throw new Exception('Unauthorized', 401);
+            }
+            
+            require_once __DIR__ . '/app/services/AuthService.php';
+            $authService = new AuthService();
+            
+            if (!$authService->hasRole('admin')) {
+                throw new Exception('Forbidden', 403);
+            }
+            
+            require_once __DIR__ . '/app/controllers/HeroSectionController.php';
+            $controller = new HeroSectionController();
+            
+            $subPath = $_GET['sub'] ?? '';
+            $id = $_GET['id'] ?? null;
+            
+            switch ($subPath) {
+                case 'list':
+                    // Get all hero sections
+                    $controller->index();
+                    break;
+                    
+                case 'create':
+                    if ($method === 'GET') {
+                        $controller->create();
+                    } elseif ($method === 'POST') {
+                        $controller->store();
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                case 'edit':
+                    if (!$id) {
+                        throw new Exception('Hero Section ID is required', 400);
+                    }
+                    
+                    if ($method === 'GET') {
+                        $controller->edit($id);
+                    } elseif ($method === 'POST') {
+                        $controller->update($id);
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                case 'delete':
+                    if (!$id) {
+                        throw new Exception('Hero Section ID is required', 400);
+                    }
+                    
+                    if ($method === 'POST') {
+                        $controller->delete($id);
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                case 'toggle-status':
+                    if (!$id) {
+                        throw new Exception('Hero Section ID is required', 400);
+                    }
+                    
+                    if ($method === 'POST') {
+                        $controller->toggleStatus($id);
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                case 'button/create':
+                    if ($method === 'POST') {
+                        $controller->createButton();
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                case 'button/update':
+                    if (!$id) {
+                        throw new Exception('Button ID is required', 400);
+                    }
+                    
+                    if ($method === 'POST') {
+                        $controller->updateButton($id);
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                case 'button/delete':
+                    if (!$id) {
+                        throw new Exception('Button ID is required', 400);
+                    }
+                    
+                    if ($method === 'POST') {
+                        $controller->deleteButton($id);
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                case 'buttons/reorder':
+                    if ($method === 'POST') {
+                        $controller->reorderButtons();
+                    } else {
+                        throw new Exception('Method not allowed', 405);
+                    }
+                    break;
+                    
+                default:
+                    throw new Exception('Sub-endpoint not found', 404);
+            }
+            break;
+
         default:
             throw new Exception('Endpoint not found', 404);
     }

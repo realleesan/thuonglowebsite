@@ -6,6 +6,9 @@
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
+// Load Hero Section Model
+require_once __DIR__ . '/../../models/HeroSectionModel.php';
+
 // Helper function for formatting record count
 if (!function_exists('formatRecordCount')) {
     function formatRecordCount($count) {
@@ -69,6 +72,10 @@ try {
         $featuredProducts = $latestProducts;
     }
     
+    // Get Hero Section from database
+    $heroSectionModel = new HeroSectionModel();
+    $heroSection = $heroSectionModel->getWithButtons();
+    
 } catch (Exception $e) {
     if (isset($errorHandler)) {
         $result = $errorHandler->handleViewError($e, 'home', []);
@@ -86,6 +93,56 @@ try {
 <?php endif; ?>
 
 <!-- Hero Section -->
+<?php if ($heroSection && $heroSection['is_active']): ?>
+<section class="hero-section" style="<?php echo 'background-color: ' . htmlspecialchars($heroSection['background_color'] ?? '#ffffff') . ';'; ?>">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-left">
+                <h1 class="hero-title" style="<?php echo 'color: ' . htmlspecialchars($heroSection['text_color'] ?? '#333333') . '; font-family: ' . htmlspecialchars($heroSection['font_family'] ?? 'Arial, sans-serif') . '; font-size: ' . htmlspecialchars($heroSection['title_font_size'] ?? '48px') . ';'; ?>">
+                    <?php echo $heroSection['title_main'] ?? ''; ?>
+                </h1>
+                <?php if (!empty($heroSection['subtitle'])): ?>
+                <div class="hero-subtitle" style="<?php echo 'color: ' . htmlspecialchars($heroSection['text_color'] ?? '#333333') . '; font-family: ' . htmlspecialchars($heroSection['font_family'] ?? 'Arial, sans-serif') . '; font-size: ' . htmlspecialchars($heroSection['subtitle_font_size'] ?? '18px') . ';'; ?>">
+                    <p><?php echo $heroSection['subtitle'] ?? ''; ?></p>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($heroSection['buttons'])): ?>
+                <div class="hero-buttons">
+                    <?php foreach ($heroSection['buttons'] as $button): ?>
+                        <?php if ($button['is_active']): ?>
+                        <a href="<?php echo htmlspecialchars($button['button_url']); ?>" 
+                           class="btn-<?php echo htmlspecialchars($button['button_style'] ?? 'primary'); ?>"
+                           style="<?php 
+                               echo 'background-color: ' . htmlspecialchars($button['background_color'] ?? '#356DF1') . '; ';
+                               echo 'color: ' . htmlspecialchars($button['text_color'] ?? '#ffffff') . '; ';
+                               echo 'font-size: ' . htmlspecialchars($button['font_size'] ?? '16px') . '; ';
+                               echo 'padding: ' . htmlspecialchars($button['padding'] ?? '12px 24px') . '; ';
+                               echo 'border-radius: ' . htmlspecialchars($button['border_radius'] ?? '6px') . ';';
+                           ?>">
+                            <?php echo htmlspecialchars($button['button_text']); ?>
+                        </a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+            </div>
+            <div class="hero-right">
+                <?php if (!empty($heroSection['image_url'])): ?>
+                <div class="hero-image">
+                    <img fetchpriority="high" decoding="async" width="600" height="600" 
+                         src="<?php echo img_url($heroSection['image_url']); ?>" 
+                         alt="<?php echo htmlspecialchars($heroSection['image_alt'] ?? 'Hero Section Image'); ?>" 
+                         srcset="<?php echo img_url($heroSection['image_url']); ?> 600w, <?php echo img_url($heroSection['image_url']); ?> 360w, <?php echo img_url($heroSection['image_url']); ?> 150w, <?php echo img_url($heroSection['image_url']); ?> 100w"
+                         sizes="(max-width: 600px) 100vw, 600px" />
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</section>
+<?php else: ?>
+<!-- Fallback Hero Section if no active hero section -->
 <section class="hero-section">
     <div class="container">
         <div class="hero-content">
@@ -114,6 +171,7 @@ try {
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Featured Products Section -->
 <section class="popular-courses-section">

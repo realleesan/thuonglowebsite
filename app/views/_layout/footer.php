@@ -153,7 +153,7 @@
                                             <div class="elementor-element elementor-element-203b476 elementor-widget elementor-widget-text-editor" data-id="203b476" data-element_type="widget" data-widget_type="text-editor.default">
                                                 <div class="elementor-widget-container">
                                                     <div>
-                                                        <div>© 2025 <a href="<?php echo base_url(); ?>">ThuongLo</a>. Tất cả quyền được bảo lưu. Được phát triển bởi <a href="https://mistydev.id.vn/">Misty Team</a>.</div>
+                                                        <div>© 2025 <a href="<?php echo base_url(); ?>">ThuongLo</a>. Tất cả quyền được bảo lưu.</div>
                                                     </div>
                                                 </div>
                                             </div>

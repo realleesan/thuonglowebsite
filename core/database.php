@@ -204,3 +204,16 @@ class Database {
 
     public function getPdo() { return $this->pdo; }
 }
+
+/**
+ * Get database connection (backward compatibility)
+ */
+function getConnection() {
+    try {
+        $database = Database::getInstance();
+        return $database->getPdo();
+    } catch (Exception $e) {
+        error_log("Database connection error: " . $e->getMessage());
+        return null;
+    }
+}

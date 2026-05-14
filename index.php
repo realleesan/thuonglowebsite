@@ -55,6 +55,25 @@ init_url_builder();
 // Lấy trang hiện tại từ URL
 $page = $_GET['page'] ?? 'home';
 
+// Hỗ trợ định dạng URL kiểu admin/hero-section/edit/1
+if (strpos($page, '/') !== false) {
+    $parts = explode('/', trim($page, '/'));
+    if ($parts[0] === 'admin') {
+        $_GET['page'] = 'admin';
+        $page = 'admin';
+        
+        if (isset($parts[1])) {
+            $_GET['module'] = $parts[1];
+        }
+        if (isset($parts[2])) {
+            $_GET['action'] = $parts[2];
+        }
+        if (isset($parts[3])) {
+            $_GET['id'] = $parts[3];
+        }
+    }
+}
+
 // Mặc định: dùng PublicService cho các trang public
 $currentService = $publicService ?? null;
 
@@ -1792,6 +1811,76 @@ switch($page) {
                         }
                         exit;
                         break;
+                }
+                break;
+                
+            case 'hero-section':
+                // Use HeroSectionController
+                require_once __DIR__ . '/app/controllers/HeroSectionController.php';
+                $heroSectionController = new HeroSectionController();
+                
+                $action = $_GET['action'] ?? 'index';
+                $id = $_GET['id'] ?? null;
+                
+                switch($action) {
+                    case 'create':
+                        $heroSectionController->create();
+                        exit;
+                    case 'edit':
+                        if ($id) {
+                            $heroSectionController->edit($id);
+                        } else {
+                            header('Location: ?page=admin&module=hero-section');
+                        }
+                        exit;
+                    case 'update':
+                        if ($id) {
+                            $heroSectionController->update($id);
+                        } else {
+                            header('Location: ?page=admin&module=hero-section');
+                        }
+                        exit;
+                    case 'delete':
+                        if ($id) {
+                            $heroSectionController->delete($id);
+                        } else {
+                            $deleteId = $_POST['id'] ?? 0;
+                            if ($deleteId > 0) {
+                                $heroSectionController->delete($deleteId);
+                            } else {
+                                header('Location: ?page=admin&module=hero-section');
+                            }
+                        }
+                        exit;
+                    case 'createButton':
+                        $heroSectionController->createButton();
+                        exit;
+                    case 'updateButton':
+                        $id = $_GET['id'] ?? $_POST['id'] ?? 0;
+                        if ($id > 0) {
+                            $heroSectionController->updateButton($id);
+                        } else {
+                            $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+                        }
+                        exit;
+                    case 'deleteButton':
+                         $id = $_GET['id'] ?? $_POST['id'] ?? 0;
+                         if ($id > 0) {
+                             $heroSectionController->deleteButton($id);
+                         } else {
+                             $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+                         }
+                         exit;
+                     case 'upload-image':
+                         $heroSectionController->uploadImage();
+                         exit;
+                     case 'reorderButtons':
+                         $heroSectionController->reorderButtons();
+                         exit;
+                     case 'index':
+                    default:
+                        $heroSectionController->index();
+                        exit;
                 }
                 break;
                 

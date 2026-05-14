@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="<?php echo css_url('admin_footer.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_dashboard.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_pages.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_hero_section.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_products.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_categories.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_brands.css'); ?>">
@@ -55,7 +56,12 @@
             <div class="admin-content">
                 <?php 
                 if (isset($content) && $content) {
-                    include $content;
+                    // Check if $content is a file path or HTML string
+                    if (is_string($content) && file_exists($content)) {
+                        include $content;
+                    } else {
+                        echo $content;
+                    }
                 }
                 ?>
             </div>
@@ -70,6 +76,7 @@
     <script src="<?php echo js_url('admin_header.js'); ?>"></script>
     <script src="<?php echo js_url('admin_footer.js'); ?>"></script>
     <script src="<?php echo js_url('admin_pages.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_hero_section.js'); ?>"></script>
     <script src="<?php echo js_url('admin_dashboard.js'); ?>"></script>
     <script src="<?php echo js_url('admin_products.js'); ?>"></script>
     <script src="<?php echo js_url('admin_categories.js'); ?>"></script>
