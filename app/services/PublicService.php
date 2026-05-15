@@ -122,24 +122,39 @@ class PublicService extends BaseService
 
             // Filter by category
             if ($categoryId) {
-                $catId = (int) $categoryId;
-                $categoryIds = [$catId];
-                $categoriesModel = $this->getModel('CategoriesModel');
-                if ($categoriesModel && method_exists($categoriesModel, 'getAllChildCategoryIds')) {
-                    $categoryIds = $categoriesModel->getAllChildCategoryIds($catId);
+                if (is_array($categoryId)) {
+                    $selectedCategoryIds = array_map('intval', $categoryId);
+                } else {
+                    $selectedCategoryIds = [(int)$categoryId];
                 }
-                $categoryIds = array_map('intval', is_array($categoryIds) ? $categoryIds : [$catId]);
+                
+                $allExpandedCategoryIds = [];
+                $categoriesModel = $this->getModel('CategoriesModel');
+                foreach ($selectedCategoryIds as $catId) {
+                    $allExpandedCategoryIds[] = $catId;
+                    if ($categoriesModel && method_exists($categoriesModel, 'getAllChildCategoryIds')) {
+                        $childIds = $categoriesModel->getAllChildCategoryIds($catId);
+                        if (is_array($childIds)) {
+                            $allExpandedCategoryIds = array_merge($allExpandedCategoryIds, $childIds);
+                        }
+                    }
+                }
+                $allExpandedCategoryIds = array_unique(array_map('intval', $allExpandedCategoryIds));
 
-                $products = array_filter($products, function ($product) use ($categoryIds) {
-                    return in_array((int) ($product['category_id'] ?? 0), $categoryIds, true);
+                $products = array_filter($products, function ($product) use ($allExpandedCategoryIds) {
+                    return in_array((int) ($product['category_id'] ?? 0), $allExpandedCategoryIds, true);
                 });
             }
 
             // Filter by brand
             if ($brandId) {
-                $selectedBrandId = (int) $brandId;
-                $products = array_filter($products, function ($product) use ($selectedBrandId) {
-                    return (int) ($product['brand_id'] ?? 0) === $selectedBrandId;
+                if (is_array($brandId)) {
+                    $selectedBrandIds = array_map('intval', $brandId);
+                } else {
+                    $selectedBrandIds = [(int)$brandId];
+                }
+                $products = array_filter($products, function ($product) use ($selectedBrandIds) {
+                    return in_array((int) ($product['brand_id'] ?? 0), $selectedBrandIds, true);
                 });
             }
 

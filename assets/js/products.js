@@ -1,6 +1,6 @@
 // Products Page JavaScript
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize products page functionality
     initializeProductsPage();
 });
@@ -8,16 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeProductsPage() {
     // Initialize filter toggle
     initializeFilterToggle();
-    
+
     // Initialize sort functionality
     initializeSortFunctionality();
-    
+
     // Initialize filter functionality
     initializeFilterFunctionality();
-    
+
+    // Initialize collapsible categories
+    initializeCollapsibleCategories();
+
     // Initialize pagination
     initializePagination();
-    
+
     // Initialize responsive behavior
     initializeResponsiveBehavior();
 }
@@ -27,31 +30,31 @@ function initializeFilterToggle() {
     const filterToggleBtn = document.getElementById('filterToggle');
     const sidebar = document.getElementById('productsSidebar');
     const sidebarClose = document.getElementById('sidebarClose');
-    
+
     if (filterToggleBtn && sidebar) {
         // Create overlay for mobile
         const overlay = document.createElement('div');
         overlay.className = 'sidebar-overlay';
         document.body.appendChild(overlay);
-        
-        filterToggleBtn.addEventListener('click', function() {
+
+        filterToggleBtn.addEventListener('click', function () {
             toggleSidebar(sidebar, overlay);
         });
-        
+
         // Close sidebar when clicking overlay
-        overlay.addEventListener('click', function() {
+        overlay.addEventListener('click', function () {
             closeSidebar(sidebar, overlay);
         });
-        
+
         // Close sidebar with close button
         if (sidebarClose) {
-            sidebarClose.addEventListener('click', function() {
+            sidebarClose.addEventListener('click', function () {
                 closeSidebar(sidebar, overlay);
             });
         }
-        
+
         // Close sidebar on escape key
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape' && sidebar.classList.contains('active')) {
                 closeSidebar(sidebar, overlay);
             }
@@ -74,21 +77,21 @@ function closeSidebar(sidebar, overlay) {
 // Sort Functionality
 function initializeSortFunctionality() {
     const sortSelect = document.querySelector('.sort-select');
-    
+
     if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
+        sortSelect.addEventListener('change', function () {
             const selectedValue = this.value;
             console.log('Sort by:', selectedValue);
-            
+
             // Add loading state
             showLoadingState();
-            
+
             // Simulate API call or form submission
             setTimeout(() => {
                 // Here you would typically make an AJAX request
                 // or submit the form to update the products
                 hideLoadingState();
-                
+
                 // For demo purposes, just log the action
                 console.log('Products sorted by:', selectedValue);
             }, 500);
@@ -98,29 +101,81 @@ function initializeSortFunctionality() {
 
 // Filter Functionality
 function initializeFilterFunctionality() {
-    const resetBtn = document.querySelector('.reset-filters-btn');
-    const applyBtn = document.querySelector('.apply-filters-btn');
-    const filterLinks = document.querySelectorAll('.category-list a, .author-list a, .price-list a, .course-category-list a');
-    
-    // Reset filters
-    if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-            resetAllFilters();
+    const filterItems = document.querySelectorAll('.category-item-content');
+
+    filterItems.forEach(item => {
+        item.addEventListener('click', function (e) {
+            const checkbox = this.querySelector('input[type="checkbox"]');
+            const radio = this.querySelector('input[type="radio"]');
+
+            // If we didn't click the input or label directly, toggle/select the input
+            if (e.target.tagName !== 'INPUT' && !e.target.closest('label')) {
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                } else if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+
+            // Update active class based on state
+            if (checkbox) {
+                const li = this.closest('.category-item');
+                if (checkbox.checked) {
+                    li.classList.add('active');
+                } else {
+                    li.classList.remove('active');
+                }
+            } else if (radio) {
+                const section = this.closest('.filter-section');
+                if (section) {
+                    section.querySelectorAll('.category-item').forEach(li => li.classList.remove('active'));
+                }
+                const li = this.closest('.category-item');
+                if (radio.checked) {
+                    li.classList.add('active');
+                }
+            }
         });
-    }
-    
-    // Apply filters
-    if (applyBtn) {
-        applyBtn.addEventListener('click', function() {
-            applyFilters();
-        });
-    }
-    
-    // Filter link clicks
-    filterLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+    });
+}
+
+function initializeCollapsibleCategories() {
+    const toggles = document.querySelectorAll('.toggle-sub');
+
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', function (e) {
             e.preventDefault();
-            toggleFilterSelection(this);
+            e.stopPropagation();
+
+            const item = this.closest('.category-item');
+            const subMenu = item.querySelector('.sub-categories-wrapper');
+
+            if (subMenu) {
+                this.classList.toggle('expanded');
+
+                if (subMenu.classList.contains('show')) {
+                    // Slide up
+                    subMenu.style.maxHeight = subMenu.scrollHeight + 'px';
+                    setTimeout(() => {
+                        subMenu.style.maxHeight = '0';
+                        subMenu.classList.remove('show');
+                    }, 10);
+                } else {
+                    // Slide down
+                    subMenu.classList.add('show');
+                    subMenu.style.maxHeight = '0';
+                    setTimeout(() => {
+                        subMenu.style.maxHeight = subMenu.scrollHeight + 'px';
+                    }, 10);
+
+                    // Reset max-height after animation to allow nested expansion
+                    setTimeout(() => {
+                        subMenu.style.maxHeight = 'none';
+                    }, 310);
+                }
+            }
         });
     });
 }
@@ -131,15 +186,15 @@ function resetAllFilters() {
     activeFilters.forEach(filter => {
         filter.classList.remove('filter-active');
     });
-    
+
     // Reset sort dropdown
     const sortSelect = document.querySelector('.sort-select');
     if (sortSelect) {
         sortSelect.value = 'post_date';
     }
-    
+
     console.log('All filters reset');
-    
+
     // Simulate page reload or AJAX call
     showLoadingState();
     setTimeout(() => {
@@ -151,27 +206,27 @@ function resetAllFilters() {
 function applyFilters() {
     const activeFilters = document.querySelectorAll('.filter-active');
     const filterData = [];
-    
+
     activeFilters.forEach(filter => {
         filterData.push({
             type: getFilterType(filter),
             value: filter.textContent.trim()
         });
     });
-    
+
     console.log('Applying filters:', filterData);
-    
+
     // Show loading state
     showLoadingState();
-    
+
     // Simulate API call
     setTimeout(() => {
         hideLoadingState();
-        
+
         // Update results count based on filters
         const resultCount = Math.max(1, 20 - filterData.length * 3);
         updateResultsCount(`Showing 1-${Math.min(12, resultCount)} of ${resultCount} results`);
-        
+
         // Close sidebar on mobile after applying filters
         if (window.innerWidth <= 1024) {
             const sidebar = document.getElementById('productsSidebar');
@@ -183,7 +238,7 @@ function applyFilters() {
 
 function toggleFilterSelection(filterLink) {
     filterLink.classList.toggle('filter-active');
-    
+
     // Add visual feedback
     if (filterLink.classList.contains('filter-active')) {
         filterLink.style.color = '#356df1';
@@ -203,20 +258,20 @@ function getFilterType(filterElement) {
 // Pagination Functionality
 function initializePagination() {
     const pageLinks = document.querySelectorAll('.page-link');
-    
+
     pageLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             // Don't prevent default - allow actual navigation
             // Only show loading state before navigation
-            
+
             if (this.classList.contains('active')) {
                 e.preventDefault(); // Prevent navigation if already on this page
                 return;
             }
-            
+
             // Show loading state briefly before navigation
             showLoadingState();
-            
+
             // Let the browser handle the navigation naturally
             // The href attribute contains the correct URL
         });
@@ -226,14 +281,14 @@ function initializePagination() {
 // Responsive Behavior
 function initializeResponsiveBehavior() {
     let resizeTimer;
-    
-    window.addEventListener('resize', function() {
+
+    window.addEventListener('resize', function () {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             handleResize();
         }, 250);
     });
-    
+
     // Initial check
     handleResize();
 }
@@ -241,7 +296,7 @@ function initializeResponsiveBehavior() {
 function handleResize() {
     const sidebar = document.getElementById('productsSidebar');
     const overlay = document.querySelector('.sidebar-overlay');
-    
+
     if (window.innerWidth > 1024) {
         // Desktop view - ensure sidebar is visible and overlay is hidden
         if (sidebar) {
@@ -261,7 +316,7 @@ function showLoadingState() {
         productsGrid.style.opacity = '0.6';
         productsGrid.style.pointerEvents = 'none';
     }
-    
+
     // Add loading spinner if needed
     const loadingSpinner = document.createElement('div');
     loadingSpinner.className = 'loading-spinner';
@@ -273,7 +328,7 @@ function showLoadingState() {
         transform: translate(-50%, -50%);
         z-index: 9999;
     `;
-    
+
     const spinnerCSS = `
         .spinner {
             width: 40px;
@@ -289,14 +344,14 @@ function showLoadingState() {
             100% { transform: rotate(360deg); }
         }
     `;
-    
+
     if (!document.querySelector('#spinner-styles')) {
         const style = document.createElement('style');
         style.id = 'spinner-styles';
         style.textContent = spinnerCSS;
         document.head.appendChild(style);
     }
-    
+
     document.body.appendChild(loadingSpinner);
 }
 
@@ -306,7 +361,7 @@ function hideLoadingState() {
         productsGrid.style.opacity = '';
         productsGrid.style.pointerEvents = '';
     }
-    
+
     const loadingSpinner = document.querySelector('.loading-spinner');
     if (loadingSpinner) {
         loadingSpinner.remove();
@@ -328,15 +383,15 @@ function scrollToTop() {
 }
 
 // Course Item Interactions
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Track course clicks for analytics
     const courseLinks = document.querySelectorAll('.course-title a, .btn-start-learning');
-    
+
     courseLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             const courseTitle = this.closest('.course-item').querySelector('.course-title a').textContent.trim();
             console.log('Course clicked:', courseTitle);
-            
+
             // Here you could send analytics data
             // trackCourseClick(courseTitle);
         });
@@ -346,14 +401,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // Search functionality (if search input exists)
 function initializeSearch() {
     const searchInput = document.querySelector('.search-input');
-    
+
     if (searchInput) {
         let searchTimer;
-        
-        searchInput.addEventListener('input', function() {
+
+        searchInput.addEventListener('input', function () {
             clearTimeout(searchTimer);
             const query = this.value.trim();
-            
+
             searchTimer = setTimeout(() => {
                 if (query.length >= 2) {
                     performSearch(query);
@@ -368,7 +423,7 @@ function initializeSearch() {
 function performSearch(query) {
     console.log('Searching for:', query);
     showLoadingState();
-    
+
     // Simulate search API call
     setTimeout(() => {
         hideLoadingState();
@@ -382,7 +437,7 @@ function clearSearch() {
 }
 
 // Initialize search if needed
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeSearch();
 });
 

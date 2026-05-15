@@ -231,9 +231,9 @@ $displayedCategories = $categories; // Already paginated by service
                                     <div class="sidebar-content">
                                         <!-- Course Count Filter (Radio Buttons) -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title">Số Lượng Sản Phẩm</h3>
+                                            <h3 class="filter-title"><i class="fas fa-layer-group"></i> Số lượng sản phẩm</h3>
                                             <div class="filter-content">
-                                                <ul class="course-count-list">
+                                                <ul class="category-list">
                                                     <?php
                                                     // Get current min_products filter
                                                     $currentMinProducts = $_GET['min_products'] ?? '';
@@ -252,44 +252,52 @@ $displayedCategories = $categories; // Already paginated by service
                                                         if ($count >= 10) $ranges['10+']++;
                                                     }
                                                     ?>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="" <?php echo empty($currentMinProducts) ? 'checked' : ''; ?>>
-                                                            <span>Tất cả</span>
-                                                        </label>
+                                                    <li class="category-item <?php echo empty($currentMinProducts) ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="" <?php echo empty($currentMinProducts) ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">Tất cả</span>
+                                                            </label>
+                                                        </div>
                                                     </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="10" <?php echo $currentMinProducts === '10' ? 'checked' : ''; ?>>
-                                                            <span>10+ Sản Phẩm</span>
-                                                        </label>
-                                                        <span class="count">(<?php echo $ranges['10+']; ?>)</span>
+                                                    <li class="category-item <?php echo $currentMinProducts === '10' ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="10" <?php echo $currentMinProducts === '10' ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">10+ Sản Phẩm</span>
+                                                            </label>
+                                                            <span class="category-count"><?php echo $ranges['10+']; ?></span>
+                                                        </div>
                                                     </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="20" <?php echo $currentMinProducts === '20' ? 'checked' : ''; ?>>
-                                                            <span>20+ Sản Phẩm</span>
-                                                        </label>
-                                                        <span class="count">(<?php echo $ranges['20+']; ?>)</span>
+                                                    <li class="category-item <?php echo $currentMinProducts === '20' ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="20" <?php echo $currentMinProducts === '20' ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">20+ Sản Phẩm</span>
+                                                            </label>
+                                                            <span class="category-count"><?php echo $ranges['20+']; ?></span>
+                                                        </div>
                                                     </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="30" <?php echo $currentMinProducts === '30' ? 'checked' : ''; ?>>
-                                                            <span>30+ Sản Phẩm</span>
-                                                        </label>
-                                                        <span class="count">(<?php echo $ranges['30+']; ?>)</span>
+                                                    <li class="category-item <?php echo $currentMinProducts === '30' ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="30" <?php echo $currentMinProducts === '30' ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">30+ Sản Phẩm</span>
+                                                            </label>
+                                                            <span class="category-count"><?php echo $ranges['30+']; ?></span>
+                                                        </div>
                                                     </li>
                                                 </ul>
                                             </div>
                                         </div>
 
-                                        <!-- Apply Button -->
-                                        <div class="filter-section">
+                                        <!-- Actions -->
+                                        <div class="filter-actions">
                                             <button type="button" class="apply-filters-btn" onclick="applyCategoryFilters()">Áp Dụng</button>
-                                        </div>
-
-                                        <!-- Reset Button -->
-                                        <div class="filter-section">
                                             <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=categories'">Đặt Lại</button>
                                         </div>
                                     </div>

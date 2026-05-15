@@ -288,46 +288,56 @@ if (!function_exists('getBrandSortOptions')) {
                                     <div class="sidebar-content">
                                         <!-- Product Count Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title">Số lượng sản phẩm</h3>
+                                            <h3 class="filter-title"><i class="fas fa-boxes"></i> Số lượng sản phẩm</h3>
                                             <div class="filter-content">
-                                                <ul class="price-list">
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="" 
-                                                                   <?php echo empty($minProducts) ? 'checked' : ''; ?>>
-                                                            <span>Tất cả</span>
-                                                        </label>
+                                                <ul class="category-list">
+                                                    <li class="category-item <?php echo empty($minProducts) ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="" 
+                                                                       <?php echo empty($minProducts) ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">Tất cả</span>
+                                                            </label>
+                                                        </div>
                                                     </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="5" 
-                                                                   <?php echo $minProducts === '5' ? 'checked' : ''; ?>>
-                                                            <span>5+ sản phẩm</span>
-                                                        </label>
+                                                    <li class="category-item <?php echo $minProducts === '5' ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="5" 
+                                                                       <?php echo $minProducts === '5' ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">5+ sản phẩm</span>
+                                                            </label>
+                                                        </div>
                                                     </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="10" 
-                                                                   <?php echo $minProducts === '10' ? 'checked' : ''; ?>>
-                                                            <span>10+ sản phẩm</span>
-                                                        </label>
+                                                    <li class="category-item <?php echo $minProducts === '10' ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="10" 
+                                                                       <?php echo $minProducts === '10' ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">10+ sản phẩm</span>
+                                                            </label>
+                                                        </div>
                                                     </li>
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="min_products" value="20" 
-                                                                   <?php echo $minProducts === '20' ? 'checked' : ''; ?>>
-                                                            <span>20+ sản phẩm</span>
-                                                        </label>
+                                                    <li class="category-item <?php echo $minProducts === '20' ? 'active' : ''; ?>">
+                                                        <div class="category-item-content">
+                                                            <label class="filter-item-label">
+                                                                <input type="radio" name="min_products" value="20" 
+                                                                       <?php echo $minProducts === '20' ? 'checked' : ''; ?>>
+                                                                <span class="custom-radio"></span>
+                                                                <span class="category-label">20+ sản phẩm</span>
+                                                            </label>
+                                                        </div>
                                                     </li>
                                                 </ul>
                                             </div>
                                         </div>
 
-                                        <!-- Apply and Reset Buttons -->
-                                        <div class="filter-section">
+                                        <!-- Actions -->
+                                        <div class="filter-actions">
                                             <button type="submit" class="apply-filters-btn">Áp dụng</button>
-                                        </div>
-                                        <div class="filter-section">
                                             <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=brands'">Đặt lại</button>
                                         </div>
                                     </div>

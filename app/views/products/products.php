@@ -15,13 +15,17 @@ $page = isset($_GET['p']) ? (int) $_GET['p'] : 1;
 // Ensure page is at least 1
 $page = max(1, $page);
 $limit = 12; // Products per page
-$categoryId = $_GET['category'] ?? null;
-// Handle empty string from form and convert to integer for DB query
-if ($categoryId === '' || $categoryId === 'null') {
-    $categoryId = null;
+$categoryId = $_GET['category'] ?? [];
+if (!is_array($categoryId)) {
+    if ($categoryId === '' || $categoryId === 'null' || $categoryId === null) {
+        $categoryId = [];
+    } else {
+        $categoryId = [(int) $categoryId];
+    }
 } else {
-    $categoryId = (int) $categoryId;
+    $categoryId = array_map('intval', array_filter($categoryId));
 }
+
 $orderBy = $_GET['order_by'] ?? 'post_date';
 $search = $_GET['search'] ?? '';
 
@@ -30,11 +34,16 @@ $minPriceInput = trim((string)($_GET['min_price'] ?? ''));
 $maxPriceInput = trim((string)($_GET['max_price'] ?? ''));
 $minPrice = ($minPriceInput !== '' && is_numeric($minPriceInput)) ? (float)$minPriceInput : null;
 $maxPrice = ($maxPriceInput !== '' && is_numeric($maxPriceInput)) ? (float)$maxPriceInput : null;
-$brandId = $_GET['brand'] ?? null;
-if ($brandId === '' || $brandId === 'null') {
-    $brandId = null;
+
+$brandId = $_GET['brand'] ?? [];
+if (!is_array($brandId)) {
+    if ($brandId === '' || $brandId === 'null' || $brandId === null) {
+        $brandId = [];
+    } else {
+        $brandId = [(int) $brandId];
+    }
 } else {
-    $brandId = (int) $brandId;
+    $brandId = array_map('intval', array_filter($brandId));
 }
 
 // Store current filters for UI highlighting
@@ -121,7 +130,7 @@ try {
             $categoryByParent[$parentKey][] = $category;
         }
 
-        $flattenCategoryTree = function ($parentId = null, $depth = 0) use (&$flattenCategoryTree, &$hierarchicalCategories, $categoryByParent) {
+        $buildCategoryTree = function ($parentId = null, $depth = 0) use (&$buildCategoryTree, $categoryByParent) {
             $nodes = $categoryByParent[$parentId] ?? [];
             usort($nodes, function ($a, $b) {
                 $sortA = (int)($a['sort_order'] ?? 0);
@@ -132,14 +141,14 @@ try {
                 return $sortA <=> $sortB;
             });
 
-            foreach ($nodes as $node) {
+            foreach ($nodes as &$node) {
                 $node['depth'] = $depth;
-                $hierarchicalCategories[] = $node;
-                $flattenCategoryTree($node['id'], $depth + 1);
+                $node['children'] = $buildCategoryTree($node['id'], $depth + 1);
             }
+            return $nodes;
         };
 
-        $flattenCategoryTree(null, 0);
+        $categoryTree = $buildCategoryTree(null, 0);
     }
 
     // Get brands for sidebar filter
@@ -238,6 +247,64 @@ if ($fromCount > $totalFiltered) {
     $fromCount = 0;
     $toCount = 0;
 }
+
+// Helper function to render category tree
+if (!function_exists('renderCategoryTree')) {
+    function renderCategoryTree($nodes, $activeIds, $isSub = false) {
+        $activeIds = is_array($activeIds) ? $activeIds : ($activeIds ? [$activeIds] : []);
+        $html = '<ul class="' . ($isSub ? 'sub-categories' : 'category-list') . '">';
+        foreach ($nodes as $node) {
+            $hasChildren = !empty($node['children']);
+            $isActive = in_array((int)$node['id'], $activeIds);
+            
+            // Check if any child is active to auto-expand
+            $hasActiveChild = false;
+            if ($hasChildren) {
+                $checkActive = function($children) use (&$checkActive, $activeIds) {
+                    foreach ($children as $child) {
+                        if (in_array((int)$child['id'], $activeIds)) return true;
+                        if (!empty($child['children']) && $checkActive($child['children'])) return true;
+                    }
+                    return false;
+                };
+                $hasActiveChild = $checkActive($node['children']);
+            }
+            
+            $itemClass = 'category-item';
+            if ($hasChildren) $itemClass .= ' has-children';
+            if ($isActive) $itemClass .= ' active';
+            
+            $html .= '<li class="' . $itemClass . '" data-id="' . $node['id'] . '">';
+            $html .= '<div class="category-header-wrapper">';
+            $html .= '<div class="category-item-content">';
+            $html .= '<label class="filter-item-label">';
+            $html .= '<input type="checkbox" name="category[]" value="' . $node['id'] . '" ' . ($isActive ? 'checked' : '') . '>';
+            $html .= '<span class="custom-checkbox"></span>';
+            $html .= '<span class="category-label">' . htmlspecialchars($node['name']) . '</span>';
+            $html .= '</label>';
+            $html .= '<span class="category-count">' . ($node['product_count'] ?? 0) . '</span>';
+            $html .= '</div>';
+            
+            if ($hasChildren) {
+                $expandedClass = $hasActiveChild ? 'expanded' : '';
+                $html .= '<span class="toggle-sub ' . $expandedClass . '"><i class="fas fa-chevron-down"></i></span>';
+            }
+            
+            $html .= '</div>';
+            
+            if ($hasChildren) {
+                $showClass = $hasActiveChild ? 'show' : '';
+                $html .= '<div class="sub-categories-wrapper ' . $showClass . '">';
+                $html .= renderCategoryTree($node['children'], $activeIds, true);
+                $html .= '</div>';
+            }
+            
+            $html .= '</li>';
+        }
+        $html .= '</ul>';
+        return $html;
+    }
+}
 ?>
 
 <!-- Main Content -->
@@ -283,17 +350,21 @@ if ($fromCount > $totalFiltered) {
                                         <?php endif; ?>
                                     </div>
                                     <div class="sort-dropdown">
-                                        <form method="get">
-                                            <input type="hidden" name="page" value="products">
-                                            <?php if ($categoryId): ?>
-                                                <input type="hidden" name="category" value="<?php echo htmlspecialchars($categoryId); ?>">
-                                            <?php endif; ?>
-                                            <?php if ($search): ?>
-                                                <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
-                                            <?php endif; ?>
-                                            <?php if ($brandId): ?>
-                                                <input type="hidden" name="brand" value="<?php echo htmlspecialchars($brandId); ?>">
-                                            <?php endif; ?>
+                                            <form method="get">
+                                                <input type="hidden" name="page" value="products">
+                                                <?php if (!empty($categoryId)): ?>
+                                                    <?php foreach ($categoryId as $cid): ?>
+                                                        <input type="hidden" name="category[]" value="<?php echo htmlspecialchars($cid); ?>">
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                                <?php if ($search): ?>
+                                                    <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                                <?php endif; ?>
+                                                <?php if (!empty($brandId)): ?>
+                                                    <?php foreach ($brandId as $bid): ?>
+                                                        <input type="hidden" name="brand[]" value="<?php echo htmlspecialchars($bid); ?>">
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             <?php if ($minPriceInput !== ''): ?>
                                                 <input type="hidden" name="min_price" value="<?php echo htmlspecialchars($minPriceInput); ?>">
                                             <?php endif; ?>
@@ -479,63 +550,35 @@ if ($fromCount > $totalFiltered) {
                                         </button>
                                     </div>
                                     <div class="sidebar-content">
-                                        <!-- Categories Filter (radio buttons, submit on Apply) -->
+                                        <!-- Categories Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title">Danh mục</h3>
+                                            <h3 class="filter-title"><i class="fas fa-th-large"></i> Danh mục</h3>
                                             <div class="filter-content">
-                                                <ul class="category-list">
-                                                    <li class="category-item category-root-item">
-                                                        <label>
-                                                            <input type="radio" name="category" value=""
-                                                                   <?php echo empty($categoryId) ? 'checked' : ''; ?>>
-                                                            <span>Tất cả danh mục</span>
-                                                        </label>
-                                                        <span class="count">(<?php echo $totalAllProducts; ?>)</span>
-                                                    </li>
-                                                    <?php if (!empty($hierarchicalCategories)): ?>
-                                                        <?php foreach ($hierarchicalCategories as $category): ?>
-                                                            <?php $depth = (int)($category['depth'] ?? 0); ?>
-                                                            <li class="category-item <?php echo $depth > 0 ? 'category-child-item' : 'category-root-item'; ?>">
-                                                                <label>
-                                                                    <input type="radio" name="category" value="<?php echo $category['id']; ?>" 
-                                                                           <?php echo $categoryId == $category['id'] ? 'checked' : ''; ?>>
-                                                                        <span class="category-label depth-<?php echo $depth; ?>" style="padding-left: <?php echo $depth * 16; ?>px;">
-                                                                            <?php if ($depth > 0): ?>
-                                                                                <span class="category-branch">↳</span>
-                                                                            <?php endif; ?>
-                                                                            <?php echo htmlspecialchars($category['name']); ?>
-                                                                        </span>
-                                                                </label>
-                                                                <span class="count">(<?php echo $category['product_count']; ?>)</span>
-                                                            </li>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </ul>
+                                                <?php if (!empty($categoryTree)): ?>
+                                                    <?php echo renderCategoryTree($categoryTree, $categoryId); ?>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
 
                                         <!-- Brand Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title">Thương hiệu</h3>
+                                            <h3 class="filter-title"><i class="fas fa-tag"></i> Thương hiệu</h3>
                                             <div class="filter-content">
                                                 <ul class="brand-list">
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="brand" value=""
-                                                                   <?php echo empty($brandId) ? 'checked' : ''; ?>>
-                                                            <span>Tất cả thương hiệu</span>
-                                                        </label>
-                                                    </li>
                                                     <?php if (!empty($brands)): ?>
                                                         <?php foreach ($brands as $brand): ?>
                                                             <?php if (($brand['product_count'] ?? 0) > 0): ?>
-                                                            <li>
-                                                                <label>
-                                                                    <input type="radio" name="brand" value="<?php echo $brand['id']; ?>"
-                                                                           <?php echo $brandId == $brand['id'] ? 'checked' : ''; ?>>
-                                                                    <span><?php echo htmlspecialchars($brand['name']); ?></span>
-                                                                </label>
-                                                                <span class="count">(<?php echo $brand['product_count']; ?>)</span>
+                                                            <?php $isBrandActive = in_array((int)$brand['id'], $brandId); ?>
+                                                            <li class="category-item <?php echo $isBrandActive ? 'active' : ''; ?>">
+                                                                <div class="category-item-content">
+                                                                    <label class="filter-item-label">
+                                                                        <input type="checkbox" name="brand[]" value="<?php echo $brand['id']; ?>"
+                                                                               <?php echo $isBrandActive ? 'checked' : ''; ?>>
+                                                                        <span class="custom-checkbox"></span>
+                                                                        <span class="category-label"><?php echo htmlspecialchars($brand['name']); ?></span>
+                                                                    </label>
+                                                                    <span class="category-count"><?php echo $brand['product_count']; ?></span>
+                                                                </div>
                                                             </li>
                                                             <?php endif; ?>
                                                         <?php endforeach; ?>
@@ -546,28 +589,32 @@ if ($fromCount > $totalFiltered) {
 
                                         <!-- Price Range Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title">Giá</h3>
+                                            <h3 class="filter-title"><i class="fas fa-coins"></i> Khoảng giá</h3>
                                             <div class="filter-content">
                                                 <div class="price-range-fields">
-                                                    <div class="price-input-group">
-                                                        <label for="min_price">Từ</label>
-                                                        <input type="number" id="min_price" name="min_price" min="0" step="1000"
-                                                               value="<?php echo htmlspecialchars($minPriceInput); ?>" placeholder="VD: 50000">
+                                                    <div class="price-input-wrapper">
+                                                        <label>Giá từ</label>
+                                                        <div class="price-input-group">
+                                                            <span>₫</span>
+                                                            <input type="number" name="min_price" min="0" step="1000"
+                                                                   value="<?php echo htmlspecialchars($minPriceInput); ?>" placeholder="50.000">
+                                                        </div>
                                                     </div>
-                                                    <div class="price-input-group">
-                                                        <label for="max_price">Đến</label>
-                                                        <input type="number" id="max_price" name="max_price" min="0" step="1000"
-                                                               value="<?php echo htmlspecialchars($maxPriceInput); ?>" placeholder="VD: 300000">
+                                                    <div class="price-input-wrapper">
+                                                        <label>Giá đến</label>
+                                                        <div class="price-input-group">
+                                                            <span>₫</span>
+                                                            <input type="number" name="max_price" min="0" step="1000"
+                                                                   value="<?php echo htmlspecialchars($maxPriceInput); ?>" placeholder="300.000">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!-- Apply and Reset Buttons -->
-                                        <div class="filter-section">
-                                            <button type="submit" class="apply-filters-btn">Áp dụng</button>
-                                        </div>
-                                        <div class="filter-section">
+                                        <!-- Actions -->
+                                        <div class="filter-actions">
+                                            <button type="submit" class="apply-filters-btn">Áp dụng bộ lọc</button>
                                             <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=products'">Đặt lại</button>
                                         </div>
                                     </div>

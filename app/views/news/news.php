@@ -393,76 +393,85 @@ ob_start();
                                     </button>
                                 </div>
                                 <form method="get" action="" class="filter-form">
-                                    <input type="hidden" name="page" value="news">
-                                    <div class="sidebar-content">
-                                        <!-- Categories Filter (radio buttons) -->
-                                        <div class="filter-section">
-                                            <h3 class="filter-title">Danh mục</h3>
-                                            <div class="filter-content">
-                                                <ul class="category-list">
-                                                    <li>
-                                                        <label>
-                                                            <input type="radio" name="category" value="" 
-                                                                   <?php echo empty($categoryId) ? 'checked' : ''; ?>>
-                                                            <span>Tất cả</span>
-                                                        </label>
-                                                    </li>
-                                                    <?php if (!empty($categories)): ?>
-                                                        <?php foreach ($categories as $cat): ?>
-                                                        <li>
-                                                            <label>
-                                                                <input type="radio" name="category" value="<?php echo $cat['id']; ?>" 
-                                                                       <?php echo $categoryId == $cat['id'] ? 'checked' : ''; ?>>
-                                                                <span><?php echo htmlspecialchars($cat['name']); ?></span>
-                                                            </label>
-                                                        </li>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </ul>
-                                            </div>
-                                        </div>
+                                        <div class="sidebar-content">
+                                         <!-- Categories Filter (radio buttons) -->
+                                         <div class="filter-section">
+                                             <h3 class="filter-title"><i class="fas fa-folder-open"></i> Danh mục</h3>
+                                             <div class="filter-content">
+                                                 <ul class="category-list">
+                                                     <li class="category-item <?php echo empty($categoryId) ? 'active' : ''; ?>">
+                                                         <div class="category-item-content">
+                                                             <label class="filter-item-label">
+                                                                 <input type="radio" name="category" value="" 
+                                                                        <?php echo empty($categoryId) ? 'checked' : ''; ?>>
+                                                                 <span class="custom-radio"></span>
+                                                                 <span class="category-label">Tất cả</span>
+                                                             </label>
+                                                         </div>
+                                                     </li>
+                                                     <?php if (!empty($categories)): ?>
+                                                         <?php foreach ($categories as $cat): ?>
+                                                         <li class="category-item <?php echo $categoryId == $cat['id'] ? 'active' : ''; ?>">
+                                                             <div class="category-item-content">
+                                                                 <label class="filter-item-label">
+                                                                     <input type="radio" name="category" value="<?php echo $cat['id']; ?>" 
+                                                                            <?php echo $categoryId == $cat['id'] ? 'checked' : ''; ?>>
+                                                                     <span class="custom-radio"></span>
+                                                                     <span class="category-label"><?php echo htmlspecialchars($cat['name']); ?></span>
+                                                                 </label>
+                                                             </div>
+                                                         </li>
+                                                         <?php endforeach; ?>
+                                                     <?php endif; ?>
+                                                 </ul>
+                                             </div>
+                                         </div>
 
-                                        <?php
-                                        // Get all unique tags from news for filter
-                                        $filterTags = [];
-                                        if (!empty($allNewsRaw)) {
-                                            foreach ($allNewsRaw as $newsItem) {
-                                                if (!empty($newsItem['tags'])) {
-                                                    $itemTags = array_map('trim', explode(',', $newsItem['tags']));
-                                                    $filterTags = array_merge($filterTags, $itemTags);
-                                                }
-                                            }
-                                            $filterTags = array_unique($filterTags);
-                                            sort($filterTags);
-                                        }
-                                        ?>
+                                         <?php
+                                         // Get all unique tags from news for filter
+                                         $filterTags = [];
+                                         if (!empty($allNewsRaw)) {
+                                             foreach ($allNewsRaw as $newsItem) {
+                                                 if (!empty($newsItem['tags'])) {
+                                                     $itemTags = array_map('trim', explode(',', $newsItem['tags']));
+                                                     $filterTags = array_merge($filterTags, $itemTags);
+                                                 }
+                                             }
+                                             $filterTags = array_unique($filterTags);
+                                             sort($filterTags);
+                                         }
+                                         ?>
 
-                                        <!-- Tags Section -->
-                                        <div class="filter-section">
-                                            <h3 class="filter-title">Tags</h3>
-                                            <div class="filter-content">
-                                                <div class="tags-inline">
-                                                    <?php if (!empty($filterTags)): ?>
-                                                        <?php foreach ($filterTags as $tagItem): ?>
-                                                        <label class="tag-checkbox">
-                                                            <input type="checkbox" name="tag[]" value="<?php echo htmlspecialchars($tagItem); ?>"
-                                                                   <?php echo in_array($tagItem, $tags) ? 'checked' : ''; ?>>
-                                                            <span><?php echo htmlspecialchars(ucfirst(str_replace('-', ' ', $tagItem))); ?></span>
-                                                        </label>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                        </div>
+                                         <!-- Tags Section -->
+                                         <div class="filter-section">
+                                             <h3 class="filter-title"><i class="fas fa-tags"></i> Thẻ (Tags)</h3>
+                                             <div class="filter-content">
+                                                 <div class="tags-checkbox-list">
+                                                     <?php if (!empty($filterTags)): ?>
+                                                         <?php foreach ($filterTags as $tagItem): ?>
+                                                         <?php $isTagActive = in_array($tagItem, $tags); ?>
+                                                         <div class="category-item <?php echo $isTagActive ? 'active' : ''; ?>">
+                                                             <div class="category-item-content">
+                                                                <label class="filter-item-label">
+                                                                    <input type="checkbox" name="tag[]" value="<?php echo htmlspecialchars($tagItem); ?>"
+                                                                           <?php echo $isTagActive ? 'checked' : ''; ?>>
+                                                                    <span class="custom-checkbox"></span>
+                                                                    <span class="category-label"><?php echo htmlspecialchars(ucfirst(str_replace('-', ' ', $tagItem))); ?></span>
+                                                                </label>
+                                                             </div>
+                                                         </div>
+                                                         <?php endforeach; ?>
+                                                     <?php endif; ?>
+                                                 </div>
+                                             </div>
+                                         </div>
 
-                                        <!-- Apply and Reset Buttons -->
-                                        <div class="filter-section">
-                                            <button type="submit" class="apply-filters-btn">Áp dụng</button>
-                                        </div>
-                                        <div class="filter-section">
-                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=news'">Đặt lại</button>
-                                        </div>
-                                    </div>
+                                         <!-- Actions -->
+                                         <div class="filter-actions">
+                                             <button type="submit" class="apply-filters-btn">Áp dụng</button>
+                                             <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=news'">Đặt lại</button>
+                                         </div>
+                                     </div>
                                 </form>
                             </div>
                         </div>
