@@ -624,19 +624,321 @@ function initializeDragAndDrop() {
     const criteria = criteriaContainer.querySelectorAll('.filter-criteria');
     console.log('Found criteria:', criteria.length);
     
-    // Make criteria draggable
+    // Initialize mode-based drag and drop
+    updateDragMode();
+    
+    // Add chevron toggle to criteria headers
     criteria.forEach(criterion => {
-        makeDraggable(criterion, criteriaContainer, 'criteria');
+        const header = criterion.querySelector('.criteria-header');
+        const title = header.querySelector('.criteria-title');
+        
+        // Add chevron icon
+        const chevron = document.createElement('button');
+        chevron.className = 'dropdown-toggle';
+        chevron.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        chevron.style.cssText = 'background: none; border: none; cursor: pointer; padding: 4px; margin-left: 8px; color: #6b7280; transition: color 0.2s;';
+        
+        title.appendChild(chevron);
+        
+        // Toggle dropdown
+        chevron.addEventListener('click', function() {
+            const items = criterion.querySelector('.criteria-items');
+            const icon = this.querySelector('i');
+            
+            if (items.style.display === 'none') {
+                items.style.display = 'block';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                criterion.classList.add('expanded');
+            } else {
+                items.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                criterion.classList.remove('expanded');
+            }
+            
+            // Update drag mode based on expanded state
+            updateDragMode();
+        });
+        
+        // Initially collapse all
+        const items = criterion.querySelector('.criteria-items');
+        if (items) {
+            items.style.display = 'none';
+        }
+    });
+}
+
+function updateDragMode() {
+    const criteriaContainer = document.getElementById('filterCriteriaContainer');
+    const criteria = criteriaContainer.querySelectorAll('.filter-criteria');
+    
+    // Check if any criteria is expanded
+    const hasExpanded = Array.from(criteria).some(c => c.classList.contains('expanded'));
+    
+    console.log('Drag mode update - hasExpanded:', hasExpanded);
+    
+    if (hasExpanded) {
+        // MODE 2: Items level - lock criteria, enable items in expanded criteria only
+        console.log('Switching to ITEMS drag mode');
+        
+        criteria.forEach(criterion => {
+            if (criterion.classList.contains('expanded')) {
+                // Disable criteria dragging
+                criterion.draggable = false;
+                criterion.style.cursor = 'default';
+                criterion.removeEventListener('dragstart', criterion._dragStart);
+                criterion.removeEventListener('dragend', criterion._dragEnd);
+                
+                // Enable items dragging in this expanded criteria only
+                const items = criterion.querySelectorAll('.criteria-item');
+                console.log('Enabling items for', criterion.dataset.criteria, ':', items.length);
+                
+                items.forEach(item => {
+                    enableItemDragging(item, criterion);
+                });
+            } else {
+                // Disable both criteria and items for collapsed criteria
+                criterion.draggable = false;
+                criterion.style.cursor = 'default';
+                
+                const items = criterion.querySelectorAll('.criteria-item');
+                items.forEach(item => {
+                    disableItemDragging(item);
+                });
+            }
+        });
+    } else {
+        // MODE 1: Criteria level - enable criteria, disable all items
+        console.log('Switching to CRITERIA drag mode');
+        
+        criteria.forEach(criterion => {
+            // Enable criteria dragging
+            enableCriteriaDragging(criterion, criteriaContainer);
+            
+            // Disable all items
+            const items = criterion.querySelectorAll('.criteria-item');
+            items.forEach(item => {
+                disableItemDragging(item);
+            });
+        });
+    }
+}
+
+function enableCriteriaDragging(criterion, container) {
+    criterion.draggable = true;
+    criterion.style.cursor = 'grab';
+    
+    // Remove existing listeners to avoid duplicates
+    if (criterion._dragStart) {
+        criterion.removeEventListener('dragstart', criterion._dragStart);
+    }
+    if (criterion._dragEnd) {
+        criterion.removeEventListener('dragend', criterion._dragEnd);
+    }
+    
+    // Store references to listeners
+    criterion._dragStart = function(e) {
+        console.log('🚀 Drag started: ' + criterion.dataset.criteria);
+        
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', criterion.dataset.criteria);
+        
+        criterion.classList.add('dragging');
+        
+        // Create ghost image
+        const ghost = criterion.cloneNode(true);
+        ghost.style.position = 'absolute';
+        ghost.style.top = '-1000px';
+        ghost.style.opacity = '0.8';
+        ghost.style.transform = 'rotate(5deg)';
+        document.body.appendChild(ghost);
+        
+        e.dataTransfer.setDragImage(ghost, e.offsetX, e.offsetY);
+        
+        setTimeout(() => {
+            document.body.removeChild(ghost);
+        }, 0);
+    };
+    
+    criterion._dragEnd = function(e) {
+        console.log('🏁 Drag ended: ' + criterion.dataset.criteria);
+        criterion.classList.remove('dragging');
+        
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+    };
+    
+    criterion.addEventListener('dragstart', criterion._dragStart);
+    criterion.addEventListener('dragend', criterion._dragEnd);
+    
+    // Add dragover and drop events
+    criterion.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        criterion.classList.add('drag-over');
     });
     
-    // Make items draggable within their criteria
-    criteria.forEach(criterion => {
-        const items = criterion.querySelectorAll('.criteria-item');
-        console.log('Found items in', criterion.dataset.criteria, ':', items.length);
-        items.forEach(item => {
-            makeDraggable(item, criterion, 'item');
-        });
+    criterion.addEventListener('dragleave', function(e) {
+        criterion.classList.remove('drag-over');
     });
+    
+    criterion.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        criterion.classList.remove('drag-over');
+        
+        const draggedId = e.dataTransfer.getData('text/plain');
+        const draggedElement = container.querySelector(`[data-criteria="${draggedId}"]`);
+        
+        if (draggedElement && draggedElement !== criterion) {
+            console.log('📦 Dropping ' + draggedId + ' onto ' + criterion.dataset.criteria);
+            
+            criterion.parentNode.insertBefore(draggedElement, criterion);
+            
+            criterion.style.background = '#c8e6c9';
+            setTimeout(() => {
+                criterion.style.background = '';
+            }, 500);
+            
+            console.log('✅ Criteria DOM updated successfully!');
+        }
+    });
+}
+
+function disableCriteriaDragging(criterion) {
+    criterion.draggable = false;
+    criterion.style.cursor = 'default';
+    
+    if (criterion._dragStart) {
+        criterion.removeEventListener('dragstart', criterion._dragStart);
+    }
+    if (criterion._dragEnd) {
+        criterion.removeEventListener('dragend', criterion._dragEnd);
+    }
+}
+
+function enableItemDragging(item, container) {
+    const dragHandle = item.querySelector('.drag-handle');
+    if (!dragHandle) {
+        console.log('No drag handle found for item:', item.dataset.id);
+        return;
+    }
+    
+    // Make drag handle draggable
+    dragHandle.draggable = true;
+    dragHandle.style.cursor = 'grab';
+    
+    // Remove existing listeners
+    if (dragHandle._dragStart) {
+        dragHandle.removeEventListener('dragstart', dragHandle._dragStart);
+    }
+    if (dragHandle._dragEnd) {
+        dragHandle.removeEventListener('dragend', dragHandle._dragEnd);
+    }
+    
+    // Store references
+    dragHandle._dragStart = function(e) {
+        console.log('🚀 Drag started item: ' + item.dataset.id);
+        
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', item.dataset.id);
+        e.dataTransfer.setData('dragType', 'item');
+        e.dataTransfer.setData('parentId', item.dataset.parent);
+        
+        item.classList.add('dragging');
+        
+        // Create ghost image
+        const ghost = item.cloneNode(true);
+        ghost.style.position = 'absolute';
+        ghost.style.top = '-1000px';
+        ghost.style.opacity = '0.8';
+        ghost.style.transform = 'rotate(5deg)';
+        document.body.appendChild(ghost);
+        
+        e.dataTransfer.setDragImage(ghost, e.offsetX, e.offsetY);
+        
+        setTimeout(() => {
+            document.body.removeChild(ghost);
+        }, 0);
+        
+        e.stopPropagation();
+    };
+    
+    dragHandle._dragEnd = function(e) {
+        console.log('🏁 Drag ended item: ' + item.dataset.id);
+        item.classList.remove('dragging');
+        
+        document.querySelectorAll('.drag-over').forEach(el => {
+            el.classList.remove('drag-over');
+        });
+        
+        e.stopPropagation();
+    };
+    
+    dragHandle.addEventListener('dragstart', dragHandle._dragStart);
+    dragHandle.addEventListener('dragend', dragHandle._dragEnd);
+    
+    // Make item droppable
+    item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        const dragType = e.dataTransfer.getData('dragType');
+        if (dragType === 'item') {
+            item.classList.add('drag-over');
+        }
+    });
+    
+    item.addEventListener('dragleave', function(e) {
+        item.classList.remove('drag-over');
+    });
+    
+    item.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        item.classList.remove('drag-over');
+        
+        const draggedId = e.dataTransfer.getData('text/plain');
+        const dragType = e.dataTransfer.getData('dragType');
+        const draggedElement = container.querySelector(`[data-id="${draggedId}"]`);
+        
+        if (dragType === 'item' && draggedElement && draggedElement !== item) {
+            const dragParentId = e.dataTransfer.getData('parentId');
+            const thisParentId = item.dataset.parent;
+            
+            if (dragParentId === thisParentId) {
+                console.log('📦 Dropping item ' + draggedId + ' onto item ' + item.dataset.id);
+                
+                item.parentNode.insertBefore(draggedElement, item);
+                
+                item.style.background = '#c8e6c9';
+                setTimeout(() => {
+                    item.style.background = '';
+                }, 500);
+                
+                console.log('✅ Item DOM updated successfully!');
+            }
+        }
+    });
+}
+
+function disableItemDragging(item) {
+    const dragHandle = item.querySelector('.drag-handle');
+    if (dragHandle) {
+        dragHandle.draggable = false;
+        dragHandle.style.cursor = 'default';
+        
+        if (dragHandle._dragStart) {
+            dragHandle.removeEventListener('dragstart', dragHandle._dragStart);
+        }
+        if (dragHandle._dragEnd) {
+            dragHandle.removeEventListener('dragend', dragHandle._dragEnd);
+        }
+    }
 }
 
 function makeDraggable(element, container, type) {
@@ -718,46 +1020,114 @@ function makeDraggable(element, container, type) {
             }
         });
     } else {
-        // For items, make the whole item draggable
-        element.draggable = true;
+        // For items - ONLY make drag-handle draggable, not the whole item
+        const dragHandle = element.querySelector('.drag-handle');
+        if (!dragHandle) {
+            console.log('No drag handle found for item:', element.dataset.id);
+            return;
+        }
         
+        // Make the drag handle draggable, not the whole item
+        dragHandle.draggable = true;
+        dragHandle.style.cursor = 'grab';
+        element.style.cursor = 'default';
+        
+        // Prevent drag on the item itself, only allow on drag handle
         element.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            console.log('Prevented drag on item body - use drag handle only');
+        });
+        
+        dragHandle.addEventListener('dragstart', function(e) {
+            console.log('🚀 Drag started item: ' + element.dataset.id);
+            
             e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', element.dataset.id);
             e.dataTransfer.setData('dragType', 'item');
-            e.dataTransfer.setData('parentId', this.dataset.parent);
-            this.classList.add('dragging');
-            console.log('Drag started item:', this.dataset.id);
+            e.dataTransfer.setData('parentId', element.dataset.parent);
+            
+            element.classList.add('dragging');
+            
+            // Create ghost image
+            const ghost = element.cloneNode(true);
+            ghost.style.position = 'absolute';
+            ghost.style.top = '-1000px';
+            ghost.style.opacity = '0.8';
+            ghost.style.transform = 'rotate(5deg)';
+            document.body.appendChild(ghost);
+            
+            e.dataTransfer.setDragImage(ghost, e.offsetX, e.offsetY);
+            
+            setTimeout(() => {
+                document.body.removeChild(ghost);
+            }, 0);
+            
+            e.stopPropagation(); // Prevent bubbling to parent
         });
         
-        element.addEventListener('dragend', function() {
-            this.classList.remove('dragging');
-            console.log('Drag ended item');
+        dragHandle.addEventListener('dragend', function(e) {
+            console.log('🏁 Drag ended item: ' + element.dataset.id);
+            element.classList.remove('dragging');
+            
+            // Remove all drag-over classes
+            document.querySelectorAll('.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+            
+            e.stopPropagation(); // Prevent bubbling to parent
         });
         
+        // Make items droppable
         element.addEventListener('dragover', function(e) {
-            if (e.preventDefault) {
-                e.preventDefault();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const dragType = e.dataTransfer.getData('dragType');
+            if (dragType === 'item') {
+                element.classList.add('drag-over');
+                console.log('🎯 Drag over item: ' + element.dataset.id);
             }
+        });
+        
+        element.addEventListener('dragleave', function(e) {
+            element.classList.remove('drag-over');
+            console.log('👋 Drag leave item: ' + element.dataset.id);
+        });
+        
+        element.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             
-            const draggingItem = container.querySelector('.dragging');
-            const dragParentId = e.dataTransfer.getData('parentId');
-            const thisParentId = this.dataset.parent;
+            element.classList.remove('drag-over');
             
-            // Only allow drop within same parent level
-            if (draggingItem && draggingItem !== this && dragParentId === thisParentId) {
-                const itemsContainer = this.parentNode;
-                const allItems = Array.from(itemsContainer.querySelectorAll('.criteria-item'));
-                const draggingIndex = allItems.indexOf(draggingItem);
-                const thisIndex = allItems.indexOf(this);
+            const draggedId = e.dataTransfer.getData('text/plain');
+            const dragType = e.dataTransfer.getData('dragType');
+            const draggedElement = container.querySelector(`[data-id="${draggedId}"]`);
+            
+            if (dragType === 'item' && draggedElement && draggedElement !== element) {
+                const dragParentId = e.dataTransfer.getData('parentId');
+                const thisParentId = element.dataset.parent;
                 
-                if (draggingIndex < thisIndex) {
-                    itemsContainer.insertBefore(draggingItem, this.nextSibling);
+                // Only allow drop within same parent level
+                if (dragParentId === thisParentId) {
+                    console.log('📦 Dropping item ' + draggedId + ' onto item ' + element.dataset.id);
+                    
+                    // Insert before the drop target
+                    element.parentNode.insertBefore(draggedElement, element);
+                    
+                    // Visual feedback
+                    element.style.background = '#c8e6c9';
+                    setTimeout(() => {
+                        element.style.background = '';
+                    }, 500);
+                    
+                    console.log('✅ Item DOM updated successfully!');
                 } else {
-                    itemsContainer.insertBefore(draggingItem, this);
+                    console.log('❌ Cannot drop - different parent levels');
                 }
+            } else {
+                console.log('❌ Cannot drop on itself or invalid type');
             }
-            
-            return false;
         });
     }
 }
