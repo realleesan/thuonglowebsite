@@ -280,50 +280,6 @@
     height: 20px;
 }
 
-/* Sidebar */
-.products-sidebar {
-    background: #f5f7f8;
-    border-radius: 10px;
-    padding: 0;
-    position: sticky;
-    top: 20px;
-    border: 1px solid #e9ecef;
-}
-
-.sidebar-header {
-    display: none;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.sidebar-header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #212427;
-}
-
-.sidebar-close {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 20px;
-    color: #6c757d;
-    cursor: pointer;
-}
-
-/* Filter Section */
-.filter-section {
-    padding: 20px;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.filter-section:last-child {
-    border-bottom: none;
-}
-
 .filter-title {
     font-size: 14px;
     font-weight: 600;
@@ -384,26 +340,32 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.apply-filters-btn {
-    background: #356df1;
-    color: #fff;
+    color: #ffffff;
+    background-color: #356df1;
 }
 
 .apply-filters-btn:hover {
-    background: #000000;
+    background-color: #000000;
+    color: #ffffff;
 }
 
 .reset-filters-btn {
-    background: transparent;
-    color: #6c757d;
+    width: 100%;
+    padding: 12px;
     border: 1px solid #dee2e6;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #ffffff;
+    background-color: #356df1;
 }
 
 .reset-filters-btn:hover {
-    background: #e9ecef;
-    color: #212427;
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
 }
 
 /* Error Message */
@@ -432,44 +394,7 @@
         display: block;
     }
     
-    .products-sidebar {
-        position: fixed;
-        top: 0;
-        right: -320px;
-        width: 300px;
-        height: 100vh;
-        z-index: 1000;
-        padding: 0;
-        transition: right 0.3s ease;
-        border-radius: 0;
-    }
-    
-    .products-sidebar.active {
-        right: 0;
-    }
-    
-    .sidebar-header {
-        display: flex;
-    }
-    
-    .sidebar-close {
-        display: block;
-    }
-    
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-    
-    .sidebar-overlay.active {
-        display: block;
-    }
+    /* Mobile sidebar styles are now unified in products.css */
 }
 
 @media (max-width: 767px) {

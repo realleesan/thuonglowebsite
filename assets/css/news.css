@@ -260,20 +260,7 @@
     height: 20px;
 }
 
-/* Sidebar */
-.news-sidebar {
-    background: #f5f7f8;
-    border-radius: 10px;
-    padding: 0;
-    position: sticky;
-    top: 20px;
-}
-
-.sidebar-content {
-    padding: 30px;
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-}
+/* Sidebar styles are now unified in products.css */
 
 /* Tags Inline (checkbox style) */
 .tags-inline {
@@ -310,37 +297,6 @@
 .tag-checkbox:has(input:checked) {
     border-color: #356df1;
     background: rgba(53, 109, 241, 0.1);
-}
-
-.sidebar-header {
-    display: none;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.sidebar-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #212427;
-}
-
-.sidebar-close {
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #6c757d;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.sidebar-close:hover {
-    background-color: #f8f9fa;
-    color: #212427;
 }
 
 .filter-section {
@@ -450,24 +406,14 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.reset-filters-btn {
-    background-color: #356df1;
     color: #ffffff;
-}
-
-.reset-filters-btn:hover {
-    background-color: #000000;
-}
-
-.apply-filters-btn {
     background-color: #356df1;
-    color: #ffffff;
 }
 
+.reset-filters-btn:hover,
 .apply-filters-btn:hover {
     background-color: #000000;
+    color: #ffffff;
 }
 
 /* Error Message */
@@ -491,19 +437,7 @@
         gap: 40px;
     }
     
-    .news-sidebar {
-        position: static;
-        max-height: none;
-        padding: 0;
-    }
-    
-    .news-sidebar .sidebar-header {
-        display: flex;
-    }
-    
-    .news-sidebar .sidebar-content {
-        padding: 20px;
-    }
+    /* Mobile sidebar styles are now unified in products.css */
     
     .news-item {
         grid-template-columns: 250px 1fr;
@@ -542,13 +476,7 @@
         font-size: 14px;
     }
     
-    .news-sidebar {
-        padding: 0;
-    }
-    
-    .news-sidebar .sidebar-content {
-        padding: 24px;
-    }
+    /* Mobile sidebar styles are now unified in products.css */
     
     .pagination {
         gap: 8px;

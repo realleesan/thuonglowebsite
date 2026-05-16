@@ -38,6 +38,7 @@ mb_http_output('UTF-8');
     <link rel="stylesheet" href="<?php echo versioned_css('cta.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('pusher.css'); ?>">
     <link rel="stylesheet" href="<?php echo versioned_css('flash_messages.css'); ?>">
+    <link rel="stylesheet" href="<?php echo versioned_css('sidebar.css'); ?>">
     
     <?php
     // Load page-specific CSS

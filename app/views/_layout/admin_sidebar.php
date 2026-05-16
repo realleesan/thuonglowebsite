@@ -32,7 +32,8 @@ $current_action = $_GET['action'] ?? 'index';
                     ['name' => 'Dashboard', 'url' => '?page=admin&module=dashboard', 'icon' => 'fas fa-home'],
                     ['name' => 'Sản phẩm', 'url' => '?page=admin&module=products', 'icon' => 'fas fa-box', 'submenus' => [
                         ['name' => 'Danh sách', 'url' => '?page=admin&module=products', 'icon' => 'fas fa-list'],
-                        ['name' => 'Dữ liệu', 'url' => '?page=admin&module=products&action=data', 'icon' => 'fas fa-database']
+                        ['name' => 'Dữ liệu', 'url' => '?page=admin&module=products&action=data', 'icon' => 'fas fa-database'],
+                        ['name' => 'Cấu Hình Filter', 'url' => '?page=admin&module=products&action=filter_config', 'icon' => 'fas fa-sliders-h']
                     ]],
                     ['name' => 'Đơn hàng', 'url' => '?page=admin&module=orders', 'icon' => 'fas fa-shopping-cart'],
                     ['name' => 'Người dùng', 'url' => '?page=admin&module=users', 'icon' => 'fas fa-users'],
@@ -56,7 +57,8 @@ $current_action = $_GET['action'] ?? 'index';
                         // This is products menu - add submenu
                         $menu['submenus'] = [
                             ['name' => 'Danh sách', 'url' => '?page=admin&module=products', 'icon' => 'fas fa-list'],
-                            ['name' => 'Dữ liệu', 'url' => '?page=admin&module=products&action=data', 'icon' => 'fas fa-database']
+                            ['name' => 'Dữ liệu', 'url' => '?page=admin&module=products&action=data', 'icon' => 'fas fa-database'],
+                            ['name' => 'Cấu Hình Filter', 'url' => '?page=admin&module=products&action=filter_config', 'icon' => 'fas fa-sliders-h']
                         ];
                     }
                     if (isset($menu['url']) && strpos($menu['url'], 'module=affiliates') !== false && strpos($menu['url'], 'action=requests') === false && strpos($menu['url'], 'action=withdrawals') === false) {
@@ -75,6 +77,7 @@ $current_action = $_GET['action'] ?? 'index';
             // Check if we're on products module
             $isProductsModule = ($current_module === 'products');
             $isDataAction = ($current_action === 'data');
+            $isFilterConfigAction = ($current_action === 'filter_config');
             
             foreach ($menus as $menu): 
                 // Check if this menu item is active
@@ -85,14 +88,16 @@ $current_action = $_GET['action'] ?? 'index';
                         if (strpos($submenu['url'], "module=$current_module") !== false) {
                             if ($current_action === 'data' && strpos($submenu['url'], 'action=data') !== false) {
                                 $isActive = true;
-                            } elseif ($current_action !== 'data') {
+                            } elseif ($current_action === 'filter_config' && strpos($submenu['url'], 'action=filter_config') !== false) {
+                                $isActive = true;
+                            } elseif ($current_action !== 'data' && $current_action !== 'filter_config') {
                                 $isActive = true;
                             }
                         }
                     }
                 } else {
                     if (strpos($menu['url'], "module=$current_module") !== false) {
-                        if ($current_module !== 'products' || ($current_action !== 'data')) {
+                        if ($current_module !== 'products' || ($current_action !== 'data' && $current_action !== 'filter_config')) {
                             $isActive = true;
                         }
                     }
@@ -111,11 +116,13 @@ $current_action = $_GET['action'] ?? 'index';
                     <?php foreach ($menu['submenus'] as $submenu): 
                         $subActive = false;
                         if (strpos($submenu['url'], "module=$current_module") !== false) {
-                            // Products check: 'data' action vs not
+                            // Products check: 'data', 'filter_config' action vs not
                             if ($current_module === 'products') {
                                 if ($current_action === 'data' && strpos($submenu['url'], 'action=data') !== false) {
                                     $subActive = true;
-                                } elseif ($current_action !== 'data' && strpos($submenu['url'], 'action=data') === false) {
+                                } elseif ($current_action === 'filter_config' && strpos($submenu['url'], 'action=filter_config') !== false) {
+                                    $subActive = true;
+                                } elseif ($current_action !== 'data' && $current_action !== 'filter_config' && strpos($submenu['url'], 'action=data') === false && strpos($submenu['url'], 'action=filter_config') === false) {
                                     $subActive = true;
                                 }
                             }

@@ -1051,6 +1051,10 @@ switch($page) {
                             // The import is handled via AJAX in the view
                         }
                         break;
+                    case 'filter_config':
+                        $page_title = 'Quản lý Dữ liệu Sản phẩm - Filter Config';
+                        $content = 'app/views/admin/products/filter_config.php';
+                        break;
                     default:
                         $content = 'app/views/admin/products/index.php';
                         break;

@@ -1,0 +1,437 @@
+/* Unified Sidebar Styles - Shared across all pages */
+
+/* Main Sidebar Container */
+.products-sidebar,
+.categories-sidebar,
+.news-sidebar,
+.brands-sidebar {
+    background: #f5f7f8;
+    border-radius: 12px;
+    padding: 0;
+    position: sticky;
+    top: 30px;
+    border: 1px solid #eef2f6;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #f8fafc;
+    border-bottom: 1px solid #eef2f6;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-close {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    font-size: 14px;
+    color: #64748b;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-close:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    padding: 24px;
+}
+
+/* Filter Sections */
+.filter-section {
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.filter-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.filter-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-title i {
+    color: #356df1;
+    font-size: 1.1rem;
+}
+
+/* Category/Brand Lists */
+.category-list,
+.brand-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-item {
+    margin-bottom: 4px;
+}
+
+.category-item-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.category-item-content:hover {
+    background-color: #f8fafc;
+}
+
+.category-item.active > .category-item-content {
+    background-color: #eff6ff;
+}
+
+.category-item.active > .category-item-content .filter-item-label {
+    color: #356df1;
+    font-weight: 600;
+}
+
+/* Custom Checkbox/Radio Styling */
+.filter-item-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    flex: 1;
+    font-size: 14px;
+    color: #475569;
+    transition: color 0.2s ease;
+}
+
+.filter-item-label:hover {
+    color: #356df1;
+}
+
+.custom-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: #356df1;
+    border-color: #356df1;
+}
+
+input[type="checkbox"]:checked + .custom-checkbox::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 10px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+.custom-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+input[type="radio"]:checked + .custom-radio {
+    background-color: #356df1;
+    border-color: #356df1;
+}
+
+input[type="radio"]:checked + .custom-radio::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 6px;
+    height: 6px;
+    background-color: #ffffff;
+    border-radius: 1px;
+}
+
+/* Category Label and Count */
+.category-label {
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.category-count {
+    font-size: 11px;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 12px;
+    min-width: 32px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Sub-categories handling */
+.category-item.has-children {
+    position: relative;
+}
+
+.category-header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toggle-sub {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.toggle-sub:hover {
+    background-color: #f1f5f9;
+    color: #356df1;
+}
+
+.toggle-sub.expanded i {
+    transform: rotate(180deg);
+}
+
+.toggle-sub i {
+    transition: transform 0.3s ease;
+}
+
+.sub-categories-wrapper {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+}
+
+.sub-categories-wrapper.show {
+    max-height: none;
+}
+
+.sub-categories {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 4px;
+    border-left: 1px solid #f1f5f9;
+    margin-left: 20px;
+}
+
+/* Price Filter */
+.price-range-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.price-input-wrapper {
+    position: relative;
+}
+
+.price-input-wrapper label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.price-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.price-input-group span {
+    position: absolute;
+    left: 12px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.price-input-group input {
+    width: 100%;
+    padding: 10px 12px 10px 30px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.price-input-group input:focus {
+    border-color: #356df1;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+    outline: none;
+}
+
+/* Filter Buttons */
+.filter-actions {
+    display: grid;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.apply-filters-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #356df1;
+    transition: all 0.3s ease;
+}
+
+.apply-filters-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.reset-filters-btn {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #356df1;
+    transition: all 0.3s ease;
+}
+
+.reset-filters-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .products-sidebar,
+    .categories-sidebar,
+    .news-sidebar,
+    .brands-sidebar {
+        position: fixed;
+        top: 0;
+        right: -300px;
+        width: 300px;
+        height: 100vh;
+        z-index: 1000;
+        transition: right 0.3s ease;
+        max-height: none;
+        overflow-y: auto;
+        border-radius: 0;
+        padding: 0;
+    }
+
+    .sidebar-header {
+        display: flex;
+    }
+
+    .sidebar-content {
+        padding: 20px;
+    }
+
+    .products-sidebar.active,
+    .categories-sidebar.active,
+    .news-sidebar.active,
+    .brands-sidebar.active {
+        right: 0;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-sidebar,
+    .categories-sidebar,
+    .news-sidebar,
+    .brands-sidebar {
+        width: 280px;
+        padding: 0;
+    }
+
+    .sidebar-content {
+        padding: 20px;
+    }
+}

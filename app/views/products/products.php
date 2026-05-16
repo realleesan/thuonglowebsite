@@ -567,7 +567,6 @@ if (!function_exists('renderCategoryTree')) {
                                                 <ul class="brand-list">
                                                     <?php if (!empty($brands)): ?>
                                                         <?php foreach ($brands as $brand): ?>
-                                                            <?php if (($brand['product_count'] ?? 0) > 0): ?>
                                                             <?php $isBrandActive = in_array((int)$brand['id'], $brandId); ?>
                                                             <li class="category-item <?php echo $isBrandActive ? 'active' : ''; ?>">
                                                                 <div class="category-item-content">
@@ -580,7 +579,6 @@ if (!function_exists('renderCategoryTree')) {
                                                                     <span class="category-count"><?php echo $brand['product_count']; ?></span>
                                                                 </div>
                                                             </li>
-                                                            <?php endif; ?>
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
                                                 </ul>

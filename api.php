@@ -344,6 +344,115 @@ try {
                 ]);
                 exit;
             
+            case 'saveFilterConfig':
+                if ($method === 'POST') {
+                    // Check admin authentication
+                    if (empty($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Access denied. Admin privileges required.'
+                        ]);
+                        exit;
+                    }
+                    
+                    $input = json_decode(file_get_contents('php://input'), true);
+                    
+                    if (empty($input) || !isset($input['criteria'])) {
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Invalid configuration data'
+                        ]);
+                        exit;
+                    }
+                    
+                    try {
+                        require_once __DIR__ . '/app/services/FilterConfigService.php';
+                        $filterConfigService = new FilterConfigService();
+                        
+                        $result = $filterConfigService->saveFilterConfig($input);
+                        
+                        echo json_encode($result);
+                    } catch (Exception $e) {
+                        error_log('saveFilterConfig error: ' . $e->getMessage());
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Error saving filter configuration: ' . $e->getMessage()
+                        ]);
+                    }
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Method not allowed'
+                    ]);
+                }
+                exit;
+            
+            case 'getFilterConfig':
+                if ($method === 'GET') {
+                    // Check admin authentication
+                    if (empty($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Access denied. Admin privileges required.'
+                        ]);
+                        exit;
+                    }
+                    
+                    try {
+                        require_once __DIR__ . '/app/services/FilterConfigService.php';
+                        $filterConfigService = new FilterConfigService();
+                        
+                        $result = $filterConfigService->getFilterConfig();
+                        
+                        echo json_encode($result);
+                    } catch (Exception $e) {
+                        error_log('getFilterConfig error: ' . $e->getMessage());
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Error getting filter configuration: ' . $e->getMessage()
+                        ]);
+                    }
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Method not allowed'
+                    ]);
+                }
+                exit;
+            
+            case 'resetFilterConfig':
+                if ($method === 'POST') {
+                    // Check admin authentication
+                    if (empty($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Access denied. Admin privileges required.'
+                        ]);
+                        exit;
+                    }
+                    
+                    try {
+                        require_once __DIR__ . '/app/services/FilterConfigService.php';
+                        $filterConfigService = new FilterConfigService();
+                        
+                        $result = $filterConfigService->resetToDefault();
+                        
+                        echo json_encode($result);
+                    } catch (Exception $e) {
+                        error_log('resetFilterConfig error: ' . $e->getMessage());
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Error resetting filter configuration: ' . $e->getMessage()
+                        ]);
+                    }
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Method not allowed'
+                    ]);
+                }
+                exit;
+            
             default:
                 throw new Exception('Unknown action: ' . $action, 404);
         }

@@ -170,6 +170,7 @@
     margin-bottom: 20px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -276,52 +277,7 @@
     height: 20px;
 }
 
-/* Sidebar */
-.categories-sidebar {
-    background: #f5f7f8;
-    border-radius: 10px;
-    padding: 0;
-    position: sticky;
-    top: 20px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-    border: 1px solid #e9ecef;
-}
-
-.sidebar-header {
-    display: none;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.sidebar-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #212427;
-}
-
-.sidebar-close {
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: #6c757d;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.sidebar-close:hover {
-    background-color: #f8f9fa;
-    color: #212427;
-}
-
-.sidebar-content {
-    padding: 30px;
-}
+/* Sidebar styles are now unified in products.css */
 
 .filter-section {
     margin-bottom: 30px;
@@ -411,24 +367,14 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.reset-filters-btn {
-    background-color: #356df1;
     color: #ffffff;
-}
-
-.reset-filters-btn:hover {
-    background-color: #000000;
-}
-
-.apply-filters-btn {
     background-color: #356df1;
-    color: #ffffff;
 }
 
+.reset-filters-btn:hover,
 .apply-filters-btn:hover {
     background-color: #000000;
+    color: #ffffff;
 }
 
 /* Responsive Design */
@@ -441,54 +387,6 @@
     .categories-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
-    }
-    
-    .filter-toggle-btn {
-        display: block;
-    }
-    
-    .categories-sidebar {
-        position: fixed;
-        top: 0;
-        right: -300px;
-        width: 300px;
-        height: 100vh;
-        z-index: 1000;
-        transition: right 0.3s ease;
-        max-height: none;
-        overflow-y: auto;
-        border-radius: 0;
-        padding: 0;
-    }
-    
-    .categories-sidebar .sidebar-header {
-        display: flex;
-    }
-    
-    .categories-sidebar .sidebar-content {
-        padding: 20px;
-    }
-    
-    .categories-sidebar.active {
-        right: 0;
-    }
-    
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .sidebar-overlay.active {
-        opacity: 1;
-        visibility: visible;
     }
 }
 
@@ -545,15 +443,6 @@
     
     .filter-toggle-btn {
         align-self: center;
-    }
-    
-    .categories-sidebar {
-        width: 280px;
-        padding: 0;
-    }
-    
-    .categories-sidebar .sidebar-content {
-        padding: 20px;
     }
     
     .category-item {
