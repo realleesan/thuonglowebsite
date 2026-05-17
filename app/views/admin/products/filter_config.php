@@ -38,6 +38,16 @@ $brands_data = is_array($brands_data) ? $brands_data : [];
 $price_ranges_data = is_array($price_ranges_data) ? $price_ranges_data : [];
 $filter_config = is_array($filter_config) ? $filter_config : [];
 
+// Get criteria order from filter config
+$criteria_order = [
+    'categories' => $filter_config['criteria']['categories']['order'] ?? 1,
+    'brands' => $filter_config['criteria']['brands']['order'] ?? 2, 
+    'price_ranges' => $filter_config['criteria']['price_ranges']['order'] ?? 3
+];
+
+// Sort criteria by order
+asort($criteria_order);
+
 // Recursive function to display categories at all levels
 function displayCategoryChildren($children, $level = 1) {
     foreach ($children as $child) {
@@ -58,7 +68,7 @@ function displayCategoryChildren($children, $level = 1) {
                         </button>
                     <?php endif; ?>
                     <label class="switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" <?= ($child['enabled'] ?? true) ? 'checked' : '' ?>>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -105,8 +115,11 @@ function displayCategoryChildren($children, $level = 1) {
 <!-- Filter Criteria Container -->
 <div class="filter-criteria-container" id="filterCriteriaContainer">
     
+    <?php foreach ($criteria_order as $criteria_name => $order): ?>
+    
+    <?php if ($criteria_name === 'categories'): ?>
     <!-- Categories Filter -->
-    <div class="filter-criteria" data-criteria="categories" data-order="1">
+    <div class="filter-criteria" data-criteria="categories" data-order="<?= $order ?>">
         <div class="criteria-header">
             <div class="criteria-title">
                 <i class="fas fa-folder"></i>
@@ -115,7 +128,7 @@ function displayCategoryChildren($children, $level = 1) {
             </div>
             <div class="criteria-controls">
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" <?= ($filter_config['criteria']['categories']['enabled'] ?? true) ? 'checked' : '' ?>>
                     <span class="slider"></span>
                 </label>
                 <div class="drag-handle">
@@ -142,7 +155,7 @@ function displayCategoryChildren($children, $level = 1) {
                                     </button>
                                 <?php endif; ?>
                                 <label class="switch">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" <?= ($category['enabled'] ?? true) ? 'checked' : '' ?>>
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -163,8 +176,9 @@ function displayCategoryChildren($children, $level = 1) {
         </div>
     </div>
     
+    <?php elseif ($criteria_name === 'brands'): ?>
     <!-- Brands Filter -->
-    <div class="filter-criteria" data-criteria="brands" data-order="2">
+    <div class="filter-criteria" data-criteria="brands" data-order="<?= $order ?>">
         <div class="criteria-header">
             <div class="criteria-title">
                 <i class="fas fa-tag"></i>
@@ -173,7 +187,7 @@ function displayCategoryChildren($children, $level = 1) {
             </div>
             <div class="criteria-controls">
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" <?= ($filter_config['criteria']['brands']['enabled'] ?? true) ? 'checked' : '' ?>>
                     <span class="slider"></span>
                 </label>
                 <div class="drag-handle">
@@ -195,7 +209,7 @@ function displayCategoryChildren($children, $level = 1) {
                             </div>
                             <div class="item-controls">
                                 <label class="switch">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" <?= ($brand['enabled'] ?? true) ? 'checked' : '' ?>>
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -210,8 +224,9 @@ function displayCategoryChildren($children, $level = 1) {
         </div>
     </div>
     
+    <?php elseif ($criteria_name === 'price_ranges'): ?>
     <!-- Price Ranges Filter -->
-    <div class="filter-criteria" data-criteria="price_ranges" data-order="3">
+    <div class="filter-criteria" data-criteria="price_ranges" data-order="<?= $order ?>">
         <div class="criteria-header">
             <div class="criteria-title">
                 <i class="fas fa-dollar-sign"></i>
@@ -220,7 +235,7 @@ function displayCategoryChildren($children, $level = 1) {
             </div>
             <div class="criteria-controls">
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" <?= ($filter_config['criteria']['price_ranges']['enabled'] ?? true) ? 'checked' : '' ?>>
                     <span class="slider"></span>
                 </label>
                 <div class="drag-handle">
@@ -241,7 +256,7 @@ function displayCategoryChildren($children, $level = 1) {
                             </div>
                             <div class="item-controls">
                                 <label class="switch">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" <?= ($range['enabled'] ?? true) ? 'checked' : '' ?>>
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -255,6 +270,10 @@ function displayCategoryChildren($children, $level = 1) {
             <?php endif; ?>
         </div>
     </div>
+    
+    <?php endif; ?>
+    
+    <?php endforeach; ?>
     
 </div>
 
@@ -1198,6 +1217,11 @@ function saveFilterConfig() {
     .then(data => {
         if (data.success) {
             showSuccessMessage();
+            // Refresh page after 1.5 seconds to load updated configuration
+            setTimeout(() => {
+                console.log('Refreshing page to load updated configuration...');
+                location.reload();
+            }, 1500);
         } else {
             alert('Lỗi lưu cấu hình: ' + data.message);
         }

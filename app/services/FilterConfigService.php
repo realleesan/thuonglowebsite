@@ -136,28 +136,39 @@ class FilterConfigService {
     private function getCriteriaSettings(): array {
         $criteria = [];
         
-        // Get criteria order
-        $orderResult = $this->getSetting('criteria_order');
-        if ($orderResult) {
-            $orderData = json_decode($orderResult, true);
-            if ($orderData) {
-                foreach ($orderData as $name => $order) {
-                    $criteria[$name] = ['order' => $order];
+        // Get individual criteria settings from filter_settings
+        $sql = "SELECT setting_key, setting_value FROM filter_settings 
+                WHERE setting_key LIKE 'criteria_%' ORDER BY setting_key";
+        $results = $this->db->query($sql);
+        
+        foreach ($results as $row) {
+            $key = $row['setting_key'];
+            $value = $row['setting_value'];
+            
+            // Parse setting key
+            if (strpos($key, 'criteria_order_') === 0) {
+                $criteriaName = substr($key, 17); // Remove 'criteria_order_' (17 chars)
+                if (!isset($criteria[$criteriaName])) {
+                    $criteria[$criteriaName] = [];
                 }
+                $criteria[$criteriaName]['order'] = (int)$value;
+            } elseif (strpos($key, 'criteria_enabled_') === 0) {
+                $criteriaName = substr($key, 19); // Remove 'criteria_enabled_' (19 chars)
+                if (!isset($criteria[$criteriaName])) {
+                    $criteria[$criteriaName] = [];
+                }
+                $criteria[$criteriaName]['enabled'] = (bool)$value;
             }
         }
         
-        // Get criteria enabled status
-        $enabledResult = $this->getSetting('criteria_enabled');
-        if ($enabledResult) {
-            $enabledData = json_decode($enabledResult, true);
-            if ($enabledData) {
-                foreach ($enabledData as $name => $enabled) {
-                    if (!isset($criteria[$name])) {
-                        $criteria[$name] = [];
-                    }
-                    $criteria[$name]['enabled'] = $enabled;
-                }
+        // Set defaults if not found
+        $defaultCriteria = ['categories', 'brands', 'price_ranges'];
+        foreach ($defaultCriteria as $criterion) {
+            if (!isset($criteria[$criterion])) {
+                $criteria[$criterion] = [
+                    'order' => 999,
+                    'enabled' => true
+                ];
             }
         }
         
@@ -208,50 +219,52 @@ class FilterConfigService {
      */
     public function getCategoriesForFilter(): array {
         try {
-            $sql = "SELECT c.id, c.name, c.parent_id, c.sort_order, COUNT(p.id) as product_count
+            // Get categories with their filter config sort order
+            $sql = "SELECT c.id, c.name, c.parent_id, c.sort_order, COUNT(p.id) as product_count,
+                           COALESCE(fc.sort_order, c.sort_order, 999) as filter_sort_order,
+                           COALESCE(fc.is_enabled, 1) as filter_enabled
                     FROM categories c
                     LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
+                    LEFT JOIN filter_config fc ON fc.criteria_type = 'categories' AND fc.item_id = c.id
                     WHERE c.status = 'active' AND c.show_in_filter = 1
                     GROUP BY c.id
-                    ORDER BY c.parent_id, c.sort_order ASC, c.name ASC";
+                    ORDER BY c.parent_id, filter_sort_order ASC, c.name ASC";
             
             $results = $this->db->query($sql);
             
             $categories = [];
             $categoryMap = [];
             
-            // First pass: create category map
+            // First pass: create category map and return ALL categories
             foreach ($results as $row) {
                 $category = [
                     'id' => (int)$row['id'],
                     'name' => $row['name'],
                     'parent_id' => (int)$row['parent_id'],
-                    'sort_order' => (int)($row['sort_order'] ?? 0),
+                    'sort_order' => (int)($row['filter_sort_order'] ?? 999),
                     'count' => (int)$row['product_count'],
+                    'enabled' => (bool)($row['filter_enabled'] ?? 1),
                     'children' => []
                 ];
                 
                 $categoryMap[$category['id']] = $category;
-                
-                if ($category['parent_id'] == 0) {
-                    $categories[] = &$categoryMap[$category['id']];
-                }
+                $categories[] = $category; // Add ALL categories, not just parents
             }
             
-            // Second pass: build hierarchy
+            // Second pass: build hierarchy for reference (optional)
             foreach ($categoryMap as $id => $category) {
                 if ($category['parent_id'] > 0 && isset($categoryMap[$category['parent_id']])) {
                     $categoryMap[$category['parent_id']]['children'][] = &$categoryMap[$id];
                 }
             }
             
-            // Third pass: sort children by sort_order (same logic as products page)
+            // Third pass: sort children by filter_sort_order (from filter_config table)
             $sortChildren = function(&$nodes) use (&$sortChildren) {
                 foreach ($nodes as &$node) {
                     if (!empty($node['children'])) {
                         usort($node['children'], function ($a, $b) {
-                            $sortA = (int)($a['sort_order'] ?? 0);
-                            $sortB = (int)($b['sort_order'] ?? 0);
+                            $sortA = (int)($a['sort_order'] ?? 999);
+                            $sortB = (int)($b['sort_order'] ?? 999);
                             if ($sortA === $sortB) {
                                 return strcmp((string)($a['name'] ?? ''), (string)($b['name'] ?? ''));
                             }
@@ -277,12 +290,16 @@ class FilterConfigService {
      */
     public function getBrandsForFilter(): array {
         try {
-            $sql = "SELECT b.id, b.name, b.sort_order, COUNT(p.id) as product_count
+            // Get brands with their filter config sort order
+            $sql = "SELECT b.id, b.name, b.sort_order, COUNT(p.id) as product_count,
+                           COALESCE(fc.sort_order, b.sort_order, 999) as filter_sort_order,
+                           COALESCE(fc.is_enabled, 1) as filter_enabled
                     FROM brands b
                     LEFT JOIN products p ON b.id = p.brand_id AND p.status = 'active'
+                    LEFT JOIN filter_config fc ON fc.criteria_type = 'brands' AND fc.item_id = b.id
                     WHERE b.status = 'active' AND b.show_in_filter = 1
                     GROUP BY b.id
-                    ORDER BY b.sort_order ASC, b.name ASC";
+                    ORDER BY filter_sort_order ASC, b.name ASC";
             
             $results = $this->db->query($sql);
             
@@ -291,8 +308,9 @@ class FilterConfigService {
                 $brands[] = [
                     'id' => (int)$row['id'],
                     'name' => $row['name'],
-                    'sort_order' => (int)($row['sort_order'] ?? 0),
-                    'count' => (int)$row['product_count']
+                    'sort_order' => (int)($row['filter_sort_order'] ?? 999),
+                    'count' => (int)$row['product_count'],
+                    'enabled' => (bool)($row['filter_enabled'] ?? 1)
                 ];
             }
             
@@ -309,10 +327,13 @@ class FilterConfigService {
      */
     public function getPriceRangesForFilter(): array {
         try {
-            // Try to get from database first
-            $sql = "SELECT id, name, min_price, max_price 
-                    FROM price_ranges 
-                    ORDER BY sort_order, id";
+            // Get price ranges with their filter config sort order
+            $sql = "SELECT pr.id, pr.name, pr.min_price, pr.max_price, pr.sort_order,
+                           COALESCE(fc.sort_order, pr.sort_order, 999) as filter_sort_order,
+                           COALESCE(fc.is_enabled, 1) as filter_enabled
+                    FROM price_ranges pr
+                    LEFT JOIN filter_config fc ON fc.criteria_type = 'price_ranges' AND fc.item_id = pr.id
+                    ORDER BY filter_sort_order ASC, pr.name ASC";
             
             $results = $this->db->query($sql);
             
@@ -322,7 +343,9 @@ class FilterConfigService {
                         'id' => (int)$row['id'],
                         'name' => $row['name'],
                         'min' => (int)$row['min_price'],
-                        'max' => $row['max_price'] ? (int)$row['max_price'] : null
+                        'max' => $row['max_price'] ? (int)$row['max_price'] : null,
+                        'sort_order' => (int)($row['filter_sort_order'] ?? 999),
+                        'enabled' => (bool)($row['filter_enabled'] ?? 1)
                     ];
                 }, $results);
             }

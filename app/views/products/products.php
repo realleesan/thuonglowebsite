@@ -6,8 +6,84 @@
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
+// Define renderCategoryTree function early to prevent undefined function errors
+if (!function_exists('renderCategoryTree')) {
+    function renderCategoryTree($nodes, $activeIds, $isSub = false) {
+        $activeIds = is_array($activeIds) ? $activeIds : ($activeIds ? [$activeIds] : []);
+        $html = '<ul class="' . ($isSub ? 'sub-categories' : 'category-list') . '">';
+        foreach ($nodes as $node) {
+            // Skip disabled categories
+            if (!($node['enabled'] ?? true)) {
+                continue;
+            }
+            $hasChildren = !empty($node['children']);
+            $isActive = in_array((int)$node['id'], $activeIds);
+            
+            // Check if any child is active to auto-expand
+            $hasActiveChild = false;
+            if ($hasChildren) {
+                $checkActive = function($children) use (&$checkActive, $activeIds) {
+                    foreach ($children as $child) {
+                        if (in_array((int)$child['id'], $activeIds)) return true;
+                        if (!empty($child['children']) && $checkActive($child['children'])) return true;
+                    }
+                    return false;
+                };
+                $hasActiveChild = $checkActive($node['children']);
+            }
+            
+            $itemClass = 'category-item';
+            if ($hasChildren) $itemClass .= ' has-children';
+            if ($isActive) $itemClass .= ' active';
+            
+            $html .= '<li class="' . $itemClass . '" data-id="' . $node['id'] . '">';
+            $html .= '<div class="category-header-wrapper">';
+            $html .= '<div class="category-item-content">';
+            $html .= '<label class="filter-item-label">';
+            $html .= '<input type="checkbox" name="category[]" value="' . $node['id'] . '" ' . ($isActive ? 'checked' : '') . '>';
+            $html .= '<span class="custom-checkbox"></span>';
+            $html .= '<span class="category-label">' . htmlspecialchars($node['name']) . '</span>';
+            $html .= '</label>';
+            $html .= '<span class="category-count">' . ($node['product_count'] ?? 0) . '</span>';
+            $html .= '</div>';
+            
+            if ($hasChildren) {
+                $expandedClass = $hasActiveChild ? 'expanded' : '';
+                $html .= '<span class="toggle-sub ' . $expandedClass . '"><i class="fas fa-chevron-down"></i></span>';
+            }
+            
+            $html .= '</div>';
+            
+            if ($hasChildren) {
+                $showClass = $hasActiveChild ? 'show' : '';
+                $html .= '<div class="sub-categories-wrapper ' . $showClass . '">';
+                $html .= renderCategoryTree($node['children'], $activeIds, true);
+                $html .= '</div>';
+            }
+            
+            $html .= '</li>';
+        }
+        $html .= '</ul>';
+        return $html;
+    }
+}
+
 // 2. Chọn service phù hợp (ưu tiên biến được inject từ routing)
 $service = isset($currentService) ? $currentService : ($publicService ?? null);
+
+// Debug: Check service availability
+if (!$service) {
+    error_log('Products.php: No service available - both currentService and publicService are null');
+    // Try to create service manually as fallback
+    try {
+        require_once __DIR__ . '/../../services/PublicService.php';
+        $service = new PublicService();
+        error_log('Products.php: Created fallback PublicService');
+    } catch (Exception $e) {
+        error_log('Products.php: Failed to create fallback service: ' . $e->getMessage());
+        $service = null;
+    }
+}
 
 // Get pagination parameters
 // Get pagination parameters
@@ -81,6 +157,15 @@ try {
     $productData = [];
     if ($service && method_exists($service, 'getProductListingData')) {
         $productData = $service->getProductListingData($filters);
+    } else {
+        error_log('Products.php: getProductListingData method not found in service: ' . ($service ? get_class($service) : 'null'));
+        // Try alternative method
+        if ($service && method_exists($service, 'getProducts')) {
+            $productData = $service->getProducts($filters);
+        } else {
+            error_log('Products.php: No suitable product loading method found');
+            $productData = ['products' => [], 'pagination' => ['total' => 0, 'current_page' => 1, 'per_page' => 12]];
+        }
     }
     $products = $productData['products'] ?? [];
     $pagination = $productData['pagination'] ?? [];
@@ -115,22 +200,42 @@ try {
     }
     unset($product); // Important: break the reference
     
-    // Get categories for sidebar
-    $categoriesData = [];
-    if ($service && method_exists($service, 'getCategoriesWithProductCounts')) {
-        $categoriesData = $service->getCategoriesWithProductCounts();
+    // Get filter configuration from FilterConfigService
+    try {
+        require_once __DIR__ . '/../../services/FilterConfigService.php';
+        $filterService = new FilterConfigService();
+        
+        // Get filter data with saved configuration
+        $categories = $filterService->getCategoriesForFilter();
+        $brands = $filterService->getBrandsForFilter();
+        $price_ranges = $filterService->getPriceRangesForFilter();
+        
+        // Get criteria order and enabled status
+        $config_result = $filterService->getFilterConfig();
+        $filter_config = $config_result['success'] ? $config_result['data'] : [];
+        
+    } catch (Exception $e) {
+        error_log('Products page filter config error: ' . $e->getMessage());
+        // Fallback to old method if FilterConfigService fails
+        $categoriesData = [];
+        if ($service && method_exists($service, 'getCategoriesWithProductCounts')) {
+            $categoriesData = $service->getCategoriesWithProductCounts();
+        }
+        $categories = $categoriesData['categories'] ?? [];
+        $brands = [];
+        $price_ranges = [];
+        $filter_config = [];
     }
-    $categories = $categoriesData['categories'] ?? [];
     $hierarchicalCategories = [];
 
     if (!empty($categories)) {
         $categoryByParent = [];
         foreach ($categories as $category) {
-            $parentKey = $category['parent_id'] ?? null;
+            $parentKey = $category['parent_id'] ?? 0;
             $categoryByParent[$parentKey][] = $category;
         }
 
-        $buildCategoryTree = function ($parentId = null, $depth = 0) use (&$buildCategoryTree, $categoryByParent) {
+        $buildCategoryTree = function ($parentId = 0, $depth = 0) use (&$buildCategoryTree, $categoryByParent) {
             $nodes = $categoryByParent[$parentId] ?? [];
             usort($nodes, function ($a, $b) {
                 $sortA = (int)($a['sort_order'] ?? 0);
@@ -148,29 +253,24 @@ try {
             return $nodes;
         };
 
-        $categoryTree = $buildCategoryTree(null, 0);
+        $categoryTree = $buildCategoryTree(0, 0);
     }
 
-    // Get brands for sidebar filter
-    $brandsData = [];
-    if ($service && method_exists($service, 'getBrandsForFilter')) {
-        $brandsData = $service->getBrandsForFilter();
-    } else {
-        // Fallback: get from BrandsModel
-        require_once __DIR__ . '/../../models/BrandsModel.php';
-        $brandsModel = new BrandsModel();
-        $allBrands = $brandsModel->getActive();
-        // Get product count for each brand
-        require_once __DIR__ . '/../../models/ProductsModel.php';
-        $productsModel = new ProductsModel();
-        foreach ($allBrands as &$b) {
-            $countResult = $productsModel->query("SELECT COUNT(*) as count FROM products WHERE brand_id = ? AND status = 'active'", [$b['id']]);
-            $b['product_count'] = $countResult[0]['count'] ?? 0;
-        }
-        unset($b);
-        $brandsData = ['brands' => $allBrands];
-    }
-    $brands = $brandsData['brands'] ?? [];
+    // Brands are already loaded from FilterConfigService above
+
+    // Get criteria order from filter config for sidebar display
+    $criteria_order = [
+        'categories' => $filter_config['criteria']['categories']['order'] ?? 1,
+        'brands' => $filter_config['criteria']['brands']['order'] ?? 2, 
+        'price_ranges' => $filter_config['criteria']['price_ranges']['order'] ?? 3
+    ];
+    
+    // Get criteria enabled status
+    $criteria_enabled = [
+        'categories' => $filter_config['criteria']['categories']['enabled'] ?? true,
+        'brands' => $filter_config['criteria']['brands']['enabled'] ?? true,
+        'price_ranges' => $filter_config['criteria']['price_ranges']['enabled'] ?? true
+    ];
 
     // Tính tổng số sản phẩm của tất cả danh mục (luôn không đổi)
     $totalAllProducts = 0;
@@ -254,6 +354,10 @@ if (!function_exists('renderCategoryTree')) {
         $activeIds = is_array($activeIds) ? $activeIds : ($activeIds ? [$activeIds] : []);
         $html = '<ul class="' . ($isSub ? 'sub-categories' : 'category-list') . '">';
         foreach ($nodes as $node) {
+            // Skip disabled categories
+            if (!($node['enabled'] ?? true)) {
+                continue;
+            }
             $hasChildren = !empty($node['children']);
             $isActive = in_array((int)$node['id'], $activeIds);
             
@@ -550,6 +654,13 @@ if (!function_exists('renderCategoryTree')) {
                                         </button>
                                     </div>
                                     <div class="sidebar-content">
+                                        <?php 
+                                        // Sort criteria by order and display only enabled ones
+                                        asort($criteria_order);
+                                        foreach ($criteria_order as $criteria_name => $order): 
+                                        ?>
+                                        
+                                        <?php if ($criteria_name === 'categories' && ($criteria_enabled['categories'] ?? true)): ?>
                                         <!-- Categories Filter -->
                                         <div class="filter-section">
                                             <h3 class="filter-title"><i class="fas fa-th-large"></i> Danh mục</h3>
@@ -560,6 +671,7 @@ if (!function_exists('renderCategoryTree')) {
                                             </div>
                                         </div>
 
+                                        <?php elseif ($criteria_name === 'brands' && ($criteria_enabled['brands'] ?? true)): ?>
                                         <!-- Brand Filter -->
                                         <div class="filter-section">
                                             <h3 class="filter-title"><i class="fas fa-tag"></i> Thương hiệu</h3>
@@ -567,24 +679,27 @@ if (!function_exists('renderCategoryTree')) {
                                                 <ul class="brand-list">
                                                     <?php if (!empty($brands)): ?>
                                                         <?php foreach ($brands as $brand): ?>
-                                                            <?php $isBrandActive = in_array((int)$brand['id'], $brandId); ?>
-                                                            <li class="category-item <?php echo $isBrandActive ? 'active' : ''; ?>">
-                                                                <div class="category-item-content">
-                                                                    <label class="filter-item-label">
-                                                                        <input type="checkbox" name="brand[]" value="<?php echo $brand['id']; ?>"
-                                                                               <?php echo $isBrandActive ? 'checked' : ''; ?>>
-                                                                        <span class="custom-checkbox"></span>
-                                                                        <span class="category-label"><?php echo htmlspecialchars($brand['name']); ?></span>
-                                                                    </label>
-                                                                    <span class="category-count"><?php echo $brand['product_count']; ?></span>
-                                                                </div>
-                                                            </li>
+                                                            <?php if ($brand['enabled'] ?? true): ?>
+                                                                <?php $isBrandActive = in_array((int)$brand['id'], $brandId); ?>
+                                                                <li class="category-item <?php echo $isBrandActive ? 'active' : ''; ?>">
+                                                                    <div class="category-item-content">
+                                                                        <label class="filter-item-label">
+                                                                            <input type="checkbox" name="brand[]" value="<?php echo $brand['id']; ?>"
+                                                                                   <?php echo $isBrandActive ? 'checked' : ''; ?>>
+                                                                            <span class="custom-checkbox"></span>
+                                                                            <span class="category-label"><?php echo htmlspecialchars($brand['name']); ?></span>
+                                                                        </label>
+                                                                        <span class="category-count"><?php echo $brand['product_count']; ?></span>
+                                                                    </div>
+                                                                </li>
+                                                            <?php endif; ?>
                                                         <?php endforeach; ?>
                                                     <?php endif; ?>
                                                 </ul>
                                             </div>
                                         </div>
 
+                                        <?php elseif ($criteria_name === 'price_ranges' && ($criteria_enabled['price_ranges'] ?? true)): ?>
                                         <!-- Price Range Filter -->
                                         <div class="filter-section">
                                             <h3 class="filter-title"><i class="fas fa-coins"></i> Khoảng giá</h3>
@@ -609,6 +724,10 @@ if (!function_exists('renderCategoryTree')) {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <?php endif; ?>
+                                        
+                                        <?php endforeach; ?>
 
                                         <!-- Actions -->
                                         <div class="filter-actions">
