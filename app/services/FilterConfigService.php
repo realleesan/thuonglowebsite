@@ -240,7 +240,7 @@ class FilterConfigService {
                     'name' => $row['name'],
                     'parent_id' => (int)$row['parent_id'],
                     'sort_order' => (int)($row['filter_sort_order'] ?? 999),
-                    'count' => (int)$row['product_count'],
+                    'product_count' => (int)$row['product_count'],
                     'enabled' => (bool)($row['filter_enabled'] ?? 1),
                     'children' => []
                 ];
@@ -311,7 +311,7 @@ class FilterConfigService {
                     'name' => $row['name'],
                     'parent_id' => (int)$row['parent_id'],
                     'sort_order' => (int)($row['filter_sort_order'] ?? 999),
-                    'count' => (int)$row['product_count'],
+                    'product_count' => (int)$row['product_count'],
                     'enabled' => (bool)($row['filter_enabled'] ?? 1),
                     'children' => []
                 ];
@@ -363,7 +363,7 @@ class FilterConfigService {
                     'id' => (int)$row['id'],
                     'name' => $row['name'],
                     'sort_order' => (int)($row['filter_sort_order'] ?? 999),
-                    'count' => (int)$row['product_count'],
+                    'product_count' => (int)$row['product_count'],
                     'enabled' => (bool)($row['filter_enabled'] ?? 1)
                 ];
             }
