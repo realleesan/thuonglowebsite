@@ -464,7 +464,8 @@ foreach ($allCategories as $cat) {
                 fetch('?page=admin&module=categories&action=delete&id=' + deleteId, {
                     method: 'POST',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
                     }
                 })
                 .then(response => response.json())
@@ -473,6 +474,32 @@ foreach ($allCategories as $cat) {
                         closeProductDeleteModal();
                         // Reload page to show updated list
                         window.location.reload();
+                    } else if (data.requires_confirmation) {
+                        // Show confirmation dialog for deleting with products
+                        if (confirm(data.message)) {
+                            // Force delete with products
+                            fetch('?page=admin&module=categories&action=delete&id=' + deleteId, {
+                                method: 'POST',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                body: 'force_delete=1'
+                            })
+                            .then(response => response.json())
+                            .then(forceData => {
+                                if (forceData.success) {
+                                    closeProductDeleteModal();
+                                    window.location.reload();
+                                } else {
+                                    alert(forceData.message || 'Có lỗi xảy ra khi xóa danh mục');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Có lỗi xảy ra khi xóa danh mục');
+                            });
+                        }
                     } else {
                         alert(data.message || 'Có lỗi xảy ra khi xóa danh mục');
                     }

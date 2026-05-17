@@ -308,8 +308,81 @@ class CategoriesModel extends BaseModel {
                 array_shift($grandChildren);
                 $allIds = array_merge($allIds, $grandChildren);
             }
+            $allIds[] = $childId;
+            // Đệ quy lấy con của con
+            $grandChildren = $this->getAllChildCategoryIds($childId, $newVisitedIds, $maxDepth, $currentDepth + 1);
+            // Loại bỏ ID đầu tiên (chính nó) vì đã thêm rồi
+            array_shift($grandChildren);
         }
 
         return array_unique($allIds);
+    }
+
+    /**
+     * Check if category has products
+     */
+    public function hasProducts($categoryId) {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+            $result = parent::query($sql, [$categoryId]);
+            if ($result && isset($result[0]['count'])) {
+                return (int)$result[0]['count'] > 0;
+            }
+            return false;
+        } catch (\Exception $e) {
+            error_log("Error in hasProducts: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Check if category has child categories
+     */
+    public function hasChildCategories($categoryId) {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE parent_id = ? AND status = 'active'";
+            $result = parent::query($sql, [$categoryId]);
+            if ($result && isset($result[0]['count'])) {
+                return (int)$result[0]['count'] > 0;
+            }
+            return false;
+        } catch (\Exception $e) {
+            error_log("Error in hasChildCategories: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get product count for a category
+     */
+    public function getProductCount($categoryId) {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM products WHERE category_id = ?";
+            $result = parent::query($sql, [$categoryId]);
+            if ($result && isset($result[0]['count'])) {
+                return (int)$result[0]['count'];
+            }
+            return 0;
+        } catch (\Exception $e) {
+            error_log("Error in getProductCount: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get child categories count for a category
+     */
+    public function getChildCategoriesCount($categoryId) {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE parent_id = ? AND status = 'active'";
+            $result = parent::query($sql, [$categoryId]);
+            if ($result && isset($result[0]['count'])) {
+                return (int)$result[0]['count'];
+            }
+            return 0;
+        } catch (\Exception $e) {
+            error_log("Error in getChildCategoriesCount: " . $e->getMessage());
+            return 0;
+        }
     }
 }

@@ -98,45 +98,19 @@ function initCategoriesIndex() {
         });
     }
 
-    // Delete button functionality
+    // Delete button functionality - using the new modal system
     const deleteButtons = document.querySelectorAll('.delete-btn');
     deleteButtons.forEach(btn => {
         btn.addEventListener('click', function () {
             const categoryId = this.dataset.id;
             const categoryName = this.dataset.name;
 
-            document.getElementById('deleteCategoryName').textContent = categoryName;
-            document.getElementById('deleteModal').style.display = 'block';
-
-            document.getElementById('confirmDelete').onclick = function () {
-                window.location.href = `?page=admin&module=categories&action=delete&id=${categoryId}`;
-            };
+            // Use the new modal system
+            showProductDeleteModal(categoryId, categoryName);
         });
     });
 
-    // Close delete modal
-    const cancelDeleteBtn = document.getElementById('cancelDelete');
-    const modalCloseBtn = document.querySelector('#deleteModal .modal-close');
-
-    if (cancelDeleteBtn) {
-        cancelDeleteBtn.addEventListener('click', function () {
-            document.getElementById('deleteModal').style.display = 'none';
-        });
-    }
-
-    if (modalCloseBtn) {
-        modalCloseBtn.addEventListener('click', function () {
-            document.getElementById('deleteModal').style.display = 'none';
-        });
-    }
-
-    // Close modal when clicking outside
-    window.addEventListener('click', function (event) {
-        const modal = document.getElementById('deleteModal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
+    // Old modal system removed - now using productDeleteModal from index.php
 }
 
 // Categories Form Functions (Add/Edit)

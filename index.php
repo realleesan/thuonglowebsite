@@ -1064,14 +1064,28 @@ switch($page) {
             case 'categories':
                 $page_title = 'Quản lý Danh mục';
                 
-                // Handle AJAX delete request
-                if ($action === 'delete' && !empty($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Handle AJAX category deletion
+                if ($action === 'delete' && isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    // Clean any previous output
+                    if (ob_get_length()) ob_clean();
+                    
+                    // Set JSON header
                     header('Content-Type: application/json');
+                    
                     try {
                         require_once __DIR__ . '/app/services/AdminService.php';
                         $adminService = new AdminService(null, 'admin');
-                        $result = $adminService->deleteCategory((int)$_GET['id']);
-                        echo json_encode(['success' => $result, 'message' => $result ? 'Xóa danh mục thành công' : 'Xóa danh mục thất bại']);
+                        
+                        // Check if force delete is requested
+                        $forceDelete = $_POST['force_delete'] ?? false;
+                        
+                        if ($forceDelete) {
+                            $result = $adminService->forceDeleteCategory((int)$_GET['id']);
+                        } else {
+                            $result = $adminService->deleteCategory((int)$_GET['id']);
+                        }
+                        
+                        echo json_encode($result);
                     } catch (Exception $e) {
                         echo json_encode(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
                     }

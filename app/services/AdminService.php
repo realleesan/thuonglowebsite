@@ -1419,20 +1419,90 @@ class AdminService extends BaseService
         }
     }
 
-    public function deleteCategory(int $categoryId): bool
+    public function deleteCategory(int $categoryId): array
     {
         try {
             $categoriesModel = $this->getModel('CategoriesModel');
             if (!$categoriesModel) {
-                return false;
+                return ['success' => false, 'message' => 'Không thể tải CategoriesModel'];
             }
+
+            // Check if category has child categories
+            if ($categoriesModel->hasChildCategories($categoryId)) {
+                $childCount = $categoriesModel->getChildCategoriesCount($categoryId);
+                return [
+                    'success' => false, 
+                    'message' => "Không thể xóa danh mục này vì đang chứa {$childCount} danh mục con. Vui lòng xóa các danh mục con trước."
+                ];
+            }
+
+            // Check if category has products
+            $hasProducts = $categoriesModel->hasProducts($categoryId);
+            $productCount = $categoriesModel->getProductCount($categoryId);
+            
+            if ($hasProducts) {
+                return [
+                    'success' => false,
+                    'message' => "Danh mục này đang chứa {$productCount} sản phẩm. Nếu xóa danh mục này, tất cả sản phẩm bên trong sẽ bị xóa theo. Bạn có chắc chắn muốn tiếp tục không?",
+                    'requires_confirmation' => true,
+                    'product_count' => $productCount
+                ];
+            }
+
+            // Proceed with deletion
             $result = $categoriesModel->delete($categoryId);
             if ($result !== false) {
                 $this->flushDashboardCache();
+                return ['success' => true, 'message' => 'Đã xóa danh mục thành công'];
             }
-            return $result !== false;
+            
+            return ['success' => false, 'message' => 'Không thể xóa danh mục'];
         } catch (\Exception $e) {
-            return $this->handleError($e, ['method' => 'deleteCategory', 'category_id' => $categoryId]) !== null;
+            return [
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi xóa danh mục: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Force delete category with products
+     */
+    public function forceDeleteCategory(int $categoryId): array
+    {
+        try {
+            $categoriesModel = $this->getModel('CategoriesModel');
+            $productsModel = $this->getModel('ProductsModel');
+            
+            if (!$categoriesModel) {
+                return ['success' => false, 'message' => 'Không thể tải CategoriesModel'];
+            }
+
+            if (!$productsModel) {
+                return ['success' => false, 'message' => 'Không thể tải ProductsModel'];
+            }
+
+            // Double-check for child categories (shouldn't happen if validation is proper)
+            if ($categoriesModel->hasChildCategories($categoryId)) {
+                return ['success' => false, 'message' => 'Không thể xóa danh mục cha chứa danh mục con'];
+            }
+
+            // Delete all products in this category first
+            $categoriesModel->query("DELETE FROM products WHERE category_id = ?", [$categoryId]);
+            
+            // Then delete the category
+            $result = $categoriesModel->delete($categoryId);
+            if ($result !== false) {
+                $this->flushDashboardCache();
+                return ['success' => true, 'message' => 'Đã xóa danh mục và tất cả sản phẩm bên trong'];
+            }
+            
+            return ['success' => false, 'message' => 'Không thể xóa danh mục'];
+        } catch (\Exception $e) {
+            return [
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi xóa danh mục: ' . $e->getMessage()
+            ];
         }
     }
 

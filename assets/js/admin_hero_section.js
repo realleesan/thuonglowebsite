@@ -99,6 +99,8 @@ function initializeFormValidation() {
  * Initialize confirmation dialogs
  */
 function initializeConfirmations() {
+    // Store native confirm before overriding
+    window.nativeConfirm = window.confirm;
     // Override default confirm with custom modal
     window.confirm = function(message) {
         return showConfirmDialog(message);
@@ -443,7 +445,7 @@ function isValidColor(color) {
  */
 function showConfirmDialog(message) {
     // Simple confirm for now - can be replaced with modal
-    return confirm(message);
+    return nativeConfirm(message);
 }
 
 /**
