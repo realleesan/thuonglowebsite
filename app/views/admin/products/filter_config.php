@@ -15,7 +15,7 @@ try {
     $filterService = new FilterConfigService();
 
     // Get real data
-    $categories_data = $filterService->getCategoriesForFilter();
+    $categories_data = $filterService->getParentCategoriesForFilter();
     $brands_data = $filterService->getBrandsForFilter();
     $price_ranges_data = $filterService->getPriceRangesForFilter();
 

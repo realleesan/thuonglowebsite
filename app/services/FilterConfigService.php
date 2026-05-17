@@ -71,19 +71,17 @@ class FilterConfigService {
      * Save criteria settings to filter_settings table
      */
     private function saveCriteriaSettings(array $criteria): void {
-        $criteriaOrder = [];
-        $criteriaEnabled = [];
-        
         foreach ($criteria as $criterion) {
-            $criteriaOrder[$criterion['name']] = $criterion['order'];
-            $criteriaEnabled[$criterion['name']] = $criterion['enabled'];
+            $name = $criterion['name'];
+            $order = $criterion['order'];
+            $enabled = $criterion['enabled'];
+            
+            // Save individual criteria order
+            $this->saveSetting('criteria_order_' . $name, $order);
+            
+            // Save individual criteria enabled status
+            $this->saveSetting('criteria_enabled_' . $name, $enabled);
         }
-        
-        // Save criteria order
-        $this->saveSetting('criteria_order', json_encode($criteriaOrder));
-        
-        // Save criteria enabled status
-        $this->saveSetting('criteria_enabled', json_encode($criteriaEnabled));
     }
     
     /**
@@ -111,7 +109,7 @@ class FilterConfigService {
         $this->db->query($sql, [
             $criteriaType,
             $item['id'],
-            $item['parent_id'],
+            $item['parent_id'] ?? 0,  // Default to 0 if null
             $item['order'],
             $item['enabled'] ? 1 : 0
         ]);
@@ -147,13 +145,13 @@ class FilterConfigService {
             
             // Parse setting key
             if (strpos($key, 'criteria_order_') === 0) {
-                $criteriaName = substr($key, 17); // Remove 'criteria_order_' (17 chars)
+                $criteriaName = substr($key, 15); // Remove 'criteria_order_' (15 chars)
                 if (!isset($criteria[$criteriaName])) {
                     $criteria[$criteriaName] = [];
                 }
                 $criteria[$criteriaName]['order'] = (int)$value;
             } elseif (strpos($key, 'criteria_enabled_') === 0) {
-                $criteriaName = substr($key, 19); // Remove 'criteria_enabled_' (19 chars)
+                $criteriaName = substr($key, 17); // Remove 'criteria_enabled_' (17 chars)
                 if (!isset($criteria[$criteriaName])) {
                     $criteria[$criteriaName] = [];
                 }
@@ -281,6 +279,45 @@ class FilterConfigService {
             
         } catch (Exception $e) {
             error_log('FilterConfigService::getCategoriesForFilter error: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get parent categories only for admin filter configuration
+     */
+    public function getParentCategoriesForFilter(): array {
+        try {
+            // Get only parent categories with their filter config sort order
+            $sql = "SELECT c.id, c.name, c.parent_id, c.sort_order, COUNT(p.id) as product_count,
+                           COALESCE(fc.sort_order, c.sort_order, 999) as filter_sort_order,
+                           COALESCE(fc.is_enabled, 1) as filter_enabled
+                    FROM categories c
+                    LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
+                    LEFT JOIN filter_config fc ON fc.criteria_type = 'categories' AND fc.item_id = c.id
+                    WHERE c.status = 'active' AND c.show_in_filter = 1 AND (c.parent_id = 0 OR c.parent_id IS NULL)
+                    GROUP BY c.id
+                    ORDER BY filter_sort_order ASC, c.name ASC";
+            
+            $results = $this->db->query($sql);
+            
+            $categories = [];
+            foreach ($results as $row) {
+                $categories[] = [
+                    'id' => (int)$row['id'],
+                    'name' => $row['name'],
+                    'parent_id' => (int)$row['parent_id'],
+                    'sort_order' => (int)($row['filter_sort_order'] ?? 999),
+                    'count' => (int)$row['product_count'],
+                    'enabled' => (bool)($row['filter_enabled'] ?? 1),
+                    'children' => []
+                ];
+            }
+            
+            return $categories;
+            
+        } catch (Exception $e) {
+            error_log('FilterConfigService::getParentCategoriesForFilter error: ' . $e->getMessage());
             return [];
         }
     }
