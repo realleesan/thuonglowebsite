@@ -284,26 +284,29 @@ class FilterConfigService {
     }
     
     /**
-     * Get parent categories only for admin filter configuration
+     * Get categories with hierarchy for admin filter configuration
      */
     public function getParentCategoriesForFilter(): array {
         try {
-            // Get only parent categories with their filter config sort order
+            // Get ALL categories with their filter config sort order
             $sql = "SELECT c.id, c.name, c.parent_id, c.sort_order, COUNT(p.id) as product_count,
                            COALESCE(fc.sort_order, c.sort_order, 999) as filter_sort_order,
                            COALESCE(fc.is_enabled, 1) as filter_enabled
                     FROM categories c
                     LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
                     LEFT JOIN filter_config fc ON fc.criteria_type = 'categories' AND fc.item_id = c.id
-                    WHERE c.status = 'active' AND c.show_in_filter = 1 AND (c.parent_id = 0 OR c.parent_id IS NULL)
+                    WHERE c.status = 'active' AND c.show_in_filter = 1
                     GROUP BY c.id
-                    ORDER BY filter_sort_order ASC, c.name ASC";
+                    ORDER BY c.parent_id, filter_sort_order ASC, c.name ASC";
             
             $results = $this->db->query($sql);
             
-            $categories = [];
+            $categoryMap = [];
+            $rootCategories = [];
+            
+            // First pass: create category map
             foreach ($results as $row) {
-                $categories[] = [
+                $category = [
                     'id' => (int)$row['id'],
                     'name' => $row['name'],
                     'parent_id' => (int)$row['parent_id'],
@@ -312,9 +315,23 @@ class FilterConfigService {
                     'enabled' => (bool)($row['filter_enabled'] ?? 1),
                     'children' => []
                 ];
+                
+                $categoryMap[$category['id']] = $category;
+                
+                // Track root categories (parent_id = 0 or NULL)
+                if ($category['parent_id'] == 0) {
+                    $rootCategories[] = &$categoryMap[$category['id']];
+                }
             }
             
-            return $categories;
+            // Second pass: build hierarchy
+            foreach ($categoryMap as $id => $category) {
+                if ($category['parent_id'] > 0 && isset($categoryMap[$category['parent_id']])) {
+                    $categoryMap[$category['parent_id']]['children'][] = &$categoryMap[$id];
+                }
+            }
+            
+            return $rootCategories;
             
         } catch (Exception $e) {
             error_log('FilterConfigService::getParentCategoriesForFilter error: ' . $e->getMessage());
