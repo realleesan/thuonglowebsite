@@ -36,7 +36,13 @@ try {
     $total_pages = $pagination['last_page'];
     
 } catch (Exception $e) {
-    $errorHandler->logError('Admin Users Index', $e->getMessage());
+    // Make sure errorHandler is available
+    global $errorHandler;
+    if (isset($errorHandler) && method_exists($errorHandler, 'logError')) {
+        $errorHandler->logError('Admin Users Index', $e->getMessage());
+    } else {
+        error_log('Admin Users Index Error: ' . $e->getMessage());
+    }
     $paged_users = [];
     $total_users = 0;
     $total_pages = 1;
@@ -44,12 +50,12 @@ try {
 }
 
 // Format date function
-function formatDate($date) {
+function formatDate(string $date): string {
     return date('d/m/Y H:i', strtotime($date));
 }
 
 // Get role display name
-function getRoleDisplayName($role) {
+function getRoleDisplayName(string $role): string {
     $roles = [
         'admin' => 'Quản trị viên',
         'user' => 'Người dùng',
@@ -160,7 +166,6 @@ function getRoleDisplayName($role) {
                         <input type="checkbox" id="select-all">
                     </th>
                     <th width="60">ID</th>
-                    <th width="80">Avatar</th>
                     <th>Tên người dùng</th>
                     <th width="200">Email</th>
                     <th width="120">Số điện thoại</th>
@@ -173,7 +178,7 @@ function getRoleDisplayName($role) {
             <tbody>
                 <?php if (empty($paged_users)): ?>
                     <tr>
-                        <td colspan="10" class="no-data">
+                        <td colspan="9" class="no-data">
                             <i class="fas fa-inbox"></i>
                             <p>Không tìm thấy người dùng nào</p>
                         </td>
@@ -185,13 +190,6 @@ function getRoleDisplayName($role) {
                                 <input type="checkbox" class="user-checkbox" value="<?= $user['id'] ?>">
                             </td>
                             <td><?= $user['id'] ?></td>
-                            <td>
-                                <div class="user-avatar">
-                                    <div class="avatar-circle">
-                                        <?= strtoupper(substr($user['name'], 0, 2)) ?>
-                                    </div>
-                                </div>
-                            </td>
                             <td>
                                 <div class="user-info">
                                     <h4 class="user-name"><?= htmlspecialchars($user['name']) ?></h4>

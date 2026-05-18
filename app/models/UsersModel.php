@@ -410,7 +410,10 @@ class UsersModel extends BaseModel {
             'updated_at' => date('Y-m-d H:i:s')
         ]);
         
-        if ($result && $invalidateAllSessions) {
+        // Convert result to boolean - update() returns array on success, false on failure
+        $success = ($result !== false);
+        
+        if ($success && $invalidateAllSessions) {
             // Clear all password reset tokens for this user
             $user = $this->find($userId);
             if ($user) {
@@ -421,7 +424,7 @@ class UsersModel extends BaseModel {
             }
         }
         
-        return $result;
+        return $success;
     }
     
     /**

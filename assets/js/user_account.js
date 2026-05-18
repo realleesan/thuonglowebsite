@@ -157,18 +157,51 @@ document.addEventListener('DOMContentLoaded', function() {
         const toggleButtons = document.querySelectorAll('.password-toggle');
         
         toggleButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const input = this.previousElementSibling;
+            // Add cursor pointer and ensure button is clickable
+            button.style.cursor = 'pointer';
+            button.style.zIndex = '10';
+            
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Find the input within the same parent div
+                const input = this.parentElement.querySelector('input');
                 const icon = this.querySelector('i');
                 
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
+                console.log('Password toggle clicked', { input, icon });
+                
+                if (input && icon) {
+                    console.log('Before change - input.type:', input.type);
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        // Force change with setAttribute as backup
+                        input.setAttribute('type', 'text');
+                        // Alternative method using CSS
+                        input.style.webkitTextSecurity = 'none';
+                        input.style.textSecurity = 'none';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                        console.log('Password shown - input.type after change:', input.type);
+                    } else {
+                        input.type = 'password';
+                        // Force change with setAttribute as backup
+                        input.setAttribute('type', 'password');
+                        // Alternative method using CSS
+                        input.style.webkitTextSecurity = 'disc';
+                        input.style.textSecurity = 'disc';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                        console.log('Password hidden - input.type after change:', input.type);
+                    }
+                    
+                    // Verify the change
+                    setTimeout(() => {
+                        console.log('Verification - input.type:', input.type);
+                    }, 100);
                 } else {
-                    input.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
+                    console.log('Input or icon not found', { input, icon });
                 }
             });
         });

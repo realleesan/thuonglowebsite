@@ -65,8 +65,12 @@ $success_message = '';
 $error_message = '';
 
 // Check for success parameter from redirect
-if (isset($_GET['success']) && $_GET['success'] == '1') {
-    $success_message = 'Thông tin tài khoản đã được cập nhật thành công!';
+if (isset($_GET['success'])) {
+    if ($_GET['success'] == '1') {
+        $success_message = 'Thông tin tài khoản đã được cập nhật thành công!';
+    } elseif ($_GET['success'] == 'password') {
+        $success_message = 'Mật khẩu đã được thay đổi thành công!';
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -139,7 +143,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (empty($error_message)) {
                 $result = $usersModel->updatePasswordSecure($userId, $newPassword, false);
                 if ($result) {
-                    $success_message = 'Mật khẩu đã được thay đổi thành công!';
+                    // Redirect to prevent POST resubmission using JavaScript
+                    echo '<script>window.location.href = "?page=users&module=account&action=edit&success=password";</script>';
+                    exit;
                 } else {
                     $error_message = 'Không thể thay đổi mật khẩu.';
                 }
@@ -196,21 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="profile-card-content">
                     <form method="POST" class="account-form" enctype="multipart/form-data">
-                        <!-- Avatar Upload -->
-                        <div class="profile-avatar-section">
-                            <div class="profile-avatar">
-                                <img src="https://test1.web3b.com/assets/images/home/home-banner-final.png" alt="Avatar Placeholder">
-                            </div>
-                            <div class="profile-avatar-info">
-                                <h2>Ảnh đại diện</h2>
-                                <p>Chọn ảnh đại diện cho tài khoản của bạn</p>
-                                <input type="file" id="avatar-upload" name="avatar" accept="image/*" style="display: none;">
-                                <label for="avatar-upload" class="account-btn account-btn-secondary">
-                                    <i class="fas fa-camera"></i>
-                                    Thay đổi ảnh
-                                </label>
-                            </div>
-                        </div>
+                        
 
                         <!-- Profile Form Fields -->
                         <div class="profile-info-grid">
@@ -263,10 +255,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php if ($hasPassword): ?>
                             <div class="form-group">
                                 <label for="current_password" class="form-label required">Mật khẩu hiện tại</label>
-                                <div style="position: relative;">
-                                    <input type="password" id="current_password" name="current_password" class="form-control" required>
-                                    <button type="button" class="password-toggle" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280;">
-                                        <i class="fas fa-eye"></i>
+                                <div class="password-wrapper">
+                                    <input type="password" id="current_password" name="current_password" class="form-control" autocomplete="current-password" required>
+                                    <button type="button" class="password-toggle" onclick="toggleAuthPassword('current_password')"
+                                            aria-label="Hiển thị mật khẩu" aria-pressed="false" data-label-show="Hiển thị mật khẩu"
+                                            data-label-hide="Ẩn mật khẩu">
+                                        <span class="password-toggle-icon" id="current-password-icon" aria-hidden="true"></span>
                                     </button>
                                 </div>
                             </div>
@@ -276,10 +270,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <div class="form-group">
                                 <label for="new_password" class="form-label required">Mật khẩu mới</label>
-                                <div style="position: relative;">
-                                    <input type="password" id="new_password" name="new_password" class="form-control" required>
-                                    <button type="button" class="password-toggle" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280;">
-                                        <i class="fas fa-eye"></i>
+                                <div class="password-wrapper">
+                                    <input type="password" id="new_password" name="new_password" class="form-control" autocomplete="new-password" required>
+                                    <button type="button" class="password-toggle" onclick="toggleAuthPassword('new_password')"
+                                            aria-label="Hiển thị mật khẩu" aria-pressed="false" data-label-show="Hiển thị mật khẩu"
+                                            data-label-hide="Ẩn mật khẩu">
+                                        <span class="password-toggle-icon" id="new-password-icon" aria-hidden="true"></span>
                                     </button>
                                 </div>
                                 <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
@@ -287,10 +283,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <div class="form-group">
                                 <label for="confirm_password" class="form-label required">Xác nhận mật khẩu mới</label>
-                                <div style="position: relative;">
-                                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
-                                    <button type="button" class="password-toggle" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6b7280;">
-                                        <i class="fas fa-eye"></i>
+                                <div class="password-wrapper">
+                                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" autocomplete="new-password" required>
+                                    <button type="button" class="password-toggle" onclick="toggleAuthPassword('confirm_password')"
+                                            aria-label="Hiển thị mật khẩu" aria-pressed="false" data-label-show="Hiển thị mật khẩu"
+                                            data-label-hide="Ẩn mật khẩu">
+                                        <span class="password-toggle-icon" id="confirm-password-icon" aria-hidden="true"></span>
                                     </button>
                                 </div>
                             </div>
@@ -328,9 +326,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Include Account JavaScript -->
 <script src="assets/js/user_account.js"></script>
+<!-- Include Auth JavaScript for password toggle -->
+<script src="assets/js/auth.js"></script>
 
 <!-- Include User Sidebar CSS for avatar styling -->
 <link rel="stylesheet" href="assets/css/user_sidebar.css">
+
+<!-- Password Toggle Styles -->
+<style>
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 14px;
+    z-index: 10;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+    color: #374151;
+}
+
+.password-toggle:focus {
+    outline: none;
+}
+
+.password-toggle-icon {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.1em;
+}
+
+.password-toggle-icon::before {
+    content: "\f06e";
+}
+
+.password-toggle-icon.is-hidden::before {
+    content: "\f070";
+}
+</style>
 
 <!-- Toggle Switch Styles -->
 <style>
