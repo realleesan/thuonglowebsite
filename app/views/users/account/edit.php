@@ -122,10 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="fas fa-arrow-left"></i>
                     Quay lại
                 </a>
-                <a href="?page=users&module=account&action=view" class="account-btn account-btn-secondary">
-                    <i class="fas fa-eye"></i>
-                    Xem chi tiết
-                </a>
+                
             </div>
         </div>
 
@@ -273,57 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <!-- Security Settings -->
-                <div class="profile-card">
-                    <div class="profile-card-header">
-                        <h3 id="security">Cài đặt bảo mật</h3>
-                    </div>
-                    <div class="profile-card-content">
-                        <form method="POST" class="account-form">
-                            <div class="security-section">
-                                <div class="security-item">
-                                    <div class="security-item-info">
-                                        <h4>Xác thực 2 bước</h4>
-                                        <p>Tăng cường bảo mật tài khoản với xác thực 2 bước</p>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" name="two_factor_enabled" <?php echo ($user['two_factor_enabled'] ?? false) ? 'checked' : ''; ?>>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-
-                                <div class="security-item" id="notifications">
-                                    <div class="security-item-info">
-                                        <h4>Thông báo đăng nhập</h4>
-                                        <p>Nhận thông báo khi có đăng nhập từ thiết bị mới</p>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" name="login_notifications" <?php echo ($user['login_notifications'] ?? true) ? 'checked' : ''; ?>>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-
-                                <div class="security-item">
-                                    <div class="security-item-info">
-                                        <h4>Thông báo email</h4>
-                                        <p>Nhận thông báo về hoạt động tài khoản qua email</p>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" name="email_notifications" <?php echo ($user['email_notifications'] ?? true) ? 'checked' : ''; ?>>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" name="update_security" class="account-btn account-btn-primary">
-                                    <i class="fas fa-shield-alt"></i>
-                                    Cập nhật bảo mật
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                
             </div>
 
             <!-- Danger Zone -->

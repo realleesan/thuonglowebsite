@@ -72,10 +72,7 @@ $securityInfo = [
                     <i class="fas fa-edit"></i>
                     Chỉnh sửa
                 </a>
-                <a href="?page=users&module=account&action=view" class="account-btn account-btn-secondary">
-                    <i class="fas fa-eye"></i>
-                    Xem chi tiết
-                </a>
+               
             </div>
         </div>
 
@@ -145,12 +142,7 @@ $securityInfo = [
                             </div>
                         </div>
                         
-                        <div class="profile-info-item">
-                            <div class="profile-info-label">Cấp độ thành viên</div>
-                            <div class="profile-info-value">
-                                <?php echo htmlspecialchars($user['level']); ?> Member
-                            </div>
-                        </div>
+        
                         
                         <div class="profile-info-item">
                             <div class="profile-info-label">Ngày tham gia</div>
@@ -162,35 +154,7 @@ $securityInfo = [
                 </div>
             </div>
 
-            <!-- Account Statistics -->
-            <div class="profile-card">
-                <div class="profile-card-header">
-                    <h3>Thống kê tài khoản</h3>
-                </div>
-                <div class="profile-card-content">
-                    <div class="account-stats">
-                        <div class="account-stat-item">
-                            <div class="account-stat-value"><?php echo $stats['total_orders']; ?></div>
-                            <div class="account-stat-label">Tổng đơn hàng</div>
-                        </div>
-                        
-                        <div class="account-stat-item">
-                            <div class="account-stat-value"><?php echo number_format($stats['total_spent'] / 1000000, 1); ?>M</div>
-                            <div class="account-stat-label">Tổng chi tiêu</div>
-                        </div>
-                        
-                        <div class="account-stat-item">
-                            <div class="account-stat-value"><?php echo $stats['data_purchased']; ?></div>
-                            <div class="account-stat-label">Data đã mua</div>
-                        </div>
-                        
-                        <div class="account-stat-item">
-                            <div class="account-stat-value"><?php echo number_format($stats['loyalty_points']); ?></div>
-                            <div class="account-stat-label">Điểm tích lũy</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Security Information -->
             <div class="profile-card">
@@ -209,35 +173,7 @@ $securityInfo = [
                             </a>
                         </div>
                         
-                        <div class="security-item">
-                            <div class="security-item-info">
-                                <h4>Xác thực 2 bước</h4>
-                                <p><?php echo $securityInfo['two_factor_enabled'] ? 'Đã bật' : 'Chưa bật'; ?></p>
-                            </div>
-                            <a href="?page=users&module=account&action=edit#security" class="security-item-action">
-                                <?php echo $securityInfo['two_factor_enabled'] ? 'Tắt' : 'Bật'; ?>
-                            </a>
-                        </div>
                         
-                        <div class="security-item">
-                            <div class="security-item-info">
-                                <h4>Thông báo đăng nhập</h4>
-                                <p><?php echo $securityInfo['login_notifications'] ? 'Đã bật' : 'Đã tắt'; ?></p>
-                            </div>
-                            <a href="?page=users&module=account&action=edit#notifications" class="security-item-action">
-                                <?php echo $securityInfo['login_notifications'] ? 'Tắt' : 'Bật'; ?>
-                            </a>
-                        </div>
-                        
-                        <div class="security-item">
-                            <div class="security-item-info">
-                                <h4>Đăng nhập gần đây</h4>
-                                <p>IP: <?php echo htmlspecialchars($securityInfo['last_login_ip']); ?> - <?php echo date('d/m/Y H:i', strtotime($user['updated_at'] ?? 'now')); ?></p>
-                            </div>
-                            <a href="?page=users&module=account&action=view#login-history" class="security-item-action">
-                                Xem lịch sử
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>

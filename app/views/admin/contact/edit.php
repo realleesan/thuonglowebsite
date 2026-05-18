@@ -176,6 +176,7 @@ function formatDate($date) {
                     </div>
                     <div class="card-body">
                         <form method="POST" class="edit-form">
+                            <input type="hidden" name="contact_id" value="<?= $contact['id'] ?>">
                             <div class="form-group">
                                 <label for="status" class="form-label required">
                                     Trạng thái mới:

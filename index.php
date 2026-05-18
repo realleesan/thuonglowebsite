@@ -1760,10 +1760,10 @@ switch($page) {
                         header('Location: ?page=admin&module=affiliates&action=withdrawals');
                         exit;
                     case 'view':
-                        $content = 'app/views/admin/contact/view.php';
+                        $content = 'app/views/admin/affiliates/view.php';
                         break;
                     default:
-                        $content = 'app/views/admin/contact/index.php';
+                        $content = 'app/views/admin/affiliates/index.php';
                         break;
                 }
                 break;
@@ -1776,6 +1776,69 @@ switch($page) {
                         break;
                     default:
                         $content = 'app/views/admin/revenue/index.php';
+                        break;
+                }
+                break;
+                
+            case 'contact':
+                $page_title = 'Quản lý Liên hệ';
+                switch($action) {
+                    case 'view':
+                        $content = 'app/views/admin/contact/view.php';
+                        break;
+                    case 'edit':
+                        // Handle POST request for updating contact status
+                        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                            $contact_id = (int)($_POST['contact_id'] ?? $_GET['id'] ?? 0);
+                            $status = $_POST['status'] ?? 'new';
+                            $priority = $_POST['priority'] ?? 'normal';
+                            
+                            if ($contact_id > 0) {
+                                try {
+                                    require_once __DIR__ . '/app/models/ContactsModel.php';
+                                    $contactsModel = new ContactsModel();
+                                    
+                                    $updateData = [
+                                        'status' => $status,
+                                        'priority' => $priority,
+                                        'updated_at' => date('Y-m-d H:i:s')
+                                    ];
+                                    
+                                    $updated = $contactsModel->update($contact_id, $updateData);
+                                    if ($updated) {
+                                        header('Location: ?page=admin&module=contact&success=updated');
+                                        exit;
+                                    }
+                                } catch (Exception $e) {
+                                    error_log('Update contact error: ' . $e->getMessage());
+                                }
+                            }
+                            header('Location: ?page=admin&module=contact&action=edit&id=' . $contact_id . '&error=update_failed');
+                            exit;
+                        } else {
+                            // Show edit form
+                            $content = 'app/views/admin/contact/edit.php';
+                        }
+                        break;
+                    case 'delete':
+                        // Handle delete action
+                        if (isset($_GET['id'])) {
+                            $delete_id = (int)$_GET['id'];
+                            if ($delete_id > 0) {
+                                try {
+                                    require_once __DIR__ . '/app/models/ContactsModel.php';
+                                    $contactsModel = new ContactsModel();
+                                    $contactsModel->delete($delete_id);
+                                } catch (Exception $e) {
+                                    error_log('Delete contact error: ' . $e->getMessage());
+                                }
+                            }
+                            header('Location: ?page=admin&module=contact&deleted=1');
+                            exit;
+                        }
+                        break;
+                    default:
+                        $content = 'app/views/admin/contact/index.php';
                         break;
                 }
                 break;
@@ -2026,7 +2089,12 @@ if (isset($useAdminLayout) && $useAdminLayout) {
     include_once 'app/views/_layout/admin_master.php';
 } elseif (isset($useAffiliateLayout) && $useAffiliateLayout) {
     // Affiliate pages include their own layout
-    include_once $content;
+    if (isset($content)) {
+        include_once $content;
+    } else {
+        // Fallback if content not defined
+        include_once 'errors/404.php';
+    }
 } else {
     include_once 'app/views/_layout/master.php';
 }
@@ -2034,4 +2102,3 @@ if (isset($useAdminLayout) && $useAdminLayout) {
 if (ob_get_level() > 0) {
     ob_end_flush();
 }
-?>
