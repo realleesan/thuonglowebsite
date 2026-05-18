@@ -185,9 +185,7 @@ if (class_exists('CategoriesModel')) {
                         <div class="dropdown-menu">
                             <?php if (!empty($headerBrands)): ?>
                                 <?php foreach ($headerBrands as $brand): ?>
-                                    <?php if (($brand['show_in_filter'] ?? 0) == 1): ?>
                                     <a href="<?php echo page_url('products', ['brand' => $brand['id']]); ?>"><?php echo htmlspecialchars($brand['name']); ?></a>
-                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>

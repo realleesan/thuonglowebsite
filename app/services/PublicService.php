@@ -466,25 +466,41 @@ class PublicService extends BaseService
 
     /**
      * Lấy thương hiệu hiển thị ở bộ lọc/header dropdown.
+     * Áp dụng thứ tự sắp xếp từ filter_config như sidebar trang sản phẩm
      */
     public function getBrandsForFilter(): array
     {
         try {
-            $brands = $this->callModelMethod(
-                'BrandsModel',
-                'getForFilter',
-                [],
-                []
-            );
-
+            // Sử dụng FilterConfigService để lấy thương hiệu với thứ tự đã cấu hình
+            require_once __DIR__ . '/FilterConfigService.php';
+            $filterConfigService = new \FilterConfigService();
+            
+            $brands = $filterConfigService->getBrandsForFilter();
+            
             return [
-                'brands' => $this->transformer->transformBrands($brands),
+                'brands' => $brands,
             ];
         } catch (\Exception $e) {
             error_log('ERROR getBrandsForFilter: ' . $e->getMessage());
-            return [
-                'brands' => [],
-            ];
+            
+            // Fallback to original method if FilterConfigService fails
+            try {
+                $brands = $this->callModelMethod(
+                    'BrandsModel',
+                    'getForFilter',
+                    [],
+                    []
+                );
+
+                return [
+                    'brands' => $this->transformer->transformBrands($brands),
+                ];
+            } catch (\Exception $fallbackException) {
+                error_log('ERROR getBrandsForFilter fallback: ' . $fallbackException->getMessage());
+                return [
+                    'brands' => [],
+                ];
+            }
         }
     }
 
@@ -511,34 +527,97 @@ class PublicService extends BaseService
     /**
      * Lấy danh mục theo cấu trúc phân cấp cha-con cho header menu
      * Trả về mảng các danh mục cha với children bên trong
+     * Áp dụng thứ tự sắp xếp từ filter_config như sidebar trang sản phẩm
      */
     public function getCategoriesHierarchy(): array
     {
         try {
-            // Lấy tất cả danh mục active có show_in_filter = 1
-            $allCategories = $this->callModelMethod(
-                'CategoriesModel',
-                'getWithProductCounts',
-                [],
-                []
-            );
-
+            // Sử dụng FilterConfigService để lấy danh mục với thứ tự đã cấu hình
+            require_once __DIR__ . '/FilterConfigService.php';
+            $filterConfigService = new \FilterConfigService();
+            
+            $allCategories = $filterConfigService->getCategoriesForFilter();
+            
             if (!is_array($allCategories)) {
                 return [];
             }
 
-            // Transform dữ liệu
-            $categories = $this->transformer->transformCategories($allCategories);
+            // Transform dữ liệu nếu cần
+            $allCategories = $this->transformer->transformCategories($allCategories);
 
-            // Sử dụng buildTree đệ quy để xây dựng cây phân cấp đa cấp
-            $categoriesModel = $this->getModel('CategoriesModel');
-            if ($categoriesModel) {
-                return $categoriesModel->buildTree($categories);
+            // Xây dựng cây phân cấp đầy đủ với sắp xếp đúng thứ tự
+            $hierarchy = [];
+            $categoryMap = [];
+            
+            // First pass: tạo map tất cả categories và khởi tạo children rỗng
+            foreach ($allCategories as $category) {
+                $category['children'] = [];
+                $categoryMap[$category['id']] = $category;
             }
+            
+            // Second pass: xây dựng cây phân cấp
+            foreach ($allCategories as $category) {
+                $parentId = $category['parent_id'] ?? 0;
+                
+                // Nếu là danh mục cha (parent_id = 0 hoặc null), thêm vào hierarchy
+                if ($parentId == 0 || $parentId === null) {
+                    $hierarchy[] = &$categoryMap[$category['id']];
+                } else {
+                    // Nếu là danh mục con, thêm vào children của cha
+                    if (isset($categoryMap[$parentId])) {
+                        $categoryMap[$parentId]['children'][] = &$categoryMap[$category['id']];
+                    }
+                }
+            }
+            
+            // Third pass: sắp xếp children theo sort_order
+            $sortChildren = function(&$categories) use (&$sortChildren) {
+                foreach ($categories as &$category) {
+                    if (!empty($category['children'])) {
+                        // Sắp xếp children theo sort_order
+                        usort($category['children'], function ($a, $b) {
+                            $sortA = (int)($a['sort_order'] ?? 999);
+                            $sortB = (int)($b['sort_order'] ?? 999);
+                            if ($sortA === $sortB) {
+                                return strcmp((string)($a['name'] ?? ''), (string)($b['name'] ?? ''));
+                            }
+                            return $sortA <=> $sortB;
+                        });
+                        // Đệ quy sắp xếp các cấp con sâu hơn
+                        $sortChildren($category['children']);
+                    }
+                }
+            };
+            
+            $sortChildren($hierarchy);
 
-            return [];
+            return $hierarchy;
         } catch (\Exception $e) {
             error_log('ERROR getCategoriesHierarchy: ' . $e->getMessage());
+            
+            // Fallback to original method if FilterConfigService fails
+            try {
+                $allCategories = $this->callModelMethod(
+                    'CategoriesModel',
+                    'getWithProductCounts',
+                    [],
+                    []
+                );
+
+                if (!is_array($allCategories)) {
+                    return [];
+                }
+
+                $categories = $this->transformer->transformCategories($allCategories);
+
+                $categoriesModel = $this->getModel('CategoriesModel');
+                if ($categoriesModel) {
+                    return $categoriesModel->buildTree($categories);
+                }
+            } catch (\Exception $fallbackException) {
+                error_log('ERROR getCategoriesHierarchy fallback: ' . $fallbackException->getMessage());
+            }
+            
             return [];
         }
     }
