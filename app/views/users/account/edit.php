@@ -1,43 +1,76 @@
 <?php
 // User Account Edit - Edit Account Information
-require_once __DIR__ . '/../../../services/UserService.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Get current user from session
+// Simple img_url function for avatar
+function local_img_url($file) {
+    // Tạo URL đầy đủ như sidebar
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+    $host = $_SERVER['HTTP_HOST'];
+    return $protocol . "://" . $host . "/assets/images/" . ltrim($file, '/');
+}
+
+// Get current user from session first
 $userId = $_SESSION['user_id'] ?? null;
 if (!$userId) {
     header('Location: ?page=login');
     exit;
 }
 
-// Get account data from UserService
+// Fallback user data from session
+$user = [
+    'id' => $_SESSION['user_id'],
+    'name' => $_SESSION['user_name'] ?? 'User',
+    'username' => $_SESSION['username'] ?? '',
+    'email' => $_SESSION['user_email'] ?? '',
+    'phone' => $_SESSION['phone'] ?? '',
+    'address' => $_SESSION['address'] ?? '',
+    'role' => $_SESSION['user_role'] ?? 'user',
+    'points' => $_SESSION['points'] ?? 0,
+    'level' => $_SESSION['level'] ?? 'Bronze',
+    'status' => 'active',
+    'created_at' => date('Y-m-d H:i:s'),
+    'updated_at' => date('Y-m-d H:i:s')
+];
+
+// Try to get account data from UserService (optional)
 try {
+    require_once __DIR__ . '/../../../services/UserService.php';
     $userService = new UserService();
     $accountData = $userService->getAccountData($userId);
-    $user = $accountData['user'] ?? [];
+    if (isset($accountData['user']) && !empty($accountData['user'])) {
+        $user = array_merge($user, $accountData['user']);
+    }
 } catch (Exception $e) {
-    // Fallback to session data if service fails
-    $user = [
-        'id' => $_SESSION['user_id'],
-        'name' => $_SESSION['user_name'] ?? 'User',
-        'username' => $_SESSION['username'] ?? '',
-        'email' => $_SESSION['user_email'] ?? '',
-        'phone' => '',
-        'address' => '',
-        'role' => $_SESSION['user_role'] ?? 'user',
-        'points' => 0,
-        'level' => 'Bronze',
-        'status' => 'active',
-        'created_at' => date('Y-m-d H:i:s'),
-        'updated_at' => date('Y-m-d H:i:s')
-    ];
+    // UserService failed, continue with session data
+    error_log("UserService failed: " . $e->getMessage());
+}
+
+// Check if user has existing password for the password change form
+$hasPassword = false;
+try {
+    require_once 'app/models/UsersModel.php';
+    $usersModel = new UsersModel();
+    $currentUser = $usersModel->find($userId);
+    $hasPassword = $currentUser && !empty($currentUser['password']);
+} catch (Exception $e) {
+    // Database query failed, assume no password
+    error_log("UsersModel query failed: " . $e->getMessage());
+    $hasPassword = false;
 }
 
 // Handle form submission (mock)
 $success_message = '';
 $error_message = '';
 
+// Check for success parameter from redirect
+if (isset($_GET['success']) && $_GET['success'] == '1') {
+    $success_message = 'Thông tin tài khoản đã được cập nhật thành công!';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once __DIR__ . '/../../models/UsersModel.php';
+    require_once 'app/models/UsersModel.php';
     $usersModel = new UsersModel();
     
     if (isset($_POST['update_profile'])) {
@@ -45,13 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = $_POST['name'] ?? '';
         $email = $_POST['email'] ?? '';
         $phone = $_POST['phone'] ?? '';
-        $address = $_POST['address'] ?? '';
         
         $updateData = [
             'name' => $name,
             'email' => $email,
             'phone' => $phone,
-            'address' => $address,
             'updated_at' => date('Y-m-d H:i:s')
         ];
         
@@ -61,6 +92,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Update session data
             $_SESSION['user_name'] = $name;
             $_SESSION['user_email'] = $email;
+            $_SESSION['phone'] = $phone;
+            
+            // Update $user variable to reflect changes immediately
+            $user['name'] = $name;
+            $user['email'] = $email;
+            $user['phone'] = $phone;
+            $user['updated_at'] = date('Y-m-d H:i:s');
+            
+            // Redirect to avoid POST resubmit warning using JavaScript
+            echo '<script>window.location.href = "?page=users&module=account&action=edit&success=1";</script>';
+            exit;
         } else {
             $error_message = 'Không thể cập nhật thông tin tài khoản.';
         }
@@ -76,17 +118,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($newPassword !== $confirmPassword) {
             $error_message = 'Mật khẩu xác nhận không khớp.';
         } else {
-            // Get current user to check if they have a password
-            $currentUser = $usersModel->find($userId);
-            
-            if ($currentUser && !empty($currentUser['password'])) {
-                // User has a password - verify current password
-                if (!password_verify($currentPassword, $currentUser['password'])) {
-                    // Try MD5 for legacy accounts
-                    if (md5($currentPassword) !== $currentUser['password']) {
-                        $error_message = 'Mật khẩu hiện tại không đúng.';
+            // Re-check if user has password for verification
+            try {
+                $currentUser = $usersModel->find($userId);
+                if ($currentUser && !empty($currentUser['password'])) {
+                    // User has a password - verify current password
+                    if (!password_verify($currentPassword, $currentUser['password'])) {
+                        // Try MD5 for legacy accounts
+                        if (md5($currentPassword) !== $currentUser['password']) {
+                            $error_message = 'Mật khẩu hiện tại không đúng.';
+                        }
                     }
                 }
+            } catch (Exception $e) {
+                // Database query failed, continue without password verification
+                error_log("Password verification query failed: " . $e->getMessage());
             }
             
             // If no error, update password
@@ -153,13 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <!-- Avatar Upload -->
                         <div class="profile-avatar-section">
                             <div class="profile-avatar">
-                                <?php if (!empty($user['avatar'])): ?>
-                                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="Avatar">
-                                <?php else: ?>
-                                    <div class="profile-avatar-placeholder">
-                                        <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
-                                    </div>
-                                <?php endif; ?>
+                                <img src="https://test1.web3b.com/assets/images/home/home-banner-final.png" alt="Avatar Placeholder">
                             </div>
                             <div class="profile-avatar-info">
                                 <h2>Ảnh đại diện</h2>
@@ -195,11 +235,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="form-text">Số điện thoại liên hệ (tùy chọn)</div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="address" class="form-label">Địa chỉ</label>
-                                <textarea id="address" name="address" class="form-control" rows="3"><?php echo htmlspecialchars($user['address']); ?></textarea>
-                                <div class="form-text">Địa chỉ giao hàng mặc định</div>
-                            </div>
                         </div>
 
                         <div class="form-actions">
@@ -270,22 +305,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                
-            </div>
-
-            <!-- Danger Zone -->
-            <div class="profile-card">
-                <div class="profile-card-header">
-                    <h3>Vùng nguy hiểm</h3>
-                </div>
-                <div class="profile-card-content">
-                    <div class="delete-account-section">
-                        <h3>Xóa tài khoản</h3>
-                        <p>Khi bạn xóa tài khoản, tất cả dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục. Hãy chắc chắn về quyết định này.</p>
-                        <a href="?page=users&module=account&action=delete" class="account-btn account-btn-danger delete-account-btn">
-                            <i class="fas fa-trash"></i>
-                            Xóa tài khoản
-                        </a>
+                <!-- Danger Zone -->
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h3>Vùng nguy hiểm</h3>
+                    </div>
+                    <div class="profile-card-content">
+                        <div class="delete-account-section">
+                            <h3>Xóa tài khoản</h3>
+                            <p>Khi bạn xóa tài khoản, tất cả dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục. Hãy chắc chắn về quyết định này.</p>
+                            <a href="?page=users&module=account&action=delete" class="account-btn account-btn-danger delete-account-btn">
+                                <i class="fas fa-trash"></i>
+                                Xóa tài khoản
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,6 +328,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Include Account JavaScript -->
 <script src="assets/js/user_account.js"></script>
+
+<!-- Include User Sidebar CSS for avatar styling -->
+<link rel="stylesheet" href="assets/css/user_sidebar.css">
 
 <!-- Toggle Switch Styles -->
 <style>
@@ -341,5 +377,23 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(26px);
+}
+
+/* Avatar styling - same as sidebar */
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 </style>

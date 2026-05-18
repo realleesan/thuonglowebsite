@@ -2,6 +2,14 @@
 // User Account Index - View Account Information
 require_once __DIR__ . '/../../../services/UserService.php';
 
+// Simple img_url function for avatar
+function local_img_url($file) {
+    // Tạo URL đầy đủ như sidebar
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+    $host = $_SERVER['HTTP_HOST'];
+    return $protocol . "://" . $host . "/assets/images/" . ltrim($file, '/');
+}
+
 // Get current user from session
 $userId = $_SESSION['user_id'] ?? null;
 if (!$userId) {
@@ -87,13 +95,7 @@ $securityInfo = [
                     <!-- Profile Avatar Section -->
                     <div class="profile-avatar-section">
                         <div class="profile-avatar">
-                            <?php if (!empty($user['avatar'])): ?>
-                                <img src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="Avatar">
-                            <?php else: ?>
-                                <div class="profile-avatar-placeholder">
-                                    <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
-                                </div>
-                            <?php endif; ?>
+                            <img src="https://test1.web3b.com/assets/images/home/home-banner-final.png" alt="Avatar Placeholder">
                         </div>
                         <div class="profile-avatar-info">
                             <h2><?php echo htmlspecialchars($user['name']); ?></h2>
@@ -135,14 +137,6 @@ $securityInfo = [
                             </div>
                         </div>
                         
-                        <div class="profile-info-item">
-                            <div class="profile-info-label">Địa chỉ</div>
-                            <div class="profile-info-value <?php echo empty($user['address']) ? 'empty' : ''; ?>">
-                                <?php echo !empty($user['address']) ? htmlspecialchars($user['address']) : 'Chưa cập nhật'; ?>
-                            </div>
-                        </div>
-                        
-        
                         
                         <div class="profile-info-item">
                             <div class="profile-info-label">Ngày tham gia</div>
@@ -183,6 +177,9 @@ $securityInfo = [
 
 <!-- Include Account JavaScript -->
 <script src="assets/js/user_account.js"></script>
+
+<!-- Include User Sidebar CSS for avatar styling -->
+<link rel="stylesheet" href="assets/css/user_sidebar.css">
 
 <style>
     .profile-card-content {
@@ -310,6 +307,23 @@ $securityInfo = [
         justify-content: center;
         font-size: 32px;
         font-weight: bold;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .security-section {
