@@ -137,19 +137,7 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-calendar"></i>
-            </div>
-            <div class="stat-content">
-                <h3 id="stat-upcoming-events"><?php echo $stats['upcoming_events'] ?? 0; ?></h3>
-                <p>Sự kiện sắp tới</p>
-                <div class="stat-trend trend-<?php echo ($trends['events']['direction'] ?? 'up'); ?>" id="trend-events">
-                    <i class="fas fa-arrow-<?php echo ($trends['events']['direction'] ?? 'up'); ?>"></i>
-                    <span><?php echo ($trends['events']['value'] ?? 0); ?>% so với tháng trước</span>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
     <!-- Charts Section -->
@@ -235,69 +223,6 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
             </div>
         </div>
 
-        <!-- Row 2: Recent Activities + Quick Actions -->
-        <div class="dashboard-row-2">
-            <!-- Recent Activities -->
-            <div class="dashboard-widget">
-                <div class="widget-header">
-                    <h3>Hoạt động gần đây</h3>
-                </div>
-                <div class="widget-content">
-                    <?php if (empty($recentActivities)): ?>
-                        <p class="no-data">Chưa có hoạt động nào</p>
-                    <?php else: ?>
-                        <ul class="activity-list">
-                            <?php foreach ($recentActivities as $activity): ?>
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="<?php echo $activity['icon']; ?>"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <p><?php echo htmlspecialchars($activity['title']); ?></p>
-                                    <small><?php echo date('d/m/Y H:i', strtotime($activity['date'])); ?></small>
-                                </div>
-                                <div class="activity-status">
-                                    <span class="admin-badge admin-badge-<?php echo $activity['status'] === 'active' ? 'success' : 'warning'; ?>">
-                                        <?php echo $activity['status']; ?>
-                                    </span>
-                                </div>
-                            </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="dashboard-widget quick-actions-widget">
-                <div class="widget-header">
-                    <h3>Thao tác nhanh</h3>
-                </div>
-                <div class="widget-content">
-                    <div class="quick-actions">
-                        <a href="?page=admin&module=products&action=change" class="quick-action-btn">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Thêm sản phẩm</span>
-                        </a>
-                        <a href="?page=admin&module=news&action=change" class="quick-action-btn">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Thêm tin tức</span>
-                        </a>
-                        <a href="?page=admin&module=categories&action=change" class="quick-action-btn">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Thêm danh mục</span>
-                        </a>
-                        <a href="?page=admin&module=events&action=change" class="quick-action-btn">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Thêm sự kiện</span>
-                        </a>
-                        <a href="/admin/manageAgentRequests" class="quick-action-btn">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Quản lý đại lý</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>

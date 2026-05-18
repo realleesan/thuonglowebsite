@@ -317,8 +317,7 @@ if (!function_exists('getSortOptions')) {
             'post_title_desc' => 'Tên Z-A',
             'price' => 'Giá cao đến thấp',
             'price_low' => 'Giá thấp đến cao',
-            'popular' => 'Phổ biến',
-            'rating' => 'Đánh giá trung bình'
+            'popular' => 'Phổ biến'
         ];
     }
 }

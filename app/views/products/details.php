@@ -97,33 +97,6 @@ if (!function_exists('formatRecordCount')) {
     }
 }
 
-// Calculate rating distribution
-function calculateRatingDistribution($reviews) {
-    $distribution = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-    $total = count($reviews);
-    
-    if ($total === 0) {
-        return $distribution;
-    }
-    
-    foreach ($reviews as $review) {
-        $rating = intval($review['rating']);
-        if (isset($distribution[$rating])) {
-            $distribution[$rating]++;
-        }
-    }
-    
-    // Convert to percentage
-    foreach ($distribution as $rating => $count) {
-        $distribution[$rating] = round(($count / $total) * 100);
-    }
-    
-    return $distribution;
-}
-
-$ratingDistribution = calculateRatingDistribution($reviews);
-$averageRating = !empty($reviews) ? array_sum(array_column($reviews, 'rating')) / count($reviews) : 0;
-$averageRating = round($averageRating, 1);
 ?>
 
 <!-- Main Content -->
@@ -182,13 +155,7 @@ $averageRating = round($averageRating, 1);
                                     </svg>
                                     <span>Cập nhật: <?php echo date('d/m/Y', strtotime($product['created_at'])); ?></span>
                                 </div>
-                                <div class="meta-item">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M8 2L10.09 6.26L15 7L11 10.74L12.18 15.74L8 13.27L3.82 15.74L5 10.74L1 7L5.91 6.26L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span><?php echo count($reviews); ?> đánh giá</span>
-                                </div>
-                                <div class="meta-item">
+                                                                <div class="meta-item">
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                     </svg>
@@ -214,7 +181,6 @@ $averageRating = round($averageRating, 1);
                                     <button class="tab-button active" data-tab="overview">Tổng quan</button>
                                     <button class="tab-button" data-tab="curriculum">Cấu trúc dữ liệu</button>
                                     <button class="tab-button" data-tab="instructor">Nhà cung cấp</button>
-                                    <button class="tab-button" data-tab="reviews">Đánh giá</button>
                                 </div>
                                 
                                 <!-- Tab Content -->
@@ -342,81 +308,7 @@ $averageRating = round($averageRating, 1);
                                         </div>
                                     </div>
                                     
-                                    <!-- Reviews Tab -->
-                                    <div id="reviews" class="tab-panel">
-                                        <div class="reviews-section">
-                                            <h3 class="section-title">Đánh giá từ khách hàng</h3>
-                                            
-                                            <?php if (!empty($reviews)): ?>
-                                            <div class="reviews-layout">
-                                                <!-- Rating Overview -->
-                                                <div class="rating-overview">
-                                                    <div class="rating-big">
-                                                        <span class="rating-value"><?php echo $averageRating; ?></span>
-                                                        <div class="rating-stars">
-                                                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="<?php echo $i <= round($averageRating) ? '#FFB800' : '#E0E0E0'; ?>">
-                                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                                            </svg>
-                                                            <?php endfor; ?>
-                                                        </div>
-                                                        <span class="rating-count">Dựa trên <?php echo count($reviews); ?> đánh giá</span>
-                                                    </div>
-                                                    
-                                                    <!-- Rating Distribution -->
-                                                    <div class="rating-distribution">
-                                                        <?php for ($i = 5; $i >= 1; $i--): ?>
-                                                        <div class="distribution-row">
-                                                            <span class="star-label"><?php echo $i; ?> sao</span>
-                                                            <div class="progress-bar">
-                                                                <div class="progress-fill" style="width: <?php echo $ratingDistribution[$i]; ?>%;"></div>
-                                                            </div>
-                                                            <span class="percentage"><?php echo $ratingDistribution[$i]; ?>%</span>
-                                                        </div>
-                                                        <?php endfor; ?>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Reviews List -->
-                                                <div class="reviews-list">
-                                                    <?php foreach ($reviews as $review): ?>
-                                                    <div class="review-item">
-                                                        <div class="review-header">
-                                                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($review['reviewer_name'] ?? 'U'); ?>&background=random&color=fff&size=50" alt="User" class="reviewer-avatar">
-                                                            <div class="reviewer-info">
-                                                                <h4 class="reviewer-name"><?php echo htmlspecialchars($review['reviewer_name'] ?? 'Ẩn danh'); ?></h4>
-                                                                <div class="review-rating">
-                                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="<?php echo $i <= $review['rating'] ? '#FFB800' : '#E0E0E0'; ?>">
-                                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                                                    </svg>
-                                                                    <?php endfor; ?>
-                                                                </div>
-                                                            </div>
-                                                            <span class="review-date"><?php echo date('d/m/Y', strtotime($review['created_at'])); ?></span>
-                                                        </div>
-                                                        <?php if (!empty($review['title'])): ?>
-                                                        <div class="review-title">
-                                                            <strong><?php echo htmlspecialchars($review['title']); ?></strong>
-                                                        </div>
-                                                        <?php endif; ?>
-                                                        <?php if (!empty($review['content'])): ?>
-                                                        <div class="review-content">
-                                                            <p><?php echo nl2br(htmlspecialchars($review['content'])); ?></p>
-                                                        </div>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                    <?php endforeach; ?>
-                                                </div>
-                                            </div>
-                                            <?php else: ?>
-                                            <div class="no-reviews">
-                                                <p>Chưa có đánh giá nào cho sản phẩm này.</p>
-                                            </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
+                                                                    </div>
                             </div>
                         </div>
 
@@ -524,44 +416,45 @@ $averageRating = round($averageRating, 1);
                                     
                                     <!-- Meta Info - Logistics Specific -->
                                     <div class="product-meta-info">
-                                        <div class="meta-row">
-                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M8 2L10.09 6.26L15 7L11 10.74L12.18 15.74L8 13.27L3.82 15.74L5 10.74L1 7L5.91 6.26L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                            <span class="label">Đánh giá:</span>
-                                            <span class="value"><?php echo $averageRating; ?>/5.0</span>
-                                        </div>
+                                        <?php if (!empty($productMeta['record_count']) && $productMeta['record_count'] > 0): ?>
                                         <div class="meta-row">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M2 4H14M2 8H14M2 12H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                             </svg>
                                             <span class="label">Số record:</span>
-                                            <span class="value"><?php echo number_format($productMeta['record_count'] ?? 0); ?></span>
+                                            <span class="value"><?php echo number_format($productMeta['record_count']); ?></span>
                                         </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($productMeta['data_size']) && $productMeta['data_size'] !== '0 MB' && $productMeta['data_size'] !== '0'): ?>
                                         <div class="meta-row">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M8 1V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
                                             </svg>
                                             <span class="label">Dung lượng:</span>
-                                            <span class="value"><?php echo $productMeta['data_size'] ?? '0 MB'; ?></span>
+                                            <span class="value"><?php echo htmlspecialchars($productMeta['data_size']); ?></span>
                                         </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($productMeta['data_format']) && $productMeta['data_format'] !== 'Excel'): ?>
                                         <div class="meta-row">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M12 5L8 9L4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 <path d="M2 11V14H14V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                             <span class="label">Định dạng:</span>
-                                            <span class="value"><?php echo $productMeta['data_format'] ?? 'Excel'; ?></span>
+                                            <span class="value"><?php echo htmlspecialchars($productMeta['data_format']); ?></span>
                                         </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($productMeta['data_source']) && $productMeta['data_source'] !== 'Việt Nam'): ?>
                                         <div class="meta-row">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
                                                 <path d="M8 5V8L10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                             </svg>
                                             <span class="label">Nguồn gốc:</span>
-                                            <span class="value"><?php echo $productMeta['data_source'] ?? 'Việt Nam'; ?></span>
+                                            <span class="value"><?php echo htmlspecialchars($productMeta['data_source']); ?></span>
                                         </div>
+                                        <?php endif; ?>
                                         <?php 
                                             $expiryDays = $product['expiry_days'] ?? 30;
                                             if ($expiryDays > 0): 
@@ -593,13 +486,15 @@ $averageRating = round($averageRating, 1);
                                             <span class="value"><?php echo $quota; ?></span>
                                         </div>
                                         <?php endif; ?>
+                                        <?php if (!empty($productMeta['reliability']) && $productMeta['reliability'] !== 'N/A' && $productMeta['reliability'] !== ''): ?>
                                         <div class="meta-row">
                                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M8 2L10.09 6.26L15 7L11 10.74L12.18 15.74L8 13.27L3.82 15.74L5 10.74L1 7L5.91 6.26L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                             <span class="label">Độ tin cậy:</span>
-                                            <span class="value"><?php echo $productMeta['reliability'] ?? 'N/A'; ?></span>
+                                            <span class="value"><?php echo htmlspecialchars($productMeta['reliability']); ?></span>
                                         </div>
+                                        <?php endif; ?>
                                     </div>
                                     
                                     <!-- Product Info List -->

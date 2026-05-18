@@ -293,12 +293,7 @@ function getRoleDisplayName($role) {
                                    placeholder="Nhập lại mật khẩu mới">
                         </div>
 
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" name="force_password_change" value="1">
-                                Yêu cầu đổi mật khẩu lần đăng nhập tiếp theo
-                            </label>
-                        </div>
+                       
                     </div>
                 </div>
             </div>

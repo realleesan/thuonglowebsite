@@ -17,30 +17,91 @@ document.addEventListener('DOMContentLoaded', function() {
         border: '#E5E7EB'
     };
 
+    // Store chart instances to destroy them before recreating
+    const chartInstances = {};
+    
+    // Flag to prevent multiple initializations
+    let isChartsInitialized = false;
+
     // Initialize charts with data from PHP (passed via data attributes or global variables)
-    initializeCharts();
+    if (!isChartsInitialized) {
+        initializeCharts();
+        isChartsInitialized = true;
+    }
 
     function initializeCharts() {
+        // First, destroy all existing charts to ensure clean state
+        destroyAllCharts();
+        
         // Get chart data from PHP (should be set in the PHP view)
         const chartData = window.dashboardChartData || null;
         
-        if (chartData) {
-            // Initialize all charts with data from PHP
-            if (chartData.orderStatus) initOrderStatusChart(chartData.orderStatus);
-            if (chartData.monthlySpending) initSpendingChart(chartData.monthlySpending);
-            if (chartData.orderDistribution) initCategoryChart(chartData.orderDistribution);
-            if (chartData.revenue) initRevenueChart(chartData.revenue);
-            if (chartData.purchaseTrend) initPurchaseTrendChart(chartData.purchaseTrend);
-        } else {
-            console.warn('No chart data available from server');
+        // Only proceed if we're on the dashboard page with chart data
+        if (!chartData) {
+            // Silently return if no chart data (other user pages)
+            return;
         }
+        
+        // Check if we have any chart elements on the page
+        const hasChartElements = document.getElementById('orderStatusChart') || 
+                              document.getElementById('spendingChart') || 
+                              document.getElementById('revenueChart') || 
+                              document.getElementById('categoryChart') || 
+                              document.getElementById('purchaseTrendChart');
+        
+        if (!hasChartElements) {
+            // No chart elements found, probably not on dashboard page
+            return;
+        }
+        
+        try {
+            // Initialize all charts with data from PHP
+            if (chartData.orderStatus && document.getElementById('orderStatusChart')) {
+                initOrderStatusChart(chartData.orderStatus);
+            }
+            if (chartData.monthlySpending && document.getElementById('spendingChart')) {
+                initSpendingChart(chartData.monthlySpending);
+            }
+            if (chartData.orderDistribution && document.getElementById('categoryChart')) {
+                initCategoryChart(chartData.orderDistribution);
+            }
+            if (chartData.revenue && document.getElementById('revenueChart')) {
+                initRevenueChart(chartData.revenue);
+            }
+            if (chartData.purchaseTrend && document.getElementById('purchaseTrendChart')) {
+                initPurchaseTrendChart(chartData.purchaseTrend);
+            }
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+            // Try to cleanup on error
+            destroyAllCharts();
+        }
+    }
+
+    function destroyAllCharts() {
+        Object.keys(chartInstances).forEach(key => {
+            if (chartInstances[key]) {
+                try {
+                    chartInstances[key].destroy();
+                } catch (e) {
+                    console.warn('Error destroying chart:', key, e);
+                }
+                chartInstances[key] = null;
+            }
+        });
     }
 
     function initSpendingChart(data) {
         const spendingCtx = document.getElementById('spendingChart');
         if (!spendingCtx || !data.labels || !data.data) return;
 
-        new Chart(spendingCtx.getContext('2d'), {
+        // Check if chart already exists on this canvas and destroy it
+        const existingChart = Chart.getChart(spendingCtx);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        chartInstances.spending = new Chart(spendingCtx.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: data.labels,
@@ -108,7 +169,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const revenueCtx = document.getElementById('revenueChart');
         if (!revenueCtx || !data.labels || !data.data) return;
 
-        new Chart(revenueCtx.getContext('2d'), {
+        // Check if chart already exists on this canvas and destroy it
+        const existingChart = Chart.getChart(revenueCtx);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        chartInstances.revenue = new Chart(revenueCtx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: data.labels,
@@ -177,16 +244,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initOrderStatusChart(data) {
         const orderStatusCtx = document.getElementById('orderStatusChart');
-        if (!orderStatusCtx || !data.labels || !data.data || data.labels.length === 0) {
+        if (!orderStatusCtx) return;
+        
+        // Check if chart already exists on this canvas and destroy it
+        const existingChart = Chart.getChart(orderStatusCtx);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+        
+        if (!data.labels || !data.data || data.labels.length === 0) {
             // Show empty state message
-            if (orderStatusCtx) {
-                const ctx = orderStatusCtx.getContext('2d');
-                ctx.clearRect(0, 0, orderStatusCtx.width, orderStatusCtx.height);
-                ctx.font = '14px Inter';
-                ctx.fillStyle = '#9ca3af';
-                ctx.textAlign = 'center';
-                ctx.fillText('Chưa có dữ liệu đơn hàng', orderStatusCtx.width / 2, orderStatusCtx.height / 2);
-            }
+            const ctx = orderStatusCtx.getContext('2d');
+            ctx.clearRect(0, 0, orderStatusCtx.width, orderStatusCtx.height);
+            ctx.font = '14px Inter';
+            ctx.fillStyle = '#9ca3af';
+            ctx.textAlign = 'center';
+            ctx.fillText('Chưa có dữ liệu đơn hàng', orderStatusCtx.width / 2, orderStatusCtx.height / 2);
             return;
         }
 
@@ -200,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const dynamicColors = data.labels.map(label => statusColorMap[label] || colors.primary);
 
-        new Chart(orderStatusCtx.getContext('2d'), {
+        chartInstances.orderStatus = new Chart(orderStatusCtx.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: data.labels,
@@ -249,16 +322,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function initCategoryChart(data) {
         const categoryCtx = document.getElementById('categoryChart');
-        if (!categoryCtx || !data.labels || !data.data || data.labels.length === 0) {
+        if (!categoryCtx) return;
+        
+        // Check if chart already exists on this canvas and destroy it
+        const existingChart = Chart.getChart(categoryCtx);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+        
+        if (!data.labels || !data.data || data.labels.length === 0) {
             // Show empty state message
-            if (categoryCtx) {
-                const ctx = categoryCtx.getContext('2d');
-                ctx.clearRect(0, 0, categoryCtx.width, categoryCtx.height);
-                ctx.font = '14px Inter';
-                ctx.fillStyle = '#9ca3af';
-                ctx.textAlign = 'center';
-                ctx.fillText('Chưa có dữ liệu danh mục', categoryCtx.width / 2, categoryCtx.height / 2);
-            }
+            const ctx = categoryCtx.getContext('2d');
+            ctx.clearRect(0, 0, categoryCtx.width, categoryCtx.height);
+            ctx.font = '14px Inter';
+            ctx.fillStyle = '#9ca3af';
+            ctx.textAlign = 'center';
+            ctx.fillText('Chưa có dữ liệu danh mục', categoryCtx.width / 2, categoryCtx.height / 2);
             return;
         }
 
@@ -266,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseColors = [colors.primary, colors.success, colors.info, colors.warning, colors.danger];
         const dynamicColors = data.labels.map((_, i) => baseColors[i % baseColors.length]);
 
-        new Chart(categoryCtx.getContext('2d'), {
+        chartInstances.category = new Chart(categoryCtx.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: data.labels,
@@ -330,7 +409,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const purchaseTrendCtx = document.getElementById('purchaseTrendChart');
         if (!purchaseTrendCtx || !data.labels || !data.data) return;
 
-        new Chart(purchaseTrendCtx.getContext('2d'), {
+        // Check if chart already exists on this canvas and destroy it
+        const existingChart = Chart.getChart(purchaseTrendCtx);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        chartInstances.purchaseTrend = new Chart(purchaseTrendCtx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: data.labels,

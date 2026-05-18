@@ -149,15 +149,6 @@ function getTypeLabel(string $type): string {
                 <div class="stat-label-simple">Danh Mục</div>
             </div>
         </div>
-        <div class="stat-card-simple">
-            <div class="stat-icon-simple stat-purple">
-                <i class="fas fa-eye"></i>
-            </div>
-            <div class="stat-content-simple">
-                <div class="stat-number-simple"><?= is_array($products) && !empty($products) ? number_format(array_sum(array_column($products, 'view_count'))) : 0 ?></div>
-                <div class="stat-label-simple">Lượt Xem</div>
-            </div>
-        </div>
     </div>
 
     <!-- Filters -->
@@ -285,9 +276,6 @@ function getTypeLabel(string $type): string {
                         <div class="product-stats-mini">
                             <span class="stat-mini" title="Đã bán">
                                 <i class="fas fa-shopping-cart"></i> <?= $product['sales_count'] ?? 0 ?>
-                            </span>
-                            <span class="stat-mini" title="Lượt xem">
-                                <i class="fas fa-eye"></i> <?= $product['view_count'] ?? 0 ?>
                             </span>
                         </div>
                         <div class="product-status">
