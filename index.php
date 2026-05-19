@@ -1977,7 +1977,8 @@ switch($page) {
                 
                 switch($action) {
                     case 'create':
-                        $heroSectionController->create();
+                        // Disabled - only allow editing existing hero section
+                        header('Location: ?page=admin&module=hero-section');
                         exit;
                     case 'edit':
                         if ($id) {
@@ -1993,17 +1994,27 @@ switch($page) {
                             header('Location: ?page=admin&module=hero-section');
                         }
                         exit;
-                    case 'delete':
-                        if ($id) {
-                            $heroSectionController->delete($id);
+                    case 'toggle-status':
+                        // Handle both JSON and form data
+                        $id = 0;
+                        if (isset($_POST['id'])) {
+                            $id = (int)$_POST['id'];
                         } else {
-                            $deleteId = $_POST['id'] ?? 0;
-                            if ($deleteId > 0) {
-                                $heroSectionController->delete($deleteId);
-                            } else {
-                                header('Location: ?page=admin&module=hero-section');
-                            }
+                            // Try to get from JSON body
+                            $input = file_get_contents('php://input');
+                            $data = json_decode($input, true);
+                            $id = (int)($data['id'] ?? 0);
                         }
+                        
+                        if ($id > 0) {
+                            $heroSectionController->toggleStatus($id);
+                        } else {
+                            $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+                        }
+                        exit;
+                    case 'delete':
+                        // Disabled - hero sections cannot be deleted
+                        header('Location: ?page=admin&module=hero-section');
                         exit;
                     case 'createButton':
                         $heroSectionController->createButton();

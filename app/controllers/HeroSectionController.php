@@ -43,81 +43,27 @@ class HeroSectionController {
     }
 
     /**
-     * Display create hero section form
+     * Display create hero section form - DISABLED
      */
     public function create(): void {
-        if (!$this->requireAdmin()) {
-            return;
-        }
-
-        $data = [
-            'title' => 'Tạo Hero Section mới',
-            'user' => $this->getCurrentUser()
-        ];
-
-        $this->renderView('admin/homepage/hero_section/create', $data);
+        // Hero sections cannot be created - only edit existing one
+        $this->setFlashMessage('error', 'Chỉ có thể chỉnh sửa Hero Section hiện tại, không thể tạo mới.');
+        $this->redirect('?page=admin&module=hero-section');
+        return;
     }
 
     /**
-     * Store new hero section
+     * Store new hero section - DISABLED
      */
     public function store(): void {
-        if (!$this->requireAdmin()) {
-            return;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        // Hero sections cannot be created - only edit existing one
+        if ($this->isAjaxRequest()) {
+            $this->sendJsonResponse(['success' => false, 'message' => 'Không thể tạo Hero Section mới. Vui lòng chỉnh sửa Hero Section hiện tại.']);
+        } else {
+            $this->setFlashMessage('error', 'Không thể tạo Hero Section mới. Vui lòng chỉnh sửa Hero Section hiện tại.');
             $this->redirect('?page=admin&module=hero-section');
-            return;
         }
-
-        try {
-            $data = $this->getRequestData();
-            
-            // Validate required fields
-            $errors = $this->validateHeroSectionData($data);
-            if (!empty($errors)) {
-                $message = implode(', ', $errors);
-                if ($this->isAjaxRequest()) {
-                    $this->sendJsonResponse(['success' => false, 'message' => $message]);
-                } else {
-                    $this->setFlashMessage('error', $message);
-                    $this->redirect('?page=admin&module=hero-section&action=create');
-                }
-                return;
-            }
-
-            // Create hero section
-            $heroSectionId = $this->heroSectionModel->createHeroSection($data);
-            
-            if ($heroSectionId) {
-                $message = 'Hero Section đã được tạo thành công';
-                if ($this->isAjaxRequest()) {
-                    $this->sendJsonResponse(['success' => true, 'message' => $message, 'id' => $heroSectionId]);
-                } else {
-                    $this->setFlashMessage('success', $message);
-                    $this->redirect('?page=admin&module=hero-section&action=edit&id=' . $heroSectionId);
-                }
-            } else {
-                $message = 'Không thể tạo Hero Section';
-                if ($this->isAjaxRequest()) {
-                    $this->sendJsonResponse(['success' => false, 'message' => $message]);
-                } else {
-                    $this->setFlashMessage('error', $message);
-                    $this->redirect('?page=admin&module=hero-section&action=create');
-                }
-            }
-
-        } catch (Exception $e) {
-            error_log("Error in heroSection store: " . $e->getMessage());
-            $message = 'Có lỗi xảy ra khi tạo Hero Section';
-            if ($this->isAjaxRequest()) {
-                $this->sendJsonResponse(['success' => false, 'message' => $message]);
-            } else {
-                $this->setFlashMessage('error', $message);
-                $this->redirect('?page=admin&module=hero-section&action=create');
-            }
-        }
+        return;
     }
 
     /**
@@ -214,54 +160,17 @@ class HeroSectionController {
     }
 
     /**
-     * Delete hero section
+     * Delete hero section - DISABLED
      */
     public function delete($id): void {
-        if (!$this->requireAdmin()) {
-            return;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            if ($this->isAjaxRequest()) {
-                $this->sendJsonResponse(['success' => false, 'message' => 'Method not allowed']);
-            } else {
-                $this->redirect('?page=admin&module=hero-section');
-            }
-            return;
-        }
-
-        try {
-            $result = $this->heroSectionModel->deleteHeroSection($id);
-            
-            if ($result) {
-                $message = 'Hero Section đã được xóa thành công';
-                if ($this->isAjaxRequest()) {
-                    $this->sendJsonResponse(['success' => true, 'message' => $message]);
-                } else {
-                    $this->setFlashMessage('success', $message);
-                }
-            } else {
-                $message = 'Không thể xóa Hero Section';
-                if ($this->isAjaxRequest()) {
-                    $this->sendJsonResponse(['success' => false, 'message' => $message]);
-                } else {
-                    $this->setFlashMessage('error', $message);
-                }
-            }
-
-        } catch (Exception $e) {
-            error_log("Error in heroSection delete: " . $e->getMessage());
-            $message = 'Có lỗi xảy ra khi xóa Hero Section';
-            if ($this->isAjaxRequest()) {
-                $this->sendJsonResponse(['success' => false, 'message' => $message]);
-            } else {
-                $this->setFlashMessage('error', $message);
-            }
-        }
-
-        if (!$this->isAjaxRequest()) {
+        // Hero sections cannot be deleted - only edit existing one
+        if ($this->isAjaxRequest()) {
+            $this->sendJsonResponse(['success' => false, 'message' => 'Không thể xóa Hero Section. Vui lòng chỉ chỉnh sửa nội dung hiện tại.']);
+        } else {
+            $this->setFlashMessage('error', 'Không thể xóa Hero Section. Vui lòng chỉ chỉnh sửa nội dung hiện tại.');
             $this->redirect('?page=admin&module=hero-section');
         }
+        return;
     }
 
     /**
@@ -591,16 +500,23 @@ class HeroSectionController {
             throw new Exception("View not found: $view at path: $viewPath");
         }
 
-        // Extract data for view
+        // Extract data for view and layout
         extract($data);
         
-        // Start output buffering
+        // Set global flag for admin layout
+        global $useAdminLayout;
+        $useAdminLayout = true;
+        
+        // Set content variable for admin layout
+        $content = $viewPath;
+        
+        // Render view content first to extract variables
         ob_start();
         include $viewPath;
-        $content = ob_get_clean();
+        $viewContent = ob_get_clean();
         
-        // Set flag for admin layout
-        $useAdminLayout = true;
+        // Set content as rendered HTML
+        $content = $viewContent;
         
         // Include admin layout
         $layoutPath = __DIR__ . '/../views/_layout/admin_master.php';
@@ -609,10 +525,15 @@ class HeroSectionController {
         } else {
             echo $content;
         }
-        
-        exit;
     }
 
+    /**
+     * Set flash message
+     */
+    public function setFlashMessage(string $type, string $message): void {
+        $_SESSION["flash_{$type}"] = $message;
+    }
+    
     /**
      * Redirect to URL
      */
@@ -626,17 +547,7 @@ class HeroSectionController {
         }
         exit;
     }
-
-    /**
-     * Set flash message
-     */
-    private function setFlashMessage(string $type, string $message): void {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $_SESSION['flash_' . $type] = $message;
-    }
-
+    
     /**
      * Send JSON response
      */

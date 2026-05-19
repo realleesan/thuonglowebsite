@@ -20,9 +20,6 @@ unset($_SESSION['flash_error']);
                     <h1 class="h3 mb-1">Quản lý Trang chủ</h1>
                     <p class="text-muted small mb-0">Chỉnh sửa nội dung Hero Section hiển thị ở đầu trang chủ.</p>
                 </div>
-                <a href="?page=admin&module=hero-section&action=create" class="btn btn-primary shadow-sm px-4">
-                    <i class="fas fa-plus me-2"></i> Tạo Hero Section mới
-                </a>
             </div>
 
             <?php if ($success): ?>
@@ -45,10 +42,7 @@ unset($_SESSION['flash_error']);
                         <div class="text-center py-5">
                             <img src="https://illustrations.popsy.co/gray/taking-notes.svg" alt="Empty" style="width: 200px;" class="mb-4">
                             <h5 class="text-muted">Chưa có Hero Section nào</h5>
-                            <p class="text-muted mb-4">Tạo Hero Section đầu tiên để thu hút khách hàng ngay từ cái nhìn đầu tiên.</p>
-                            <a href="?page=admin&module=hero-section&action=create" class="btn btn-primary px-4">
-                                <i class="fas fa-plus me-2"></i> Bắt đầu ngay
-                            </a>
+                            <p class="text-muted mb-4">Hero Section cần được tạo để hiển thị ở đầu trang chủ.</p>
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
@@ -114,12 +108,6 @@ unset($_SESSION['flash_error']);
                                                             title="<?php echo $section['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
                                                         <i class="fas fa-<?php echo $section['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
                                                     </button>
-                                                    <button type="button" 
-                                                            class="btn btn-icon btn-light-danger"
-                                                            onclick="deleteHeroSection(<?php echo $section['id']; ?>)"
-                                                            title="Xóa">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -138,21 +126,6 @@ unset($_SESSION['flash_error']);
 function toggleStatus(id) {
     if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Hero Section này?')) {
         fetch('?page=admin&module=hero-section&action=toggle-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: id })
-        })
-        .then(r => r.json())
-        .then(d => {
-            if (d.success) window.location.reload();
-            else alert(d.message);
-        });
-    }
-}
-
-function deleteHeroSection(id) {
-    if (confirm('CẢNH BÁO: Bạn có chắc chắn muốn xóa Hero Section này? Thao tác này không thể hoàn tác.')) {
-        fetch('?page=admin&module=hero-section&action=delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id })

@@ -3,6 +3,22 @@
  * Edit Hero Section View - Enhanced Custom Editor
  */
 
+// Ensure heroSection is available (passed from controller)
+if (!isset($heroSection)) {
+    $heroSection = [];
+}
+
+// Set default values for heroSection fields to prevent undefined variable errors
+$heroSection = array_merge([
+    'id' => 0,
+    'title_main' => '',
+    'subtitle' => '',
+    'image_url' => '',
+    'background_color' => '#ffffff',
+    'is_active' => 0,
+    'buttons' => []
+], $heroSection);
+
 // Get flash messages
 $error = $_SESSION['flash_error'] ?? '';
 unset($_SESSION['flash_error']);
@@ -30,7 +46,7 @@ $heroButtons = $heroSection['buttons'] ?? [];
                         <div class="form-group mb-4">
                             <label class="admin-label">Tiêu đề Hero Section <span class="text-danger">*</span></label>
                             
-                            <!-- Enhanced Custom Rich Text Toolbar -->
+                            <!-- Custom Toolbar for Title -->
                             <div class="custom-editor-toolbar" data-for="title_main">
                                 <div class="toolbar-group">
                                     <button type="button" onclick="applyFormat('bold', 'title_main')" title="In đậm"><i class="fas fa-bold"></i></button>
@@ -46,11 +62,7 @@ $heroButtons = $heroSection['buttons'] ?? [];
                                         <option value="serif">Serif</option>
                                         <option value="monospace">Monospace</option>
                                     </select>
-                                    <div class="size-input-wrapper">
-                                        <input type="number" value="48" min="10" max="100" onchange="applyStyle('fontSize', this.value + 'px', 'title_main')" class="size-input">
-                                        <span>px</span>
-                                    </div>
-                                </div>
+                                                                    </div>
                                 <div class="toolbar-group">
                                     <div class="color-picker-wrapper">
                                         <input type="color" onchange="applyStyle('color', this.value, 'title_main')" title="Màu chữ">
@@ -70,22 +82,29 @@ $heroButtons = $heroSection['buttons'] ?? [];
                         <div class="form-group mb-4">
                             <label class="admin-label">Mô tả phụ</label>
                             
-                            <!-- Custom Toolbar for Subtitle -->
+                            <!-- Enhanced Custom Toolbar for Subtitle -->
                             <div class="custom-editor-toolbar" data-for="subtitle">
                                 <div class="toolbar-group">
-                                    <button type="button" onclick="applyFormat('bold', 'subtitle')"><i class="fas fa-bold"></i></button>
-                                    <button type="button" onclick="applyFormat('italic', 'subtitle')"><i class="fas fa-italic"></i></button>
-                                    <div class="size-input-wrapper">
-                                        <input type="number" value="18" min="10" max="100" onchange="applyStyle('fontSize', this.value + 'px', 'subtitle')" class="size-input">
-                                        <span>px</span>
-                                    </div>
+                                    <button type="button" onclick="applyFormat('bold', 'subtitle')" title="In đậm"><i class="fas fa-bold"></i></button>
+                                    <button type="button" onclick="applyFormat('italic', 'subtitle')" title="In nghiêng"><i class="fas fa-italic"></i></button>
+                                    <button type="button" onclick="applyFormat('underline', 'subtitle')" title="Gạch chân"><i class="fas fa-underline"></i></button>
+                                </div>
+                                <div class="toolbar-group">
+                                    <select onchange="applyStyle('fontFamily', this.value, 'subtitle')" class="font-select">
+                                        <option value="">Font chữ</option>
+                                        <option value="Arial, sans-serif">Arial</option>
+                                        <option value="'Inter', sans-serif">Inter</option>
+                                        <option value="'Roboto', sans-serif">Roboto</option>
+                                        <option value="serif">Serif</option>
+                                        <option value="monospace">Monospace</option>
+                                    </select>
                                 </div>
                                 <div class="toolbar-group">
                                     <div class="color-picker-wrapper">
-                                        <input type="color" onchange="applyStyle('color', this.value, 'subtitle')">
+                                        <input type="color" onchange="applyStyle('color', this.value, 'subtitle')" title="Màu chữ">
                                         <i class="fas fa-font"></i>
                                     </div>
-                                    <button type="button" onclick="applyFormat('removeFormat', 'subtitle')"><i class="fas fa-eraser"></i></button>
+                                    <button type="button" onclick="applyFormat('removeFormat', 'subtitle')" title="Xóa định dạng"><i class="fas fa-eraser"></i></button>
                                 </div>
                             </div>
                             
@@ -181,41 +200,459 @@ $heroButtons = $heroSection['buttons'] ?? [];
 
 <script>
 /**
- * Core Editor Functions
+ * Enhanced Rich Text Editor - Modern Implementation
  */
-function applyFormat(command, field) {
-    document.getElementById('editor-' + field).focus();
-    document.execCommand(command, false, null);
-    syncEditor(field);
-}
-
-function applyStyle(property, value, field) {
-    const editor = document.getElementById('editor-' + field);
-    editor.focus();
+class RichTextEditor {
+    constructor(fieldId) {
+        this.fieldId = fieldId;
+        this.editor = document.getElementById('editor-' + fieldId);
+        this.textarea = document.getElementById(fieldId);
+        this.toolbar = document.querySelector(`[data-for="${fieldId}"]`);
+        
+        this.init();
+    }
     
-    // Get selection
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
+    init() {
+        // Initialize editor content
+        if (this.textarea.value) {
+            this.editor.innerHTML = this.textarea.value;
+        }
+        
+        // Add event listeners
+        this.editor.addEventListener('input', () => this.syncEditor());
+        this.editor.addEventListener('paste', (e) => this.handlePaste(e));
+        this.editor.addEventListener('keydown', (e) => this.handleKeydown(e));
+        this.editor.addEventListener('mouseup', () => this.updateToolbarState());
+        this.editor.addEventListener('keyup', () => this.updateToolbarState());
+        
+        // Initialize toolbar buttons
+        this.initToolbar();
+        
+        // Auto-save to textarea
+        setInterval(() => this.syncEditor(), 1000);
+    }
     
-    // For font size, color, font family - use spans for exact control
-    if (property === 'fontSize' || property === 'color' || property === 'fontFamily') {
-        const range = selection.getRangeAt(0);
-        if (range.collapsed) return; // No selection
+    initToolbar() {
+        if (!this.toolbar) return;
+        
+        // Bold, Italic, Underline
+        this.toolbar.querySelectorAll('button').forEach(btn => {
+            const onclick = btn.getAttribute('onclick');
+            if (onclick && onclick.includes('applyFormat')) {
+                const command = onclick.match(/'([^']+)'/)[1];
+                btn.onclick = () => this.applyFormat(command);
+            }
+        });
+        
+        // Font family
+        const fontSelect = this.toolbar.querySelector('select');
+        if (fontSelect) {
+            fontSelect.onchange = () => {
+                if (fontSelect.value) {
+                    this.applyStyle('fontFamily', fontSelect.value);
+                }
+            };
+        }
+        
+                
+        // Color
+        const colorInput = this.toolbar.querySelector('input[type="color"]');
+        if (colorInput) {
+            colorInput.onchange = () => {
+                this.applyStyle('color', colorInput.value);
+            };
+        }
+        
+        // Remove format
+        const clearBtns = this.toolbar.querySelectorAll('button');
+        clearBtns.forEach(btn => {
+            if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('removeFormat')) {
+                btn.onclick = () => this.clearFormat();
+            }
+        });
+    }
+    
+    applyFormat(command) {
+        this.editor.focus();
+        
+        try {
+            // Use built-in execCommand for reliable toggle behavior
+            const cmd = command === 'bold' ? 'bold' : 
+                       command === 'italic' ? 'italic' : 'underline';
+            
+            document.execCommand(cmd, false, null);
+            
+            this.syncEditor();
+            this.updateToolbarState();
+        } catch (e) {
+            console.error('Format error:', e);
+        }
+    }
+    
+    applyStyle(property, value) {
+        this.editor.focus();
+        
+        try {
+            if (property === 'fontFamily') {
+                document.execCommand('fontName', false, value);
+            } else if (property === 'color') {
+                document.execCommand('foreColor', false, value);
+            }
+            
+            this.syncEditor();
+        } catch (e) {
+            console.error('Style error:', e);
+        }
+    }
+    
+    applyStyleToEditor(property, value) {
+        const content = this.editor.innerHTML;
+        
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = content;
         
         const span = document.createElement('span');
         span.style[property] = value;
-        range.surroundContents(span);
-    } else {
-        document.execCommand(property, false, value);
+        
+        while (wrapper.firstChild) {
+            span.appendChild(wrapper.firstChild);
+        }
+        
+        this.editor.innerHTML = '';
+        this.editor.appendChild(span);
     }
     
-    syncEditor(field);
+    applyStyleToSelection(property, value) {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        const contents = range.extractContents();
+        
+        const walker = document.createTreeWalker(
+            contents,
+            NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+            null,
+            false
+        );
+        
+        const nodes = [];
+        let node;
+        while (node = walker.nextNode()) {
+            nodes.push(node);
+        }
+        
+        nodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const span = document.createElement('span');
+                span.style[property] = value;
+                span.textContent = node.textContent;
+                node.parentNode.replaceChild(span, node);
+            }
+        });
+        
+        range.insertNode(contents);
+    }
+    
+    removeStyle(property) {
+        this.editor.focus();
+        
+        try {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            
+            const range = selection.getRangeAt(0);
+            
+            if (range.collapsed) {
+                this.removeStyleFromEditor(property);
+            } else {
+                this.removeStyleFromSelection(property);
+            }
+            
+            this.syncEditor();
+        } catch (e) {
+            console.error('Remove style error:', e);
+        }
+    }
+    
+    removeStyleFromEditor(property) {
+        const elements = this.editor.querySelectorAll('*');
+        elements.forEach(element => {
+            if (element.style[property]) {
+                element.style.removeProperty(property);
+            }
+        });
+        
+        this.cleanUpEmptySpans();
+    }
+    
+    removeStyleFromSelection(property) {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        const contents = range.extractContents();
+        
+        const walker = document.createTreeWalker(
+            contents,
+            NodeFilter.SHOW_ELEMENT,
+            null,
+            false
+        );
+        
+        const nodes = [];
+        let node;
+        while (node = walker.nextNode()) {
+            nodes.push(node);
+        }
+        
+        nodes.forEach(node => {
+            if (node.style[property]) {
+                node.style.removeProperty(property);
+            }
+        });
+        
+        range.insertNode(contents);
+    }
+    
+    cleanUpEmptySpans() {
+        const emptySpans = this.editor.querySelectorAll('span');
+        emptySpans.forEach(span => {
+            if (!span.style.cssText && span.textContent.trim() === '') {
+                span.remove();
+            } else if (!span.style.cssText) {
+                while (span.firstChild) {
+                    span.parentNode.insertBefore(span.firstChild, span);
+                }
+                span.remove();
+            }
+        });
+    }
+    
+    clearFormat() {
+        this.editor.focus();
+        
+        try {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            
+            const range = selection.getRangeAt(0);
+            
+            if (range.collapsed) {
+                this.clearFormatFromEditor();
+            } else {
+                this.clearFormatFromSelection();
+            }
+            
+            this.syncEditor();
+            this.updateToolbarState();
+        } catch (e) {
+            console.error('Clear format error:', e);
+        }
+    }
+    
+    clearFormatFromEditor() {
+        const formattedElements = this.editor.querySelectorAll('strong, em, u, span');
+        
+        formattedElements.forEach(element => {
+            while (element.firstChild) {
+                element.parentNode.insertBefore(element.firstChild, element);
+            }
+            element.remove();
+        });
+        
+        this.syncEditor();
+    }
+    
+    clearFormatFromSelection() {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        const contents = range.extractContents();
+        
+        const formattedElements = contents.querySelectorAll('strong, em, u, span');
+        
+        formattedElements.forEach(element => {
+            while (element.firstChild) {
+                element.parentNode.insertBefore(element.firstChild, element);
+            }
+            element.remove();
+        });
+        
+        range.insertNode(contents);
+        this.syncEditor();
+    }
+    
+    handlePaste(e) {
+        e.preventDefault();
+        
+        const text = e.clipboardData.getData('text/plain') || '';
+        
+        const selection = window.getSelection();
+        if (selection.rangeCount) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(text));
+        }
+        
+        this.syncEditor();
+    }
+    
+    handleKeydown(e) {
+        if (e.ctrlKey || e.metaKey) {
+            switch(e.key) {
+                case 'b':
+                    e.preventDefault();
+                    this.applyFormat('bold');
+                    break;
+                case 'i':
+                    e.preventDefault();
+                    this.applyFormat('italic');
+                    break;
+                case 'u':
+                    e.preventDefault();
+                    this.applyFormat('underline');
+                    break;
+            }
+        }
+    }
+    
+    updateToolbarState() {
+        if (!this.toolbar) return;
+        
+        try {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            
+            const range = selection.getRangeAt(0);
+            if (range.collapsed) return;
+            
+            let selectedElement = range.commonAncestorContainer;
+            if (selectedElement.nodeType === Node.TEXT_NODE) {
+                selectedElement = selectedElement.parentElement;
+            }
+            
+            // Update font family select
+            const fontSelect = this.toolbar.querySelector('select');
+            if (fontSelect && selectedElement) {
+                const fontFamily = window.getComputedStyle(selectedElement).fontFamily;
+                fontSelect.value = '';
+                
+                Array.from(fontSelect.options).forEach(option => {
+                    if (option.value && fontFamily.includes(option.value.replace(/['"]/g, ''))) {
+                        fontSelect.value = option.value;
+                    }
+                });
+            }
+            
+                        
+            // Update color picker
+            const colorInput = this.toolbar.querySelector('input[type="color"]');
+            if (colorInput && selectedElement) {
+                // Try to get color from style attribute first (for HEX)
+                const styleColor = selectedElement.style.color;
+                if (styleColor && styleColor.startsWith('#')) {
+                    colorInput.value = styleColor;
+                } else {
+                    // Fallback to computed style and convert to HEX
+                    const color = window.getComputedStyle(selectedElement).color;
+                    const hexColor = this.rgbToHex(color);
+                    if (hexColor && hexColor.startsWith('#')) {
+                        colorInput.value = hexColor;
+                    }
+                }
+            }
+            
+            this.updateButtonStates(selectedElement);
+            
+        } catch (e) {
+            console.error('Toolbar state update error:', e);
+        }
+    }
+    
+    updateButtonStates(element) {
+        if (!this.toolbar) return;
+        
+        const boldBtn = this.toolbar.querySelector('button[title*="đậm"], button[title*="Bold"]');
+        if (boldBtn) {
+            const isBold = document.queryCommandState('bold');
+            boldBtn.style.backgroundColor = isBold ? '#e0e0e0' : '';
+        }
+        
+        const italicBtn = this.toolbar.querySelector('button[title*="nghiêng"], button[title*="Italic"]');
+        if (italicBtn) {
+            const isItalic = document.queryCommandState('italic');
+            italicBtn.style.backgroundColor = isItalic ? '#e0e0e0' : '';
+        }
+        
+        const underlineBtn = this.toolbar.querySelector('button[title*="chân"], button[title*="Underline"]');
+        if (underlineBtn) {
+            const isUnderline = document.queryCommandState('underline');
+            underlineBtn.style.backgroundColor = isUnderline ? '#e0e0e0' : '';
+        }
+    }
+    
+    rgbToHex(rgb) {
+        // If already HEX, return as-is
+        if (rgb && rgb.startsWith('#')) return rgb;
+        
+        // If not RGB format, return default black
+        if (!rgb || rgb.indexOf('rgb') !== 0) return '#000000';
+        
+        const values = rgb.match(/\d+/g);
+        if (!values || values.length < 3) return '#000000';
+        
+        const r = parseInt(values[0]);
+        const g = parseInt(values[1]);
+        const b = parseInt(values[2]);
+        
+        // Ensure valid RGB values
+        if (isNaN(r) || isNaN(g) || isNaN(b)) return '#000000';
+        
+        const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        return hex;
+    }
+    
+    syncEditor() {
+        this.textarea.value = this.editor.innerHTML;
+    }
+}
+
+// Initialize editors
+document.addEventListener('DOMContentLoaded', function() {
+    // Store editor instances globally for debugging
+    window.editors = {};
+    
+    // Initialize title editor
+    window.editors.title_main = new RichTextEditor('title_main');
+    
+    // Initialize subtitle editor
+    window.editors.subtitle = new RichTextEditor('subtitle');
+    
+    console.log('Rich text editors initialized:', Object.keys(window.editors));
+});
+
+// Legacy functions for backward compatibility
+function applyFormat(command, field) {
+    const editor = window.editors?.[field];
+    if (editor) {
+        editor.applyFormat(command);
+    }
+}
+
+function applyStyle(property, value, field) {
+    const editor = window.editors?.[field];
+    if (editor) {
+        editor.applyStyle(property, value);
+    }
 }
 
 function syncEditor(field) {
-    const editor = document.getElementById('editor-' + field);
-    const textarea = document.getElementById(field);
-    textarea.value = editor.innerHTML;
+    const editor = window.editors?.[field];
+    if (editor) {
+        editor.syncEditor();
+    }
 }
 
 /**
@@ -252,6 +689,10 @@ function uploadImage(input) {
 document.getElementById('heroSectionForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Sync editors before submit
+    if (window.editors.title_main) window.editors.title_main.syncEditor();
+    if (window.editors.subtitle) window.editors.subtitle.syncEditor();
+    
     const data = {
         title_main: document.getElementById('editor-title_main').innerHTML,
         subtitle: document.getElementById('editor-subtitle').innerHTML,
@@ -261,10 +702,10 @@ document.getElementById('heroSectionForm').addEventListener('submit', function(e
         title_highlight: '',
         text_color: '#333333',
         highlight_color: '#356DF1',
-        font_family: 'Arial, sans-serif',
-        title_font_size: '48px',
-        subtitle_font_size: '18px'
+        font_family: 'Arial, sans-serif'
     };
+    
+    console.log('Submitting data:', data);
     
     fetch('?page=admin&module=hero-section&action=update&id=<?php echo $heroSection['id']; ?>', {
         method: 'POST',
@@ -273,8 +714,16 @@ document.getElementById('heroSectionForm').addEventListener('submit', function(e
     })
     .then(r => r.json())
     .then(d => {
-        if (d.success) alert('Đã cập nhật Hero Section thành công!');
-        else alert('Lỗi: ' + d.message);
+        console.log('Response:', d);
+        if (d.success) {
+            alert('Đã cập nhật Hero Section thành công!');
+        } else {
+            alert('Lỗi: ' + d.message);
+        }
+    })
+    .catch(err => {
+        console.error('Submit error:', err);
+        alert('Lỗi kết nối: ' + err.message);
     });
 });
 
@@ -363,8 +812,8 @@ function saveButtons() {
 
 .font-select { padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
 .size-input-wrapper { display: flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 0 8px; }
-.size-input { border: none; width: 45px; padding: 6px 0; font-size: 13px; text-align: center; outline: none; }
-.size-input-wrapper span { font-size: 12px; color: #888; }
+.size-input { border: none; width: 60px; padding: 6px 4px; font-size: 14px; text-align: center; outline: none; font-weight: 600; }
+.size-input-wrapper span { font-size: 12px; color: #888; font-weight: 500; }
 
 .color-picker-wrapper { position: relative; width: 34px; height: 34px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
 .color-picker-wrapper input[type="color"] { position: absolute; top: -5px; left: -5px; width: 50px; height: 50px; cursor: pointer; opacity: 0; z-index: 2; }

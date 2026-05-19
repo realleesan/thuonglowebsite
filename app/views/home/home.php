@@ -113,13 +113,70 @@ try {
                         <?php if ($button['is_active']): ?>
                         <a href="<?php echo htmlspecialchars($button['button_url']); ?>" 
                            class="btn-<?php echo htmlspecialchars($button['button_style'] ?? 'primary'); ?>"
-                           style="<?php 
-                               echo 'background-color: ' . htmlspecialchars($button['background_color'] ?? '#356DF1') . '; ';
-                               echo 'color: ' . htmlspecialchars($button['text_color'] ?? '#ffffff') . '; ';
-                               echo 'font-size: ' . htmlspecialchars($button['font_size'] ?? '16px') . '; ';
-                               echo 'padding: ' . htmlspecialchars($button['padding'] ?? '12px 24px') . '; ';
-                               echo 'border-radius: ' . htmlspecialchars($button['border_radius'] ?? '6px') . ';';
-                           ?>">
+                           <?php 
+                           // Only add inline styles for custom colors that differ from defaults
+                           // Default values from home.css (desktop)
+                           $defaultPrimaryBg = '#356DF1';
+                           $defaultPrimaryColor = 'white';
+                           $defaultSecondaryBg = 'transparent';
+                           $defaultSecondaryColor = '#356DF1';
+                           $defaultFontSize = '16px';
+                           $defaultFontWeight = '600';
+                           $defaultPadding = '16px 32px';
+                           $defaultBorderRadius = '12px';
+                           $defaultBorder = '2px solid transparent';
+                           
+                           $style = '';
+                           $buttonStyle = $button['button_style'] ?? 'primary';
+                           
+                           // Custom background color
+                           if ($buttonStyle === 'primary') {
+                               if ($button['background_color'] && $button['background_color'] !== $defaultPrimaryBg) {
+                                   $style .= 'background-color: ' . htmlspecialchars($button['background_color']) . '; ';
+                                   $style .= 'border-color: ' . htmlspecialchars($button['background_color']) . '; ';
+                               }
+                           } else { // secondary
+                               if ($button['background_color'] && $button['background_color'] !== $defaultSecondaryBg) {
+                                   $style .= 'background-color: ' . htmlspecialchars($button['background_color']) . '; ';
+                               }
+                               if ($button['text_color'] && $button['text_color'] !== $defaultSecondaryColor) {
+                                   $style .= 'border-color: ' . htmlspecialchars($button['text_color']) . '; ';
+                               }
+                           }
+                           
+                           // Custom text color
+                           if ($button['text_color']) {
+                               if ($buttonStyle === 'primary' && $button['text_color'] !== $defaultPrimaryColor) {
+                                   $style .= 'color: ' . htmlspecialchars($button['text_color']) . '; ';
+                               } elseif ($buttonStyle === 'secondary' && $button['text_color'] !== $defaultSecondaryColor) {
+                                   $style .= 'color: ' . htmlspecialchars($button['text_color']) . '; ';
+                               }
+                           }
+                           
+                           // Custom font size
+                           if ($button['font_size'] && $button['font_size'] !== $defaultFontSize) {
+                               $style .= 'font-size: ' . htmlspecialchars($button['font_size']) . '; ';
+                           }
+                           
+                           // Custom padding
+                           if ($button['padding'] && $button['padding'] !== $defaultPadding) {
+                               $style .= 'padding: ' . htmlspecialchars($button['padding']) . '; ';
+                           }
+                           
+                           // Custom border radius
+                           if ($button['border_radius'] && $button['border_radius'] !== $defaultBorderRadius) {
+                               $style .= 'border-radius: ' . htmlspecialchars($button['border_radius']) . '; ';
+                           }
+                           
+                           // Add font weight if not default
+                           if ($button['font_weight'] && $button['font_weight'] !== $defaultFontWeight) {
+                               $style .= 'font-weight: ' . htmlspecialchars($button['font_weight']) . '; ';
+                           }
+                           
+                           if (!empty($style)) {
+                               echo 'style="' . trim($style) . '"';
+                           }
+                           ?>>
                             <?php echo htmlspecialchars($button['button_text']); ?>
                         </a>
                         <?php endif; ?>

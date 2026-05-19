@@ -18,41 +18,53 @@ class HeroSectionModel extends BaseModel {
      * Get active hero section
      */
     public function getActive() {
-        $sql = "
-            SELECT * FROM {$this->table} 
-            WHERE is_active = 1 
-            ORDER BY id DESC 
-            LIMIT 1
-        ";
-        
-        $result = $this->db->query($sql);
-        return $result ? $result[0] : null;
+        try {
+            $sql = "
+                SELECT * FROM {$this->table} 
+                WHERE is_active = 1 
+                ORDER BY id DESC 
+                LIMIT 1
+            ";
+            
+            $result = $this->db->getPdo()->query($sql)->fetch(PDO::FETCH_ASSOC);
+            return $result ?: null;
+        } catch (Exception $e) {
+            error_log("Get active error: " . $e->getMessage());
+            return null;
+        }
     }
     
     /**
      * Get hero section with buttons
      */
     public function getWithButtons($id = null) {
-        if ($id === null) {
-            $heroSection = $this->getActive();
-            if (!$heroSection) return null;
-            $id = $heroSection['id'];
-        } else {
-            $heroSection = $this->find($id);
-            if (!$heroSection) return null;
+        try {
+            if ($id === null) {
+                $heroSection = $this->getActive();
+                if (!$heroSection) return null;
+                $id = $heroSection['id'];
+            } else {
+                $heroSection = $this->find($id);
+                if (!$heroSection) return null;
+            }
+            
+            // Get buttons for this hero section
+            $sql = "
+                SELECT * FROM hero_buttons 
+                WHERE hero_section_id = ? AND is_active = 1 
+                ORDER BY sort_order ASC
+            ";
+            $stmt = $this->db->getPdo()->prepare($sql);
+            $stmt->execute([$id]);
+            $buttons = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $heroSection['buttons'] = $buttons ?: [];
+            
+            return $heroSection;
+        } catch (Exception $e) {
+            error_log("Get with buttons error: " . $e->getMessage());
+            return null;
         }
-        
-        // Get buttons for this hero section
-        $sql = "
-            SELECT * FROM hero_buttons 
-            WHERE hero_section_id = ? AND is_active = 1 
-            ORDER BY sort_order ASC
-        ";
-        $buttons = $this->db->query($sql, [$id]);
-        
-        $heroSection['buttons'] = $buttons ?: [];
-        
-        return $heroSection;
     }
     
     /**
@@ -88,8 +100,21 @@ class HeroSectionModel extends BaseModel {
      * Toggle hero section status
      */
     public function toggleStatus($id) {
-        $sql = "UPDATE {$this->table} SET is_active = NOT is_active WHERE id = ?";
-        return $this->db->query($sql, [$id]);
+        try {
+            // Get current status
+            $current = $this->find($id);
+            if (!$current) {
+                return false;
+            }
+            
+            // Toggle status
+            $newStatus = $current['is_active'] ? 0 : 1;
+            return $this->update($id, ['is_active' => $newStatus]);
+            
+        } catch (Exception $e) {
+            error_log("Toggle status error: " . $e->getMessage());
+            return false;
+        }
     }
     
     /**
