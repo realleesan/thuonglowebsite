@@ -544,4 +544,66 @@ if (!function_exists('config')) {
         return $value;
     }
 }
+
+if (!function_exists('get_logo')) {
+    /**
+     * Get dynamic logo from site settings
+     * @param string $key Logo key (logo_header, logo_footer, logo_admin_full, logo_admin_mini, logo_affiliate_full, logo_affiliate_mini, favicon)
+     * @param string $default Default logo path if not found
+     * @return string Logo path
+     */
+    function get_logo($key, $default = 'logo/logo.svg') {
+        static $cache = [];
+        
+        // Return from cache if available
+        if (isset($cache[$key])) {
+            return $cache[$key];
+        }
+        
+        try {
+            // Check if model file exists
+            $modelPath = __DIR__ . '/../app/models/SiteSettingsModel.php';
+            if (!file_exists($modelPath)) {
+                $cache[$key] = $default;
+                return $default;
+            }
+            
+            require_once $modelPath;
+            
+            // Check if class exists
+            if (!class_exists('SiteSettingsModel')) {
+                $cache[$key] = $default;
+                return $default;
+            }
+            
+            $model = new SiteSettingsModel();
+            $value = $model->getValue($key, $default);
+            
+            // Cache the value
+            $cache[$key] = $value;
+            
+            return $value;
+        } catch (Exception $e) {
+            error_log("Error getting logo: " . $e->getMessage());
+            // Cache the default to avoid repeated errors
+            $cache[$key] = $default;
+            return $default;
+        } catch (Error $e) {
+            // Catch PHP errors (like table not found)
+            error_log("PHP Error getting logo: " . $e->getMessage());
+            $cache[$key] = $default;
+            return $default;
+        }
+    }
+}
+
+if (!function_exists('get_favicon')) {
+    /**
+     * Get dynamic favicon from site settings
+     * @return string Favicon path
+     */
+    function get_favicon() {
+        return get_logo('favicon', 'logo/logo_mini.svg');
+    }
+}
 ?>

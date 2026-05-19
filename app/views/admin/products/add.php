@@ -514,7 +514,7 @@ if (!function_exists('createSlugProduct')) {
 
                     <div class="form-group" style="margin-top:16px;">
                         <label for="image_url">Hoặc nhập URL ảnh</label>
-                        <input type="url" id="image_url" name="image_url" 
+                        <input type="text" id="image_url" name="image_url" 
                                value="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>" 
                                placeholder="https://example.com/image.jpg">
                         <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>

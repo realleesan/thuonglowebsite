@@ -46,22 +46,22 @@ unset($_SESSION['flash_error']);
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
+                            <table class="table table-hover mb-0">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th class="ps-4" style="width: 80px;">ID</th>
-                                        <th style="width: 120px;">Hình ảnh</th>
-                                        <th>Nội dung Tiêu đề</th>
-                                        <th class="text-center">Nút bấm</th>
-                                        <th class="text-center">Trạng thái</th>
-                                        <th class="text-end pe-4">Thao tác</th>
+                                        <th class="ps-4 text-nowrap" style="width: 60px;">ID</th>
+                                        <th class="text-nowrap" style="width: 100px;">Hình ảnh</th>
+                                        <th class="text-nowrap" style="min-width: 200px;">Tiêu đề</th>
+                                        <th class="text-center text-nowrap" style="width: 100px;">Nút bấm</th>
+                                        <th class="text-center text-nowrap" style="width: 120px;">Trạng thái</th>
+                                        <th class="text-end pe-4 text-nowrap" style="width: 120px;">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($heroSections as $section): ?>
                                         <tr>
-                                            <td class="ps-4 fw-bold text-muted">#<?php echo $section['id']; ?></td>
-                                            <td>
+                                            <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $section['id']; ?></td>
+                                            <td class="align-middle">
                                                 <?php
                                                  $imgUrl = $section['image_url'] ?? '';
                                                  if ($imgUrl) {
@@ -72,20 +72,29 @@ unset($_SESSION['flash_error']);
                                                 }
                                                 ?>
                                             </td>
-                                            <td>
-                                                <div class="fw-bold text-dark mb-1">
-                                                    <?php echo mb_strimwidth(strip_tags($section['title_main']), 0, 60, '...'); ?>
-                                                </div>
-                                                <div class="text-muted small">
-                                                    <?php echo mb_strimwidth(strip_tags($section['subtitle']), 0, 80, '...'); ?>
+                                            <td class="align-middle">
+                                                <div class="fw-bold text-dark">
+                                                    <?php 
+                                                    $title = $section['title_main'] ?? '';
+                                                    // Clean HTML entities and whitespace
+                                                    $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                                    $title = strip_tags($title);
+                                                    $title = trim($title);
+                                                    
+                                                    if (empty($title)) {
+                                                        echo '<span class="text-muted">Không có tiêu đề</span>';
+                                                    } else {
+                                                        echo mb_strimwidth($title, 0, 50, '...');
+                                                    }
+                                                    ?>
                                                 </div>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center align-middle">
                                                 <span class="badge rounded-pill bg-soft-info text-info">
-                                                    <?php echo $section['button_count']; ?> buttons
+                                                    <?php echo isset($section['button_count']) ? $section['button_count'] : 0; ?> nút
                                                 </span>
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center align-middle">
                                                 <?php if ($section['is_active']): ?>
                                                     <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
                                                         <i class="fas fa-circle me-1 small"></i> Đang hiện
@@ -96,7 +105,7 @@ unset($_SESSION['flash_error']);
                                                     </span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="text-end pe-4">
+                                            <td class="text-end pe-4 align-middle">
                                                 <div class="d-flex justify-content-end gap-2">
                                                     <a href="?page=admin&module=hero-section&action=edit&id=<?php echo $section['id']; ?>" 
                                                        class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
@@ -176,9 +185,39 @@ function toggleStatus(id) {
     text-transform: uppercase;
     letter-spacing: 0.025em;
     color: #6b7280;
+    vertical-align: middle !important;
+}
+
+.table td {
+    vertical-align: middle !important;
+}
+
+.table {
+    table-layout: fixed;
 }
 
 .card {
     border-radius: 12px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Ensure proper column alignment */
+.text-center {
+    text-align: center !important;
+}
+
+.text-end {
+    text-align: right !important;
+}
+
+.ps-4 {
+    padding-left: 1.5rem !important;
+}
+
+.pe-4 {
+    padding-right: 1.5rem !important;
 }
 </style>

@@ -18,8 +18,8 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
     <div class="sidebar-header">
         <div class="logo">
             <a href="<?php echo base_url(); ?>?page=affiliate">
-                <img src="<?php echo icon_url('logo/logo.svg'); ?>" alt="ThuongLo" class="logo-img logo-full">
-                <img src="<?php echo icon_url('logo/logo_mini.svg'); ?>" alt="ThuongLo" class="logo-img logo-mini">
+                <img src="<?php echo icon_url(get_logo('logo_affiliate_full', 'logo/logo.svg')); ?>" alt="ThuongLo" class="logo-img logo-full">
+                <img src="<?php echo icon_url(get_logo('logo_affiliate_mini', 'logo/logo_mini.svg')); ?>" alt="ThuongLo" class="logo-img logo-mini">
             </a>
         </div>
     </div>

@@ -108,12 +108,21 @@ class HeroButtonModel extends BaseModel {
     }
     
     /**
+     * Delete all buttons by hero section ID
+     */
+    public function deleteByHeroSectionId($heroSectionId) {
+        return $this->db->table($this->table)->where('hero_section_id', $heroSectionId)->delete();
+    }
+    
+    /**
      * Get next sort order for a hero section
      */
     private function getNextSortOrder($heroSectionId) {
-        $sql = "SELECT MAX(sort_order) FROM {$this->table} WHERE hero_section_id = ?";
-        $result = $this->db->query($sql, [$heroSectionId]);
-        return ($result && $result[0]['MAX(sort_order)']) ? $result[0]['MAX(sort_order)'] + 1 : 1;
+        $result = $this->db->table($this->table)
+            ->select('MAX(sort_order) as max_sort')
+            ->where('hero_section_id', $heroSectionId)
+            ->first();
+        return ($result && $result['max_sort']) ? $result['max_sort'] + 1 : 1;
     }
     
     /**
@@ -179,7 +188,7 @@ class HeroButtonModel extends BaseModel {
         }
         
         // Validate URL format
-        if (!empty($data['button_url']) && !filter_var($data['button_url'], FILTER_VALIDATE_URL) && !str_starts_with($data['button_url'], '?')) {
+        if (!empty($data['button_url']) && !filter_var($data['button_url'], FILTER_VALIDATE_URL) && strpos($data['button_url'], '?') !== 0) {
             $errors[] = 'Button URL must be a valid URL or relative path';
         }
         

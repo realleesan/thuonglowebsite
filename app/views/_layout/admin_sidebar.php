@@ -8,8 +8,8 @@ $current_action = $_GET['action'] ?? 'index';
 <div class="admin-sidebar" id="adminSidebar">
     <div class="sidebar-header">
         <div class="logo">
-            <img src="<?php echo icon_url('logo/logo.svg'); ?>" alt="ThuongLo Admin" class="logo-img logo-full">
-            <img src="<?php echo icon_url('logo/logo_mini.svg'); ?>" alt="ThuongLo Admin" class="logo-img logo-mini">
+            <img src="<?php echo icon_url(get_logo('logo_admin_full', 'logo/logo.svg')); ?>" alt="ThuongLo Admin" class="logo-img logo-full">
+            <img src="<?php echo icon_url(get_logo('logo_admin_mini', 'logo/logo_mini.svg')); ?>" alt="ThuongLo Admin" class="logo-img logo-mini">
         </div>
     </div>
     
@@ -42,6 +42,7 @@ $current_action = $_GET['action'] ?? 'index';
                     ['name' => 'Thương hiệu', 'url' => '?page=admin&module=brands', 'icon' => 'fas fa-copyright'],
                     ['name' => 'Tin tức', 'url' => '?page=admin&module=news', 'icon' => 'fas fa-newspaper'],
                     ['name' => 'Liên hệ', 'url' => '?page=admin&module=contact', 'icon' => 'fas fa-envelope'],
+                    ['name' => 'Logo & Favicon', 'url' => '?page=admin&module=site-settings', 'icon' => 'fas fa-palette'],
                     ['name' => 'Đại lý', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-store', 'submenus' => [
                         ['name' => 'Danh sách', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-list'],
                         ['name' => 'Yêu cầu', 'url' => '?page=admin&module=affiliates&action=requests', 'icon' => 'fas fa-user-plus'],

@@ -327,7 +327,9 @@ try {
                     <div class="slider-pagination">
                         <?php 
                         $productCount = count($featuredProducts);
-                        $maxBullets = min(5, max(1, ceil($productCount / 4))); 
+                        $itemsPerView = 4;
+                        $maxIndex = max(0, $productCount - $itemsPerView);
+                        $maxBullets = min(5, max(1, $maxIndex + 1)); 
                         for ($i = 0; $i < $maxBullets; $i++): 
                         ?>
                             <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
@@ -455,7 +457,9 @@ try {
                     <div class="slider-pagination">
                         <?php 
                         $brandCount = count($featuredBrands);
-                        $maxBullets = min(5, max(1, ceil($brandCount / 4))); 
+                        $itemsPerView = 4;
+                        $maxIndex = max(0, $brandCount - $itemsPerView);
+                        $maxBullets = min(5, max(1, $maxIndex + 1)); 
                         for ($i = 0; $i < $maxBullets; $i++): 
                         ?>
                             <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
@@ -463,6 +467,68 @@ try {
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest News Section -->
+<section class="latest-news-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Tin tức <span class="highlight">Mới nhất</span></h2>
+            <a href="?page=news" class="see-more-btn">
+                Xem thêm
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="news-list">
+            <?php if (!empty($latestNews)): ?>
+                <?php foreach (array_slice($latestNews, 0, 5) as $news): ?>
+                    <div class="news-item">
+                        <div class="news-image">
+                            <a href="?page=news&slug=<?php echo htmlspecialchars($news['slug'] ?? ''); ?>">
+                                <img src="<?php echo !empty($news['image']) ? htmlspecialchars($news['image']) : img_url('home/cta-final.png'); ?>" 
+                                     alt="<?php echo htmlspecialchars($news['title'] ?? ''); ?>" loading="lazy">
+                            </a>
+                        </div>
+                        <div class="news-content">
+                            <h4 class="news-title">
+                                <a href="?page=news&slug=<?php echo htmlspecialchars($news['slug'] ?? ''); ?>">
+                                    <?php echo htmlspecialchars($news['title'] ?? ''); ?>
+                                </a>
+                            </h4>
+                            <p class="news-excerpt">
+                                <?php echo htmlspecialchars(substr($news['excerpt'] ?? '', 0, 120)) . (strlen($news['excerpt'] ?? '') > 120 ? '...' : ''); ?>
+                            </p>
+                            <div class="news-meta">
+                                <span class="news-author">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <?php echo htmlspecialchars($news['author_name'] ?? 'ThuongLo'); ?>
+                                </span>
+                                <span class="news-date">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <?php echo date('d/m/Y', strtotime($news['published_at'] ?? $news['created_at'] ?? 'now')); ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="empty-state">
+                    <p>Chưa có tin tức nào. Vui lòng quay lại sau.</p>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>

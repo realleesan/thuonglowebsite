@@ -1967,6 +1967,27 @@ switch($page) {
                 }
                 break;
                 
+            case 'site-settings':
+                // Use SiteSettingsController
+                require_once __DIR__ . '/app/controllers/SiteSettingsController.php';
+                $siteSettingsController = new SiteSettingsController();
+                
+                $action = $_GET['action'] ?? 'index';
+                
+                switch($action) {
+                    case 'update':
+                        $siteSettingsController->update();
+                        exit;
+                    case 'getLogo':
+                        $siteSettingsController->getLogo();
+                        exit;
+                    case 'index':
+                    default:
+                        $siteSettingsController->index();
+                        exit;
+                }
+                break;
+                
             case 'hero-section':
                 // Use HeroSectionController
                 require_once __DIR__ . '/app/controllers/HeroSectionController.php';
@@ -2034,6 +2055,9 @@ switch($page) {
                          } else {
                              $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
                          }
+                         exit;
+                     case 'update-buttons':
+                         $heroSectionController->updateButtons();
                          exit;
                      case 'upload-image':
                          $heroSectionController->uploadImage();

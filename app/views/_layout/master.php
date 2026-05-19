@@ -13,7 +13,7 @@ mb_http_output('UTF-8');
     <title><?php echo isset($title) ? $title : 'Thuong Lo - Nền tảng học trực tuyến'; ?></title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url('logo/logo_mini.svg'); ?>">
+    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url(get_favicon()); ?>">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

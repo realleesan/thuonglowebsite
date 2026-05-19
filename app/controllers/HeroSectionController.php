@@ -275,6 +275,91 @@ class HeroSectionController {
     }
 
     /**
+     * Update multiple buttons at once
+     */
+    public function updateButtons(): void {
+        // Clean any previous output
+        if (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        
+        if (!$this->requireAdmin()) {
+            $this->sendJsonResponse(['success' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->sendJsonResponse(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
+
+        try {
+            // Get JSON input
+            $jsonInput = file_get_contents('php://input');
+            
+            if (empty($jsonInput)) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'No data received']);
+                return;
+            }
+            
+            $input = json_decode($jsonInput, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Invalid JSON: ' . json_last_error_msg()]);
+                return;
+            }
+            
+            if (!isset($input['hero_section_id']) || !isset($input['buttons'])) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+                return;
+            }
+
+            $heroSectionId = (int)$input['hero_section_id'];
+            $buttons = $input['buttons'];
+
+            // Validate hero section exists
+            $heroSection = $this->heroSectionModel->find($heroSectionId);
+            if (!$heroSection) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Hero Section không tồn tại']);
+                return;
+            }
+
+            // Clear existing buttons for this hero section
+            $this->heroButtonModel->deleteByHeroSectionId($heroSectionId);
+
+            // Insert new buttons
+            $insertedCount = 0;
+            foreach ($buttons as $buttonData) {
+                $buttonData['hero_section_id'] = $heroSectionId;
+                
+                // Validate button data
+                $errors = $this->heroButtonModel->validateButtonData($buttonData, false);
+                if (!empty($errors)) {
+                    continue; // Skip invalid buttons
+                }
+
+                $result = $this->heroButtonModel->createButton($buttonData);
+                if ($result) {
+                    $insertedCount++;
+                }
+            }
+
+            if ($insertedCount > 0) {
+                $this->sendJsonResponse([
+                    'success' => true, 
+                    'message' => "Đã cập nhật {$insertedCount} nút bấm thành công"
+                ]);
+            } else {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Không thể cập nhật nút bấm']);
+            }
+
+        } catch (Exception $e) {
+            error_log("Error in updateButtons: " . $e->getMessage());
+            $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()]);
+        }
+    }
+
+    
+    /**
      * Delete button
      */
     public function deleteButton($id): void {

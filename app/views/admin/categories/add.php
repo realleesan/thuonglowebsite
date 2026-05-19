@@ -235,7 +235,7 @@ function generateSlug($name) {
 
                             <div class="image-input-group">
                                 <label>Hoặc nhập URL ảnh</label>
-                                <input type="url" id="image_url" name="image_url"
+                                <input type="text" id="image_url" name="image_url"
                                        value="<?= htmlspecialchars($_POST['image_url'] ?? '') ?>"
                                        placeholder="https://example.com/image.jpg">
                                 <small class="input-hint">Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB</small>

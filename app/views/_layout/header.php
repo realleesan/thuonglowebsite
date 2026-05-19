@@ -72,7 +72,7 @@ if (class_exists('CategoriesModel')) {
                 <!-- Logo -->
                 <div class="logo">
                     <a href="<?php echo base_url(); ?>">
-                        <img src="<?php echo icon_url('logo/logo.svg'); ?>" alt="Thuonglo" width="160" height="36">
+                        <img src="<?php echo icon_url(get_logo('logo_header', 'logo/logo.svg')); ?>" alt="Thuonglo" width="160" height="36">
                     </a>
                 </div>
 

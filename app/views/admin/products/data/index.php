@@ -499,7 +499,7 @@ function getProductDataCount($productId) {
                                 <p style="margin:4px 0 0;font-size:12px;color:#10B981;"><i class="fas fa-check-circle"></i> Ảnh cửa hàng đã chọn</p>
                             </div>
                         </div>
-                        <input type="url" id="store_image_url" name="store_image_url" 
+                        <input type="text" id="store_image_url" name="store_image_url" 
                                value="<?= htmlspecialchars($editDataItem['store_image'] ?? '') ?>" 
                                placeholder="Hoặc nhập URL ảnh cửa hàng: https://...">
                         <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
@@ -576,7 +576,7 @@ function getProductDataCount($productId) {
                                 <p style="margin:4px 0 0;font-size:12px;color:#10B981;"><i class="fas fa-check-circle"></i> Ảnh cửa hàng đã chọn</p>
                             </div>
                         </div>
-                        <input type="url" id="store_image_url_add" name="store_image_url" 
+                        <input type="text" id="store_image_url_add" name="store_image_url" 
                                placeholder="Hoặc nhập URL ảnh cửa hàng: https://...">
                         <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
                     </div>

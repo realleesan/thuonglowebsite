@@ -13,7 +13,7 @@
                                             <div class="elementor-element elementor-element-18fb26a elementor-widget-mobile__width-inherit elementor-widget elementor-widget-image" data-id="18fb26a" data-element_type="widget" data-widget_type="image.default">
                                                 <div class="elementor-widget-container">
                                                     <a href="<?php echo base_url(); ?>">
-                                                        <img loading="lazy" decoding="async" width="160" height="36" src="<?php echo icon_url('logo/logo.svg'); ?>" class="attachment-full size-full wp-image-14235" alt="ThuongLo">
+                                                        <img loading="lazy" decoding="async" width="160" height="36" src="<?php echo icon_url(get_logo('logo_footer', 'logo/logo.svg')); ?>" class="attachment-full size-full wp-image-14235" alt="ThuongLo">
                                                     </a>
                                                 </div>
                                             </div>

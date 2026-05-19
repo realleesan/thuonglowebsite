@@ -1,0 +1,247 @@
+/* Admin Site Settings - Logo Management Styles */
+
+.logo-settings-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.settings-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #E5E7EB;
+}
+
+.section-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-title i {
+    color: #356DF1;
+    font-size: 22px;
+}
+
+.section-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #6B7280;
+    margin: 0;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+}
+
+.setting-card {
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.setting-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.setting-card-header {
+    background: #ffffff;
+    padding: 20px 24px;
+    border-bottom: 1px solid #E5E7EB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.setting-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1F2937;
+    margin: 0;
+}
+
+.setting-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #EEF2FF;
+    color: #356DF1;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.setting-card-body {
+    padding: 24px;
+}
+
+.logo-preview {
+    background: #ffffff;
+    border: 2px dashed #D1D5DB;
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    transition: all 0.3s ease;
+}
+
+.logo-preview:hover {
+    border-color: #356DF1;
+    background: #F9FAFB;
+}
+
+.logo-preview-mini {
+    min-height: 100px;
+    padding: 20px;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 120px;
+    height: auto;
+    object-fit: contain;
+}
+
+.logo-preview-mini .preview-image {
+    max-height: 60px;
+}
+
+.logo-upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    margin: 0;
+}
+
+.file-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: #ffffff;
+    border: 2px dashed #D1D5DB;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    gap: 8px;
+}
+
+.file-upload-label:hover {
+    border-color: #356DF1;
+    background: #F9FAFB;
+}
+
+.file-upload-label i {
+    font-size: 32px;
+    color: #356DF1;
+}
+
+.file-upload-label span {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-hint {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #6B7280;
+    margin: 8px 0 0 0;
+    text-align: center;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: #356DF1;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #2563EB;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(53, 109, 241, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn i {
+    font-size: 14px;
+}
+
+@media (max-width: 1200px) {
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .settings-section {
+        padding: 20px;
+    }
+    
+    .section-header {
+        margin-bottom: 20px;
+    }
+    
+    .section-title {
+        font-size: 20px;
+    }
+    
+    .setting-card-body {
+        padding: 16px;
+    }
+    
+    .logo-preview {
+        padding: 20px;
+        min-height: 120px;
+    }
+}

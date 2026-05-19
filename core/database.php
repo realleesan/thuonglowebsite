@@ -65,6 +65,12 @@ class Database {
             $value = $operator;
             $operator = '=';
         }
+        
+        // Initialize query with SELECT if it's empty
+        if (empty($this->query)) {
+            $this->select();
+        }
+        
         $placeholder = ':' . str_replace('.', '_', $column) . '_' . count($this->bindings);
         if (strpos($this->query, 'WHERE') === false) {
             $this->query .= " WHERE {$column} {$operator} {$placeholder}";
@@ -141,26 +147,39 @@ class Database {
     
     public function update($data) {
         $setParts = [];
-        $bindings = [];
+        $updateBindings = [];
         
         foreach ($data as $column => $value) {
-            $placeholder = ':' . $column;
+            $placeholder = ':update_' . $column;
             $setParts[] = "{$column} = {$placeholder}";
-            $bindings[$placeholder] = $value;
+            $updateBindings[$placeholder] = $value;
         }
         
         $sql = "UPDATE {$this->table} SET " . implode(', ', $setParts);
         
-        // Add WHERE conditions if they exist
+        // Build WHERE clause from bindings (set by where() method)
         if (!empty($this->bindings)) {
             $whereParts = [];
-            foreach ($this->bindings as $placeholder => $value) {
-                $column = str_replace(':', '', $placeholder);
-                $column = str_replace('_' . (count($this->bindings) - 1), '', $column);
-                $whereParts[] = "{$column} = {$placeholder}";
+            
+            // Parse the query string to extract WHERE conditions
+            if (!empty($this->query) && strpos($this->query, 'WHERE') !== false) {
+                // Extract WHERE clause from query
+                $whereClause = substr($this->query, strpos($this->query, 'WHERE'));
+                $sql .= " " . $whereClause;
+            } else {
+                // Build WHERE from bindings if query is empty
+                $sql .= " WHERE 1=1";
+                foreach ($this->bindings as $placeholder => $value) {
+                    // Extract column name from placeholder (e.g., :setting_key_0 -> setting_key)
+                    $column = str_replace(':', '', $placeholder);
+                    $column = preg_replace('/_\d+$/', '', $column);
+                    $sql .= " AND {$column} = {$placeholder}";
+                }
             }
-            $sql .= " WHERE " . implode(' AND ', $whereParts);
-            $bindings = array_merge($bindings, $this->bindings);
+            
+            $bindings = array_merge($updateBindings, $this->bindings);
+        } else {
+            $bindings = $updateBindings;
         }
         
         try {
@@ -200,6 +219,18 @@ class Database {
         } catch (Exception $e) {
             return false;
         }
+    }
+    
+    public function beginTransaction() {
+        return $this->pdo->beginTransaction();
+    }
+    
+    public function commit() {
+        return $this->pdo->commit();
+    }
+    
+    public function rollBack() {
+        return $this->pdo->rollBack();
     }
 
     public function getPdo() { return $this->pdo; }

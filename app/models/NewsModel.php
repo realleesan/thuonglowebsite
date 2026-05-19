@@ -65,7 +65,7 @@ class NewsModel extends BaseModel {
             FROM {$this->table} n
             LEFT JOIN users u ON n.author_id = u.id
             WHERE n.status = 'published'
-            ORDER BY n.published_at DESC
+            ORDER BY COALESCE(n.published_at, n.created_at) DESC, n.id DESC
         ";
         
         if ($limit) {

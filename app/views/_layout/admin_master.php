@@ -6,7 +6,7 @@
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Admin ThuongLo</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url('logo/logo_mini.svg'); ?>">
+    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url(get_favicon()); ?>">
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="<?php echo css_url('admin_sidebar.css'); ?>">
@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="<?php echo css_url('admin_contact.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_revenue.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_settings.css'); ?>">
+    <link rel="stylesheet" href="<?php echo css_url('admin_site_settings.css'); ?>">
     <link rel="stylesheet" href="<?php echo css_url('admin_data.css'); ?>">
     
     <!-- FontAwesome CSS -->
@@ -89,6 +90,7 @@
     <script src="<?php echo js_url('admin_contact.js'); ?>"></script>
     <script src="<?php echo js_url('admin_revenue.js'); ?>"></script>
     <script src="<?php echo js_url('admin_settings.js'); ?>"></script>
+    <script src="<?php echo js_url('admin_site_settings.js'); ?>"></script>
     <script src="<?php echo js_url('admin_data.js'); ?>"></script>
     
     <!-- Force stop loading indicator -->
