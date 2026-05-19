@@ -18,6 +18,7 @@ try {
 
     // Get brands for dropdown using AdminService
     try {
+        require_once __DIR__ . '/../../../models/BrandsModel.php';
         $brandsModel = new BrandsModel();
         $brands = $brandsModel->getForDropdown();
     } catch (Exception $e) {
