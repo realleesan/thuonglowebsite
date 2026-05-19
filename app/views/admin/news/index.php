@@ -64,7 +64,7 @@ try {
     $current_page = $pagination['current_page'];
     
 } catch (Exception $e) {
-    $errorHandler->logError('Admin News Index View Error', $e);
+    error_log('Admin News Index View Error: ' . $e->getMessage());
     $news = [];
     $stats = ['total' => 0, 'published' => 0, 'draft' => 0, 'archived' => 0];
     $total_news = 0;
@@ -153,6 +153,7 @@ function formatDate($date) {
                     <th width="80">Hình ảnh</th>
                     <th>Tiêu đề</th>
                     <th width="200">Tóm tắt</th>
+                    <th width="120">Danh mục</th>
                     <th width="120">Tác giả</th>
                     <th width="100">Trạng thái</th>
                     <th width="120">Ngày tạo</th>
@@ -162,7 +163,7 @@ function formatDate($date) {
             <tbody>
                 <?php if (empty($news)): ?>
                     <tr>
-                        <td colspan="9" class="no-data">
+                        <td colspan="10" class="no-data">
                             <i class="fas fa-inbox"></i>
                             <p>Không tìm thấy tin tức nào</p>
                         </td>
@@ -191,6 +192,16 @@ function formatDate($date) {
                             </td>
                             <td>
                                 <p class="news-excerpt"><?= htmlspecialchars(substr($article['excerpt'], 0, 80)) ?>...</p>
+                            </td>
+                            <td>
+                                <div class="category-info">
+                                    <?php if (!empty($article['category_name'])): ?>
+                                        <i class="fas fa-folder"></i>
+                                        <span class="category-name"><?= htmlspecialchars($article['category_name']) ?></span>
+                                    <?php else: ?>
+                                        <span class="text-muted">Chưa phân loại</span>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td>
                                 <div class="author-info">
@@ -519,6 +530,42 @@ function formatDate($date) {
         border-top: 1px solid #e5e7eb;
         background: #f9fafb;
         border-radius: 0 0 12px 12px;
+    }
+    
+    /* Category Info Styles */
+    .category-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+    }
+    
+    .category-info i {
+        color: #6b7280;
+        font-size: 12px;
+    }
+    
+    .category-name {
+        color: #374151;
+        font-weight: 500;
+    }
+    
+    .text-muted {
+        color: #9ca3af;
+        font-style: italic;
+    }
+    
+    /* Author Info Styles */
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+    }
+    
+    .author-info i {
+        color: #6b7280;
+        font-size: 12px;
     }
     </style>
 

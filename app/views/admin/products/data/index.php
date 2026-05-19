@@ -107,13 +107,57 @@ try {
             
             switch ($action) {
                 case 'add_manual':
+                    // Handle file uploads
+                    $storeImagePath = '';
+                    $wechatQrPath = '';
+                    
+                    // Store image upload
+                    if (isset($_FILES['store_image_file']) && $_FILES['store_image_file']['error'] === UPLOAD_ERR_OK) {
+                        $upload_dir = 'assets/images/store/';
+                        if (!is_dir($upload_dir)) {
+                            mkdir($upload_dir, 0755, true);
+                        }
+                        $ext = strtolower(pathinfo($_FILES['store_image_file']['name'], PATHINFO_EXTENSION));
+                        $allowed = ['jpg','jpeg','png','gif','webp'];
+                        if (in_array($ext, $allowed)) {
+                            $filename = 'store_' . time() . '_' . uniqid() . '.' . $ext;
+                            $dest = $upload_dir . $filename;
+                            if (move_uploaded_file($_FILES['store_image_file']['tmp_name'], $dest)) {
+                                $storeImagePath = $dest;
+                            }
+                        }
+                    } elseif (!empty($_POST['store_image_url'])) {
+                        $storeImagePath = trim($_POST['store_image_url']);
+                    }
+                    
+                    // WeChat QR upload
+                    if (isset($_FILES['wechat_qr_file']) && $_FILES['wechat_qr_file']['error'] === UPLOAD_ERR_OK) {
+                        $upload_dir = 'assets/images/qr/';
+                        if (!is_dir($upload_dir)) {
+                            mkdir($upload_dir, 0755, true);
+                        }
+                        $ext = strtolower(pathinfo($_FILES['wechat_qr_file']['name'], PATHINFO_EXTENSION));
+                        $allowed = ['jpg','jpeg','png','gif','webp'];
+                        if (in_array($ext, $allowed)) {
+                            $filename = 'qr_' . time() . '_' . uniqid() . '.' . $ext;
+                            $dest = $upload_dir . $filename;
+                            if (move_uploaded_file($_FILES['wechat_qr_file']['tmp_name'], $dest)) {
+                                $wechatQrPath = $dest;
+                            }
+                        }
+                    } elseif (!empty($_POST['wechat_qr'])) {
+                        $wechatQrPath = trim($_POST['wechat_qr']);
+                    }
+                    
                     $data = [
                         'product_id' => $selectedProductId,
                         'supplier_name' => trim($_POST['supplier_name'] ?? ''),
                         'address' => trim($_POST['address'] ?? ''),
                         'wechat_account' => trim($_POST['wechat_account'] ?? ''),
                         'phone' => trim($_POST['phone'] ?? ''),
-                        'wechat_qr' => trim($_POST['wechat_qr'] ?? '')
+                        'wechat_qr' => $wechatQrPath,
+                        'store_image' => $storeImagePath,
+                        'style_classification' => trim($_POST['style_classification'] ?? '')
                     ];
                     $productDataModel->create($data);
                     $message = 'Đã thêm dữ liệu thành công!';
@@ -123,12 +167,57 @@ try {
                 case 'update_row':
                     if (!empty($_POST['data_id'])) {
                         $dataId = (int)$_POST['data_id'];
+                        
+                        // Handle file uploads
+                        $storeImagePath = '';
+                        $wechatQrPath = '';
+                        
+                        // Store image upload
+                        if (isset($_FILES['store_image_file']) && $_FILES['store_image_file']['error'] === UPLOAD_ERR_OK) {
+                            $upload_dir = 'assets/images/store/';
+                            if (!is_dir($upload_dir)) {
+                                mkdir($upload_dir, 0755, true);
+                            }
+                            $ext = strtolower(pathinfo($_FILES['store_image_file']['name'], PATHINFO_EXTENSION));
+                            $allowed = ['jpg','jpeg','png','gif','webp'];
+                            if (in_array($ext, $allowed)) {
+                                $filename = 'store_' . time() . '_' . uniqid() . '.' . $ext;
+                                $dest = $upload_dir . $filename;
+                                if (move_uploaded_file($_FILES['store_image_file']['tmp_name'], $dest)) {
+                                    $storeImagePath = $dest;
+                                }
+                            }
+                        } elseif (!empty($_POST['store_image_url'])) {
+                            $storeImagePath = trim($_POST['store_image_url']);
+                        }
+                        
+                        // WeChat QR upload
+                        if (isset($_FILES['wechat_qr_file']) && $_FILES['wechat_qr_file']['error'] === UPLOAD_ERR_OK) {
+                            $upload_dir = 'assets/images/qr/';
+                            if (!is_dir($upload_dir)) {
+                                mkdir($upload_dir, 0755, true);
+                            }
+                            $ext = strtolower(pathinfo($_FILES['wechat_qr_file']['name'], PATHINFO_EXTENSION));
+                            $allowed = ['jpg','jpeg','png','gif','webp'];
+                            if (in_array($ext, $allowed)) {
+                                $filename = 'qr_' . time() . '_' . uniqid() . '.' . $ext;
+                                $dest = $upload_dir . $filename;
+                                if (move_uploaded_file($_FILES['wechat_qr_file']['tmp_name'], $dest)) {
+                                    $wechatQrPath = $dest;
+                                }
+                            }
+                        } elseif (!empty($_POST['wechat_qr'])) {
+                            $wechatQrPath = trim($_POST['wechat_qr']);
+                        }
+                        
                         $data = [
                             'supplier_name' => trim($_POST['supplier_name'] ?? ''),
                             'address' => trim($_POST['address'] ?? ''),
                             'wechat_account' => trim($_POST['wechat_account'] ?? ''),
                             'phone' => trim($_POST['phone'] ?? ''),
-                            'wechat_qr' => trim($_POST['wechat_qr'] ?? '')
+                            'wechat_qr' => $wechatQrPath ?: trim($_POST['wechat_qr'] ?? ''),
+                            'store_image' => $storeImagePath ?: trim($_POST['store_image_url'] ?? ''),
+                            'style_classification' => trim($_POST['style_classification'] ?? '')
                         ];
                         $productDataModel->update($dataId, $data);
                         $message = 'Đã cập nhật dữ liệu!';
@@ -364,7 +453,7 @@ function getProductDataCount($productId) {
         <div class="import-panel <?= $activeTab === 'manual' ? 'active' : '' ?>" id="panel-manual">
             <!-- Manual Entry Form -->
             <?php if ($editDataItem): ?>
-            <form method="POST" action="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=manual" class="manual-form">
+            <form method="POST" action="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=manual" class="manual-form" enctype="multipart/form-data">
                 <input type="hidden" name="data_action" value="update_row">
                 <input type="hidden" name="data_id" value="<?= (int)$editDataItem['id'] ?>">
                 
@@ -389,10 +478,52 @@ function getProductDataCount($productId) {
                         <input type="text" name="phone" value="<?= htmlspecialchars($editDataItem['phone'] ?? '') ?>" 
                                placeholder="Số điện thoại">
                     </div>
+                    <div class="form-group">
+                        <label>Phân Loại Phong Cách</label>
+                        <input type="text" name="style_classification" value="<?= htmlspecialchars($editDataItem['style_classification'] ?? '') ?>" 
+                               placeholder="Ví dụ: Hàn Quốc, Nhật Bản, Âu Mỹ...">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Ảnh Cửa Hàng</label>
+                        <div style="margin-bottom:8px;">
+                            <div style="border:2px dashed #d1d5db;border-radius:6px;padding:16px;text-align:center;cursor:pointer;transition:border-color 0.3s;" 
+                                 onclick="document.getElementById('store_image_file').click()" id="storeImageUploadZone">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:1.5rem;color:#9ca3af;margin-bottom:8px;display:block;"></i>
+                                <p style="margin:0;color:#6b7280;font-size:14px;">Nhấp để chọn ảnh cửa hàng</p>
+                                <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">JPG, PNG, GIF, WebP — Tối đa 5MB</p>
+                            </div>
+                            <input type="file" id="store_image_file" name="store_image_file" accept="image/*" style="display:none;"
+                                   onchange="previewStoreImage(this)">
+                            <div id="storeImagePreview" style="margin-top:8px;display:none;">
+                                <img id="storePreviewImg" src="" alt="Store Preview" style="max-width:200px;max-height:150px;border-radius:6px;object-fit:cover;border:1px solid #ddd;">
+                                <p style="margin:4px 0 0;font-size:12px;color:#10B981;"><i class="fas fa-check-circle"></i> Ảnh cửa hàng đã chọn</p>
+                            </div>
+                        </div>
+                        <input type="url" id="store_image_url" name="store_image_url" 
+                               value="<?= htmlspecialchars($editDataItem['store_image'] ?? '') ?>" 
+                               placeholder="Hoặc nhập URL ảnh cửa hàng: https://...">
+                        <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
+                    </div>
                     <div class="form-group full-width">
                         <label>QR WeChat URL</label>
-                        <input type="text" name="wechat_qr" value="<?= htmlspecialchars($editDataItem['wechat_qr'] ?? '') ?>" 
-                               placeholder="https://...">
+                        <div style="margin-bottom:8px;">
+                            <div style="border:2px dashed #d1d5db;border-radius:6px;padding:16px;text-align:center;cursor:pointer;transition:border-color 0.3s;" 
+                                 onclick="document.getElementById('wechat_qr_file').click()" id="qrImageUploadZone">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:1.5rem;color:#9ca3af;margin-bottom:8px;display:block;"></i>
+                                <p style="margin:0;color:#6b7280;font-size:14px;">Nhấp để chọn ảnh QR WeChat</p>
+                                <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">JPG, PNG, GIF, WebP — Tối đa 5MB</p>
+                            </div>
+                            <input type="file" id="wechat_qr_file" name="wechat_qr_file" accept="image/*" style="display:none;"
+                                   onchange="previewQrImage(this)">
+                            <div id="qrImagePreview" style="margin-top:8px;display:none;">
+                                <img id="qrPreviewImg" src="" alt="QR Preview" style="max-width:200px;max-height:150px;border-radius:6px;object-fit:cover;border:1px solid #ddd;">
+                                <p style="margin:4px 0 0;font-size:12px;color:#10B981;"><i class="fas fa-check-circle"></i> Ảnh QR đã chọn</p>
+                            </div>
+                        </div>
+                        <input type="url" id="wechat_qr" name="wechat_qr" 
+                               value="<?= htmlspecialchars($editDataItem['wechat_qr'] ?? '') ?>" 
+                               placeholder="Hoặc nhập URL QR WeChat: https://...">
+                        <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-success">
@@ -405,7 +536,7 @@ function getProductDataCount($productId) {
                 </div>
             </form>
             <?php else: ?>
-            <form method="POST" action="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=manual" class="manual-form">
+            <form method="POST" action="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=manual" class="manual-form" enctype="multipart/form-data">
                 <input type="hidden" name="data_action" value="add_manual">
                 
                 <div class="form-grid">
@@ -425,9 +556,49 @@ function getProductDataCount($productId) {
                         <label>Điện Thoại</label>
                         <input type="text" name="phone" placeholder="Số điện thoại">
                     </div>
+                    <div class="form-group">
+                        <label>Phân Loại Phong Cách</label>
+                        <input type="text" name="style_classification" placeholder="Ví dụ: Hàn Quốc, Nhật Bản, Âu Mỹ...">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Ảnh Cửa Hàng</label>
+                        <div style="margin-bottom:8px;">
+                            <div style="border:2px dashed #d1d5db;border-radius:6px;padding:16px;text-align:center;cursor:pointer;transition:border-color 0.3s;" 
+                                 onclick="document.getElementById('store_image_file_add').click()" id="storeImageUploadZoneAdd">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:1.5rem;color:#9ca3af;margin-bottom:8px;display:block;"></i>
+                                <p style="margin:0;color:#6b7280;font-size:14px;">Nhấp để chọn ảnh cửa hàng</p>
+                                <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">JPG, PNG, GIF, WebP — Tối đa 5MB</p>
+                            </div>
+                            <input type="file" id="store_image_file_add" name="store_image_file" accept="image/*" style="display:none;"
+                                   onchange="previewStoreImageAdd(this)">
+                            <div id="storeImagePreviewAdd" style="margin-top:8px;display:none;">
+                                <img id="storePreviewImgAdd" src="" alt="Store Preview" style="max-width:200px;max-height:150px;border-radius:6px;object-fit:cover;border:1px solid #ddd;">
+                                <p style="margin:4px 0 0;font-size:12px;color:#10B981;"><i class="fas fa-check-circle"></i> Ảnh cửa hàng đã chọn</p>
+                            </div>
+                        </div>
+                        <input type="url" id="store_image_url_add" name="store_image_url" 
+                               placeholder="Hoặc nhập URL ảnh cửa hàng: https://...">
+                        <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
+                    </div>
                     <div class="form-group full-width">
                         <label>QR WeChat URL</label>
-                        <input type="text" name="wechat_qr" placeholder="https://...">
+                        <div style="margin-bottom:8px;">
+                            <div style="border:2px dashed #d1d5db;border-radius:6px;padding:16px;text-align:center;cursor:pointer;transition:border-color 0.3s;" 
+                                 onclick="document.getElementById('wechat_qr_file_add').click()" id="qrImageUploadZoneAdd">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:1.5rem;color:#9ca3af;margin-bottom:8px;display:block;"></i>
+                                <p style="margin:0;color:#6b7280;font-size:14px;">Nhấp để chọn ảnh QR WeChat</p>
+                                <p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">JPG, PNG, GIF, WebP — Tối đa 5MB</p>
+                            </div>
+                            <input type="file" id="wechat_qr_file_add" name="wechat_qr_file" accept="image/*" style="display:none;"
+                                   onchange="previewQrImageAdd(this)">
+                            <div id="qrImagePreviewAdd" style="margin-top:8px;display:none;">
+                                <img id="qrPreviewImgAdd" src="" alt="QR Preview" style="max-width:200px;max-height:150px;border-radius:6px;object-fit:cover;border:1px solid #ddd;">
+                                <p style="margin:4px 0 0;font-size:12px;color:#10B981;"><i class="fas fa-check-circle"></i> Ảnh QR đã chọn</p>
+                            </div>
+                        </div>
+                        <input type="url" id="wechat_qr_add" name="wechat_qr" 
+                               placeholder="Hoặc nhập URL QR WeChat: https://...">
+                        <small>Nếu upload ảnh thì URL này sẽ bị bỏ qua</small>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
@@ -456,28 +627,43 @@ function getProductDataCount($productId) {
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width:40px">#</th>
-                        <th>Nhà Cung Cấp</th>
-                        <th>Địa Chỉ</th>
+                        <th style="width:40px">STT</th>
+                        <th>Tên nhà cung cấp</th>
+                        <th>Địa chỉ</th>
                         <th>WeChat</th>
-                        <th>Điện Thoại</th>
-                        <th style="width:60px">QR</th>
+                        <th>Điện thoại</th>
+                        <th>Phân loại phong cách</th>
+                        <th>Ảnh cửa hàng</th>
+                        <th>QR WeChat</th>
                         <th style="width:80px">Thao Tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($dataList as $index => $item): ?>
+                    <?php 
+                    $startIndex = ($dataPaginated['current_page'] - 1) * $dataPaginated['per_page'];
+                    foreach ($dataList as $index => $item): 
+                    ?>
                     <tr>
-                        <td><?= ($dmPage - 1) * $dmPerPage + $index + 1 ?></td>
+                        <td><?= $startIndex + $index + 1; ?></td>
                         <td><strong><?= htmlspecialchars($item['supplier_name'] ?? '') ?></strong></td>
                         <td><?= htmlspecialchars($item['address'] ?? '') ?></td>
                         <td><?= htmlspecialchars($item['wechat_account'] ?? '') ?></td>
                         <td><?= htmlspecialchars($item['phone'] ?? '') ?></td>
-                        <td>
+                        <td><?= htmlspecialchars($item['style_classification'] ?? '') ?></td>
+                        <td class="store-image-cell">
+                            <?php if (!empty($item['store_image'])): ?>
+                            <span class="store-image-trigger" onclick="openQrModal('<?= htmlspecialchars($item['store_image']); ?>')" title="Xem ảnh cửa hàng">
+                                <i class="fas fa-store store-image-icon"></i>
+                            </span>
+                            <?php else: ?>
+                            -
+                            <?php endif; ?>
+                        </td>
+                        <td class="qr-cell">
                             <?php if (!empty($item['wechat_qr'])): ?>
-                            <a href="<?= htmlspecialchars($item['wechat_qr']) ?>" target="_blank" class="btn btn-xs btn-info">
-                                <i class="fas fa-qrcode"></i>
-                            </a>
+                            <span class="qr-trigger" onclick="openQrModal('<?= htmlspecialchars($item['wechat_qr']); ?>')" title="Xem QR">
+                                <i class="fas fa-qrcode qr-icon" title="Xem QR"></i>
+                            </span>
                             <?php else: ?>
                             -
                             <?php endif; ?>
@@ -538,7 +724,7 @@ function getProductDataCount($productId) {
                             <ul>
                                 <li>Chỉ chấp nhận file .xlsx và .csv</li>
                                 <li>Cột bắt buộc: <strong>Nhà cung cấp</strong></li>
-                                <li>Cột tùy chọn: Địa chỉ, WeChat, Điện thoại, QR</li>
+                                <li>Cột tùy chọn: Địa chỉ, WeChat, Điện thoại, Phân loại phong cách, Ảnh cửa hàng (URL), QR WeChat (URL)</li>
                             </ul>
                         </div>
                     </div>
@@ -717,6 +903,297 @@ document.addEventListener('DOMContentLoaded', function() {
                 importBtn.innerHTML = '<i class="fas fa-file-import"></i> Import Dữ Liệu';
             });
         });
+    }
+});
+
+// Image preview functions for edit form
+function previewStoreImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('storePreviewImg').src = e.target.result;
+            document.getElementById('storeImagePreview').style.display = 'block';
+            // Clear URL input when file is selected
+            document.getElementById('store_image_url').value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function previewQrImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('qrPreviewImg').src = e.target.result;
+            document.getElementById('qrImagePreview').style.display = 'block';
+            // Clear URL input when file is selected
+            document.getElementById('wechat_qr').value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Image preview functions for add form
+function previewStoreImageAdd(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('storePreviewImgAdd').src = e.target.result;
+            document.getElementById('storeImagePreviewAdd').style.display = 'block';
+            // Clear URL input when file is selected
+            document.getElementById('store_image_url_add').value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function previewQrImageAdd(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('qrPreviewImgAdd').src = e.target.result;
+            document.getElementById('qrImagePreviewAdd').style.display = 'block';
+            // Clear URL input when file is selected
+            document.getElementById('wechat_qr_add').value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Drag and drop support for edit form
+var storeUploadZone = document.getElementById('storeImageUploadZone');
+if (storeUploadZone) {
+    storeUploadZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#3B82F6';
+        this.style.background = '#EFF6FF';
+    });
+    storeUploadZone.addEventListener('dragleave', function() {
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+    });
+    storeUploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('store_image_file').files = files;
+            previewStoreImage(document.getElementById('store_image_file'));
+        }
+    });
+}
+
+var qrUploadZone = document.getElementById('qrImageUploadZone');
+if (qrUploadZone) {
+    qrUploadZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#3B82F6';
+        this.style.background = '#EFF6FF';
+    });
+    qrUploadZone.addEventListener('dragleave', function() {
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+    });
+    qrUploadZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('wechat_qr_file').files = files;
+            previewQrImage(document.getElementById('wechat_qr_file'));
+        }
+    });
+}
+
+// Drag and drop support for add form
+var storeUploadZoneAdd = document.getElementById('storeImageUploadZoneAdd');
+if (storeUploadZoneAdd) {
+    storeUploadZoneAdd.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#3B82F6';
+        this.style.background = '#EFF6FF';
+    });
+    storeUploadZoneAdd.addEventListener('dragleave', function() {
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+    });
+    storeUploadZoneAdd.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('store_image_file_add').files = files;
+            previewStoreImageAdd(document.getElementById('store_image_file_add'));
+        }
+    });
+}
+
+var qrUploadZoneAdd = document.getElementById('qrImageUploadZoneAdd');
+if (qrUploadZoneAdd) {
+    qrUploadZoneAdd.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#3B82F6';
+        this.style.background = '#EFF6FF';
+    });
+    qrUploadZoneAdd.addEventListener('dragleave', function() {
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+    });
+    qrUploadZoneAdd.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#d1d5db';
+        this.style.background = '';
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('wechat_qr_file_add').files = files;
+            previewQrImageAdd(document.getElementById('wechat_qr_file_add'));
+        }
+    });
+}
+</script>
+
+<!-- QR Modal Lightbox -->
+<div id="qrModal" class="qr-modal" onclick="closeQrModal(event)">
+    <div class="qr-modal-content" onclick="event.stopPropagation()">
+        <span class="qr-modal-close" onclick="closeQrModal()">&times;</span>
+        <img id="qrModalImage" src="" alt="Image">
+    </div>
+</div>
+
+<style>
+/* Modal styles for admin page */
+.qr-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    cursor: pointer;
+}
+
+.qr-modal-content {
+    position: relative;
+    margin: auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-modal-content img {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.qr-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.qr-modal-close:hover {
+    color: #bbb;
+}
+
+/* Store image and QR cell styles */
+.store-image-cell, .qr-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.store-image-trigger, .qr-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.store-image-trigger {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.store-image-trigger:hover {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.store-image-icon {
+    font-size: 14px;
+}
+
+.qr-trigger {
+    background-color: #f0fdf4;
+    border: 1px solid #dcfce7;
+}
+
+.qr-trigger:hover {
+    background-color: #dcfce7;
+    border-color: #bbf7d0;
+}
+
+.qr-icon {
+    font-size: 16px;
+    color: #16a34a;
+}
+</style>
+
+<script>
+// Modal functions for admin page
+let qrModalTimer = null;
+
+function openQrModal(imageSrc) {
+    const modal = document.getElementById('qrModal');
+    const modalImg = document.getElementById('qrModalImage');
+    modalImg.src = imageSrc;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    // Auto-close after 5 seconds
+    clearTimeout(qrModalTimer);
+    qrModalTimer = setTimeout(() => {
+        closeQrModal();
+    }, 5000);
+}
+
+function closeQrModal(event) {
+    // If event is provided, only close if clicking the overlay (not the image)
+    if (event && event.target !== event.currentTarget) return;
+
+    const modal = document.getElementById('qrModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+
+    // Clear src after animation
+    setTimeout(() => {
+        document.getElementById('qrModalImage').src = '';
+    }, 300);
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeQrModal();
     }
 });
 </script>

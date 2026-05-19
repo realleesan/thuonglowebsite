@@ -12,6 +12,107 @@
     width: 100%;
 }
 
+/* TinyMCE Editor Custom Styles */
+.news-add-page .tox-tinymce,
+.news-edit-page .tox-tinymce {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: 8px;
+}
+
+.news-add-page .tox-toolbar__group,
+.news-edit-page .tox-toolbar__group {
+    border-right: 1px solid #e5e7eb;
+}
+
+.news-add-page .tox-toolbar,
+.news-edit-page .tox-toolbar {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.news-add-page .tox-tbtn--bespoke .tox-tbtn__select-label,
+.news-edit-page .tox-tbtn--bespoke .tox-tbtn__select-label {
+    color: #374151;
+    font-weight: 500;
+}
+
+.news-add-page .tox-tbtn:hover,
+.news-edit-page .tox-tbtn:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
+.news-add-page .tox-tbtn--enabled,
+.news-edit-page .tox-tbtn--enabled {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.news-add-page .tox-edit-area__iframe,
+.news-edit-page .tox-edit-area__iframe {
+    background: white;
+    border: none;
+}
+
+/* TinyMCE Status Bar */
+.news-add-page .tox-statusbar,
+.news-edit-page .tox-statusbar {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* TinyMCE Menubar */
+.news-add-page .tox-menubar,
+.news-edit-page .tox-menubar {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.news-add-page .tox-mbtn,
+.news-edit-page .tox-mbtn {
+    color: #374151;
+    font-weight: 500;
+}
+
+.news-add-page .tox-mbtn:hover,
+.news-edit-page .tox-mbtn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* TinyMCE Dialog */
+.news-add-page .tox-dialog,
+.news-edit-page .tox-dialog {
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* TinyMCE Context Menu */
+.news-add-page .tox-menu,
+.news-edit-page .tox-menu {
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e5e7eb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .news-add-page .tox-toolbar-overlord,
+    .news-edit-page .tox-toolbar-overlord {
+        flex-wrap: wrap;
+    }
+    
+    .news-add-page .tox-toolbar__primary,
+    .news-edit-page .tox-toolbar__primary {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+}
+
 /* News specific styles */
 .news-info h4.news-title {
     font-size: 16px;

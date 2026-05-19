@@ -186,9 +186,7 @@ try {
                     <td data-col="7" class="qr-cell">
                         <?php if (!empty($row['wechat_qr'])): ?>
                         <span class="qr-trigger" onclick="openQrModal('<?php echo htmlspecialchars($row['wechat_qr']); ?>')" title="Xem QR">
-                            <img src="<?php echo htmlspecialchars($row['wechat_qr']); ?>" alt="QR" class="qr-thumb"
-                                 onerror="this.style.display='none'; this.parentNode.querySelector('.qr-icon').style.display='inline-flex';">
-                            <i class="fas fa-qrcode qr-icon" style="display:none;" title="Xem QR"></i>
+                            <i class="fas fa-qrcode qr-icon" title="Xem QR"></i>
                         </span>
                         <?php else: ?>
                         -
@@ -453,3 +451,51 @@ document.addEventListener('keydown', function(e) {
     });
 })();
 </script>
+
+<style>
+/* QR icon styles for user page */
+.store-image-cell, .qr-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.store-image-trigger, .qr-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.store-image-trigger {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.store-image-trigger:hover {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.store-image-icon {
+    font-size: 14px;
+}
+
+.qr-trigger {
+    background-color: #f0fdf4;
+    border: 1px solid #dcfce7;
+}
+
+.qr-trigger:hover {
+    background-color: #dcfce7;
+    border-color: #bbf7d0;
+}
+
+.qr-icon {
+    font-size: 16px;
+    color: #16a34a;
+}
+</style>

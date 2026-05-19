@@ -10,7 +10,7 @@ class CategoriesModel extends BaseModel {
     protected $table = 'categories';
     protected $fillable = [
         'name', 'slug', 'description', 'image', 'parent_id',
-        'sort_order', 'status', 'featured', 'show_in_filter'
+        'sort_order', 'status', 'featured', 'show_in_filter', 'type'
     ];
     
     /**
@@ -25,7 +25,7 @@ class CategoriesModel extends BaseModel {
      * Get all active categories for filter display (show_in_filter = 1)
      */
     public function getActiveForFilter() {
-        return $this->query("SELECT * FROM categories WHERE status = 'active' AND show_in_filter = 1 ORDER BY sort_order ASC") ?? [];
+        return $this->query("SELECT * FROM categories WHERE status = 'active' AND show_in_filter = 1 AND (type != 'news' OR type IS NULL) ORDER BY sort_order ASC") ?? [];
     }
     
     /**
@@ -43,7 +43,7 @@ class CategoriesModel extends BaseModel {
             SELECT c.*, COUNT(p.id) as product_count
             FROM {$this->table} c
             LEFT JOIN products p ON c.id = p.category_id
-            WHERE c.status = 'active' AND c.show_in_filter = 1
+            WHERE c.status = 'active' AND c.show_in_filter = 1 AND (c.type != 'news' OR c.type IS NULL)
             GROUP BY c.id
             ORDER BY c.sort_order ASC
         ";
@@ -55,14 +55,14 @@ class CategoriesModel extends BaseModel {
      * Get parent categories (top level) - hiển thị ở bộ lọc
      */
     public function getParentCategories() {
-        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_filter = 1 ORDER BY sort_order ASC") ?? [];
+        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_filter = 1 AND (type != 'news' OR type IS NULL) ORDER BY sort_order ASC") ?? [];
     }
 
     /**
      * Get parent categories for filter/display (show_in_filter = 1)
      */
     public function getParentCategoriesForFilter() {
-        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_filter = 1 ORDER BY sort_order ASC") ?? [];
+        return $this->query("SELECT * FROM {$this->table} WHERE parent_id IS NULL AND status = 'active' AND show_in_filter = 1 AND (type != 'news' OR type IS NULL) ORDER BY sort_order ASC") ?? [];
     }
     
     /**
@@ -227,14 +227,14 @@ class CategoriesModel extends BaseModel {
     }
 
     /**
-     * Get ALL active categories with product counts (for categories page - không lọc show_in_filter)
+     * Get ALL active categories with product counts (for categories page - exclude news categories)
      */
     public function getAllWithProductCounts() {
         $sql = "
             SELECT c.*, COUNT(p.id) as product_count
             FROM {$this->table} c
             LEFT JOIN products p ON c.id = p.category_id
-            WHERE c.status = 'active'
+            WHERE c.status = 'active' AND (c.type != 'news' OR c.type IS NULL)
             GROUP BY c.id
             ORDER BY c.sort_order ASC
         ";
@@ -250,13 +250,20 @@ class CategoriesModel extends BaseModel {
             SELECT c.*, COUNT(p.id) as product_count
             FROM {$this->table} c
             LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
-            WHERE c.status = 'active' AND c.featured = 1 AND c.show_in_filter = 1
+            WHERE c.status = 'active' AND c.featured = 1 AND c.show_in_filter = 1 AND (c.type != 'news' OR c.type IS NULL)
             GROUP BY c.id
             ORDER BY c.sort_order ASC
             LIMIT {$limit}
         ";
 
         return $this->db->query($sql);
+    }
+
+    /**
+     * Get news categories for news pages only
+     */
+    public function getNewsCategories() {
+        return $this->query("SELECT * FROM categories WHERE type = 'news' AND status = 'active' ORDER BY name ASC") ?? [];
     }
 
     /**

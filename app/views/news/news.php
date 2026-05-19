@@ -268,10 +268,19 @@ ob_start();
                                     <div class="results-count">
                                         Hiển thị <?php echo min(($pagination['current_page'] - 1) * $limit + 1, $totalNews); ?>-<?php echo min($pagination['current_page'] * $limit, $totalNews); ?> trong tổng số <?php echo $totalNews; ?> kết quả
                                     </div>
-                                    <form method="get" action="" class="sort-form">
+                                    <form method="get" action="?page=news" class="sort-form">
                                         <input type="hidden" name="page" value="news">
+                                        <input type="hidden" name="p" value="<?php echo $page; ?>">
                                         <?php if (!empty($categoryId)): ?>
                                         <input type="hidden" name="category" value="<?php echo htmlspecialchars($categoryId); ?>">
+                                        <?php endif; ?>
+                                        <?php if (!empty($search)): ?>
+                                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                        <?php endif; ?>
+                                        <?php if (!empty($tags)): ?>
+                                            <?php foreach ($tags as $tag): ?>
+                                                <input type="hidden" name="tag[]" value="<?php echo htmlspecialchars($tag); ?>">
+                                            <?php endforeach; ?>
                                         <?php endif; ?>
                                         <select name="sort" class="sort-select" onchange="this.form.submit()">
                                             <option value="newest" <?php echo $sort === 'newest' ? 'selected' : ''; ?>>Mới nhất</option>
@@ -351,7 +360,7 @@ ob_start();
                                     <nav class="pagination">
                                         <!-- Previous Page -->
                                         <?php if ($pagination['current_page'] > 1): ?>
-                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['p' => $pagination['current_page'] - 1])); ?>" class="page-link prev">
+                                            <a href="?<?php echo http_build_query(array_merge(['page' => 'news'], $_GET, ['p' => $pagination['current_page'] - 1])); ?>" class="page-link prev">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
@@ -365,7 +374,7 @@ ob_start();
                                         
                                         for ($i = $startPage; $i <= $endPage; $i++):
                                         ?>
-                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['p' => $i])); ?>" 
+                                            <a href="?<?php echo http_build_query(array_merge(['page' => 'news'], $_GET, ['p' => $i])); ?>" 
                                                class="page-link <?php echo $i === $pagination['current_page'] ? 'active' : ''; ?>">
                                                 <?php echo $i; ?>
                                             </a>
@@ -373,7 +382,7 @@ ob_start();
                                         
                                         <!-- Next Page -->
                                         <?php if ($pagination['current_page'] < $pagination['last_page']): ?>
-                                            <a href="?<?php echo http_build_query(array_merge($_GET, ['p' => $pagination['current_page'] + 1])); ?>" class="page-link next">
+                                            <a href="?<?php echo http_build_query(array_merge(['page' => 'news'], $_GET, ['p' => $pagination['current_page'] + 1])); ?>" class="page-link next">
                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg>
@@ -392,8 +401,17 @@ ob_start();
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
-                                <form method="get" action="" class="filter-form">
+                                <form method="get" action="?page=news" class="filter-form">
                                         <div class="sidebar-content">
+                                            <input type="hidden" name="page" value="news">
+                                            <input type="hidden" name="p" value="<?php echo $page; ?>">
+                                            <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
+                                            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort); ?>">
+                                            <?php if (!empty($tags)): ?>
+                                                <?php foreach ($tags as $tag): ?>
+                                                    <input type="hidden" name="tag[]" value="<?php echo htmlspecialchars($tag); ?>">
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                          <!-- Categories Filter (radio buttons) -->
                                          <div class="filter-section">
                                              <h3 class="filter-title"><i class="fas fa-folder-open"></i> Danh mục</h3>

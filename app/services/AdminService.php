@@ -1186,6 +1186,9 @@ class AdminService extends BaseService
             $conditions = [];
             $bindings = [];
 
+            // Exclude news categories from admin categories management
+            $conditions[] = "(type != 'news' OR type IS NULL)";
+            
             if (!empty($filters['search'])) {
                 $conditions[] = "(name LIKE ? OR description LIKE ? OR slug LIKE ?)";
                 $searchTerm = "%{$filters['search']}%";
@@ -1272,8 +1275,8 @@ class AdminService extends BaseService
                 return [];
             }
 
-            // Lấy tất cả danh mục đang active (không chỉ cấp 1)
-            $sql = "SELECT id, name, parent_id FROM categories WHERE status = 'active' ORDER BY name ASC";
+            // Lấy tất cả danh mục đang active (không chỉ cấp 1), loại trừ news categories
+            $sql = "SELECT id, name, parent_id FROM categories WHERE status = 'active' AND (type != 'news' OR type IS NULL) ORDER BY name ASC";
             $categories = $categoriesModel->query($sql);
 
             if (!$categories) {
@@ -1315,20 +1318,39 @@ class AdminService extends BaseService
         }
     }
 
-    public function createCategory(array $data): bool
+    public function createCategory(array $data)
     {
         try {
             $categoriesModel = $this->getModel('CategoriesModel');
             if (!$categoriesModel) {
                 return false;
             }
-            $result = $categoriesModel->create($data);
-            if ($result !== false) {
+            $categoryId = $categoriesModel->create($data);
+            if ($categoryId !== false) {
                 $this->flushDashboardCache();
+                return $categoryId; // Return the actual ID
             }
-            return $result !== false;
+            return false;
         } catch (\Exception $e) {
-            return $this->handleError($e, ['method' => 'createCategory']) !== null;
+            $this->handleError($e, ['method' => 'createCategory']);
+            return false;
+        }
+    }
+
+    public function getNewsCountByCategory(int $categoryId): int
+    {
+        try {
+            $newsModel = $this->getModel('NewsModel');
+            if (!$newsModel) {
+                return 0;
+            }
+            
+            // Count news items with this category_id
+            $result = $newsModel->query("SELECT COUNT(*) as count FROM news WHERE category_id = ? AND status != 'deleted'", [$categoryId]);
+            return (int)($result[0]['count'] ?? 0);
+        } catch (\Exception $e) {
+            error_log('getNewsCountByCategory error: ' . $e->getMessage());
+            return 0;
         }
     }
 
@@ -1537,19 +1559,18 @@ class AdminService extends BaseService
 
             $offset = ($page - 1) * $perPage;
             $newsSql = "
-                SELECT n.*, u.name as author_name
+                SELECT n.*, COALESCE(n.author_name, u.name) as author_name, c.name as category_name
                 FROM news n
                 LEFT JOIN users u ON n.author_id = u.id
+                LEFT JOIN categories c ON n.category_id = c.id
                 {$whereClause}
                 ORDER BY n.created_at DESC 
                 LIMIT {$perPage} OFFSET {$offset}
             ";
             $news = $newsModel->query($newsSql, $bindings);
 
-            $transformedNews = [];
-            foreach ($news as $article) {
-                $transformedNews[] = $this->transformer->transformNews($article);
-            }
+            // Tạm thời bỏ transformer để debug
+            $transformedNews = $news;
 
             $stats = $this->getNewsStatistics($newsModel);
 
@@ -1568,10 +1589,26 @@ class AdminService extends BaseService
     public function getNewsDetailsData(int $newsId): array
     {
         try {
-            $news = $this->callModelMethod('NewsModel', 'find', [$newsId]);
-            if (!$news) {
+            $newsModel = $this->getModel('NewsModel');
+            if (!$newsModel) {
                 return ['news' => null, 'author' => null];
             }
+
+            // Get news with category and author info
+            $sql = "
+                SELECT n.*, c.name as category_name, COALESCE(n.author_name, u.name) as author_name
+                FROM news n
+                LEFT JOIN categories c ON n.category_id = c.id
+                LEFT JOIN users u ON n.author_id = u.id
+                WHERE n.id = ?
+            ";
+            $result = $newsModel->query($sql, [$newsId]);
+            
+            if (empty($result)) {
+                return ['news' => null, 'author' => null];
+            }
+            
+            $news = $result[0];
 
             $author = null;
             if (!empty($news['author_id'])) {
@@ -1579,7 +1616,7 @@ class AdminService extends BaseService
             }
 
             return [
-                'news' => $this->transformer->transformNews($news),
+                'news' => $news, // Tạm thời bỏ transformer để debug
                 'author' => $author ? $this->transformer->transformUser($author) : null,
             ];
         } catch (\Exception $e) {

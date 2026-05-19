@@ -16,6 +16,8 @@ class ProductDataModel extends BaseModel {
         'wechat_account',
         'phone',
         'wechat_qr',
+        'store_image',
+        'style_classification',
         'row_index'
     ];
     

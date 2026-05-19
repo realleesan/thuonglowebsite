@@ -1165,7 +1165,6 @@ switch($page) {
                             error_log('Delete news error: ' . $e->getMessage());
                         }
                     }
-                    // Redirect after delete
                     header('Location: ?page=admin&module=news');
                     exit;
                 }
@@ -1180,6 +1179,79 @@ switch($page) {
                     case 'view':
                         $content = 'app/views/admin/news/view.php';
                         break;
+                    case 'add_category_ajax':
+                        // Handle AJAX request to add new category
+                        header('Content-Type: application/json');
+                        try {
+                            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $adminService) {
+                                $name = trim($_POST['name'] ?? '');
+                                $slug = trim($_POST['slug'] ?? '');
+                                $type = trim($_POST['type'] ?? 'news');
+                                
+                                if (empty($name)) {
+                                    echo json_encode(['success' => false, 'message' => 'Tên danh mục không được để trống']);
+                                    exit;
+                                }
+                                
+                                // Add category via AdminService
+                                $categoryData = [
+                                    'name' => $name,
+                                    'slug' => $slug ?: strtolower(preg_replace('/[^a-z0-9\s-]/', '', $name)),
+                                    'type' => $type,
+                                    'status' => 'active',
+                                    'description' => 'Danh mục tin tức: ' . $name
+                                ];
+                                
+                                $categoryId = $adminService->createCategory($categoryData);
+                                
+                                if ($categoryId) {
+                                    echo json_encode(['success' => true, 'category_id' => $categoryId, 'message' => 'Thêm danh mục thành công']);
+                                } else {
+                                    echo json_encode(['success' => false, 'message' => 'Không thể thêm danh mục']);
+                                }
+                            } else {
+                                echo json_encode(['success' => false, 'message' => 'Invalid request']);
+                            }
+                        } catch (Exception $e) {
+                            error_log('Add category AJAX error: ' . $e->getMessage());
+                            echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+                        }
+                        exit;
+                    case 'delete_category_ajax':
+                        // Handle AJAX request to delete category
+                        header('Content-Type: application/json');
+                        try {
+                            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $adminService) {
+                                $categoryId = (int)($_POST['category_id'] ?? 0);
+                                
+                                if ($categoryId <= 0) {
+                                    echo json_encode(['success' => false, 'message' => 'ID danh mục không hợp lệ']);
+                                    exit;
+                                }
+                                
+                                // Check if category has news
+                                $newsCount = $adminService->getNewsCountByCategory($categoryId);
+                                if ($newsCount > 0) {
+                                    echo json_encode(['success' => false, 'message' => "Không thể xóa danh mục này vì có {$newsCount} tin tức đang sử dụng"]);
+                                    exit;
+                                }
+                                
+                                // Delete category
+                                $result = $adminService->deleteCategory($categoryId);
+                                
+                                if ($result['success']) {
+                                    echo json_encode(['success' => true, 'message' => 'Xóa danh mục thành công']);
+                                } else {
+                                    echo json_encode(['success' => false, 'message' => $result['message'] ?? 'Không thể xóa danh mục']);
+                                }
+                            } else {
+                                echo json_encode(['success' => false, 'message' => 'Invalid request']);
+                            }
+                        } catch (Exception $e) {
+                            error_log('Delete category AJAX error: ' . $e->getMessage());
+                            echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+                        }
+                        exit;
                     default:
                         $content = 'app/views/admin/news/index.php';
                         break;

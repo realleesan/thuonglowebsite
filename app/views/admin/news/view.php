@@ -46,8 +46,9 @@ function formatDate($date) {
 
 // Format content for display
 function formatContent($content) {
-    // Trong thực tế sẽ xử lý HTML, markdown, etc.
-    return nl2br(htmlspecialchars($content));
+    // Hiển thị HTML đã được định dạng từ custom editor
+    // Không cần htmlspecialchars vì nội dung từ editor đã được xử lý
+    return $content;
 }
 
 // Get word count
@@ -148,7 +149,18 @@ function getReadingTime($text) {
                         <span class="meta-label">Tác giả:</span>
                         <span class="meta-value">
                             <i class="fas fa-user"></i>
-                            <?= htmlspecialchars($author['name'] ?? $current_news['author_name'] ?? 'N/A') ?>
+                            <?= htmlspecialchars($current_news['author_name'] ?? 'N/A') ?>
+                        </span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Danh mục:</span>
+                        <span class="meta-value">
+                            <i class="fas fa-folder"></i>
+                            <?php if (!empty($current_news['category_name'])): ?>
+                                <?= htmlspecialchars($current_news['category_name']) ?>
+                            <?php else: ?>
+                                <span class="text-muted">Chưa phân loại</span>
+                            <?php endif; ?>
                         </span>
                     </div>
                     <div class="meta-item">
@@ -198,22 +210,12 @@ function getReadingTime($text) {
                             </div>
                             <div class="stat-content">
                                 <div class="stat-number">
-                                    <?= number_format($news['view_count'] ?? 0) ?>
+                                    <?= number_format($current_news['views'] ?? 0) ?>
                                 </div>
                                 <div class="stat-label">Lượt xem</div>
                             </div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-share"></i>
-                            </div>
-                            <div class="stat-content">
-                                <div class="stat-number">
-                                    <?= number_format($news['share_count'] ?? 0) ?>
-                                </div>
-                                <div class="stat-label">Lượt chia sẻ</div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -222,24 +224,7 @@ function getReadingTime($text) {
 
     <!-- News Details Tabs -->
     <div class="news-details-tabs">
-        <div class="tabs-header">
-            <button class="tab-btn active" onclick="showTab('content')">
-                <i class="fas fa-file-alt"></i>
-                Nội dung
-            </button>
-            <button class="tab-btn" onclick="showTab('seo')">
-                <i class="fas fa-search"></i>
-                SEO
-            </button>
-            <button class="tab-btn" onclick="showTab('analytics')">
-                <i class="fas fa-chart-line"></i>
-                Phân tích
-            </button>
-            <button class="tab-btn" onclick="showTab('history')">
-                <i class="fas fa-history"></i>
-                Lịch sử
-            </button>
-        </div>
+        
 
         <div class="tabs-content">
             <!-- Content Tab -->
@@ -252,147 +237,9 @@ function getReadingTime($text) {
                 </div>
             </div>
 
-            <!-- SEO Tab -->
-            <div id="seo-tab" class="tab-content">
-                <div class="details-grid">
-                    <div class="details-section">
-                        <h4>Thông tin SEO</h4>
-                        <table class="details-table">
-                            <tr>
-                                <td>Meta Title:</td>
-                                <td><?= htmlspecialchars($current_news['title']) ?></td>
-                            </tr>
-                            <tr>
-                                <td>Meta Description:</td>
-                                <td><?= htmlspecialchars($current_news['excerpt']) ?></td>
-                            </tr>
-                            <tr>
-                                <td>URL:</td>
-                                <td>
-                                    <code>/news/<?= htmlspecialchars($current_news['slug']) ?></code>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Canonical URL:</td>
-                                <td>
-                                    <code>https://thuonglo.com/news/<?= htmlspecialchars($current_news['slug']) ?></code>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+            
 
-                    <div class="details-section">
-                        <h4>Tối ưu hóa</h4>
-                        <div class="seo-score">
-                            <div class="score-item">
-                                <span class="score-label">SEO Score:</span>
-                                <span class="score-value good">85/100</span>
-                            </div>
-                            <div class="score-item">
-                                <span class="score-label">Readability:</span>
-                                <span class="score-value excellent">92/100</span>
-                            </div>
-                        </div>
-                        
-                        <div class="seo-suggestions">
-                            <h5>Gợi ý cải thiện:</h5>
-                            <ul>
-                                <li class="suggestion-good">
-                                    <i class="fas fa-check"></i>
-                                    Tiêu đề có độ dài phù hợp
-                                </li>
-                                <li class="suggestion-good">
-                                    <i class="fas fa-check"></i>
-                                    Có hình ảnh đại diện
-                                </li>
-                                <li class="suggestion-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    Nên thêm từ khóa vào nội dung
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Analytics Tab -->
-            <div id="analytics-tab" class="tab-content">
-                <div class="analytics-section">
-                    <h4>Thống kê truy cập</h4>
-                    <div class="analytics-grid">
-                        <div class="analytics-card">
-                            <div class="analytics-header">
-                                <h5>Lượt xem theo ngày</h5>
-                                <span class="analytics-period">7 ngày qua</span>
-                            </div>
-                            <div class="analytics-chart">
-                                <canvas id="viewsChart" width="300" height="150"></canvas>
-                            </div>
-                        </div>
-                        
-                        <div class="analytics-card">
-                            <div class="analytics-header">
-                                <h5>Nguồn truy cập</h5>
-                            </div>
-                            <div class="source-list">
-                                <div class="source-item">
-                                    <span class="source-name">Tìm kiếm Google</span>
-                                    <span class="source-percent">45%</span>
-                                </div>
-                                <div class="source-item">
-                                    <span class="source-name">Facebook</span>
-                                    <span class="source-percent">30%</span>
-                                </div>
-                                <div class="source-item">
-                                    <span class="source-name">Trực tiếp</span>
-                                    <span class="source-percent">25%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- History Tab -->
-            <div id="history-tab" class="tab-content">
-                <div class="history-section">
-                    <h4>Lịch sử thay đổi</h4>
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-header">
-                                    <strong>Tạo bài viết</strong>
-                                    <span class="timeline-date"><?= formatDate($current_news['created_at']) ?></span>
-                                </div>
-                                <p>Bài viết được tạo bởi <?= htmlspecialchars($author['name'] ?? $current_news['author_name'] ?? 'N/A') ?></p>
-                            </div>
-                        </div>
-                        
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-header">
-                                    <strong>Xuất bản</strong>
-                                    <span class="timeline-date"><?= formatDate($current_news['created_at']) ?></span>
-                                </div>
-                                <p>Bài viết được xuất bản và hiển thị công khai</p>
-                            </div>
-                        </div>
-                        
-                        <div class="timeline-item">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="timeline-header">
-                                    <strong>Xem chi tiết</strong>
-                                    <span class="timeline-date"><?= date('d/m/Y H:i') ?></span>
-                                </div>
-                                <p>Đang xem chi tiết bài viết</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 
@@ -759,3 +606,173 @@ if (document.getElementById('viewsChart')) {
         }
     }
 </script>
+
+<style>
+/* Content Display Styles */
+.content-display {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 30px;
+    min-height: 200px;
+    line-height: 1.8;
+    font-size: 15px;
+    color: #374151;
+}
+
+.content-display h1,
+.content-display h2,
+.content-display h3,
+.content-display h4,
+.content-display h5,
+.content-display h6 {
+    color: #111827;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    font-weight: 600;
+}
+
+.content-display h1 { font-size: 2em; }
+.content-display h2 { font-size: 1.8em; }
+.content-display h3 { font-size: 1.6em; }
+.content-display h4 { font-size: 1.4em; }
+.content-display h5 { font-size: 1.2em; }
+.content-display h6 { font-size: 1.1em; }
+
+.content-display p {
+    margin-bottom: 1.2em;
+    text-align: justify;
+}
+
+.content-display ul,
+.content-display ol {
+    margin: 1.5em 0;
+    padding-left: 2em;
+}
+
+.content-display li {
+    margin-bottom: 0.5em;
+}
+
+.content-display blockquote {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1.5em;
+    margin: 1.5em 0;
+    font-style: italic;
+    color: #6b7280;
+    background: #f9fafb;
+    padding: 1em 1.5em;
+    border-radius: 0 8px 8px 0;
+}
+
+.content-display strong,
+.content-display b {
+    color: #111827;
+    font-weight: 600;
+}
+
+.content-display em,
+.content-display i {
+    color: #4b5563;
+    font-style: italic;
+}
+
+.content-display u {
+    text-decoration: underline;
+    color: #3b82f6;
+}
+
+.content-display a {
+    color: #3b82f6;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.content-display a:hover {
+    border-bottom-color: #3b82f6;
+}
+
+.content-display code {
+    background: #f3f4f6;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #d1d5db;
+}
+
+.content-display pre {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 1.5em;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5em 0;
+}
+
+.content-display pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+}
+
+.content-display table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.content-display th,
+.content-display td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.content-display th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+}
+
+.content-display tr:last-child td {
+    border-bottom: none;
+}
+
+.content-display img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5em 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.content-display hr {
+    border: none;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 2em 0;
+}
+
+.text-muted {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .content-display {
+        padding: 20px;
+        font-size: 14px;
+    }
+    
+    .content-display h1 { font-size: 1.8em; }
+    .content-display h2 { font-size: 1.6em; }
+    .content-display h3 { font-size: 1.4em; }
+}
+</style>

@@ -7,6 +7,9 @@
 // Khởi tạo View & ServiceManager
 require_once __DIR__ . '/../../../../core/view_init.php';
 
+// Load CategoriesModel
+require_once __DIR__ . '/../../../../app/models/CategoriesModel.php';
+
 // Chọn service admin (được inject từ index.php)
 $service = isset($currentService) ? $currentService : ($adminService ?? null);
 
@@ -30,8 +33,19 @@ try {
         exit;
     }
     
+    // Get news categories for dropdown
+    $news_categories = [];
+    try {
+        $categoriesModel = new \CategoriesModel();
+        $news_categories = $categoriesModel->getNewsCategories();
+    } catch (Exception $e) {
+        // Log error but continue without categories
+        error_log("Error loading news categories: " . $e->getMessage());
+    }
+    
 } catch (Exception $e) {
-    $errorHandler->logError('Admin News Edit View Error', $e);
+    // Log error and redirect
+    error_log('Admin News Edit View Error: ' . $e->getMessage());
     header('Location: ?page=admin&module=news&error=system_error');
     exit;
 }
@@ -151,6 +165,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function formatDate($date) {
     return date('d/m/Y H:i', strtotime($date));
 }
+
+// Helper function to get selected category name
+function getSelectedCategoryName($categories, $selectedId) {
+    foreach ($categories as $category) {
+        if ($category['id'] == $selectedId) {
+            return $category['name'];
+        }
+    }
+    return '';
+}
+
 ?>
 
 <div class="news-edit-page">
@@ -241,6 +266,41 @@ function formatDate($date) {
                                    placeholder="Tên tác giả..." required>
                             <small>Tên tác giả sẽ hiển thị cùng với bài viết</small>
                         </div>
+
+                        <div class="form-group">
+                            <label for="category_id">Danh mục:</label>
+                            <div class="category-dropdown-wrapper">
+                                <div class="custom-category-dropdown">
+                                    <input type="hidden" id="category_id" name="category_id" value="<?= htmlspecialchars($form_data['category_id'] ?? '') ?>">
+                                    <div class="category-dropdown-display" onclick="toggleCategoryDropdown()">
+                                        <span id="selected-category-text">
+                                            <?= $form_data['category_id'] ? getSelectedCategoryName($news_categories, $form_data['category_id']) : '-- Chọn danh mục --' ?>
+                                        </span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="category-dropdown-options" id="categoryDropdown" style="display: none;">
+                                        <div class="category-option" data-value="" onclick="selectCategory('', '-- Chọn danh mục --')">
+                                            <span>-- Chọn danh mục --</span>
+                                        </div>
+                                        <?php foreach ($news_categories as $category): ?>
+                                            <div class="category-option" data-value="<?= $category['id'] ?>" 
+                                                 onclick="selectCategory('<?= $category['id'] ?>', '<?= htmlspecialchars($category['name']) ?>')">
+                                                <span><?= htmlspecialchars($category['name']) ?></span>
+                                                <button type="button" class="btn-delete-category" 
+                                                        onclick="deleteCategory(<?= $category['id'] ?>, '<?= htmlspecialchars($category['name']) ?>', event)"
+                                                        title="Xóa danh mục">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline" onclick="addNewCategory()">
+                                    <i class="fas fa-plus"></i> Thêm danh mục mới
+                                </button>
+                            </div>
+                            <small>Chọn danh mục để phân loại tin tức. Nếu chưa có, bạn có thể thêm nhanh danh mục mới.</small>
+                        </div>
                     </div>
 
                     <!-- Content -->
@@ -249,9 +309,52 @@ function formatDate($date) {
                         
                         <div class="form-group">
                             <label for="content" class="required">Nội dung chi tiết:</label>
-                            <textarea id="content" name="content" rows="15" 
-                                      placeholder="Nhập nội dung chi tiết của tin tức..." required><?= htmlspecialchars($form_data['content']) ?></textarea>
-                            <small>Nội dung đầy đủ của bài viết. Hỗ trợ HTML cơ bản</small>
+                            
+                            <!-- Enhanced Custom Rich Text Toolbar -->
+                            <div class="custom-editor-toolbar" data-for="content">
+                                <div class="toolbar-group">
+                                    <button type="button" onclick="applyFormat('bold', 'content')" title="In đậm"><i class="fas fa-bold"></i></button>
+                                    <button type="button" onclick="applyFormat('italic', 'content')" title="In nghiêng"><i class="fas fa-italic"></i></button>
+                                    <button type="button" onclick="applyFormat('underline', 'content')" title="Gạch chân"><i class="fas fa-underline"></i></button>
+                                </div>
+                                <div class="toolbar-group">
+                                    <select onchange="applyStyle('fontFamily', this.value, 'content')" class="font-select">
+                                        <option value="">Font chữ</option>
+                                        <option value="Arial, sans-serif">Arial</option>
+                                        <option value="'Inter', sans-serif">Inter</option>
+                                        <option value="'Roboto', sans-serif">Roboto</option>
+                                        <option value="serif">Serif</option>
+                                        <option value="monospace">Monospace</option>
+                                    </select>
+                                    <div class="size-input-wrapper">
+                                        <input type="number" value="16" min="10" max="100" onchange="applyStyle('fontSize', this.value + 'px', 'content')" class="size-input">
+                                        <span>px</span>
+                                    </div>
+                                </div>
+                                <div class="toolbar-group">
+                                    <div class="color-picker-wrapper">
+                                        <input type="color" onchange="applyStyle('color', this.value, 'content')" title="Màu chữ">
+                                        <i class="fas fa-font"></i>
+                                    </div>
+                                    <button type="button" onclick="applyFormat('removeFormat', 'content')" title="Xóa định dạng"><i class="fas fa-eraser"></i></button>
+                                </div>
+                                <div class="toolbar-group">
+                                    <button type="button" onclick="applyFormat('justifyLeft', 'content')" title="Căn trái"><i class="fas fa-align-left"></i></button>
+                                    <button type="button" onclick="applyFormat('justifyCenter', 'content')" title="Căn giữa"><i class="fas fa-align-center"></i></button>
+                                    <button type="button" onclick="applyFormat('justifyRight', 'content')" title="Căn phải"><i class="fas fa-align-right"></i></button>
+                                </div>
+                                <div class="toolbar-group">
+                                    <button type="button" onclick="applyFormat('insertUnorderedList', 'content')" title="Danh sách gạch đầu dòng"><i class="fas fa-list-ul"></i></button>
+                                    <button type="button" onclick="applyFormat('insertOrderedList', 'content')" title="Danh sách số thứ tự"><i class="fas fa-list-ol"></i></button>
+                                </div>
+                            </div>
+                            
+                            <!-- Editable Area -->
+                            <div id="editor-content" class="custom-editable-area" contenteditable="true" oninput="syncEditor('content')" style="min-height: 400px;">
+                                <?= $form_data['content'] ?>
+                            </div>
+                            <textarea id="content" name="content" style="display:none;" required><?= htmlspecialchars($form_data['content']) ?></textarea>
+                            <small>Sử dụng thanh công cụ để định dạng văn bản: in đậm, in nghiêng, gạch chân, màu sắc, kích thước font, căn lề, danh sách, v.v.</small>
                         </div>
                     </div>
                 </div>
@@ -493,5 +596,590 @@ submitButtons.forEach(function(btn) {
 document.querySelector('form').addEventListener('submit', function(e) {
     isFormSubmitting = true;
     adminNewsFormChanged = false;
+});
+
+// Custom Editor Functions (like Hero Section)
+function applyFormat(command, field) {
+    document.getElementById('editor-' + field).focus();
+    document.execCommand(command, false, null);
+    syncEditor(field);
+    adminNewsFormChanged = true;
+}
+
+function applyStyle(property, value, field) {
+    const editor = document.getElementById('editor-' + field);
+    editor.focus();
+    
+    // Get selection
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    
+    // For font size, color, font family - use spans for exact control
+    if (property === 'fontSize' || property === 'color' || property === 'fontFamily') {
+        const range = selection.getRangeAt(0);
+        if (range.collapsed) return; // No selection
+        
+        const span = document.createElement('span');
+        span.style[property] = value;
+        range.surroundContents(span);
+    } else {
+        document.execCommand(property, false, value);
+    }
+    
+    syncEditor(field);
+    adminNewsFormChanged = true;
+}
+
+function syncEditor(field) {
+    const editor = document.getElementById('editor-' + field);
+    const textarea = document.getElementById(field);
+    textarea.value = editor.innerHTML;
+}
+
+// Initialize custom editor
+document.addEventListener('DOMContentLoaded', function() {
+    // Sync form submission with custom editor
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Sync editor content before submission
+            syncEditor('content');
+        });
+    }
+    
+    // Track editor changes for dirty form tracking
+    const editor = document.getElementById('editor-content');
+    if (editor) {
+        editor.addEventListener('input', function() {
+            adminNewsFormChanged = true;
+        });
+        
+        editor.addEventListener('paste', function() {
+            adminNewsFormChanged = true;
+        });
+    }
+});
+</script>
+
+<style>
+/* Custom Editor Styles (like Hero Section) */
+.custom-editor-toolbar { 
+    background: #fdfdfd; 
+    border: 1px solid #e0e0e0; 
+    border-bottom: none; 
+    border-radius: 8px 8px 0 0; 
+    padding: 10px; 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+    align-items: center; 
+}
+
+.toolbar-group { 
+    display: flex; 
+    gap: 5px; 
+    align-items: center; 
+    border-right: 1px solid #eee; 
+    padding-right: 15px; 
+}
+
+.toolbar-group:last-child { 
+    border-right: none; 
+}
+
+.custom-editor-toolbar button { 
+    background: white; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    width: 34px; 
+    height: 34px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    color: #555; 
+    transition: all 0.2s;
+}
+
+.custom-editor-toolbar button:hover { 
+    background: #f0f4ff; 
+    color: #356DF1; 
+    border-color: #356DF1; 
+}
+
+.font-select { 
+    padding: 6px 10px; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    font-size: 13px; 
+}
+
+.size-input-wrapper { 
+    display: flex; 
+    align-items: center; 
+    gap: 5px; 
+    background: #fff; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    padding: 0 8px; 
+}
+
+.size-input { 
+    border: none; 
+    width: 45px; 
+    padding: 6px 0; 
+    font-size: 13px; 
+    text-align: center; 
+    outline: none; 
+}
+
+.size-input-wrapper span { 
+    font-size: 12px; 
+    color: #888; 
+}
+
+.color-picker-wrapper { 
+    position: relative; 
+    width: 34px; 
+    height: 34px; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    overflow: hidden; 
+}
+
+.color-picker-wrapper input[type="color"] { 
+    position: absolute; 
+    top: -5px; 
+    left: -5px; 
+    width: 50px; 
+    height: 50px; 
+    cursor: pointer; 
+    opacity: 0; 
+    z-index: 2; 
+}
+
+.color-picker-wrapper i { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    z-index: 1; 
+    color: #555; 
+}
+
+.custom-editable-area { 
+    min-height: 150px; 
+    border: 1px solid #e0e0e0; 
+    border-radius: 0 0 8px 8px; 
+    padding: 20px; 
+    background: white; 
+    outline: none; 
+    font-size: 1rem; 
+    line-height: 1.6; 
+}
+
+.custom-editable-area:focus { 
+    border-color: #356DF1; 
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+/* Category Dropdown Styles */
+.category-dropdown-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.category-dropdown-wrapper .form-select {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.2s;
+}
+
+.category-dropdown-wrapper .form-select:focus {
+    border-color: #356DF1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+.category-dropdown-wrapper .btn-sm {
+    padding: 8px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Modal for adding new category */
+.category-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+.category-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.category-modal-header {
+    margin-bottom: 20px;
+}
+
+.category-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #111827;
+}
+
+.category-modal-body {
+    margin-bottom: 20px;
+}
+
+.category-modal-body input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.category-modal-body input:focus {
+    border-color: #356DF1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.1);
+}
+
+.category-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.category-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Custom Category Dropdown Styles */
+.custom-category-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.category-dropdown-display {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+}
+
+.category-dropdown-display:hover {
+    border-color: #356DF1;
+}
+
+.category-dropdown-display i {
+    color: #666;
+    transition: transform 0.2s;
+}
+
+.category-dropdown-display.active i {
+    transform: rotate(180deg);
+}
+
+.category-dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.category-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.category-option:last-child {
+    border-bottom: none;
+}
+
+.category-option:hover {
+    background-color: #f8f9fa;
+}
+
+.category-option span {
+    flex: 1;
+}
+
+.btn-delete-category {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.8;
+    transition: all 0.2s;
+    margin-left: 8px;
+}
+
+.btn-delete-category:hover {
+    opacity: 1;
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+.btn-delete-category i {
+    font-size: 11px;
+}
+
+</style>
+
+<script>
+// Add new category functionality
+function addNewCategory() {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('categoryModal');
+    if (!modal) {
+        modal = createCategoryModal();
+        document.body.appendChild(modal);
+    }
+    
+    // Show modal
+    modal.style.display = 'block';
+    document.getElementById('categoryNameInput').value = '';
+    document.getElementById('categoryNameInput').focus();
+}
+
+function createCategoryModal() {
+    const modal = document.createElement('div');
+    modal.id = 'categoryModal';
+    modal.className = 'category-modal';
+    modal.innerHTML = `
+        <div class="category-modal-overlay" onclick="closeCategoryModal()"></div>
+        <div class="category-modal-content">
+            <div class="category-modal-header">
+                <h3>Thêm Danh Mục Mới</h3>
+            </div>
+            <div class="category-modal-body">
+                <input type="text" id="categoryNameInput" placeholder="Nhập tên danh mục..." 
+                       onkeypress="if(event.key === 'Enter') saveNewCategory()">
+            </div>
+            <div class="category-modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeCategoryModal()">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveNewCategory()">Thêm</button>
+            </div>
+        </div>
+    `;
+    return modal;
+}
+
+function closeCategoryModal() {
+    const modal = document.getElementById('categoryModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function saveNewCategory() {
+    const categoryName = document.getElementById('categoryNameInput').value.trim();
+    
+    if (!categoryName) {
+        alert('Vui lòng nhập tên danh mục');
+        document.getElementById('categoryNameInput').focus();
+        return;
+    }
+    
+    // Create slug from category name
+    const slug = categoryName
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/[\s-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    
+    // Send AJAX request to save category
+    fetch('?page=admin&module=news&action=add_category_ajax', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `name=${encodeURIComponent(categoryName)}&slug=${encodeURIComponent(slug)}&type=news`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Add new option to custom dropdown
+            const dropdown = document.getElementById('categoryDropdown');
+            const newOption = document.createElement('div');
+            newOption.className = 'category-option';
+            newOption.setAttribute('data-value', data.category_id);
+            newOption.onclick = function() {
+                selectCategory(data.category_id, categoryName);
+            };
+            newOption.innerHTML = `
+                <span>${categoryName}</span>
+                <button type="button" class="btn-delete-category" 
+                        onclick="deleteCategory(${data.category_id}, '${categoryName}', event)"
+                        title="Xóa danh mục">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            // Insert before the last child (before the empty option)
+            const emptyOption = dropdown.querySelector('[data-value=""]');
+            if (emptyOption) {
+                dropdown.insertBefore(newOption, emptyOption.nextSibling);
+            } else {
+                dropdown.appendChild(newOption);
+            }
+            
+            // Select the new category
+            selectCategory(data.category_id, categoryName);
+            
+            // Close modal
+            closeCategoryModal();
+            
+            // Show success message
+            showSuccessMessage('Đã thêm danh mục "' + categoryName + '" thành công!');
+        } else {
+            alert('Lỗi: ' + (data.message || 'Không thể thêm danh mục'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+    });
+}
+
+function showSuccessMessage(message) {
+    // Create success alert
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success';
+    alert.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
+    alert.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <div>${message}</div>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 3000);
+}
+
+// Handle ESC key for modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCategoryModal();
+    }
+});
+
+// Custom Dropdown Functions
+function toggleCategoryDropdown() {
+    const dropdown = document.getElementById('categoryDropdown');
+    if (dropdown.style.display === 'none') {
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+
+function selectCategory(value, text) {
+    document.getElementById('category_id').value = value;
+    document.getElementById('selected-category-text').textContent = text;
+    document.getElementById('categoryDropdown').style.display = 'none';
+}
+
+function deleteCategory(categoryId, categoryName, event) {
+    event.stopPropagation();
+    
+    if (!confirm(`Bạn có chắc chắn muốn xóa danh mục "${categoryName}"?\n\nLưu ý: Danh mục này sẽ bị xóa vĩnh viễn và không thể khôi phục lại.`)) {
+        return;
+    }
+    
+    // Send AJAX request to delete category
+    fetch('?page=admin&module=news&action=delete_category_ajax', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: `category_id=${categoryId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove the category option from dropdown
+            const option = document.querySelector(`[data-value="${categoryId}"]`);
+            if (option) {
+                option.remove();
+            }
+            
+            // If this category was selected, reset selection
+            if (document.getElementById('category_id').value == categoryId) {
+                selectCategory('', '-- Chọn danh mục --');
+            }
+            
+            showSuccessMessage(`Đã xóa danh mục "${categoryName}" thành công!`);
+        } else {
+            alert('Lỗi: ' + (data.message || 'Không thể xóa danh mục'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+    });
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('categoryDropdown');
+    const dropdownDisplay = document.querySelector('.category-dropdown-display');
+    
+    if (dropdown && dropdownDisplay && !dropdownDisplay.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.style.display = 'none';
+    }
 });
 </script>
