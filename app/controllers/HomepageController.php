@@ -8,6 +8,7 @@ require_once __DIR__ . '/../models/LatestProductsSectionModel.php';
 require_once __DIR__ . '/../models/BudgetProductsSectionModel.php';
 require_once __DIR__ . '/../models/SaleProductsSectionModel.php';
 require_once __DIR__ . '/../models/FeaturedCategoriesSectionModel.php';
+require_once __DIR__ . '/../models/FeaturedBrandsSectionModel.php';
 require_once __DIR__ . '/../../core/view_init.php';
 
 class HomepageController {
@@ -19,6 +20,7 @@ class HomepageController {
     private $budgetProductsSectionModel;
     private $saleProductsSectionModel;
     private $featuredCategoriesSectionModel;
+    private $featuredBrandsSectionModel;
 
     public function __construct() {
         $this->authService = new AuthService();
@@ -29,6 +31,7 @@ class HomepageController {
         $this->budgetProductsSectionModel = new BudgetProductsSectionModel();
         $this->saleProductsSectionModel = new SaleProductsSectionModel();
         $this->featuredCategoriesSectionModel = new FeaturedCategoriesSectionModel();
+        $this->featuredBrandsSectionModel = new FeaturedBrandsSectionModel();
     }
 
     /**
@@ -149,6 +152,27 @@ class HomepageController {
                 ];
             }
             
+            // Initialize featured brands section
+            $featuredBrandsSection = null;
+            try {
+                $featuredBrandsSection = $this->featuredBrandsSectionModel->getFirst();
+                
+                if (!$featuredBrandsSection) {
+                    $this->featuredBrandsSectionModel->createSection([
+                        'title' => '<h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>',
+                        'is_active' => 1
+                    ]);
+                    $featuredBrandsSection = $this->featuredBrandsSectionModel->getFirst();
+                }
+            } catch (Exception $e) {
+                error_log("Featured brands section error: " . $e->getMessage());
+                $featuredBrandsSection = [
+                    'id' => 0,
+                    'title' => '<h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>',
+                    'is_active' => 1
+                ];
+            }
+            
             $data = [
                 'title' => 'Quản lý Trang chủ',
                 'heroSections' => $heroSections,
@@ -157,6 +181,7 @@ class HomepageController {
                 'budgetProductsSection' => $budgetProductsSection,
                 'saleProductsSection' => $saleProductsSection,
                 'featuredCategoriesSection' => $featuredCategoriesSection,
+                'featuredBrandsSection' => $featuredBrandsSection,
                 'user' => $this->getCurrentUser()
             ];
 
@@ -882,6 +907,127 @@ class HomepageController {
             }
         } catch (Exception $e) {
             error_log("Error in toggleFeaturedCategoriesStatus: " . $e->getMessage());
+            $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    /**
+     * Edit featured brands section
+     */
+    public function editFeaturedBrands(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            // Debug: Check if model exists
+            error_log("editFeaturedBrands: Starting...");
+            if (!$this->featuredBrandsSectionModel) {
+                error_log("editFeaturedBrands: featuredBrandsSectionModel is null");
+                throw new Exception("Model not initialized");
+            }
+            
+            // Get or create featured brands section
+            error_log("editFeaturedBrands: Getting section...");
+            $section = $this->featuredBrandsSectionModel->getFirst();
+            if (!$section) {
+                // Create default section if not exists
+                $this->featuredBrandsSectionModel->createSection([
+                    'title' => '<h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>',
+                    'is_active' => 1
+                ]);
+                $section = $this->featuredBrandsSectionModel->getFirst();
+            }
+
+            if ($section) {
+                $data = [
+                    'title' => 'Chỉnh sửa Section Thương hiệu Nổi bật',
+                    'featuredBrandsSection' => $section,
+                    'user' => $this->getCurrentUser()
+                ];
+                $this->renderView('admin/homepage/edit_featured_brands', $data);
+            } else {
+                $this->setFlashMessage('error', 'Không thể tạo section');
+                $this->redirect('?page=admin&module=homepage');
+            }
+        } catch (Exception $e) {
+            error_log("Error in editFeaturedBrands: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Update featured brands section
+     */
+    public function updateFeaturedBrands(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $id = $_POST['id'] ?? 0;
+            $title = $_POST['title'] ?? '';
+            $isActive = isset($_POST['is_active']) && $_POST['is_active'] == '1' ? 1 : 0;
+
+            if ($id > 0) {
+                $result = $this->featuredBrandsSectionModel->updateSection($id, [
+                    'title' => $title,
+                    'is_active' => $isActive
+                ]);
+
+                if ($this->isAjaxRequest()) {
+                    $this->sendJsonResponse([
+                        'success' => $result,
+                        'message' => $result ? 'Đã cập nhật section thành công' : 'Có lỗi xảy ra khi cập nhật'
+                    ]);
+                } else {
+                    if ($result) {
+                        $this->setFlashMessage('success', 'Đã cập nhật section thành công');
+                    } else {
+                        $this->setFlashMessage('error', 'Có lỗi xảy ra khi cập nhật');
+                    }
+                    $this->redirect('?page=admin&module=homepage');
+                }
+            } else {
+                if ($this->isAjaxRequest()) {
+                    $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+                } else {
+                    $this->setFlashMessage('error', 'Invalid ID');
+                    $this->redirect('?page=admin&module=homepage');
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Error in updateFeaturedBrands: " . $e->getMessage());
+            if ($this->isAjaxRequest()) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()]);
+            } else {
+                $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+                $this->redirect('?page=admin&module=homepage');
+            }
+        }
+    }
+
+    /**
+     * Toggle featured brands section status
+     */
+    public function toggleFeaturedBrandsStatus(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? 0;
+
+            if ($id > 0) {
+                $result = $this->featuredBrandsSectionModel->toggleStatus($id);
+                $this->sendJsonResponse(['success' => $result, 'message' => $result ? 'Đã cập nhật trạng thái' : 'Có lỗi xảy ra']);
+            } else {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+            }
+        } catch (Exception $e) {
+            error_log("Error in toggleFeaturedBrandsStatus: " . $e->getMessage());
             $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
         }
     }

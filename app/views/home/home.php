@@ -60,6 +60,7 @@ try {
     $saleProductsSection = $homeData['saleProductsSection'] ?? ['is_active' => true];
     $featuredProductsSection = $homeData['featuredProductsSection'] ?? ['is_active' => true];
     $featuredCategoriesSection = $homeData['featuredCategoriesSection'] ?? ['is_active' => true];
+    $featuredBrandsSection = $homeData['featuredBrandsSection'] ?? ['is_active' => true];
     
     // Fallback: fetch featured brands directly if service doesn't provide them
     if (empty($featuredBrands) && isset($service) && method_exists($service, 'getFeaturedBrands')) {
@@ -745,10 +746,11 @@ try {
 <?php endif; ?>
 
 <!-- Featured Brands Section -->
+<?php if (isset($featuredBrandsSection) && $featuredBrandsSection['is_active']): ?>
 <section class="featured-brands-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>
+            <?php echo $featuredBrandsSection['title'] ?? '<h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>'; ?>
             <a href="?page=brands" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -827,6 +829,7 @@ try {
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Latest News Section -->
 <section class="latest-news-section">

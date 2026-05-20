@@ -2071,6 +2071,17 @@ switch($page) {
                         $homepageController->toggleFeaturedCategoriesStatus();
                         exit;
                     
+                    // Featured Brands actions
+                    case 'edit_featured_brands':
+                        $homepageController->editFeaturedBrands();
+                        exit;
+                    case 'update_featured_brands':
+                        $homepageController->updateFeaturedBrands();
+                        exit;
+                    case 'toggle-featured-brands-status':
+                        $homepageController->toggleFeaturedBrandsStatus();
+                        exit;
+                    
                     // Hero Button actions (delegated)
                     case 'createButton':
                         $homepageController->createButton();
