@@ -41,16 +41,24 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Sử dụng PublicService thông qua entry-point getHomePageData()
-    $homeData = ($service !== null && method_exists($service, 'getHomePageData'))
-        ? $service->getHomePageData()
+    // Sử dụng PublicService thông qua getHomeData() method
+    $homeData = ($service !== null && method_exists($service, 'getHomeData'))
+        ? $service->getHomeData()
         : [];
     
-    $featuredProducts = $homeData['featured_products'] ?? [];
-    $latestProducts = $homeData['latest_products'] ?? [];
-    $featuredCategories = $homeData['featured_categories'] ?? [];
-    $featuredBrands = $homeData['featured_brands'] ?? [];
-    $latestNews = $homeData['latest_news'] ?? [];
+    $featuredProducts = $homeData['featuredProducts'] ?? [];
+    $latestProducts = $homeData['latestProducts'] ?? [];
+    $budgetProducts = $homeData['budgetProducts'] ?? [];
+    $saleProducts = $homeData['saleProducts'] ?? [];
+    $featuredCategories = $homeData['featuredCategories'] ?? [];
+    $featuredBrands = $homeData['featuredBrands'] ?? [];
+    $latestNews = $homeData['latestNews'] ?? [];
+    
+    // Section settings for visibility control
+    $latestProductsSection = $homeData['latestProductsSection'] ?? ['is_active' => true];
+    $budgetProductsSection = $homeData['budgetProductsSection'] ?? ['is_active' => true];
+    $saleProductsSection = $homeData['saleProductsSection'] ?? ['is_active' => true];
+    $featuredProductsSection = $homeData['featuredProductsSection'] ?? ['is_active' => true];
     
     // Fallback: fetch featured brands directly if service doesn't provide them
     if (empty($featuredBrands) && isset($service) && method_exists($service, 'getFeaturedBrands')) {
@@ -231,10 +239,11 @@ try {
 <?php endif; ?>
 
 <!-- Featured Products Section -->
+<?php if (isset($featuredProductsSection) && $featuredProductsSection['is_active']): ?>
 <section class="popular-courses-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Sản phẩm <span class="highlight">Nổi bật</span></h2>
+            <?php echo $featuredProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Nổi bật</span></h2>'; ?>
             <a href="?page=products" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -340,6 +349,349 @@ try {
         </div>
     </div>
 </section>
+<?php endif; ?>
+
+<!-- Latest Products Section -->
+<?php if (isset($latestProductsSection) && $latestProductsSection['is_active']): ?>
+<section class="popular-courses-section">
+    <div class="container">
+        <div class="section-header">
+            <?php echo $latestProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Mới nhất</span></h2>'; ?>
+            <a href="?page=products" class="see-more-btn">
+                Xem thêm
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="courses-slider-wrapper">
+            <div class="courses-slider">
+                <!-- Slider Navigation -->
+                <div class="slider-nav slider-nav-prev" title="Previous">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="slider-nav slider-nav-next" title="Next">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                
+                <!-- Products Container -->
+                <div class="courses-container">
+                    <div class="courses-grid">
+                        <?php 
+                        // Use latest products from homeData
+                        $sectionLatestProducts = $latestProducts;
+                        ?>
+                        
+                        <?php if (!empty($sectionLatestProducts)): ?>
+                            <?php foreach ($sectionLatestProducts as $product): ?>
+                                <div class="course-item">
+                                    <div class="course-category">
+                                        <a href="?page=categories&id=<?php echo $product['category_id'] ?? ''; ?>" class="category-tag">
+                                            <?php echo $product['category_name'] ?: 'Sản phẩm'; ?>
+                                        </a>
+                                    </div>
+                                    <div class="course-image">
+                                        <a href="?page=details&id=<?php echo $product['id']; ?>">
+                                            <img src="<?php echo getProductImage($product); ?>" 
+                                                 alt="<?php echo htmlspecialchars($product['name']); ?>" loading="lazy">
+                                        </a>
+                                    </div>
+                                    <div class="course-content">
+                                        <h4 class="course-title">
+                                            <a href="?page=details&id=<?php echo $product['id']; ?>">
+                                                <?php echo htmlspecialchars($product['name']); ?>
+                                            </a>
+                                        </h4>
+                                        <div class="course-excerpt">
+                                            <?php echo htmlspecialchars($product['short_description'] ?: 'Sản phẩm chất lượng cao từ ' . ($product['supplier_name'] ?? 'ThuongLo.com')); ?>
+                                        </div>
+                                        <div class="course-instructor">
+                                            <a href="#" class="instructor-name"><?php echo $product['supplier_name'] ?? 'ThuongLo.com'; ?></a>
+                                        </div>
+                                        <div class="course-meta">
+                                            <div class="course-lessons">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <ellipse cx="12" cy="6" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
+                                                    <path d="M3 6V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V6" stroke="#356DF1" stroke-width="2"/>
+                                                    <path d="M3 12V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V12" stroke="#356DF1" stroke-width="2"/>
+                                                    <path d="M21 6V18" stroke="#356DF1" stroke-width="2"/>
+                                                    <ellipse cx="12" cy="12" rx="9" ry="3" stroke="#356DF1" stroke-width="2"/>
+                                                </svg>
+                                                <span><?php echo formatRecordCount($product['record_count'] ?? $product['in_stock'] ?? 0); ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="course-price">
+                                            <?php if (!empty($product['sale_price'])): ?>
+                                                <span class="price"><?php echo $product['formatted_sale_price']; ?></span>
+                                                <span class="old-price"><?php echo $product['formatted_price']; ?></span>
+                                            <?php else: ?>
+                                                <span class="price"><?php echo $product['formatted_price']; ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="course-button">
+                                            <a href="?page=details&id=<?php echo $product['id']; ?>" class="btn-start-learning">
+                                                <i class="fas fa-database"></i>
+                                                <span>Xem chi tiết</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="empty-state">
+                                <p>Chưa có sản phẩm mới nào. Vui lòng quay lại sau.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="slider-pagination">
+                        <?php 
+                        $productCount = count($latestProducts);
+                        $itemsPerView = 4;
+                        $maxIndex = max(0, $productCount - $itemsPerView);
+                        $maxBullets = min(5, max(1, $maxIndex + 1)); 
+                        for ($i = 0; $i < $maxBullets; $i++): 
+                        ?>
+                            <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Budget Products Section -->
+<?php if (isset($budgetProductsSection) && $budgetProductsSection['is_active']): ?>
+<section class="popular-courses-section">
+    <div class="container">
+        <div class="section-header">
+            <?php echo $budgetProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Giá rẻ</span></h2>'; ?>
+            <a href="?page=products" class="see-more-btn">
+                Xem thêm
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="courses-slider-wrapper">
+            <div class="courses-slider">
+                <!-- Slider Navigation -->
+                <div class="slider-nav slider-nav-prev" title="Previous">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="slider-nav slider-nav-next" title="Next">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                
+                <!-- Products Container -->
+                <div class="courses-container">
+                    <div class="courses-grid">
+                        <?php 
+                        // Use budget products from homeData
+                        $sectionBudgetProducts = $budgetProducts;
+                        ?>
+                        
+                        <?php if (!empty($sectionBudgetProducts)): ?>
+                            <?php foreach ($sectionBudgetProducts as $product): ?>
+                                <div class="course-item">
+                                    <div class="course-category">
+                                        <a href="?page=categories&id=<?php echo $product['category_id'] ?? ''; ?>" class="category-tag">
+                                            <?php echo $product['category_name'] ?: 'Sản phẩm'; ?>
+                                        </a>
+                                    </div>
+                                    <div class="course-image">
+                                        <a href="?page=details&id=<?php echo $product['id']; ?>">
+                                            <img src="<?php echo getProductImage($product); ?>" 
+                                                 alt="<?php echo htmlspecialchars($product['name']); ?>" loading="lazy">
+                                        </a>
+                                    </div>
+                                    <div class="course-content">
+                                        <h4 class="course-title">
+                                            <a href="?page=details&id=<?php echo $product['id']; ?>">
+                                                <?php echo htmlspecialchars($product['name']); ?>
+                                            </a>
+                                        </h4>
+                                        <div class="course-excerpt">
+                                            <?php echo htmlspecialchars($product['short_description'] ?: 'Sản phẩm chất lượng cao từ ' . ($product['supplier_name'] ?? 'ThuongLo.com')); ?>
+                                        </div>
+                                        <div class="course-instructor">
+                                            <a href="#" class="instructor-name"><?php echo $product['supplier_name'] ?? 'ThuongLo.com'; ?></a>
+                                        </div>
+                                        <div class="course-meta">
+                                            <div class="course-lessons">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <ellipse cx="12" cy="6" rx="9" ry="3" stroke="#16a34a" stroke-width="2"/>
+                                                    <path d="M3 6V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V6" stroke="#16a34a" stroke-width="2"/>
+                                                    <path d="M3 12V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V12" stroke="#16a34a" stroke-width="2"/>
+                                                    <path d="M21 6V18" stroke="#16a34a" stroke-width="2"/>
+                                                    <ellipse cx="12" cy="12" rx="9" ry="3" stroke="#16a34a" stroke-width="2"/>
+                                                </svg>
+                                                <span><?php echo formatRecordCount($product['record_count'] ?? $product['in_stock'] ?? 0); ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="course-price">
+                                            <span class="price text-success"><?php echo $product['formatted_price']; ?></span>
+                                        </div>
+                                        <div class="course-button">
+                                            <a href="?page=details&id=<?php echo $product['id']; ?>" class="btn-start-learning">
+                                                <i class="fas fa-database"></i>
+                                                <span>Xem chi tiết</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="empty-state">
+                                <p>Chưa có sản phẩm giá rẻ nào. Vui lòng quay lại sau.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="slider-pagination">
+                        <?php 
+                        $productCount = count($budgetProducts);
+                        $itemsPerView = 4;
+                        $maxIndex = max(0, $productCount - $itemsPerView);
+                        $maxBullets = min(5, max(1, $maxIndex + 1)); 
+                        for ($i = 0; $i < $maxBullets; $i++): 
+                        ?>
+                            <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Sale Products Section -->
+<?php if (isset($saleProductsSection) && $saleProductsSection['is_active']): ?>
+<section class="popular-courses-section">
+    <div class="container">
+        <div class="section-header">
+            <?php echo $saleProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Giảm giá</span></h2>'; ?>
+            <a href="?page=products" class="see-more-btn">
+                Xem thêm
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3.33333 8H12.6667M12.6667 8L8 3.33333M12.6667 8L8 12.6667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="courses-slider-wrapper">
+            <div class="courses-slider">
+                <!-- Slider Navigation -->
+                <div class="slider-nav slider-nav-prev" title="Previous">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="slider-nav slider-nav-next" title="Next">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                
+                <!-- Products Container -->
+                <div class="courses-container">
+                    <div class="courses-grid">
+                        <?php 
+                        // Use sale products from homeData
+                        $sectionSaleProducts = $saleProducts;
+                        ?>
+                        
+                        <?php if (!empty($sectionSaleProducts)): ?>
+                            <?php foreach ($sectionSaleProducts as $product): ?>
+                                <div class="course-item">
+                                    <div class="course-category">
+                                        <span class="badge bg-danger text-white">Giảm giá</span>
+                                    </div>
+                                    <div class="course-image">
+                                        <a href="?page=details&id=<?php echo $product['id']; ?>">
+                                            <img src="<?php echo getProductImage($product); ?>" 
+                                                 alt="<?php echo htmlspecialchars($product['name']); ?>" loading="lazy">
+                                        </a>
+                                    </div>
+                                    <div class="course-content">
+                                        <h4 class="course-title">
+                                            <a href="?page=details&id=<?php echo $product['id']; ?>">
+                                                <?php echo htmlspecialchars($product['name']); ?>
+                                            </a>
+                                        </h4>
+                                        <div class="course-excerpt">
+                                            <?php echo htmlspecialchars($product['short_description'] ?: 'Sản phẩm chất lượng cao từ ' . ($product['supplier_name'] ?? 'ThuongLo.com')); ?>
+                                        </div>
+                                        <div class="course-instructor">
+                                            <a href="#" class="instructor-name"><?php echo $product['supplier_name'] ?? 'ThuongLo.com'; ?></a>
+                                        </div>
+                                        <div class="course-meta">
+                                            <div class="course-lessons">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <ellipse cx="12" cy="6" rx="9" ry="3" stroke="#dc3545" stroke-width="2"/>
+                                                    <path d="M3 6V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V6" stroke="#dc3545" stroke-width="2"/>
+                                                    <path d="M3 12V18C3 19.6569 7.02944 21 12 21C16.9706 21 21 19.6569 21 18V12" stroke="#dc3545" stroke-width="2"/>
+                                                    <path d="M21 6V18" stroke="#dc3545" stroke-width="2"/>
+                                                    <ellipse cx="12" cy="12" rx="9" ry="3" stroke="#dc3545" stroke-width="2"/>
+                                                </svg>
+                                                <span><?php echo formatRecordCount($product['record_count'] ?? $product['in_stock'] ?? 0); ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="course-price">
+                                            <?php if (!empty($product['sale_price'])): ?>
+                                                <span class="price text-danger"><?php echo $product['formatted_sale_price']; ?></span>
+                                                <span class="old-price"><?php echo $product['formatted_price']; ?></span>
+                                                <span class="discount-badge">-<?php echo round((($product['price'] - $product['sale_price']) / $product['price']) * 100); ?>%</span>
+                                            <?php else: ?>
+                                                <span class="price"><?php echo $product['formatted_price']; ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="course-button">
+                                            <a href="?page=details&id=<?php echo $product['id']; ?>" class="btn-start-learning">
+                                                <i class="fas fa-database"></i>
+                                                <span>Xem chi tiết</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="empty-state">
+                                <p>Chưa có sản phẩm giảm giá nào. Vui lòng quay lại sau.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="slider-pagination">
+                        <?php 
+                        $productCount = count($saleProducts);
+                        $itemsPerView = 4;
+                        $maxIndex = max(0, $productCount - $itemsPerView);
+                        $maxBullets = min(5, max(1, $maxIndex + 1)); 
+                        for ($i = 0; $i < $maxBullets; $i++): 
+                        ?>
+                            <span class="pagination-bullet <?php echo $i === 0 ? 'active' : ''; ?>"></span>
+                        <?php endfor; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- Featured Categories Section -->
 <section class="elementor-section elementor-top-section elementor-element elementor-element-2932ede elementor-section-stretched elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="2932ede" data-element_type="section" data-settings="{&quot;stretch_section&quot;:&quot;section-stretched&quot;}">

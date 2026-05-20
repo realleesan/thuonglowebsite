@@ -1988,89 +1988,199 @@ switch($page) {
                 }
                 break;
                 
-            case 'hero-section':
-                // Use HeroSectionController
-                require_once __DIR__ . '/app/controllers/HeroSectionController.php';
-                $heroSectionController = new HeroSectionController();
+            case 'homepage':
+                // Use HomepageController for managing homepage sections
+                require_once __DIR__ . '/app/controllers/HomepageController.php';
+                $homepageController = new HomepageController();
                 
                 $action = $_GET['action'] ?? 'index';
                 $id = $_GET['id'] ?? null;
                 
                 switch($action) {
-                    case 'create':
-                        // Disabled - only allow editing existing hero section
-                        header('Location: ?page=admin&module=hero-section');
-                        exit;
-                    case 'edit':
+                    // Hero Section actions
+                    case 'edit-hero':
                         if ($id) {
-                            $heroSectionController->edit($id);
+                            $homepageController->editHero($id);
                         } else {
-                            header('Location: ?page=admin&module=hero-section');
+                            header('Location: ?page=admin&module=homepage');
                         }
                         exit;
-                    case 'update':
+                    case 'update-hero':
                         if ($id) {
-                            $heroSectionController->update($id);
+                            $homepageController->updateHero($id);
                         } else {
-                            header('Location: ?page=admin&module=hero-section');
+                            header('Location: ?page=admin&module=homepage');
                         }
                         exit;
-                    case 'toggle-status':
-                        // Handle both JSON and form data
-                        $id = 0;
-                        if (isset($_POST['id'])) {
-                            $id = (int)$_POST['id'];
-                        } else {
-                            // Try to get from JSON body
-                            $input = file_get_contents('php://input');
-                            $data = json_decode($input, true);
-                            $id = (int)($data['id'] ?? 0);
-                        }
-                        
-                        if ($id > 0) {
-                            $heroSectionController->toggleStatus($id);
-                        } else {
-                            $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
-                        }
+                    case 'toggle-hero-status':
+                        $homepageController->toggleHeroStatus();
                         exit;
-                    case 'delete':
-                        // Disabled - hero sections cannot be deleted
-                        header('Location: ?page=admin&module=hero-section');
+                    
+                    // Featured Products Section actions
+                    case 'edit-featured-products':
+                        $homepageController->editFeaturedProducts();
                         exit;
+                    case 'update-featured-products':
+                        $homepageController->updateFeaturedProducts();
+                        exit;
+                    case 'toggle-featured-products-status':
+                        $homepageController->toggleFeaturedProductsStatus();
+                        exit;
+                    
+                    // Latest Products Section actions
+                    case 'edit-latest-products':
+                        $homepageController->editLatestProducts();
+                        exit;
+                    case 'update-latest-products':
+                        $homepageController->updateLatestProducts();
+                        exit;
+                    case 'toggle-latest-products-status':
+                        $homepageController->toggleLatestProductsStatus();
+                        exit;
+                    
+                    // Budget Products Section actions
+                    case 'edit-budget-products':
+                        $homepageController->editBudgetProducts();
+                        exit;
+                    case 'update-budget-products':
+                        $homepageController->updateBudgetProducts();
+                        exit;
+                    case 'toggle-budget-products-status':
+                        $homepageController->toggleBudgetProductsStatus();
+                        exit;
+                    
+                    // Sale Products Section actions
+                    case 'edit-sale-products':
+                        $homepageController->editSaleProducts();
+                        exit;
+                    case 'update-sale-products':
+                        $homepageController->updateSaleProducts();
+                        exit;
+                    case 'toggle-sale-products-status':
+                        $homepageController->toggleSaleProductsStatus();
+                        exit;
+                    
+                    // Hero Button actions (delegated)
                     case 'createButton':
-                        $heroSectionController->createButton();
+                        $homepageController->createButton();
                         exit;
                     case 'updateButton':
                         $id = $_GET['id'] ?? $_POST['id'] ?? 0;
                         if ($id > 0) {
-                            $heroSectionController->updateButton($id);
+                            $homepageController->updateButton($id);
                         } else {
-                            $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+                            header('Location: ?page=admin&module=homepage');
                         }
                         exit;
                     case 'deleteButton':
                          $id = $_GET['id'] ?? $_POST['id'] ?? 0;
                          if ($id > 0) {
-                             $heroSectionController->deleteButton($id);
+                             $homepageController->deleteButton($id);
                          } else {
-                             $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+                             header('Location: ?page=admin&module=homepage');
                          }
                          exit;
                      case 'update-buttons':
-                         $heroSectionController->updateButtons();
+                         $homepageController->updateButtons();
                          exit;
                      case 'upload-image':
-                         $heroSectionController->uploadImage();
+                         $homepageController->uploadImage();
                          exit;
                      case 'reorderButtons':
-                         $heroSectionController->reorderButtons();
+                         $homepageController->reorderButtons();
                          exit;
+                     
                      case 'index':
                     default:
-                        $heroSectionController->index();
+                        $homepageController->index();
                         exit;
                 }
                 break;
+                
+            // Remove hero-section routing
+            // case 'hero-section':
+            //     // Use HeroSectionController
+            //     require_once __DIR__ . '/app/controllers/HeroSectionController.php';
+            //     $heroSectionController = new HeroSectionController();
+            //     
+            //     $action = $_GET['action'] ?? 'index';
+            //     $id = $_GET['id'] ?? null;
+            //     
+            //     switch($action) {
+            //         case 'create':
+            //             // Disabled - only allow editing existing hero section
+            //             header('Location: ?page=admin&module=hero-section');
+            //             exit;
+            //         case 'edit':
+            //             if ($id) {
+            //                 $heroSectionController->edit($id);
+            //             } else {
+            //                 header('Location: ?page=admin&module=hero-section');
+            //             }
+            //             exit;
+            //         case 'update':
+            //             if ($id) {
+            //                 $heroSectionController->update($id);
+            //             } else {
+            //                 header('Location: ?page=admin&module=hero-section');
+            //             }
+            //             exit;
+            //         case 'toggle-status':
+            //             // Handle both JSON and form data
+            //             $id = 0;
+            //             if (isset($_POST['id'])) {
+            //                 $id = (int)$_POST['id'];
+            //             } else {
+            //                 // Try to get from JSON body
+            //                 $input = file_get_contents('php://input');
+            //                 $data = json_decode($input, true);
+            //                 $id = (int)($data['id'] ?? 0);
+            //             }
+            //             
+            //             if ($id > 0) {
+            //                 $heroSectionController->toggleStatus($id);
+            //             } else {
+            //                 $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+            //             }
+            //             exit;
+            //         case 'delete':
+            //             // Disabled - hero sections cannot be deleted
+            //             header('Location: ?page=admin&module=hero-section');
+            //             exit;
+            //         case 'createButton':
+            //             $heroSectionController->createButton();
+            //             exit;
+            //         case 'updateButton':
+            //             $id = $_GET['id'] ?? $_POST['id'] ?? 0;
+            //             if ($id > 0) {
+            //                 $heroSectionController->updateButton($id);
+            //             } else {
+            //                 $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+            //             }
+            //             exit;
+            //         case 'deleteButton':
+            //              $id = $_GET['id'] ?? $_POST['id'] ?? 0;
+            //              if ($id > 0) {
+            //                  $heroSectionController->deleteButton($id);
+            //              } else {
+            //                  $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+            //              }
+            //              exit;
+            //          case 'update-buttons':
+            //              $heroSectionController->updateButtons();
+            //              exit;
+            //          case 'upload-image':
+            //              $heroSectionController->uploadImage();
+            //              exit;
+            //          case 'reorderButtons':
+            //              $heroSectionController->reorderButtons();
+            //              exit;
+            //          case 'index':
+            //         default:
+            //             $heroSectionController->index();
+            //             exit;
+            //     }
+            //     break;
                 
             default:
                 $page_title = 'Dashboard';

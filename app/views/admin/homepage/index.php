@@ -1,0 +1,610 @@
+<?php
+/**
+ * Homepage Management - Combined View for Hero Section and Featured Products Section
+ */
+
+// Get flash messages
+$success = $_SESSION['flash_success'] ?? '';
+$error = $_SESSION['flash_error'] ?? '';
+
+// Clear flash messages
+unset($_SESSION['flash_success']);
+unset($_SESSION['flash_error']);
+?>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Quản lý Trang chủ</h1>
+                    <p class="text-muted small mb-0">Quản lý các sections hiển thị trên trang chủ</p>
+                </div>
+            </div>
+
+            <?php if ($success): ?>
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> <?php echo htmlspecialchars($success); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($error): ?>
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i> <?php echo htmlspecialchars($error); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
+
+            <!-- Hero Section Card -->
+            <div class="card border-0 shadow-sm overflow-hidden mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-image text-primary me-2"></i>
+                        Hero Section
+                    </h5>
+                    <p class="text-muted small mb-0 mt-1">Banner chính hiển thị ở đầu trang chủ</p>
+                </div>
+                <div class="card-body p-0">
+                    <?php if (empty($heroSections)): ?>
+                        <div class="text-center py-5">
+                            <img src="https://illustrations.popsy.co/gray/taking-notes.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                            <h6 class="text-muted">Chưa có Hero Section</h6>
+                            <p class="text-muted small mb-0">Cần tạo Hero Section để hiển thị banner chính</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 text-nowrap" style="width: 60px;">ID</th>
+                                        <th class="text-nowrap" style="width: 100px;">Hình ảnh</th>
+                                        <th class="text-nowrap" style="min-width: 200px;">Tiêu đề</th>
+                                        <th class="text-center text-nowrap" style="width: 100px;">Nút bấm</th>
+                                        <th class="text-center text-nowrap" style="width: 120px;">Trạng thái</th>
+                                        <th class="text-end pe-4 text-nowrap" style="width: 120px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($heroSections as $section): ?>
+                                        <tr>
+                                            <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $section['id']; ?></td>
+                                            <td class="align-middle">
+                                                <?php
+                                                 $imgUrl = $section['image_url'] ?? '';
+                                                 if ($imgUrl) {
+                                                     $finalImg = (strpos($imgUrl, 'http') === 0) ? $imgUrl : img_url($imgUrl);
+                                                     echo '<img src="'.$finalImg.'" class="rounded shadow-sm" style="width: 80px; height: 50px; object-fit: cover;" onerror="this.src=\'https://via.placeholder.com/80x50?text=No+Image\'">';
+                                                } else {
+                                                    echo '<div class="rounded bg-light d-flex align-items-center justify-content-center text-muted" style="width: 80px; height: 50px; font-size: 10px;">No Image</div>';
+                                                }
+                                                ?>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="fw-bold text-dark">
+                                                    <?php 
+                                                    $title = $section['title_main'] ?? '';
+                                                    $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                                    $title = strip_tags($title);
+                                                    $title = trim($title);
+                                                    
+                                                    if (empty($title)) {
+                                                        echo '<span class="text-muted">Không có tiêu đề</span>';
+                                                    } else {
+                                                        echo mb_strimwidth($title, 0, 50, '...');
+                                                    }
+                                                    ?>
+                                                </div>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="badge rounded-pill bg-soft-info text-info">
+                                                    <?php echo isset($section['button_count']) ? $section['button_count'] : 0; ?> nút
+                                                </span>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <?php if ($section['is_active']): ?>
+                                                    <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                                        <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="badge rounded-pill bg-soft-secondary text-secondary px-3 py-2">
+                                                        <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="text-end pe-4 align-middle">
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <a href="?page=admin&module=homepage&action=edit-hero&id=<?php echo $section['id']; ?>" 
+                                                       class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </a>
+                                                    <button type="button" 
+                                                            class="btn btn-icon btn-light-<?php echo $section['is_active'] ? 'warning' : 'success'; ?>"
+                                                            onclick="toggleHeroStatus(<?php echo $section['id']; ?>)"
+                                                            title="<?php echo $section['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                                        <i class="fas fa-<?php echo $section['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Featured Products Section Card -->
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        Section Sản phẩm Nổi bật
+                    </h5>
+                    <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề và hiển thị section sản phẩm nổi bật</p>
+                </div>
+                <div class="card-body p-0">
+                    <?php if (empty($featuredProductsSection)): ?>
+                        <div class="text-center py-5">
+                            <img src="https://illustrations.popsy.co/gray/product-launch.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                            <h6 class="text-muted">Chưa có cấu hình</h6>
+                            <p class="text-muted small mb-0">Section sản phẩm nổi bật chưa được cấu hình</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 text-nowrap" style="width: 60px;">ID</th>
+                                        <th class="text-nowrap" style="min-width: 300px;">Tiêu đề</th>
+                                        <th class="text-center text-nowrap" style="width: 120px;">Trạng thái</th>
+                                        <th class="text-end pe-4 text-nowrap" style="width: 120px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $featuredProductsSection['id']; ?></td>
+                                        <td class="align-middle">
+                                            <div class="text-dark">
+                                                <?php 
+                                                $title = $featuredProductsSection['title'] ?? '';
+                                                $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                                $title = strip_tags($title);
+                                                $title = trim($title);
+                                                
+                                                if (empty($title)) {
+                                                    echo '<span class="text-muted">Không có tiêu đề</span>';
+                                                } else {
+                                                    echo mb_strimwidth($title, 0, 80, '...');
+                                                }
+                                                ?>
+                                            </div>
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <?php if ($featuredProductsSection['is_active']): ?>
+                                                <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                                    <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge rounded-pill bg-soft-secondary text-secondary px-3 py-2">
+                                                    <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-end pe-4 align-middle">
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <a href="?page=admin&module=homepage&action=edit-featured-products" 
+                                                   class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-icon btn-light-<?php echo $featuredProductsSection['is_active'] ? 'warning' : 'success'; ?>"
+                                                        onclick="toggleFeaturedProductsStatus(<?php echo $featuredProductsSection['id']; ?>)"
+                                                        title="<?php echo $featuredProductsSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                                    <i class="fas fa-<?php echo $featuredProductsSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+</div>
+
+<!-- Latest Products Section -->
+<div class="col-12">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-clock text-info me-2"></i>
+                Section Sản phẩm Mới nhất
+            </h5>
+            <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề và hiển thị section sản phẩm mới nhất</p>
+        </div>
+        <div class="card-body p-0">
+            <?php if (empty($latestProductsSection)): ?>
+                <div class="text-center py-5">
+                    <img src="https://illustrations.popsy.co/gray/product-launch.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                    <h6 class="text-muted">Chưa có cấu hình</h6>
+                    <p class="text-muted small mb-0">Section sản phẩm mới nhất chưa được cấu hình</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 text-nowrap" style="width: 60px;">ID</th>
+                                <th class="text-nowrap" style="min-width: 300px;">Tiêu đề</th>
+                                <th class="text-center text-nowrap" style="width: 120px;">Trạng thái</th>
+                                <th class="text-end pe-4 text-nowrap" style="width: 120px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $latestProductsSection['id']; ?></td>
+                                <td class="align-middle">
+                                    <div class="text-dark">
+                                        <?php 
+                                        $title = $latestProductsSection['title'] ?? '';
+                                        $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                        $title = strip_tags($title);
+                                        $title = trim($title);
+                                        
+                                        if (empty($title)) {
+                                            echo '<span class="text-muted">Không có tiêu đề</span>';
+                                        } else {
+                                            echo mb_strimwidth($title, 0, 80, '...');
+                                        }
+                                        ?>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <?php if ($latestProductsSection['is_active']): ?>
+                                        <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge rounded-pill bg-soft-secondary text-secondary px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-end pe-4 align-middle">
+                                    <div class="btn-group" role="group">
+                                        <a href="?page=admin&module=homepage&action=edit-latest-products&id=<?php echo $latestProductsSection['id']; ?>" 
+                                           class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-icon btn-light-<?php echo $latestProductsSection['is_active'] ? 'warning' : 'success'; ?>"
+                                                onclick="toggleLatestProductsStatus(<?php echo $latestProductsSection['id']; ?>)"
+                                                title="<?php echo $latestProductsSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                            <i class="fas fa-<?php echo $latestProductsSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Budget Products Section -->
+<div class="col-12">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-dollar-sign text-success me-2"></i>
+                Section Sản phẩm Giá rẻ
+            </h5>
+            <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề và hiển thị section sản phẩm giá rẻ</p>
+        </div>
+        <div class="card-body p-0">
+            <?php if (empty($budgetProductsSection)): ?>
+                <div class="text-center py-5">
+                    <img src="https://illustrations.popsy.co/gray/product-launch.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                    <h6 class="text-muted">Chưa có cấu hình</h6>
+                    <p class="text-muted small mb-0">Section sản phẩm giá rẻ chưa được cấu hình</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 text-nowrap" style="width: 60px;">ID</th>
+                                <th class="text-nowrap" style="min-width: 300px;">Tiêu đề</th>
+                                <th class="text-center text-nowrap" style="width: 120px;">Trạng thái</th>
+                                <th class="text-end pe-4 text-nowrap" style="width: 120px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $budgetProductsSection['id']; ?></td>
+                                <td class="align-middle">
+                                    <div class="text-dark">
+                                        <?php 
+                                        $title = $budgetProductsSection['title'] ?? '';
+                                        $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                        $title = strip_tags($title);
+                                        $title = trim($title);
+                                        
+                                        if (empty($title)) {
+                                            echo '<span class="text-muted">Không có tiêu đề</span>';
+                                        } else {
+                                            echo mb_strimwidth($title, 0, 80, '...');
+                                        }
+                                        ?>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <?php if ($budgetProductsSection['is_active']): ?>
+                                        <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge rounded-pill bg-soft-secondary text-secondary px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-end pe-4 align-middle">
+                                    <div class="btn-group" role="group">
+                                        <a href="?page=admin&module=homepage&action=edit-budget-products&id=<?php echo $budgetProductsSection['id']; ?>" 
+                                           class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-icon btn-light-<?php echo $budgetProductsSection['is_active'] ? 'warning' : 'success'; ?>"
+                                                onclick="toggleBudgetProductsStatus(<?php echo $budgetProductsSection['id']; ?>)"
+                                                title="<?php echo $budgetProductsSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                            <i class="fas fa-<?php echo $budgetProductsSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Sale Products Section -->
+<div class="col-12">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-tag text-danger me-2"></i>
+                Section Sản phẩm Giảm giá
+            </h5>
+            <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề và hiển thị section sản phẩm giảm giá</p>
+        </div>
+        <div class="card-body p-0">
+            <?php if (empty($saleProductsSection)): ?>
+                <div class="text-center py-5">
+                    <img src="https://illustrations.popsy.co/gray/product-launch.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                    <h6 class="text-muted">Chưa có cấu hình</h6>
+                    <p class="text-muted small mb-0">Section sản phẩm giảm giá chưa được cấu hình</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 text-nowrap" style="width: 60px;">ID</th>
+                                <th class="text-nowrap" style="min-width: 300px;">Tiêu đề</th>
+                                <th class="text-center text-nowrap" style="width: 120px;">Trạng thái</th>
+                                <th class="text-end pe-4 text-nowrap" style="width: 120px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $saleProductsSection['id']; ?></td>
+                                <td class="align-middle">
+                                    <div class="text-dark">
+                                        <?php 
+                                        $title = $saleProductsSection['title'] ?? '';
+                                        $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                        $title = strip_tags($title);
+                                        $title = trim($title);
+                                        
+                                        if (empty($title)) {
+                                            echo '<span class="text-muted">Không có tiêu đề</span>';
+                                        } else {
+                                            echo mb_strimwidth($title, 0, 80, '...');
+                                        }
+                                        ?>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <?php if ($saleProductsSection['is_active']): ?>
+                                        <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge rounded-pill bg-soft-secondary text-secondary px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-end pe-4 align-middle">
+                                    <div class="btn-group" role="group">
+                                        <a href="?page=admin&module=homepage&action=edit-sale-products&id=<?php echo $saleProductsSection['id']; ?>" 
+                                           class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-icon btn-light-<?php echo $saleProductsSection['is_active'] ? 'warning' : 'success'; ?>"
+                                                onclick="toggleSaleProductsStatus(<?php echo $saleProductsSection['id']; ?>)"
+                                                title="<?php echo $saleProductsSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                            <i class="fas fa-<?php echo $saleProductsSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleHeroStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Hero Section này?')) {
+        fetch('?page=admin&module=homepage&action=toggle-hero-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleFeaturedProductsStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Sản phẩm Nổi bật?')) {
+        fetch('?page=admin&module=homepage&action=toggle-featured-products-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleLatestProductsStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Sản phẩm Mới nhất?')) {
+        fetch('?page=admin&module=homepage&action=toggle-latest-products-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleBudgetProductsStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Sản phẩm Giá rẻ?')) {
+        fetch('?page=admin&module=homepage&action=toggle-budget-products-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleSaleProductsStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Sản phẩm Giảm giá?')) {
+        fetch('?page=admin&module=homepage&action=toggle-sale-products-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+</script>
+
+<style>
+.bg-soft-success { background-color: #dcfce7; }
+.bg-soft-info { background-color: #e0f2fe; }
+.bg-soft-secondary { background-color: #f3f4f6; }
+.text-success { color: #16a34a !important; }
+.text-info { color: #0284c7 !important; }
+.text-secondary { color: #4b5563 !important; }
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-light-primary { color: #356DF1; background-color: #eff6ff; border: none; }
+.btn-light-primary:hover { background-color: #356DF1; color: white; }
+
+.btn-light-warning { color: #d97706; background-color: #fffbeb; border: none; }
+.btn-light-warning:hover { background-color: #d97706; color: white; }
+
+.btn-light-success { color: #16a34a; background-color: #f0fdf4; border: none; }
+.btn-light-success:hover { background-color: #16a34a; color: white; }
+
+.btn-light-danger { color: #dc2626; background-color: #fef2f2; border: none; }
+.btn-light-danger:hover { background-color: #dc2626; color: white; }
+
+.table th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: #6b7280;
+    vertical-align: middle !important;
+}
+
+.table td {
+    vertical-align: middle !important;
+}
+
+.table {
+    table-layout: fixed;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-end {
+    text-align: right !important;
+}
+
+.ps-4 {
+    padding-left: 1.5rem !important;
+}
+
+.pe-4 {
+    padding-right: 1.5rem !important;
+}
+</style>

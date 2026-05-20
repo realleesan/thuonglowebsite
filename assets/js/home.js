@@ -50,6 +50,10 @@ document.addEventListener('DOMContentLoaded', function () {
     initGenericSlider('.upcoming-events-section');
     initGenericSlider('.latest-news-section');
     initGenericSlider('.featured-brands-section');
+    // Initialize new product sections
+    initGenericSlider('.latest-products-section');
+    initGenericSlider('.budget-products-section');
+    initGenericSlider('.sale-products-section');
 
     // 5. Initialize Other Animations
     initCourseAnimations();
@@ -97,15 +101,22 @@ function initGenericSlider(sectionSelector) {
         slider = section.querySelector('.courses-slider');
         slidesGrid = slider?.querySelector('.courses-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
-        prevBtn = slider?.querySelector('.slider-nav-prev');
-        nextBtn = slider?.querySelector('.slider-nav-next');
+        prevBtn = section?.querySelector('.slider-nav-prev');
+        nextBtn = section?.querySelector('.slider-nav-next');
+    } else if (sectionSelector === '.latest-products-section' || sectionSelector === '.budget-products-section' || sectionSelector === '.sale-products-section') {
+        // New product sections - same structure as courses
+        slider = section.querySelector('.courses-slider');
+        slidesGrid = slider?.querySelector('.courses-grid');
+        bullets = section.querySelectorAll('.pagination-bullet');
+        prevBtn = section?.querySelector('.slider-nav-prev');
+        nextBtn = section?.querySelector('.slider-nav-next');
     } else {
         // Popular Courses and New Release structure
         slider = section.querySelector('.courses-slider');
         slidesGrid = slider?.querySelector('.courses-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
-        prevBtn = slider?.querySelector('.slider-nav-prev');
-        nextBtn = slider?.querySelector('.slider-nav-next');
+        prevBtn = section?.querySelector('.slider-nav-prev');
+        nextBtn = section?.querySelector('.slider-nav-next');
     }
 
     if (!slidesGrid) {
@@ -165,6 +176,12 @@ function initGenericSlider(sectionSelector) {
         moveDistance = itemWidth + gap;
     } else if (sectionSelector === '.featured-brands-section') {
         itemsPerView = 4; // Show 4 brands at a time
+        maxIndex = Math.max(0, totalItems - itemsPerView);
+        itemWidth = 270;
+        gap = 15;
+        moveDistance = itemWidth + gap;
+    } else if (sectionSelector === '.latest-products-section' || sectionSelector === '.budget-products-section' || sectionSelector === '.sale-products-section') {
+        itemsPerView = 4; // Show 4 products at a time
         maxIndex = Math.max(0, totalItems - itemsPerView);
         itemWidth = 270;
         gap = 15;

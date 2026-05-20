@@ -234,6 +234,14 @@ class Database {
     }
 
     public function getPdo() { return $this->pdo; }
+
+    public function exec($sql) {
+        try {
+            return $this->pdo->exec($sql);
+        } catch (PDOException $e) {
+            throw new Exception("Exec failed: " . $e->getMessage());
+        }
+    }
 }
 
 /**

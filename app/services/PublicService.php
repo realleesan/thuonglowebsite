@@ -48,11 +48,29 @@ class PublicService extends BaseService
             // Latest products
             $latestProducts = $this->callModelMethod(
                 'ProductsModel',
-                'getWithCategory',
+                'getLatestForHome',
                 [8],
                 []
             );
             $data['latest_products'] = $this->transformer->transformProducts($latestProducts);
+            
+            // Budget products
+            $budgetProducts = $this->callModelMethod(
+                'ProductsModel',
+                'getBudgetForHome',
+                [8],
+                []
+            );
+            $data['budget_products'] = $this->transformer->transformProducts($budgetProducts);
+            
+            // Sale products
+            $saleProducts = $this->callModelMethod(
+                'ProductsModel',
+                'getSaleForHome',
+                [8],
+                []
+            );
+            $data['sale_products'] = $this->transformer->transformProducts($saleProducts);
 
             // Featured categories
             $featuredCategories = $this->callModelMethod(
@@ -86,6 +104,59 @@ class PublicService extends BaseService
         } catch (\Exception $e) {
             return $this->handleError($e, ['page' => 'home']);
         }
+    }
+
+    /**
+     * Alias method for home view compatibility
+     */
+    public function getHomeData(): array
+    {
+        $data = $this->getHomePageData();
+        
+        // Fetch actual section settings from database
+        $featuredProductsSection = $this->callModelMethod(
+            'FeaturedProductsSectionModel',
+            'getFirst',
+            [],
+            ['is_active' => 1, 'title' => '<h2 class="section-title">Sản phẩm <span class="highlight">Nổi bật</span></h2>']
+        );
+        
+        $latestProductsSection = $this->callModelMethod(
+            'LatestProductsSectionModel',
+            'getFirst',
+            [],
+            ['is_active' => 1, 'title' => '<h2 class="section-title">Sản phẩm <span class="highlight">Mới nhất</span></h2>']
+        );
+        
+        $budgetProductsSection = $this->callModelMethod(
+            'BudgetProductsSectionModel',
+            'getFirst',
+            [],
+            ['is_active' => 1, 'title' => '<h2 class="section-title">Sản phẩm <span class="highlight">Giá rẻ</span></h2>']
+        );
+        
+        $saleProductsSection = $this->callModelMethod(
+            'SaleProductsSectionModel',
+            'getFirst',
+            [],
+            ['is_active' => 1, 'title' => '<h2 class="section-title">Sản phẩm <span class="highlight">Giảm giá</span></h2>']
+        );
+        
+        // Transform keys to match home view expectations
+        return [
+            'featuredProducts' => $data['featured_products'] ?? [],
+            'latestProducts' => $data['latest_products'] ?? [],
+            'budgetProducts' => $data['budget_products'] ?? [],
+            'saleProducts' => $data['sale_products'] ?? [],
+            'featuredCategories' => $data['featured_categories'] ?? [],
+            'featuredBrands' => $data['featured_brands'] ?? [],
+            'latestNews' => $data['latest_news'] ?? [],
+            // Add actual section settings from database
+            'featuredProductsSection' => $featuredProductsSection,
+            'latestProductsSection' => $latestProductsSection,
+            'budgetProductsSection' => $budgetProductsSection,
+            'saleProductsSection' => $saleProductsSection
+        ];
     }
 
     /**
@@ -1114,6 +1185,92 @@ class PublicService extends BaseService
         ];
 
         return $emptyStates[$type] ?? ['message' => 'Không có dữ liệu'];
+    }
+
+    // ==================== HOMEPAGE SECTION METHODS ====================
+
+    /**
+     * Get latest products for homepage section
+     */
+    public function getLatestProducts(int $limit = 8): array
+    {
+        try {
+            $database = Database::getInstance();
+            $pdo = $database->getPdo();
+            
+            $sql = "
+                SELECT p.* FROM products p
+                INNER JOIN latest_products_section_products lsp ON p.id = lsp.product_id
+                WHERE p.status = 'active'
+                ORDER BY lsp.sort_order ASC, p.id DESC
+                LIMIT ?
+            ";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$limit]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->transformer->transformProducts($result);
+        } catch (Exception $e) {
+            $this->handleError($e, ['method' => 'getLatestProducts', 'limit' => $limit]);
+            return [];
+        }
+    }
+
+    /**
+     * Get budget products for homepage section
+     */
+    public function getBudgetProducts(int $limit = 8): array
+    {
+        try {
+            $database = Database::getInstance();
+            $pdo = $database->getPdo();
+            
+            $sql = "
+                SELECT p.* FROM products p
+                INNER JOIN budget_products_section_products bsp ON p.id = bsp.product_id
+                WHERE p.status = 'active'
+                ORDER BY bsp.sort_order ASC, p.price ASC
+                LIMIT ?
+            ";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$limit]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->transformer->transformProducts($result);
+        } catch (Exception $e) {
+            $this->handleError($e, ['method' => 'getBudgetProducts', 'limit' => $limit]);
+            return [];
+        }
+    }
+
+    /**
+     * Get sale products for homepage section
+     */
+    public function getSaleProducts(int $limit = 8): array
+    {
+        try {
+            $database = Database::getInstance();
+            $pdo = $database->getPdo();
+            
+            $sql = "
+                SELECT p.* FROM products p
+                INNER JOIN sale_products_section_products ssp ON p.id = ssp.product_id
+                WHERE p.status = 'active' AND (p.sale_price IS NOT NULL AND p.sale_price > 0)
+                ORDER BY ssp.sort_order ASC, p.sale_price ASC
+                LIMIT ?
+            ";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$limit]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $this->transformer->transformProducts($result);
+        } catch (Exception $e) {
+            $this->handleError($e, ['method' => 'getSaleProducts', 'limit' => $limit]);
+            return [];
+        }
     }
 
     // ==================== HELPERS ====================

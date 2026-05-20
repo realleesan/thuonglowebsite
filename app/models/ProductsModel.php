@@ -241,7 +241,48 @@ class ProductsModel extends BaseModel {
      * Get latest products for home page
      */
     public function getLatestForHome($limit = 8) {
-        return $this->getWithCategory($limit);
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.status = 'active'
+            ORDER BY p.created_at DESC
+            LIMIT {$limit}
+        ";
+        
+        return $this->db->query($sql);
+    }
+    
+    /**
+     * Get budget products (cheapest) for home page
+     */
+    public function getBudgetForHome($limit = 8) {
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.status = 'active'
+            ORDER BY p.price ASC, p.created_at DESC
+            LIMIT {$limit}
+        ";
+        
+        return $this->db->query($sql);
+    }
+    
+    /**
+     * Get sale products for home page
+     */
+    public function getSaleForHome($limit = 8) {
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.status = 'active' AND (p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price)
+            ORDER BY (p.price - p.sale_price) DESC, p.created_at DESC
+            LIMIT {$limit}
+        ";
+        
+        return $this->db->query($sql);
     }
     
     /**
@@ -391,5 +432,18 @@ class ProductsModel extends BaseModel {
     public function getProductReviews($productId): array {
         $sql = "SELECT * FROM product_reviews WHERE product_id = ? AND status = 'approved' ORDER BY created_at DESC";
         return $this->db->query($sql, [$productId]) ?: [];
+    }
+
+    // Alias methods for compatibility
+    public function getLatest($limit = 8) {
+        return $this->getLatestForHome($limit);
+    }
+
+    public function getBudget($limit = 8) {
+        return $this->getBudgetForHome($limit);
+    }
+
+    public function getSale($limit = 8) {
+        return $this->getSaleForHome($limit);
     }
 }
