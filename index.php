@@ -2060,6 +2060,17 @@ switch($page) {
                         $homepageController->toggleSaleProductsStatus();
                         exit;
                     
+                    // Featured Categories Section actions
+                    case 'edit-featured-categories':
+                        $homepageController->editFeaturedCategories();
+                        exit;
+                    case 'update-featured-categories':
+                        $homepageController->updateFeaturedCategories();
+                        exit;
+                    case 'toggle-featured-categories-status':
+                        $homepageController->toggleFeaturedCategoriesStatus();
+                        exit;
+                    
                     // Hero Button actions (delegated)
                     case 'createButton':
                         $homepageController->createButton();

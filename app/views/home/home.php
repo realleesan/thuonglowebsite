@@ -59,6 +59,7 @@ try {
     $budgetProductsSection = $homeData['budgetProductsSection'] ?? ['is_active' => true];
     $saleProductsSection = $homeData['saleProductsSection'] ?? ['is_active' => true];
     $featuredProductsSection = $homeData['featuredProductsSection'] ?? ['is_active' => true];
+    $featuredCategoriesSection = $homeData['featuredCategoriesSection'] ?? ['is_active' => true];
     
     // Fallback: fetch featured brands directly if service doesn't provide them
     if (empty($featuredBrands) && isset($service) && method_exists($service, 'getFeaturedBrands')) {
@@ -696,10 +697,11 @@ try {
 <?php endif; ?>
 
 <!-- Featured Categories Section -->
+<?php if (isset($featuredCategoriesSection) && $featuredCategoriesSection['is_active']): ?>
 <section class="elementor-section elementor-top-section elementor-element elementor-element-2932ede elementor-section-stretched elementor-section-boxed elementor-section-height-default elementor-section-height-default" data-id="2932ede" data-element_type="section" data-settings="{&quot;stretch_section&quot;:&quot;section-stretched&quot;}">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Danh mục <span class="highlight">Nổi bật</span></h2>
+            <?php echo $featuredCategoriesSection['title'] ?? '<h2 class="section-title">Danh mục <span class="highlight">Nổi bật</span></h2>'; ?>
             <a href="?page=categories" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -740,6 +742,7 @@ try {
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Featured Brands Section -->
 <section class="featured-brands-section">

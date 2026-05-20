@@ -459,6 +459,87 @@ unset($_SESSION['flash_error']);
     </div>
 </div>
 
+<!-- Featured Categories Section -->
+<div class="col-12">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-folder text-warning me-2"></i>
+                Section Danh mục Nổi bật
+            </h5>
+            <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề và hiển thị section danh mục nổi bật</p>
+        </div>
+        <div class="card-body p-0">
+            <?php if (empty($featuredCategoriesSection)): ?>
+                <div class="text-center py-5">
+                    <img src="https://illustrations.popsy.co/gray/folder.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                    <h6 class="text-muted">Chưa có cấu hình</h6>
+                    <p class="text-muted small mb-0">Section danh mục nổi bật chưa được cấu hình</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 text-nowrap" style="width: 60px;">ID</th>
+                                <th class="text-nowrap" style="min-width: 300px;">Tiêu đề</th>
+                                <th class="text-center text-nowrap" style="width: 120px;">Trạng thái</th>
+                                <th class="text-end pe-4 text-nowrap" style="width: 120px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $featuredCategoriesSection['id']; ?></td>
+                                <td class="align-middle">
+                                    <div class="text-dark">
+                                        <?php 
+                                        $title = $featuredCategoriesSection['title'] ?? '';
+                                        $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                        $title = strip_tags($title);
+                                        $title = trim($title);
+                                        
+                                        if (empty($title)) {
+                                            echo '<span class="text-muted">Không có tiêu đề</span>';
+                                        } else {
+                                            echo mb_strimwidth($title, 0, 80, '...');
+                                        }
+                                        ?>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <?php if ($featuredCategoriesSection['is_active']): ?>
+                                        <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge rounded-pill bg-soft-secondary text-secondary px-3 py-2">
+                                            <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-end pe-4 align-middle">
+                                    <div class="btn-group" role="group">
+                                        <a href="?page=admin&module=homepage&action=edit-featured-categories&id=<?php echo $featuredCategoriesSection['id']; ?>" 
+                                           class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-icon btn-light-<?php echo $featuredCategoriesSection['is_active'] ? 'warning' : 'success'; ?>"
+                                                onclick="toggleFeaturedCategoriesStatus(<?php echo $featuredCategoriesSection['id']; ?>)"
+                                                title="<?php echo $featuredCategoriesSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                            <i class="fas fa-<?php echo $featuredCategoriesSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
 <script>
 function toggleHeroStatus(id) {
     if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Hero Section này?')) {
@@ -523,6 +604,21 @@ function toggleBudgetProductsStatus(id) {
 function toggleSaleProductsStatus(id) {
     if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Sản phẩm Giảm giá?')) {
         fetch('?page=admin&module=homepage&action=toggle-sale-products-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleFeaturedCategoriesStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Danh mục Nổi bật?')) {
+        fetch('?page=admin&module=homepage&action=toggle-featured-categories-status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id })

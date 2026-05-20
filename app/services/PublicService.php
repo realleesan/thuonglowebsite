@@ -142,6 +142,13 @@ class PublicService extends BaseService
             ['is_active' => 1, 'title' => '<h2 class="section-title">Sản phẩm <span class="highlight">Giảm giá</span></h2>']
         );
         
+        $featuredCategoriesSection = $this->callModelMethod(
+            'FeaturedCategoriesSectionModel',
+            'getFirst',
+            [],
+            ['is_active' => 1, 'title' => '<h2 class="section-title">Danh mục <span class="highlight">Nổi bật</span></h2>']
+        );
+        
         // Transform keys to match home view expectations
         return [
             'featuredProducts' => $data['featured_products'] ?? [],
@@ -155,7 +162,8 @@ class PublicService extends BaseService
             'featuredProductsSection' => $featuredProductsSection,
             'latestProductsSection' => $latestProductsSection,
             'budgetProductsSection' => $budgetProductsSection,
-            'saleProductsSection' => $saleProductsSection
+            'saleProductsSection' => $saleProductsSection,
+            'featuredCategoriesSection' => $featuredCategoriesSection
         ];
     }
 
