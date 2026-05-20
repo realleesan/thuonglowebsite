@@ -353,7 +353,7 @@ try {
 
 <!-- Latest Products Section -->
 <?php if (isset($latestProductsSection) && $latestProductsSection['is_active']): ?>
-<section class="popular-courses-section">
+<section class="popular-courses-section latest-products-section">
     <div class="container">
         <div class="section-header">
             <?php echo $latestProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Mới nhất</span></h2>'; ?>
@@ -469,7 +469,7 @@ try {
 
 <!-- Budget Products Section -->
 <?php if (isset($budgetProductsSection) && $budgetProductsSection['is_active']): ?>
-<section class="popular-courses-section">
+<section class="popular-courses-section budget-products-section">
     <div class="container">
         <div class="section-header">
             <?php echo $budgetProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Giá rẻ</span></h2>'; ?>
@@ -580,7 +580,7 @@ try {
 
 <!-- Sale Products Section -->
 <?php if (isset($saleProductsSection) && $saleProductsSection['is_active']): ?>
-<section class="popular-courses-section">
+<section class="popular-courses-section sale-products-section">
     <div class="container">
         <div class="section-header">
             <?php echo $saleProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Giảm giá</span></h2>'; ?>
@@ -618,7 +618,9 @@ try {
                             <?php foreach ($sectionSaleProducts as $product): ?>
                                 <div class="course-item">
                                     <div class="course-category">
-                                        <span class="badge bg-danger text-white">Giảm giá</span>
+                                        <a href="?page=categories&id=<?php echo $product['category_id'] ?? ''; ?>" class="category-tag">
+                                            <?php echo $product['category_name'] ?: 'Sản phẩm'; ?>
+                                        </a>
                                     </div>
                                     <div class="course-image">
                                         <a href="?page=details&id=<?php echo $product['id']; ?>">
