@@ -98,6 +98,24 @@ function formatPrice($price) {
                         </div>
                         
                         <div class="detail-row">
+                            <label>Icon:</label>
+                            <span class="detail-value">
+                                <?php if (!empty($category['icon'])): ?>
+                                    <span style="color: #356DF1; font-size: 1.2rem; display: inline-flex; align-items: center; gap: 8px;">
+                                        <?php if (strpos($category['icon'], '.svg') !== false || strpos($category['icon'], '/') !== false): ?>
+                                            <img src="<?= htmlspecialchars($category['icon']) ?>" alt="" style="width: 20px; height: 20px; object-fit: contain;">
+                                        <?php else: ?>
+                                            <i class="<?= htmlspecialchars($category['icon']) ?>"></i>
+                                        <?php endif; ?>
+                                        <code style="font-size: 0.85rem; color: #6b7280;"><?= htmlspecialchars($category['icon']) ?></code>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="text-muted" style="font-size: 0.85rem;">Chưa thiết lập</span>
+                                <?php endif; ?>
+                            </span>
+                        </div>
+                        
+                        <div class="detail-row">
                             <label>Slug:</label>
                             <span class="detail-value">
                                 <code><?= htmlspecialchars($category['slug']) ?></code>

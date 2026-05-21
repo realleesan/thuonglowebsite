@@ -173,7 +173,7 @@ if ($isAuthenticated) {
                                                 <!-- Parent Category Header -->
                                                 <div class="mega-parent-header" style="display: flex; align-items: center; gap: 8px;">
                                                     <?php if (!empty($parentCat['icon'])): ?>
-                                                        <span class="mega-parent-icon" style="color: #356df1; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="<?php echo htmlspecialchars($parentCat['icon']); ?>"></i></span>
+                                                        <span class="mega-parent-icon" style="color: #356df1; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><?php if (strpos($parentCat['icon'], '.svg') !== false || strpos($parentCat['icon'], '/') !== false): ?><img src="<?php echo htmlspecialchars($parentCat['icon']); ?>" alt="" style="width: 1.1rem; height: 1.1rem; object-fit: contain;"><?php else: ?><i class="<?php echo htmlspecialchars($parentCat['icon']); ?>"></i><?php endif; ?></span>
                                                     <?php endif; ?>
                                                     <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" class="mega-parent-title">
                                                         <?php echo htmlspecialchars($parentCat['name']); ?>
@@ -188,11 +188,29 @@ if ($isAuthenticated) {
                                                             <div class="mega-child-item">
                                                                 <a href="<?php echo page_url('products', ['category' => $childCat['id']]); ?>" class="mega-child-link-group" style="display: flex; align-items: flex-start; gap: 8px;">
                                                                     <?php if (!empty($childCat['icon'])): ?>
-                                                                        <span class="mega-child-icon" style="color: #356df1; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><i class="<?php echo htmlspecialchars($childCat['icon']); ?>"></i></span>
+                                                                        <span class="mega-child-icon" style="color: #356df1; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><?php if (strpos($childCat['icon'], '.svg') !== false || strpos($childCat['icon'], '/') !== false): ?><img src="<?php echo htmlspecialchars($childCat['icon']); ?>" alt="" style="width: 1rem; height: 1rem; object-fit: contain;"><?php else: ?><i class="<?php echo htmlspecialchars($childCat['icon']); ?>"></i><?php endif; ?></span>
                                                                     <?php endif; ?>
                                                                     <div class="mega-child-info">
                                                                         <span class="mega-child-name"><?php echo htmlspecialchars($childCat['name']); ?></span>
-                                                                        <?php if (!empty($childCat['description'])): ?>
+                                                                        <?php 
+                                                                        $showDesc = false;
+                                                                        if (!empty($childCat['description'])) {
+                                                                            $nameL = mb_strtolower(trim($childCat['name']), 'UTF-8');
+                                                                            $descL = mb_strtolower(trim($childCat['description']), 'UTF-8');
+                                                                            
+                                                                            if ($nameL !== $descL) {
+                                                                                if (mb_strlen($descL, 'UTF-8') > 20) {
+                                                                                    if (mb_strpos($descL, $nameL) !== false) {
+                                                                                        if (mb_strlen($descL, 'UTF-8') > mb_strlen($nameL, 'UTF-8') + 15) {
+                                                                                            $showDesc = true;
+                                                                                        }
+                                                                                    } else {
+                                                                                        $showDesc = true;
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        if ($showDesc): ?>
                                                                             <span class="mega-child-desc"><?php echo htmlspecialchars($childCat['description']); ?></span>
                                                                         <?php endif; ?>
                                                                     </div>
@@ -203,7 +221,7 @@ if ($isAuthenticated) {
                                                                         <?php foreach ($childCat['children'] as $grandchildCat): ?>
                                                                             <a href="<?php echo page_url('products', ['category' => $grandchildCat['id']]); ?>" class="mega-grandchild-link" style="display: inline-flex; align-items: center; gap: 6px;">
                                                                                 <?php if (!empty($grandchildCat['icon'])): ?>
-                                                                                    <span class="mega-grandchild-icon" style="color: #356df1; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="<?php echo htmlspecialchars($grandchildCat['icon']); ?>"></i></span>
+                                                                                    <span class="mega-grandchild-icon" style="color: #356df1; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><?php if (strpos($grandchildCat['icon'], '.svg') !== false || strpos($grandchildCat['icon'], '/') !== false): ?><img src="<?php echo htmlspecialchars($grandchildCat['icon']); ?>" alt="" style="width: 0.85rem; height: 0.85rem; object-fit: contain;"><?php else: ?><i class="<?php echo htmlspecialchars($grandchildCat['icon']); ?>"></i><?php endif; ?></span>
                                                                                 <?php endif; ?>
                                                                                 <span><?php echo htmlspecialchars($grandchildCat['name']); ?></span>
                                                                             </a>

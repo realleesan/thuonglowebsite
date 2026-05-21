@@ -236,7 +236,13 @@ foreach ($allCategories as $cat) {
                             </td>
                             <td class="text-center">
                                 <?php if (!empty($category['icon'])): ?>
-                                    <span style="color: #356DF1; font-size: 1.25rem;"><i class="<?= htmlspecialchars($category['icon']) ?>"></i></span>
+                                    <span style="color: #356DF1; font-size: 1.25rem; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;">
+                                        <?php if (strpos($category['icon'], '.svg') !== false || strpos($category['icon'], '/') !== false): ?>
+                                            <img src="<?= htmlspecialchars($category['icon']) ?>" alt="" style="width: 24px; height: 24px; object-fit: contain;">
+                                        <?php else: ?>
+                                            <i class="<?= htmlspecialchars($category['icon']) ?>"></i>
+                                        <?php endif; ?>
+                                    </span>
                                 <?php else: ?>
                                     <span class="text-muted" style="font-size: 0.85rem;">—</span>
                                 <?php endif; ?>

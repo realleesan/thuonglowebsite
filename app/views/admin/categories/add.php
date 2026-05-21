@@ -70,6 +70,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $categoryData['image'] = trim($_POST['image_url']);
         }
         
+        // Handle custom SVG icon upload
+        if (isset($_FILES['icon_svg']) && $_FILES['icon_svg']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['icon_svg'];
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if ($ext === 'svg') {
+                $uploadDir = dirname(__DIR__, 4) . '/assets/uploads/categories/icons/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                $fileName = 'icon_' . time() . '_' . uniqid() . '.svg';
+                $targetPath = $uploadDir . $fileName;
+                if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                    $categoryData['icon'] = '/assets/uploads/categories/icons/' . $fileName;
+                }
+            } else {
+                $errors[] = 'Chỉ chấp nhận định dạng file .svg cho icon tùy chỉnh';
+            }
+        }
+        
         $saved = $service->createCategory($categoryData);
         if ($saved) {
             // Use PRG pattern - redirect after successful POST
@@ -213,41 +232,51 @@ function generateSlug($name) {
                             </div>
 
                             <div class="form-group col-6">
-                                <label for="icon">Icon danh mục</label>
+                                <label for="icon">Icon danh mục (FontAwesome hoặc Tải lên SVG)</label>
                                 <div class="icon-picker-container">
                                     <div class="icon-picker-input-group" style="display: flex; gap: 8px;">
-                                        <div class="icon-preview-box" id="icon-preview-box" style="display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; background: #f9fafb; color: #356df1; font-size: 1.25rem;">
-                                            <i class="<?= htmlspecialchars($_POST['icon'] ?? 'fas fa-folder') ?>"></i>
+                                        <div class="icon-preview-box" id="icon-preview-box" style="display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; background: #f9fafb; color: #356df1; font-size: 1.25rem; flex-shrink: 0;">
+                                            <?php
+                                            $currentIcon = $_POST['icon'] ?? 'fas fa-folder';
+                                            if (strpos($currentIcon, '.svg') !== false || strpos($currentIcon, '/') !== false): ?>
+                                                <img src="<?= htmlspecialchars($currentIcon) ?>" id="svg-preview-img" style="width: 24px; height: 24px; object-fit: contain;">
+                                            <?php else: ?>
+                                                <i class="<?= htmlspecialchars($currentIcon ?: 'fas fa-folder') ?>"></i>
+                                            <?php endif; ?>
                                         </div>
-                                        <input type="text" id="icon" name="icon" value="<?= htmlspecialchars($_POST['icon'] ?? '') ?>" placeholder="Ví dụ: fas fa-laptop" style="flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 0 12px;">
+                                        <input type="text" id="icon" name="icon" value="<?= htmlspecialchars($_POST['icon'] ?? 'fas fa-folder') ?>" placeholder="Ví dụ: fas fa-laptop" style="flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 0 12px;">
+                                    </div>
+
+                                    <!-- Custom SVG Upload Input & Buttons -->
+                                    <div class="svg-upload-section" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                                        <input type="file" id="icon_svg" name="icon_svg" accept=".svg" style="display: none;">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('icon_svg').click();" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 0.85rem; border: 1px solid #d1d5db; border-radius: 4px; background: #fff; cursor: pointer; transition: all 0.2s;">
+                                            <i class="fas fa-upload" style="font-size: 0.85rem; color: #4b5563;"></i> Tải lên icon SVG
+                                        </button>
+                                        <span id="svg-file-name" style="font-size: 0.85rem; color: #6b7280; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Chưa có file nào được chọn</span>
+                                        <button type="button" id="remove-svg-btn" class="btn btn-sm btn-outline-danger" style="display: none; padding: 2px 8px; font-size: 0.75rem; border: 1px solid #ef4444; border-radius: 4px; background: #fff; color: #ef4444; cursor: pointer;">Xóa SVG</button>
                                     </div>
                                     <div class="icon-grid-selector" style="margin-top: 10px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; max-height: 150px; overflow-y: auto;">
-                                        <small style="display: block; margin-bottom: 8px; color: #6b7280; font-weight: 500;">Chọn nhanh từ bộ icon mẫu:</small>
+                                        <small style="display: block; margin-bottom: 8px; color: #6b7280; font-weight: 500;">Chọn nhanh từ bộ icon mẫu (FontAwesome):</small>
                                         <div class="icon-grid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px;">
                                             <?php
                                             $sampleIcons = [
-                                                // Folders & Documents
-                                                'fas fa-folder', 'fas fa-folder-open', 'fas fa-file-alt', 'fas fa-file-invoice', 'fas fa-book', 'fas fa-bookmark', 'fas fa-archive',
-                                                // Tech & Electronics
-                                                'fas fa-laptop', 'fas fa-desktop', 'fas fa-mobile-alt', 'fas fa-tablet-alt', 'fas fa-server', 'fas fa-database', 'fas fa-code', 'fas fa-headphones', 'fas fa-tv', 'fas fa-camera', 'fas fa-plug', 'fas fa-battery-full', 'fas fa-wifi',
-                                                // Shopping & Business
-                                                'fas fa-shopping-cart', 'fas fa-shopping-bag', 'fas fa-shopping-basket', 'fas fa-store', 'fas fa-gift', 'fas fa-tags', 'fas fa-tag', 'fas fa-wallet', 'fas fa-credit-card', 'fas fa-dollar-sign', 'fas fa-money-bill-wave', 'fas fa-briefcase', 'fas fa-chart-line', 'fas fa-chart-bar', 'fas fa-chart-pie',
-                                                // Clothes & Fashion & Beauty
-                                                'fas fa-tshirt', 'fas fa-socks', 'fas fa-crown', 'fas fa-gem', 'fas fa-glasses', 'fas fa-magic', 'fas fa-scissors', 'fas fa-brush', 'fas fa-spa',
-                                                // Tools & Maintenance
-                                                'fas fa-tools', 'fas fa-cog', 'fas fa-wrench', 'fas fa-key', 'fas fa-lock', 'fas fa-unlock', 'fas fa-shield-alt', 'fas fa-hammer', 'fas fa-screwdriver', 'fas fa-ruler',
-                                                // Shipping & Transportation & Travel
-                                                'fas fa-truck', 'fas fa-shipping-fast', 'fas fa-plane', 'fas fa-car', 'fas fa-bicycle', 'fas fa-motorcycle', 'fas fa-globe', 'fas fa-map-marker-alt', 'fas fa-compass', 'fas fa-route',
-                                                // Food & Drink
-                                                'fas fa-utensils', 'fas fa-coffee', 'fas fa-glass-martini-alt', 'fas fa-beer', 'fas fa-wine-glass', 'fas fa-pizza-slice', 'fas fa-hamburger', 'fas fa-ice-cream', 'fas fa-apple-alt', 'fas fa-cookie',
-                                                // Home & Building & Furniture
-                                                'fas fa-home', 'fas fa-building', 'fas fa-couch', 'fas fa-bed', 'fas fa-bath', 'fas fa-lightbulb', 'fas fa-shower', 'fas fa-door-open', 'fas fa-chair',
-                                                // Sports & Fitness & Game
-                                                'fas fa-dumbbell', 'fas fa-running', 'fas fa-swimmer', 'fas fa-medal', 'fas fa-trophy', 'fas fa-gamepad', 'fas fa-dice', 'fas fa-football-ball',
-                                                // Communications & Social & Media
-                                                'fas fa-comments', 'fas fa-envelope', 'fas fa-phone-alt', 'fas fa-share-alt', 'fas fa-user-friends', 'fas fa-bell', 'fas fa-calendar-alt', 'fas fa-clock', 'fas fa-images', 'fas fa-video', 'fas fa-music', 'fas fa-heart', 'fas fa-star',
-                                                // Science & Nature & Others
-                                                'fas fa-flask', 'fas fa-microscope', 'fas fa-graduation-cap', 'fas fa-leaf', 'fas fa-tree', 'fas fa-seedling', 'fas fa-sun', 'fas fa-moon', 'fas fa-cloud', 'fas fa-umbrella', 'fas fa-fire', 'fas fa-paw', 'fas fa-anchor', 'fas fa-atom', 'fas fa-brain', 'fas fa-eye', 'fas fa-smile', 'fas fa-thumbs-up'
+                                                 // Folders & Documents
+                                                 'fas fa-folder', 'fas fa-folder-open', 'fas fa-file', 'fas fa-book', 'fas fa-bookmark', 'fas fa-box', 'fas fa-boxes', 'fas fa-archive',
+                                                 // Tech & Electronics
+                                                 'fas fa-laptop', 'fas fa-desktop', 'fas fa-mobile-alt', 'fas fa-tablet-alt', 'fas fa-headphones', 'fas fa-camera', 'fas fa-gamepad', 'fas fa-tv', 'fas fa-plug', 'fas fa-mouse',
+                                                 // Shopping & Business
+                                                 'fas fa-shopping-cart', 'fas fa-shopping-bag', 'fas fa-store', 'fas fa-gift', 'fas fa-tags', 'fas fa-wallet', 'fas fa-credit-card', 'fas fa-briefcase', 'fas fa-chart-pie', 'fas fa-chart-line', 'fas fa-percent', 'fas fa-calculator', 'fas fa-coins',
+                                                 // Clothes & Fashion
+                                                 'fas fa-tshirt', 'fas fa-socks', 'fas fa-glasses', 'fas fa-gem', 'fas fa-cut', 'fas fa-ribbon', 'fas fa-crown', 'fas fa-graduation-cap',
+                                                 // Tools & Home
+                                                 'fas fa-wrench', 'fas fa-key', 'fas fa-lock', 'fas fa-home', 'fas fa-building', 'fas fa-bed', 'fas fa-bath', 'fas fa-couch', 'fas fa-lightbulb', 'fas fa-chair', 'fas fa-tools', 'fas fa-hammer',
+                                                 // Transportation & Travel
+                                                 'fas fa-truck', 'fas fa-plane', 'fas fa-car', 'fas fa-bicycle', 'fas fa-globe', 'fas fa-map-marker-alt', 'fas fa-ship', 'fas fa-train', 'fas fa-hotel', 'fas fa-compass',
+                                                 // Food & Drinks
+                                                 'fas fa-utensils', 'fas fa-mug-hot', 'fas fa-glass-martini-alt', 'fas fa-hamburger', 'fas fa-ice-cream', 'fas fa-pizza-slice', 'fas fa-apple-alt', 'fas fa-coffee', 'fas fa-beer',
+                                                 // Misc & Dynamic
+                                                 'fas fa-bell', 'fas fa-calendar-alt', 'fas fa-clock', 'fas fa-image', 'fas fa-video', 'fas fa-music', 'fas fa-heart', 'fas fa-star', 'fas fa-smile', 'fas fa-thumbs-up', 'fas fa-user', 'fas fa-users', 'fas fa-phone', 'fas fa-envelope', 'fas fa-search', 'fas fa-check', 'fas fa-cog'
                                             ];
                                             foreach ($sampleIcons as $ico):
                                             ?>
@@ -441,19 +470,85 @@ document.querySelectorAll('.icon-select-btn').forEach(function(btn) {
         this.classList.add('active');
         
         var iconClass = this.getAttribute('data-icon');
-        document.getElementById('icon').value = iconClass;
         
-        var previewI = document.getElementById('icon-preview-box').querySelector('i');
-        previewI.className = iconClass;
+        // Reset SVG upload
+        document.getElementById('icon_svg').value = '';
+        document.getElementById('svg-file-name').textContent = 'Chưa có file nào được chọn';
+        document.getElementById('remove-svg-btn').style.display = 'none';
+        
+        var iconInput = document.getElementById('icon');
+        iconInput.value = iconClass;
+        iconInput.removeAttribute('readonly');
+        
+        var previewBox = document.getElementById('icon-preview-box');
+        previewBox.innerHTML = '<i class="' + iconClass + '"></i>';
     });
 });
 
 document.getElementById('icon').addEventListener('input', function() {
     var val = this.value.trim() || 'fas fa-folder';
-    document.getElementById('icon-preview-box').querySelector('i').className = val;
+    
+    // If not a path (doesn't contain slash or .svg), preview it as class
+    if (val.indexOf('/') === -1 && val.indexOf('.svg') === -1) {
+        var previewBox = document.getElementById('icon-preview-box');
+        previewBox.innerHTML = '<i class="' + val + '"></i>';
+    }
     
     document.querySelectorAll('.icon-select-btn').forEach(function(b) {
         if (b.getAttribute('data-icon') === val) {
+            b.classList.add('active');
+        } else {
+            b.classList.remove('active');
+        }
+    });
+});
+
+// Custom SVG Icon Upload logic
+document.getElementById('icon_svg').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (file) {
+        if (file.name.slice(-4).toLowerCase() !== '.svg') {
+            alert('Chỉ chấp nhận định dạng file .svg!');
+            this.value = '';
+            return;
+        }
+        
+        document.getElementById('svg-file-name').textContent = file.name;
+        document.getElementById('remove-svg-btn').style.display = 'inline-block';
+        
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var previewBox = document.getElementById('icon-preview-box');
+            previewBox.innerHTML = '<img src="' + e.target.result + '" id="svg-preview-img" style="width: 24px; height: 24px; object-fit: contain;">';
+        };
+        reader.readAsDataURL(file);
+        
+        // Clear active buttons
+        document.querySelectorAll('.icon-select-btn').forEach(function(b) {
+            b.classList.remove('active');
+        });
+        
+        var iconInput = document.getElementById('icon');
+        iconInput.value = '[Tải lên SVG]';
+        iconInput.setAttribute('readonly', 'readonly');
+    }
+});
+
+document.getElementById('remove-svg-btn').addEventListener('click', function() {
+    document.getElementById('icon_svg').value = '';
+    document.getElementById('svg-file-name').textContent = 'Chưa có file nào được chọn';
+    this.style.display = 'none';
+    
+    var iconInput = document.getElementById('icon');
+    iconInput.value = 'fas fa-folder';
+    iconInput.removeAttribute('readonly');
+    
+    var previewBox = document.getElementById('icon-preview-box');
+    previewBox.innerHTML = '<i class="fas fa-folder"></i>';
+    
+    // Highlight the folder button
+    document.querySelectorAll('.icon-select-btn').forEach(function(b) {
+        if (b.getAttribute('data-icon') === 'fas fa-folder') {
             b.classList.add('active');
         } else {
             b.classList.remove('active');
