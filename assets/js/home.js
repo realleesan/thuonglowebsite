@@ -44,16 +44,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // 4. Initialize Sliders
-    initGenericSlider('.popular-courses-section');
-    initGenericSlider('.new-release-section');
-    initGenericSlider('.customer-says-section');
-    initGenericSlider('.upcoming-events-section');
-    initGenericSlider('.latest-news-section');
-    initGenericSlider('.featured-brands-section');
-    // Initialize new product sections
-    initGenericSlider('.latest-products-section');
-    initGenericSlider('.budget-products-section');
-    initGenericSlider('.sale-products-section');
+    document.querySelectorAll('.popular-courses-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.new-release-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.customer-says-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.upcoming-events-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.latest-news-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.featured-brands-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.latest-products-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.budget-products-section').forEach(el => initGenericSlider(el));
+    document.querySelectorAll('.sale-products-section').forEach(el => initGenericSlider(el));
 
     // 5. Initialize Other Animations
     initCourseAnimations();
@@ -67,14 +66,21 @@ document.addEventListener('DOMContentLoaded', function () {
 /**
  * Generic slider initialization logic to reuse for multiple sections
  */
-function initGenericSlider(sectionSelector) {
-    const section = document.querySelector(sectionSelector);
+function initGenericSlider(sectionOrSelector) {
+    const section = typeof sectionOrSelector === 'string' ? document.querySelector(sectionOrSelector) : sectionOrSelector;
     if (!section) return;
+
+    const sectionSelector = typeof sectionOrSelector === 'string' ? sectionOrSelector : (section.id ? '#' + section.id : '.' + section.className.trim().replace(/\s+/g, '.'));
 
     // Handle different slider structures
     let slider, slidesGrid, bullets, prevBtn, nextBtn;
-    
-    if (sectionSelector === '.customer-says-section') {
+
+    const isCustomerSays = section.classList.contains('customer-says-section');
+    const isUpcomingEvents = section.classList.contains('upcoming-events-section');
+    const isLatestNews = section.classList.contains('latest-news-section');
+    const isFeaturedBrands = section.classList.contains('featured-brands-section');
+
+    if (isCustomerSays) {
         // Customer Says has different structure
         const sliderWrapper = section.querySelector('.testimonial-slider-wrapper');
         slider = section.querySelector('.testimonial-slider');
@@ -82,36 +88,22 @@ function initGenericSlider(sectionSelector) {
         bullets = section.querySelectorAll('.pagination-dot');
         prevBtn = sliderWrapper?.querySelector('.testimonial-nav-prev'); // Look in wrapper
         nextBtn = sliderWrapper?.querySelector('.testimonial-nav-next'); // Look in wrapper
-    } else if (sectionSelector === '.upcoming-events-section') {
+    } else if (isUpcomingEvents) {
         // Upcoming Events structure
         slider = section.querySelector('.events-slider');
         slidesGrid = slider?.querySelector('.events-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
         prevBtn = slider?.querySelector('.slider-nav-prev');
         nextBtn = slider?.querySelector('.slider-nav-next');
-    } else if (sectionSelector === '.latest-news-section') {
+    } else if (isLatestNews) {
         // Latest News structure
         slider = section.querySelector('.news-slider');
         slidesGrid = slider?.querySelector('.news-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
         prevBtn = slider?.querySelector('.slider-nav-prev');
         nextBtn = slider?.querySelector('.slider-nav-next');
-    } else if (sectionSelector === '.featured-brands-section') {
-        // Featured Brands structure - same as courses
-        slider = section.querySelector('.courses-slider');
-        slidesGrid = slider?.querySelector('.courses-grid');
-        bullets = section.querySelectorAll('.pagination-bullet');
-        prevBtn = section?.querySelector('.slider-nav-prev');
-        nextBtn = section?.querySelector('.slider-nav-next');
-    } else if (sectionSelector === '.latest-products-section' || sectionSelector === '.budget-products-section' || sectionSelector === '.sale-products-section') {
-        // New product sections - same structure as courses
-        slider = section.querySelector('.courses-slider');
-        slidesGrid = slider?.querySelector('.courses-grid');
-        bullets = section.querySelectorAll('.pagination-bullet');
-        prevBtn = section?.querySelector('.slider-nav-prev');
-        nextBtn = section?.querySelector('.slider-nav-next');
     } else {
-        // Popular Courses and New Release structure
+        // Featured Brands, products, Popular Courses, New Release, custom category sections
         slider = section.querySelector('.courses-slider');
         slidesGrid = slider?.querySelector('.courses-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
@@ -120,74 +112,42 @@ function initGenericSlider(sectionSelector) {
     }
 
     if (!slidesGrid) {
-        console.log(`No slides grid found for ${sectionSelector}`);
         return;
-    }
-
-    // Debug logging for customer says
-    if (sectionSelector === '.customer-says-section') {
-        console.log('Customer Says Debug:', {
-            section: !!section,
-            slider: !!slider,
-            slidesGrid: !!slidesGrid,
-            bullets: bullets.length,
-            prevBtn: !!prevBtn,
-            nextBtn: !!nextBtn,
-            totalItems: slidesGrid.children.length
-        });
-    }
-    
-    // Debug logging for featured brands
-    if (sectionSelector === '.featured-brands-section') {
-        console.log('Featured Brands Debug:', {
-            section: !!section,
-            slider: !!slider,
-            slidesGrid: !!slidesGrid,
-            bullets: bullets.length,
-            prevBtn: !!prevBtn,
-            nextBtn: !!nextBtn,
-            totalItems: slidesGrid.children.length
-        });
     }
 
     let currentIndex = 0;
     const totalItems = slidesGrid.children.length;
-    
+
     // Different logic for different sections
     let itemsPerView, maxIndex, itemWidth, gap, moveDistance;
-    
-    if (sectionSelector === '.customer-says-section') {
+
+    if (isCustomerSays) {
         itemsPerView = 1; // Show 1 testimonial at a time
         maxIndex = Math.max(0, totalItems - itemsPerView);
         itemWidth = 1125; // Full width testimonial
         gap = 15;
         moveDistance = itemWidth + gap;
-    } else if (sectionSelector === '.upcoming-events-section') {
+    } else if (isUpcomingEvents) {
         itemsPerView = 3; // Show 3 events at a time
         maxIndex = Math.max(0, totalItems - itemsPerView);
         itemWidth = 360; // Event item width
         gap = 15;
         moveDistance = itemWidth + gap;
-    } else if (sectionSelector === '.latest-news-section') {
+    } else if (isLatestNews) {
         itemsPerView = 3; // Show 3 news at a time
         maxIndex = Math.max(0, totalItems - itemsPerView);
         itemWidth = 360; // News item width
         gap = 15;
         moveDistance = itemWidth + gap;
-    } else if (sectionSelector === '.featured-brands-section') {
+    } else if (isFeaturedBrands) {
         itemsPerView = 4; // Show 4 brands at a time
         maxIndex = Math.max(0, totalItems - itemsPerView);
         itemWidth = 270;
         gap = 15;
         moveDistance = itemWidth + gap;
-    } else if (sectionSelector === '.latest-products-section' || sectionSelector === '.budget-products-section' || sectionSelector === '.sale-products-section') {
-        itemsPerView = 4; // Show 4 products at a time
-        maxIndex = Math.max(0, totalItems - itemsPerView);
-        itemWidth = 270;
-        gap = 15;
-        moveDistance = itemWidth + gap;
     } else {
-        itemsPerView = 4; // Show 4 courses at a time
+        // For products, popular courses, and custom categories
+        itemsPerView = 4;
         maxIndex = Math.max(0, totalItems - itemsPerView);
         itemWidth = 270;
         gap = 15;
@@ -199,12 +159,12 @@ function initGenericSlider(sectionSelector) {
         slidesGrid.style.transform = `translateX(${translateX}px)`;
 
         // Debug logging for customer says
-        if (sectionSelector === '.customer-says-section') {
+        if (isCustomerSays) {
             console.log(`Customer Says Update: currentIndex=${currentIndex}, translateX=${translateX}px`);
         }
-        
+
         // Debug logging for featured brands
-        if (sectionSelector === '.featured-brands-section') {
+        if (isFeaturedBrands) {
             console.log(`Featured Brands Update: currentIndex=${currentIndex}, translateX=${translateX}px`);
         }
 

@@ -22,6 +22,13 @@ class CategoriesModel extends BaseModel {
     }
 
     /**
+     * Get active product categories (excludes news)
+     */
+    public function getActiveProductCategories() {
+        return $this->query("SELECT * FROM categories WHERE status = 'active' AND (type != 'news' OR type IS NULL) ORDER BY sort_order ASC, id ASC") ?? [];
+    }
+
+    /**
      * Get all active categories for filter display (show_in_filter = 1)
      */
     public function getActiveForFilter() {

@@ -2093,6 +2093,31 @@ switch($page) {
                         $homepageController->toggleLatestNewsStatus();
                         exit;
                     
+                    // Why Choose Us actions
+                    case 'edit_why_choose':
+                        $homepageController->editWhyChoose();
+                        exit;
+                    case 'update_why_choose':
+                        $homepageController->updateWhyChoose();
+                        exit;
+                    case 'toggle-why-choose-status':
+                        $homepageController->toggleWhyChooseStatus();
+                        exit;
+                    
+                    // Custom Category Sections actions
+                    case 'edit-custom-category':
+                        $homepageController->editCustomCategory();
+                        exit;
+                    case 'save-custom-category':
+                        $homepageController->saveCustomCategory();
+                        exit;
+                    case 'delete-custom-category':
+                        $homepageController->deleteCustomCategory();
+                        exit;
+                    case 'toggle-custom-category-status':
+                        $homepageController->toggleCustomCategoryStatus();
+                        exit;
+                    
                     // Hero Button actions (delegated)
                     case 'createButton':
                         $homepageController->createButton();

@@ -10,6 +10,10 @@ require_once __DIR__ . '/../models/SaleProductsSectionModel.php';
 require_once __DIR__ . '/../models/FeaturedCategoriesSectionModel.php';
 require_once __DIR__ . '/../models/FeaturedBrandsSectionModel.php';
 require_once __DIR__ . '/../models/LatestNewsSectionModel.php';
+require_once __DIR__ . '/../models/WhyChooseSectionModel.php';
+require_once __DIR__ . '/../models/WhyChooseItemModel.php';
+require_once __DIR__ . '/../models/CustomCategorySectionModel.php';
+require_once __DIR__ . '/../models/CategoriesModel.php';
 require_once __DIR__ . '/../../core/view_init.php';
 
 class HomepageController {
@@ -23,6 +27,10 @@ class HomepageController {
     private $featuredCategoriesSectionModel;
     private $featuredBrandsSectionModel;
     private $latestNewsSectionModel;
+    private $whyChooseSectionModel;
+    private $whyChooseItemModel;
+    private $customCategorySectionModel;
+    private $categoriesModel;
 
     public function __construct() {
         $this->authService = new AuthService();
@@ -35,6 +43,10 @@ class HomepageController {
         $this->featuredCategoriesSectionModel = new FeaturedCategoriesSectionModel();
         $this->featuredBrandsSectionModel = new FeaturedBrandsSectionModel();
         $this->latestNewsSectionModel = new LatestNewsSectionModel();
+        $this->whyChooseSectionModel = new WhyChooseSectionModel();
+        $this->whyChooseItemModel = new WhyChooseItemModel();
+        $this->customCategorySectionModel = new CustomCategorySectionModel();
+        $this->categoriesModel = new CategoriesModel();
     }
 
     /**
@@ -196,6 +208,35 @@ class HomepageController {
                     'is_active' => 1
                 ];
             }
+
+            // Initialize why choose section
+            $whyChooseSection = null;
+            try {
+                $whyChooseSection = $this->whyChooseSectionModel->getFirst();
+                
+                if (!$whyChooseSection) {
+                    $this->whyChooseSectionModel->createSection([
+                        'title' => '<h2 class="section-title">Tại sao chọn <span class="highlight">ThuongLo?</span></h2>',
+                        'is_active' => 1
+                    ]);
+                    $whyChooseSection = $this->whyChooseSectionModel->getFirst();
+                }
+            } catch (Exception $e) {
+                error_log("Why choose section error: " . $e->getMessage());
+                $whyChooseSection = [
+                    'id' => 0,
+                    'title' => '<h2 class="section-title">Tại sao chọn <span class="highlight">ThuongLo?</span></h2>',
+                    'is_active' => 1
+                ];
+            }
+            
+            // Fetch custom category sections
+            $customCategorySections = [];
+            try {
+                $customCategorySections = $this->customCategorySectionModel->getAllWithCategory();
+            } catch (Exception $e) {
+                error_log("Error fetching custom category sections: " . $e->getMessage());
+            }
             
             $data = [
                 'title' => 'Quản lý Trang chủ',
@@ -207,6 +248,8 @@ class HomepageController {
                 'featuredCategoriesSection' => $featuredCategoriesSection,
                 'featuredBrandsSection' => $featuredBrandsSection,
                 'latestNewsSection' => $latestNewsSection,
+                'whyChooseSection' => $whyChooseSection,
+                'customCategorySections' => $customCategorySections,
                 'user' => $this->getCurrentUser()
             ];
 
@@ -1168,6 +1211,342 @@ class HomepageController {
             }
         } catch (Exception $e) {
             error_log("Error in toggleLatestNewsStatus: " . $e->getMessage());
+            $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    /**
+     * Edit Why Choose section
+     */
+    public function editWhyChoose(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $section = $this->whyChooseSectionModel->getWithItems();
+            if (!$section) {
+                // Create default section and items if not exists
+                $this->whyChooseSectionModel->createSection([
+                    'title' => '<h2 class="section-title">Tại sao chọn <span class="highlight">ThuongLo?</span></h2>',
+                    'is_active' => 1
+                ]);
+                $section = $this->whyChooseSectionModel->getWithItems();
+                
+                if ($section) {
+                    $defaultItems = [
+                        ['title' => 'Kinh nghiệm dày dặn', 'content' => 'Hơn 10 năm kinh nghiệm trong lĩnh vực thương mại xuyên biên giới, hiểu rõ thị trường và quy trình', 'sort_order' => 1],
+                        ['title' => 'Dịch vụ toàn diện', 'content' => 'Cung cấp giải pháp từ A-Z cho thương mại xuyên biên giới, từ tìm nguồn hàng đến vận chuyển', 'sort_order' => 2],
+                        ['title' => 'Hỗ trợ 24/7', 'content' => 'Đội ngũ hỗ trợ chuyên nghiệp sẵn sàng giải đáp mọi thắc mắc và hỗ trợ khách hàng mọi lúc', 'sort_order' => 3],
+                        ['title' => 'Giá cả cạnh tranh', 'content' => 'Cam kết mang đến giá cả tốt nhất thị trường với chất lượng dịch vụ cao nhất', 'sort_order' => 4],
+                        ['title' => 'Đội ngũ chuyên nghiệp', 'content' => 'Đội ngũ nhân viên giàu kinh nghiệm, nhiệt tình và tận tâm với khách hàng', 'sort_order' => 5],
+                        ['title' => 'Uy tín và đáng tin cậy', 'content' => 'Được hàng ngàn khách hàng tin tưởng và lựa chọn trong nhiều năm', 'sort_order' => 6]
+                    ];
+                    foreach ($defaultItems as $item) {
+                        $item['section_id'] = $section['id'];
+                        $this->whyChooseItemModel->createItem($item);
+                    }
+                    $section = $this->whyChooseSectionModel->getWithItems();
+                }
+            }
+
+            if ($section) {
+                $data = [
+                    'title' => 'Chỉnh sửa Section Tại sao chọn ThuongLo?',
+                    'whyChooseSection' => $section,
+                    'user' => $this->getCurrentUser()
+                ];
+                $this->renderView('admin/homepage/edit_why_choose', $data);
+            } else {
+                $this->setFlashMessage('error', 'Không thể tạo section');
+                $this->redirect('?page=admin&module=homepage');
+            }
+        } catch (Exception $e) {
+            error_log("Error in editWhyChoose: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Update Why Choose section
+     */
+    public function updateWhyChoose(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $id = $_POST['id'] ?? 0;
+            $title = $_POST['title'] ?? '';
+            $isActive = isset($_POST['is_active']) && $_POST['is_active'] == '1' ? 1 : 0;
+
+            if ($id > 0) {
+                // Start transaction to ensure atomic updates
+                $this->whyChooseSectionModel->beginTransaction();
+
+                // 1. Update section title and status
+                $result = $this->whyChooseSectionModel->updateSection($id, [
+                    'title' => $title,
+                    'is_active' => $isActive
+                ]);
+
+                // 2. Sync items
+                $submittedItems = $_POST['items'] ?? [];
+                $keepItemIds = [];
+
+                foreach ($submittedItems as $itemData) {
+                    $itemId = isset($itemData['id']) ? intval($itemData['id']) : 0;
+                    $itemTitle = $itemData['title'] ?? '';
+                    $itemContent = $itemData['content'] ?? '';
+                    $itemSortOrder = isset($itemData['sort_order']) ? intval($itemData['sort_order']) : 0;
+
+                    if ($itemId > 0) {
+                        // Update existing item
+                        $this->whyChooseItemModel->updateItem($itemId, [
+                            'title' => $itemTitle,
+                            'content' => $itemContent,
+                            'sort_order' => $itemSortOrder
+                        ]);
+                        $keepItemIds[] = $itemId;
+                    } else {
+                        // Insert new item
+                        $newItemId = $this->whyChooseItemModel->createItem([
+                            'section_id' => $id,
+                            'title' => $itemTitle,
+                            'content' => $itemContent,
+                            'sort_order' => $itemSortOrder
+                        ]);
+                        if ($newItemId) {
+                            $keepItemIds[] = $newItemId;
+                        }
+                    }
+                }
+
+                // 3. Delete items that were removed
+                $existingItems = $this->whyChooseItemModel->getBySection($id);
+                foreach ($existingItems as $existingItem) {
+                    if (!in_array($existingItem['id'], $keepItemIds)) {
+                        $this->whyChooseItemModel->deleteItem($existingItem['id']);
+                    }
+                }
+
+                $this->whyChooseSectionModel->commit();
+
+                if ($this->isAjaxRequest()) {
+                    $this->sendJsonResponse([
+                        'success' => true,
+                        'message' => 'Đã cập nhật section thành công'
+                    ]);
+                } else {
+                    $this->setFlashMessage('success', 'Đã cập nhật section thành công');
+                    $this->redirect('?page=admin&module=homepage');
+                }
+            } else {
+                if ($this->isAjaxRequest()) {
+                    $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+                } else {
+                    $this->setFlashMessage('error', 'Invalid ID');
+                    $this->redirect('?page=admin&module=homepage');
+                }
+            }
+        } catch (Exception $e) {
+            try {
+                $this->whyChooseSectionModel->rollback();
+            } catch (Exception $rollbackEx) {}
+
+            error_log("Error in updateWhyChoose: " . $e->getMessage());
+            if ($this->isAjaxRequest()) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()]);
+            } else {
+                $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+                $this->redirect('?page=admin&module=homepage');
+            }
+        }
+    }
+
+    /**
+     * Toggle Why Choose section status
+     */
+    public function toggleWhyChooseStatus(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? 0;
+            if ($id > 0) {
+                $result = $this->whyChooseSectionModel->toggleStatus($id);
+                $this->sendJsonResponse([
+                    'success' => $result,
+                    'message' => $result ? 'Đã cập nhật trạng thái thành công' : 'Có lỗi xảy ra khi cập nhật trạng thái'
+                ]);
+            } else {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+            }
+        } catch (Exception $e) {
+            error_log("Error in toggleWhyChooseStatus: " . $e->getMessage());
+            $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    /**
+     * View/Edit/Add dynamic category sections
+     */
+    public function editCustomCategory(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+            $section = null;
+            
+            if ($id > 0) {
+                $section = $this->customCategorySectionModel->getById($id);
+                if (!$section) {
+                    $this->setFlashMessage('error', 'Section không tồn tại');
+                    $this->redirect('?page=admin&module=homepage');
+                    return;
+                }
+            }
+
+            // Fetch categories for selection
+            $categories = $this->categoriesModel->getActiveProductCategories();
+            
+            $data = [
+                'title' => $id > 0 ? 'Sửa Section Danh mục Tùy chỉnh' : 'Thêm Section Danh mục Tùy chỉnh',
+                'section' => $section,
+                'categories' => $categories,
+                'user' => $this->getCurrentUser()
+            ];
+
+            $this->renderView('admin/homepage/edit_custom_category', $data);
+        } catch (Exception $e) {
+            error_log("Error in editCustomCategory: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Save dynamic category section
+     */
+    public function saveCustomCategory(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+            $title = isset($_POST['title']) ? trim($_POST['title']) : '';
+            $categoryId = isset($_POST['category_id']) ? intval($_POST['category_id']) : 0;
+            $displayType = isset($_POST['display_type']) ? trim($_POST['display_type']) : 'featured';
+            $sortOrder = isset($_POST['sort_order']) ? intval($_POST['sort_order']) : 0;
+            $isActive = isset($_POST['is_active']) ? 1 : 0;
+
+            if (empty($title)) {
+                $this->setFlashMessage('error', 'Tiêu đề không được để trống');
+                $this->redirect('?page=admin&module=homepage&action=edit-custom-category' . ($id > 0 ? '&id=' . $id : ''));
+                return;
+            }
+
+            if ($categoryId <= 0) {
+                $this->setFlashMessage('error', 'Vui lòng chọn danh mục hợp lệ');
+                $this->redirect('?page=admin&module=homepage&action=edit-custom-category' . ($id > 0 ? '&id=' . $id : ''));
+                return;
+            }
+
+            // Enforce limit of 5 sections when creating a NEW section
+            if ($id <= 0) {
+                $currentCount = $this->customCategorySectionModel->getCount();
+                if ($currentCount >= 5) {
+                    $this->setFlashMessage('error', 'Hệ thống chỉ cho phép tạo tối đa 5 section danh mục tùy chỉnh.');
+                    $this->redirect('?page=admin&module=homepage');
+                    return;
+                }
+            }
+
+            $sectionData = [
+                'title' => $title,
+                'category_id' => $categoryId,
+                'display_type' => $displayType,
+                'sort_order' => $sortOrder,
+                'is_active' => $isActive
+            ];
+
+            if ($id > 0) {
+                $result = $this->customCategorySectionModel->updateSection($id, $sectionData);
+                $msg = $result ? 'Cập nhật section thành công!' : 'Không có thay đổi nào được thực hiện hoặc có lỗi xảy ra.';
+            } else {
+                $result = $this->customCategorySectionModel->createSection($sectionData);
+                $msg = $result ? 'Thêm section mới thành công!' : 'Có lỗi xảy ra khi tạo section.';
+            }
+
+            if ($result) {
+                $this->setFlashMessage('success', $msg);
+                $this->redirect('?page=admin&module=homepage');
+            } else {
+                $this->setFlashMessage('error', $msg);
+                $this->redirect('?page=admin&module=homepage&action=edit-custom-category' . ($id > 0 ? '&id=' . $id : ''));
+            }
+        } catch (Exception $e) {
+            error_log("Error in saveCustomCategory: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Delete dynamic category section
+     */
+    public function deleteCustomCategory(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+            if ($id > 0) {
+                $result = $this->customCategorySectionModel->deleteSection($id);
+                if ($result) {
+                    $this->setFlashMessage('success', 'Xóa section thành công');
+                } else {
+                    $this->setFlashMessage('error', 'Có lỗi xảy ra khi xóa section');
+                }
+            } else {
+                $this->setFlashMessage('error', 'ID không hợp lệ');
+            }
+        } catch (Exception $e) {
+            error_log("Error in deleteCustomCategory: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
+        $this->redirect('?page=admin&module=homepage');
+    }
+
+    /**
+     * Toggle dynamic category section status
+     */
+    public function toggleCustomCategoryStatus(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? 0;
+            if ($id > 0) {
+                $result = $this->customCategorySectionModel->toggleStatus($id);
+                $this->sendJsonResponse([
+                    'success' => $result,
+                    'message' => $result ? 'Đã cập nhật trạng thái thành công' : 'Có lỗi xảy ra khi cập nhật trạng thái'
+                ]);
+            } else {
+                $this->sendJsonResponse(['success' => false, 'message' => 'ID không hợp lệ']);
+            }
+        } catch (Exception $e) {
+            error_log("Error in toggleCustomCategoryStatus: " . $e->getMessage());
             $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
         }
     }

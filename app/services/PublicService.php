@@ -163,6 +163,62 @@ class PublicService extends BaseService
             ['is_active' => 1, 'title' => '<h2 class="section-title">Tin tức <span class="highlight">Mới nhất</span></h2>']
         );
         
+        $whyChooseSection = $this->callModelMethod(
+            'WhyChooseSectionModel',
+            'getWithItems',
+            [],
+            [
+                'is_active' => 1, 
+                'title' => '<h2 class="section-title">Tại sao chọn <span class="highlight">ThuongLo?</span></h2>', 
+                'items' => [
+                    ['title' => 'Kinh nghiệm dày dặn', 'content' => 'Hơn 10 năm kinh nghiệm trong lĩnh vực thương mại xuyên biên giới, hiểu rõ thị trường và quy trình', 'sort_order' => 1],
+                    ['title' => 'Dịch vụ toàn diện', 'content' => 'Cung cấp giải pháp từ A-Z cho thương mại xuyên biên giới, từ tìm nguồn hàng đến vận chuyển', 'sort_order' => 2],
+                    ['title' => 'Hỗ trợ 24/7', 'content' => 'Đội ngũ hỗ trợ chuyên nghiệp sẵn sàng giải đáp mọi thắc mắc và hỗ trợ khách hàng mọi lúc', 'sort_order' => 3],
+                    ['title' => 'Giá cả cạnh tranh', 'content' => 'Cam kết mang đến giá cả tốt nhất thị trường với chất lượng dịch vụ cao nhất', 'sort_order' => 4],
+                    ['title' => 'Đội ngũ chuyên nghiệp', 'content' => 'Đội ngũ nhân viên giàu kinh nghiệm, nhiệt tình và tận tâm với khách hàng', 'sort_order' => 5],
+                    ['title' => 'Uy tín và đáng tin cậy', 'content' => 'Được hàng ngàn khách hàng tin tưởng và lựa chọn trong nhiều năm', 'sort_order' => 6]
+                ]
+            ]
+        );
+        
+        // Fetch active custom category sections
+        $customSections = [];
+        try {
+            $customSections = $this->callModelMethod(
+                'CustomCategorySectionModel',
+                'getAllWithCategory',
+                [true], // activeOnly = true
+                []
+            );
+        } catch (\Exception $e) {
+            error_log("PublicService getHomeData custom sections error: " . $e->getMessage());
+        }
+
+        // Hydrate each active custom category section with its products
+        $hydratedCustomSections = [];
+        if (!empty($customSections)) {
+            foreach ($customSections as $sec) {
+                try {
+                    $products = $this->callModelMethod(
+                        'ProductsModel',
+                        'getByCategoryAndType',
+                        [$sec['category_id'], $sec['display_type'], 8],
+                        []
+                    );
+                    
+                    // Transform products to match template expectations
+                    if (!empty($products) && isset($this->transformer) && method_exists($this->transformer, 'transformProducts')) {
+                        $products = $this->transformer->transformProducts($products);
+                    }
+                    
+                    $sec['products'] = $products;
+                    $hydratedCustomSections[] = $sec;
+                } catch (\Exception $e) {
+                    error_log("PublicService hydrate section {$sec['id']} error: " . $e->getMessage());
+                }
+            }
+        }
+        
         // Transform keys to match home view expectations
         return [
             'heroSection' => $data['heroSection'] ?? [],
@@ -180,6 +236,8 @@ class PublicService extends BaseService
             'featuredBrandsSection' => $featuredBrandsSection,
             'latestNewsSection' => $latestNewsSection,
             'latestNews' => $data['latest_news'] ?? [],
+            'whyChooseSection' => $whyChooseSection,
+            'customCategorySections' => $hydratedCustomSections,
         ];
     }
 

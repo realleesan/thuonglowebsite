@@ -540,6 +540,118 @@ unset($_SESSION['flash_error']);
     </div>
 </div>
 
+<!-- Custom Category Sections (Max 5) -->
+<div class="col-12">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-list text-primary me-2"></i>
+                        Section Danh mục Tùy chỉnh (Tối đa 5 sections)
+                    </h5>
+                    <p class="text-muted small mb-0 mt-1">Tùy biến hiển thị các danh mục sản phẩm nổi bật, giá rẻ, giảm giá, mới nhất</p>
+                </div>
+                <div>
+                    <?php if (count($customCategorySections ?? []) < 5): ?>
+                        <a href="?page=admin&module=homepage&action=edit-custom-category" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Thêm Section
+                        </a>
+                    <?php else: ?>
+                        <button class="btn btn-sm btn-secondary" disabled title="Đã đạt giới hạn tối đa 5 section">
+                            <i class="fas fa-plus me-1"></i> Thêm Section (Full)
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <?php if (empty($customCategorySections)): ?>
+                <div class="text-center py-5">
+                    <h6 class="text-muted">Chưa có cấu hình section tùy chỉnh nào</h6>
+                    <p class="text-muted small mb-0">Nhấp vào nút 'Thêm Section' ở góc trên bên phải để bắt đầu.</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" style="table-layout: fixed;">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 fw-bold text-muted border-0" style="width: 60px;">ID</th>
+                                <th class="fw-bold text-muted border-0" style="width: 220px;">Tiêu đề hiển thị</th>
+                                <th class="fw-bold text-muted border-0" style="width: 150px;">Danh mục chọn</th>
+                                <th class="fw-bold text-muted border-0" style="width: 120px;">Loại hiển thị</th>
+                                <th class="text-center fw-bold text-muted border-0" style="width: 100px;">Trạng thái</th>
+                                <th class="text-end pe-4 fw-bold text-muted border-0" style="width: 120px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($customCategorySections as $sec): ?>
+                                <tr>
+                                    <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $sec['id']; ?></td>
+                                    <td class="align-middle text-truncate fw-semibold" title="<?php echo htmlspecialchars(strip_tags($sec['title'])); ?>">
+                                        <?php echo $sec['title']; ?>
+                                    </td>
+                                    <td class="align-middle text-truncate" title="<?php echo htmlspecialchars($sec['category_name'] ?? 'Chưa xác định'); ?>">
+                                        <span class="badge bg-light text-dark border py-1.5 px-2">
+                                            <?php echo htmlspecialchars($sec['category_name'] ?? 'N/A'); ?>
+                                        </span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <?php
+                                        $typeLabels = [
+                                            'featured' => ['label' => 'Nổi bật', 'class' => 'bg-soft-danger text-danger'],
+                                            'budget' => ['label' => 'Giá rẻ', 'class' => 'bg-soft-success text-success'],
+                                            'sale' => ['label' => 'Giảm giá', 'class' => 'bg-soft-warning text-warning'],
+                                            'latest' => ['label' => 'Mới nhất', 'class' => 'bg-soft-info text-info']
+                                        ];
+                                        $t = $sec['display_type'] ?? 'featured';
+                                        $lbl = $typeLabels[$t] ?? ['label' => $t, 'class' => 'bg-soft-secondary text-secondary'];
+                                        ?>
+                                        <span class="badge rounded-pill <?php echo $lbl['class']; ?> px-2.5 py-1" style="font-size: 11px;">
+                                            <?php echo $lbl['label']; ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <?php if ($sec['is_active']): ?>
+                                            <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                                <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge rounded-pill bg-soft-secondary text-muted px-3 py-2">
+                                                <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-end pe-4 align-middle">
+                                        <div class="btn-group" role="group">
+                                            <a href="?page=admin&module=homepage&action=edit-custom-category&id=<?php echo $sec['id']; ?>" 
+                                               class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-icon btn-light-<?php echo $sec['is_active'] ? 'warning' : 'success'; ?>"
+                                                    onclick="toggleCustomCategoryStatus(<?php echo $sec['id']; ?>)"
+                                                    title="<?php echo $sec['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                                <i class="fas fa-<?php echo $sec['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                            </button>
+                                            <a href="?page=admin&module=homepage&action=delete-custom-category&id=<?php echo $sec['id']; ?>" 
+                                               class="btn btn-icon btn-light-danger" 
+                                               onclick="return confirm('Bạn có chắc chắn muốn xóa section này?')" 
+                                               title="Xóa">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
 <!-- Featured Brands Section -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white border-bottom py-3">
@@ -702,7 +814,107 @@ unset($_SESSION['flash_error']);
     </div>
 </div>
 
+<!-- Why Choose Us Section -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="fas fa-question-circle text-primary me-2"></i>
+                    Section Tại sao chọn ThuongLo
+                </h5>
+                <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề, trạng thái và các khối thông tin lý do chọn ThuongLo</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($whyChooseSection)): ?>
+            <div class="text-center py-5">
+                <img src="https://illustrations.popsy.co/gray/folder.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                <h6 class="text-muted">Chưa có cấu hình</h6>
+                <p class="text-muted small">Section "Tại sao chọn ThuongLo" chưa được cấu hình</p>
+                <a href="?page=admin&module=homepage&action=edit_why_choose" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Tạo cấu hình
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 fw-bold text-muted border-0" style="width: 80px;">ID</th>
+                            <th class="fw-bold text-muted border-0">Tiêu đề</th>
+                            <th class="text-center fw-bold text-muted border-0" style="width: 120px;">Trạng thái</th>
+                            <th class="text-end pe-4 fw-bold text-muted border-0" style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $whyChooseSection['id']; ?></td>
+                            <td class="align-middle">
+                                <div class="text-dark">
+                                    <?php 
+                                    $title = $whyChooseSection['title'] ?? '';
+                                    $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                    $title = strip_tags($title);
+                                    $title = trim($title);
+                                    echo $title ?: '(Không có tiêu đề)';
+                                    ?>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle">
+                                <?php if ($whyChooseSection['is_active']): ?>
+                                    <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge rounded-pill bg-soft-secondary text-muted px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-end pe-4 align-middle">
+                                <div class="btn-group" role="group">
+                                    <a href="?page=admin&module=homepage&action=edit_why_choose" 
+                                       class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-icon btn-light-<?php echo $whyChooseSection['is_active'] ? 'warning' : 'success'; ?>"
+                                            onclick="toggleWhyChooseStatus(<?php echo $whyChooseSection['id']; ?>)"
+                                            title="<?php echo $whyChooseSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                        <i class="fas fa-<?php echo $whyChooseSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+</div>
+
+
+
 <script>
+function toggleCustomCategoryStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section này?')) {
+        fetch('?page=admin&module=homepage&action=toggle-custom-category-status', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
 function toggleHeroStatus(id) {
     if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Hero Section này?')) {
         fetch('?page=admin&module=homepage&action=toggle-hero-status', {
@@ -813,6 +1025,24 @@ function toggleLatestNewsStatus(id) {
         fetch('?page=admin&module=homepage&action=toggle-latest-news-status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleWhyChooseStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Tại sao chọn ThuongLo?')) {
+        fetch('?page=admin&module=homepage&action=toggle-why-choose-status', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
             body: JSON.stringify({ id: id })
         })
         .then(r => r.json())

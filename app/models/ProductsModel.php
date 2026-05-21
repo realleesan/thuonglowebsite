@@ -427,6 +427,56 @@ class ProductsModel extends BaseModel {
     }
     
     /**
+     * Get products belonging to a category filtered by display type
+     */
+    public function getByCategoryAndType($categoryId, $type, $limit = 8) {
+        $categoryIds = [$categoryId];
+        if (class_exists('CategoriesModel')) {
+            $categoriesModel = new CategoriesModel();
+            $categoryIds = $categoriesModel->getAllChildCategoryIds($categoryId);
+        }
+
+        // Create placeholders for IN clause
+        $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+        
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.category_id IN ({$placeholders}) AND p.status = 'active'
+        ";
+        
+        $bindings = $categoryIds;
+        
+        switch ($type) {
+            case 'featured':
+                $sql .= " AND p.featured = 1 ORDER BY p.created_at DESC";
+                break;
+            case 'budget':
+                $sql .= " ORDER BY p.price ASC, p.created_at DESC";
+                break;
+            case 'sale':
+                $sql .= " AND (p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price) ORDER BY (p.price - p.sale_price) DESC, p.created_at DESC";
+                break;
+            case 'latest':
+            default:
+                $sql .= " ORDER BY p.created_at DESC";
+                break;
+        }
+        
+        if ($limit) {
+            $sql .= " LIMIT {$limit}";
+        }
+        
+        try {
+            return $this->db->query($sql, $bindings) ?: [];
+        } catch (Exception $e) {
+            error_log("ProductsModel::getByCategoryAndType error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
      * Get product reviews
      */
     public function getProductReviews($productId): array {
