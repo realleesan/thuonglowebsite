@@ -74,6 +74,31 @@ if (class_exists('CategoriesModel')) {
         error_log('Header news categories error: ' . $e->getMessage());
     }
 }
+
+// Pre-compute user and cart state for mobile header and desktop header
+$currentUser = null;
+$cartCount = 0;
+if ($isAuthenticated) {
+    $currentUser = [
+        'id' => $_SESSION['user_id'],
+        'name' => $_SESSION['user_name'] ?? 'User',
+        'username' => $_SESSION['username'] ?? '',
+        'email' => $_SESSION['user_email'] ?? '',
+        'role' => $_SESSION['user_role'] ?? 'user'
+    ];
+    
+    if (!class_exists('CartModel')) {
+        require_once __DIR__ . '/../../models/CartModel.php';
+    }
+    if (class_exists('CartModel')) {
+        try {
+            $cartModel = new CartModel();
+            $cartCount = $cartModel->getItemCount($currentUser['id']);
+        } catch (Exception $e) {
+            error_log('Header cart count error: ' . $e->getMessage());
+        }
+    }
+}
 ?>
 
     <div class="top-banner">
@@ -91,6 +116,28 @@ if (class_exists('CategoriesModel')) {
                     <a href="<?php echo base_url(); ?>">
                         <img src="<?php echo icon_url(get_logo('logo_header', 'logo/logo.svg')); ?>" alt="Thuonglo" width="160" height="36">
                     </a>
+                </div>
+
+                <!-- Mobile Header Right Actions (Hamburger & Cart) -->
+                <div class="mobile-header-right">
+                    <?php if ($isAuthenticated): ?>
+                        <a href="?page=users&module=cart" class="mobile-cart-icon" title="Giỏ hàng">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            <?php if ($cartCount > 0): ?>
+                                <span class="mobile-cart-badge"><?php echo $cartCount; ?></span>
+                            <?php endif; ?>
+                        </a>
+                    <?php endif; ?>
+                    
+                    <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Navigation">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                 </div>
 
                 <!-- Products Mega Menu in Top Header Row -->
@@ -407,25 +454,140 @@ if (class_exists('CategoriesModel')) {
         </div>
     </nav>
 
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+        <div class="drawer-header">
+            <div class="drawer-logo">
+                <a href="<?php echo base_url(); ?>">
+                    <img src="<?php echo icon_url(get_logo('logo_header', 'logo/logo.svg')); ?>" alt="Thuonglo" width="130" height="30">
+                </a>
+            </div>
+            <button type="button" class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close Navigation">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="drawer-content">
+            <!-- Search bar inside mobile drawer -->
+            <div class="drawer-search">
+                <form method="get" action="<?php echo base_url(); ?>">
+                    <input type="text" name="search" placeholder="Tìm kiếm dịch vụ, data..." class="drawer-search-input">
+                    <input type="hidden" value="products" name="page">
+                    <button type="submit" class="drawer-search-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <ul class="drawer-menu">
+                <li class="<?php echo ($currentPage == 'home') ? 'drawer-active' : ''; ?>"><a href="<?php echo base_url(); ?>">Trang chủ</a></li>
+                
+                <!-- Products Submenu -->
+                <li class="drawer-has-submenu <?php echo (in_array($currentPage, $productPages)) ? 'drawer-active' : ''; ?>">
+                    <button type="button" class="drawer-submenu-toggle">
+                        Sản phẩm
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1L5 5L9 1"/></svg>
+                    </button>
+                    <ul class="drawer-submenu">
+                        <li><a href="<?php echo nav_url('products'); ?>">Tất cả sản phẩm</a></li>
+                        <?php if (!empty($headerCategories)): ?>
+                            <?php foreach ($headerCategories as $parentCat): ?>
+                                <li><a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>"><?php echo htmlspecialchars($parentCat['name']); ?></a></li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
+                </li>
+
+                <!-- Guides Submenu -->
+                <li class="drawer-has-submenu <?php echo (in_array($currentPage, $guidePages)) ? 'drawer-active' : ''; ?>">
+                    <button type="button" class="drawer-submenu-toggle">
+                        Hướng dẫn
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1L5 5L9 1"/></svg>
+                    </button>
+                    <ul class="drawer-submenu">
+                        <li><a href="<?php echo nav_url('about'); ?>">Giới thiệu</a></li>
+                        <li><a href="<?php echo nav_url('contact'); ?>">Liên hệ hỗ trợ</a></li>
+                        <li><a href="<?php echo nav_url('faq'); ?>">Câu hỏi thường gặp</a></li>
+                    </ul>
+                </li>
+
+                <!-- News Submenu -->
+                <li class="drawer-has-submenu <?php echo (in_array($currentPage, $newsPages)) ? 'drawer-active' : ''; ?>">
+                    <button type="button" class="drawer-submenu-toggle">
+                        Tin tức
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1L5 5L9 1"/></svg>
+                    </button>
+                    <ul class="drawer-submenu">
+                        <li><a href="<?php echo nav_url('news'); ?>">Tất cả tin tức</a></li>
+                        <?php if (!empty($newsCategories)): ?>
+                            <?php foreach ($newsCategories as $cat): ?>
+                                <li><a href="<?php echo page_url('news', ['category' => $cat['id']]); ?>"><?php echo htmlspecialchars($cat['name']); ?></a></li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
+                </li>
+                
+                <li class="<?php echo ($currentPage == 'brands') ? 'drawer-active' : ''; ?>"><a href="<?php echo nav_url('brands'); ?>">Thương hiệu</a></li>
+                
+                <?php if ($isAuthenticated): ?>
+                    <li class="<?php echo ($currentPage == 'users') ? 'drawer-active' : ''; ?>"><a href="<?php echo nav_url('users'); ?>">Tài khoản của tôi</a></li>
+                    <?php if ($currentUser['role'] === 'admin'): ?>
+                        <li><a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a></li>
+                        <li><a href="<?php echo nav_url('admin'); ?>">Quản trị</a></li>
+                    <?php elseif ($currentUser['role'] === 'agent' || $currentUser['role'] === 'affiliate'): ?>
+                        <li><a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a></li>
+                    <?php endif; ?>
+                    <li><a href="?page=logout" class="drawer-logout-btn">Đăng xuất</a></li>
+                <?php else: ?>
+                    <li><a href="<?php echo nav_url('login'); ?>" class="drawer-login-btn">Đăng nhập</a></li>
+                    <li><a href="<?php echo nav_url('register'); ?>" class="drawer-register-btn">Đăng ký</a></li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+    <div class="mobile-drawer-overlay" id="mobileDrawerOverlay"></div>
+
 <script>
 /**
  * Update cart count in header - called after adding to cart
  */
 function updateHeaderCartCount() {
     const cartBadge = document.getElementById('cart-count-badge');
-    if (!cartBadge) return;
+    const mobileCartBadge = document.querySelector('.mobile-cart-badge');
+    if (!cartBadge && !mobileCartBadge) return;
     
     fetch('api.php?action=getUserData')
         .then(response => response.json())
         .then(data => {
             if (data.success && data.cart) {
                 const count = data.cart.length;
-                cartBadge.textContent = count;
-                if (count > 0) {
-                    cartBadge.style.display = 'inline-block';
-                } else {
-                    cartBadge.style.display = 'none';
+                
+                // Update desktop badge
+                if (cartBadge) {
+                    cartBadge.textContent = count;
+                    if (count > 0) {
+                        cartBadge.style.display = 'inline-block';
+                    } else {
+                        cartBadge.style.display = 'none';
+                    }
                 }
+                
+                // Update mobile badge
+                if (mobileCartBadge) {
+                    mobileCartBadge.textContent = count;
+                    if (count > 0) {
+                        mobileCartBadge.style.display = 'inline-block';
+                    } else {
+                        mobileCartBadge.style.display = 'none';
+                    }
+                }
+                
                 // Update dropdown count too
                 const countEl = document.querySelector('.cart-dropdown-count');
                 if (countEl) {

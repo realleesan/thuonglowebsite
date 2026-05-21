@@ -81,29 +81,25 @@ function initGenericSlider(sectionOrSelector) {
     const isFeaturedBrands = section.classList.contains('featured-brands-section');
 
     if (isCustomerSays) {
-        // Customer Says has different structure
         const sliderWrapper = section.querySelector('.testimonial-slider-wrapper');
         slider = section.querySelector('.testimonial-slider');
         slidesGrid = slider?.querySelector('.testimonials-grid');
         bullets = section.querySelectorAll('.pagination-dot');
-        prevBtn = sliderWrapper?.querySelector('.testimonial-nav-prev'); // Look in wrapper
-        nextBtn = sliderWrapper?.querySelector('.testimonial-nav-next'); // Look in wrapper
+        prevBtn = sliderWrapper?.querySelector('.testimonial-nav-prev');
+        nextBtn = sliderWrapper?.querySelector('.testimonial-nav-next');
     } else if (isUpcomingEvents) {
-        // Upcoming Events structure
         slider = section.querySelector('.events-slider');
         slidesGrid = slider?.querySelector('.events-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
         prevBtn = slider?.querySelector('.slider-nav-prev');
         nextBtn = slider?.querySelector('.slider-nav-next');
     } else if (isLatestNews) {
-        // Latest News structure
         slider = section.querySelector('.news-slider');
         slidesGrid = slider?.querySelector('.news-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
         prevBtn = slider?.querySelector('.slider-nav-prev');
         nextBtn = slider?.querySelector('.slider-nav-next');
     } else {
-        // Featured Brands, products, Popular Courses, New Release, custom category sections
         slider = section.querySelector('.courses-slider');
         slidesGrid = slider?.querySelector('.courses-grid');
         bullets = section.querySelectorAll('.pagination-bullet');
@@ -111,69 +107,76 @@ function initGenericSlider(sectionOrSelector) {
         nextBtn = section?.querySelector('.slider-nav-next');
     }
 
-    if (!slidesGrid) {
+    if (!slidesGrid || !slidesGrid.children.length) {
         return;
     }
 
     let currentIndex = 0;
     const totalItems = slidesGrid.children.length;
 
-    // Different logic for different sections
+    // Responsive variables
     let itemsPerView, maxIndex, itemWidth, gap, moveDistance;
 
-    if (isCustomerSays) {
-        itemsPerView = 1; // Show 1 testimonial at a time
+    function calculateDimensions() {
+        const viewportWidth = window.innerWidth;
+
+        // 1. Determine items per view based on screen width
+        if (isCustomerSays) {
+            itemsPerView = 1;
+        } else if (isUpcomingEvents || isLatestNews) {
+            if (viewportWidth >= 1024) itemsPerView = 3;
+            else if (viewportWidth >= 768) itemsPerView = 2;
+            else itemsPerView = 1;
+        } else if (isFeaturedBrands) {
+            if (viewportWidth >= 1024) itemsPerView = 4;
+            else if (viewportWidth >= 768) itemsPerView = 3;
+            else if (viewportWidth >= 480) itemsPerView = 2;
+            else itemsPerView = 1;
+        } else {
+            // Products & courses sliders
+            if (viewportWidth >= 1024) itemsPerView = 4;
+            else if (viewportWidth >= 768) itemsPerView = 3;
+            else if (viewportWidth >= 480) itemsPerView = 2;
+            else itemsPerView = 1;
+        }
+
         maxIndex = Math.max(0, totalItems - itemsPerView);
-        itemWidth = 1125; // Full width testimonial
-        gap = 15;
-        moveDistance = itemWidth + gap;
-    } else if (isUpcomingEvents) {
-        itemsPerView = 3; // Show 3 events at a time
-        maxIndex = Math.max(0, totalItems - itemsPerView);
-        itemWidth = 360; // Event item width
-        gap = 15;
-        moveDistance = itemWidth + gap;
-    } else if (isLatestNews) {
-        itemsPerView = 3; // Show 3 news at a time
-        maxIndex = Math.max(0, totalItems - itemsPerView);
-        itemWidth = 360; // News item width
-        gap = 15;
-        moveDistance = itemWidth + gap;
-    } else if (isFeaturedBrands) {
-        itemsPerView = 4; // Show 4 brands at a time
-        maxIndex = Math.max(0, totalItems - itemsPerView);
-        itemWidth = 270;
-        gap = 15;
-        moveDistance = itemWidth + gap;
-    } else {
-        // For products, popular courses, and custom categories
-        itemsPerView = 4;
-        maxIndex = Math.max(0, totalItems - itemsPerView);
-        itemWidth = 270;
-        gap = 15;
-        moveDistance = itemWidth + gap;
+        if (currentIndex > maxIndex) {
+            currentIndex = maxIndex;
+        }
+
+        // 2. Measure actual rendered width and gap dynamically from DOM
+        const firstItem = slidesGrid.children[0];
+        if (firstItem) {
+            // Get actual computed column gap from container
+            const computedStyle = window.getComputedStyle(slidesGrid);
+            const gridGap = parseFloat(computedStyle.gap || computedStyle.columnGap) || 15;
+            gap = gridGap;
+
+            // Measure actual client width of a slide item
+            itemWidth = firstItem.getBoundingClientRect().width;
+            moveDistance = itemWidth + gap;
+        } else {
+            // Fallback default calculations
+            itemWidth = 270;
+            gap = 15;
+            moveDistance = itemWidth + gap;
+        }
     }
 
     function updateSlider() {
+        // Recalculate dimensions in case viewport size changed
+        calculateDimensions();
+
         const translateX = -(currentIndex * moveDistance);
         slidesGrid.style.transform = `translateX(${translateX}px)`;
-
-        // Debug logging for customer says
-        if (isCustomerSays) {
-            console.log(`Customer Says Update: currentIndex=${currentIndex}, translateX=${translateX}px`);
-        }
-
-        // Debug logging for featured brands
-        if (isFeaturedBrands) {
-            console.log(`Featured Brands Update: currentIndex=${currentIndex}, translateX=${translateX}px`);
-        }
 
         // Update pagination bullets
         bullets.forEach((bullet, index) => {
             bullet.classList.toggle('active', index === currentIndex);
         });
 
-        // Update navigation buttons
+        // Update navigation buttons styling and accessibility
         if (prevBtn) {
             prevBtn.style.opacity = currentIndex === 0 ? '0.3' : '1';
             prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
@@ -191,18 +194,16 @@ function initGenericSlider(sectionOrSelector) {
         }
     }
 
-    // Event listeners for bullets
+    // Event listeners for pagination bullets
     bullets.forEach((bullet, index) => {
         bullet.addEventListener('click', () => {
-            console.log(`${sectionSelector} bullet clicked: ${index}`);
             goToSlide(index);
         });
     });
 
-    // Event listeners for arrows
+    // Event listeners for navigation arrows
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
-            console.log(`${sectionSelector} prev clicked, currentIndex: ${currentIndex}`);
             if (currentIndex > 0) {
                 currentIndex--;
                 updateSlider();
@@ -212,7 +213,6 @@ function initGenericSlider(sectionOrSelector) {
 
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-            console.log(`${sectionSelector} next clicked, currentIndex: ${currentIndex}`);
             if (currentIndex < maxIndex) {
                 currentIndex++;
                 updateSlider();
@@ -220,10 +220,43 @@ function initGenericSlider(sectionOrSelector) {
         });
     }
 
-    // Handle window resize
-    window.addEventListener('resize', updateSlider);
+    // Mobile Swipe Gestures
+    let touchStartX = 0;
+    let touchEndX = 0;
 
-    // Initialize
+    slidesGrid.addEventListener('touchstart', function (e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    slidesGrid.addEventListener('touchend', function (e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const swipeThreshold = 40; // minimum drag distance in px
+        if (touchStartX - touchEndX > swipeThreshold) {
+            // Swiped left -> Go to Next Slide
+            if (currentIndex < maxIndex) {
+                currentIndex++;
+                updateSlider();
+            }
+        } else if (touchEndX - touchStartX > swipeThreshold) {
+            // Swiped right -> Go to Previous Slide
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateSlider();
+            }
+        }
+    }
+
+    // Handle window resize dynamically
+    window.addEventListener('resize', debounce(() => {
+        updateSlider();
+    }, 150));
+
+    // Initialize dimensions and positioning
+    calculateDimensions();
     updateSlider();
 }
 
@@ -254,6 +287,15 @@ if ('IntersectionObserver' in window) {
  */
 function initCourseAnimations() {
     const courseItems = document.querySelectorAll('.course-item');
+    if (window.innerWidth <= 768) {
+        // Skip hiding on mobile to prevent slider items remaining blank/invisible
+        courseItems.forEach(item => {
+            item.style.opacity = '1';
+            item.style.transform = 'none';
+        });
+        return;
+    }
+
     const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 
     const courseObserver = new IntersectionObserver((entries) => {
@@ -278,24 +320,9 @@ function initCourseAnimations() {
  */
 function initMissionSection() {
     const missionItems = document.querySelectorAll('.mission-item');
-    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 
-    const missionObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    missionItems.forEach((item, index) => {
-        item.style.opacity = '0';
-        item.style.transform = 'translateY(30px)';
-        item.style.transition = `all 0.6s ease ${index * 0.1}s`;
-        missionObserver.observe(item);
-
-        // Add hover effects for better interactivity
+    // Add hover effects for better interactivity regardless of screen size
+    missionItems.forEach((item) => {
         item.addEventListener('mouseenter', function () {
             const icon = this.querySelector('.mission-icon');
             const title = this.querySelector('.mission-title');
@@ -318,6 +345,32 @@ function initMissionSection() {
             }
         });
     });
+
+    if (window.innerWidth <= 768) {
+        missionItems.forEach(item => {
+            item.style.opacity = '1';
+            item.style.transform = 'none';
+        });
+        return;
+    }
+
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+
+    const missionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    missionItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(30px)';
+        item.style.transition = `all 0.6s ease ${index * 0.1}s`;
+        missionObserver.observe(item);
+    });
 }
 
 /**
@@ -325,6 +378,14 @@ function initMissionSection() {
  */
 function initOutstandingCategories() {
     const categoryItems = document.querySelectorAll('.thim-widget-course-categories-grid li');
+    if (window.innerWidth <= 768) {
+        categoryItems.forEach(item => {
+            item.style.opacity = '1';
+            item.style.transform = 'none';
+        });
+        return;
+    }
+
     const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 
     const categoryObserver = new IntersectionObserver((entries) => {
@@ -351,6 +412,12 @@ function initCustomerSaysSection() {
     const testimonialContainer = customerSaysSection.querySelector('.testimonials-container');
     if (!testimonialContainer) return;
 
+    if (window.innerWidth <= 768) {
+        testimonialContainer.style.opacity = '1';
+        testimonialContainer.style.transform = 'none';
+        return;
+    }
+
     // Add entrance animation
     const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
     const testimonialObserver = new IntersectionObserver((entries) => {
@@ -373,23 +440,8 @@ function initUpcomingEventsSection() {
     if (!upcomingEventsSection) return;
 
     const eventItems = upcomingEventsSection.querySelectorAll('.event-item');
-    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 
-    const eventObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    eventItems.forEach((item, index) => {
-        item.style.opacity = '0';
-        item.style.transform = 'translateY(30px)';
-        item.style.transition = `all 0.6s ease ${index * 0.1}s`;
-        eventObserver.observe(item);
-
+    eventItems.forEach((item) => {
         // Add hover effects for better interactivity
         item.addEventListener('mouseenter', function () {
             const image = this.querySelector('.event-image img');
@@ -413,15 +465,18 @@ function initUpcomingEventsSection() {
             }
         });
     });
-}
-function initLatestNewsSection() {
-    const latestNewsSection = document.querySelector('.latest-news-section');
-    if (!latestNewsSection) return;
 
-    const newsItems = latestNewsSection.querySelectorAll('.news-item');
+    if (window.innerWidth <= 768) {
+        eventItems.forEach(item => {
+            item.style.opacity = '1';
+            item.style.transform = 'none';
+        });
+        return;
+    }
+
     const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 
-    const newsObserver = new IntersectionObserver((entries) => {
+    const eventObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
@@ -430,12 +485,21 @@ function initLatestNewsSection() {
         });
     }, observerOptions);
 
-    newsItems.forEach((item, index) => {
+    eventItems.forEach((item, index) => {
         item.style.opacity = '0';
         item.style.transform = 'translateY(30px)';
         item.style.transition = `all 0.6s ease ${index * 0.1}s`;
-        newsObserver.observe(item);
+        eventObserver.observe(item);
+    });
+}
 
+function initLatestNewsSection() {
+    const latestNewsSection = document.querySelector('.latest-news-section');
+    if (!latestNewsSection) return;
+
+    const newsItems = latestNewsSection.querySelectorAll('.news-item');
+
+    newsItems.forEach((item) => {
         // Add hover effects for better interactivity
         item.addEventListener('mouseenter', function () {
             const image = this.querySelector('.news-image img');
@@ -467,4 +531,42 @@ function initLatestNewsSection() {
             }
         });
     });
+
+    if (window.innerWidth <= 768) {
+        newsItems.forEach(item => {
+            item.style.opacity = '1';
+            item.style.transform = 'none';
+        });
+        return;
+    }
+
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+
+    const newsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    newsItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(30px)';
+        item.style.transition = `all 0.6s ease ${index * 0.1}s`;
+        newsObserver.observe(item);
+    });
+}
+
+/**
+ * Debounce helper function
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
 }
