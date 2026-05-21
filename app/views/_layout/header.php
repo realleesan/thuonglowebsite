@@ -76,43 +76,79 @@ if (class_exists('CategoriesModel')) {
                     </a>
                 </div>
 
-                <!-- Categories Dropdown -->
-                <div class="categories-dropdown <?php echo ($currentPage == 'categories') ? 'active' : ''; ?>">
-                    <a href="<?php echo nav_url('categories'); ?>" class="categories-btn">
-                        <span>Danh mục </span>
+                <!-- Products Mega Menu in Top Header Row -->
+                <div class="categories-dropdown has-dropdown <?php echo (in_array($currentPage, $productPages)) ? 'active' : ''; ?>">
+                    <a href="<?php echo nav_url('products'); ?>" class="categories-btn">
+                        <span>Sản phẩm </span>
                         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </a>
-                    <div class="categories-menu categories-flyout">
-                        <?php if (!empty($headerCategories)): ?>
-                            <?php
-                            function renderFlyoutMenu($categories, $level = 1) {
-                                foreach ($categories as $cat):
-                                    $hasChildren = !empty($cat['children']);
-                            ?>
-                                <div class="flyout-item<?php echo $hasChildren ? ' has-children' : ''; ?>" data-level="<?php echo $level; ?>">
-                                    <a href="<?php echo page_url('products', ['category' => $cat['id']]); ?>" class="flyout-link">
-                                        <?php echo htmlspecialchars($cat['name']); ?>
-                                    </a>
-                                    <?php if ($hasChildren): ?>
-                                        <span class="flyout-arrow" data-submenu="submenu-<?php echo $cat['id']; ?>">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </span>
-                                        <div class="flyout-submenu" id="submenu-<?php echo $cat['id']; ?>">
-                                            <?php renderFlyoutMenu($cat['children'], $level + 1); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php
-                                endforeach;
-                            }
-                            renderFlyoutMenu($headerCategories);
-                            ?>
-                        <?php endif; ?>
+                    <div class="categories-menu categories-mega-menu">
+                        <div class="categories-mega-grid">
+
+                            <!-- Dynamic Categories Columns -->
+                            <?php if (!empty($headerCategories)): ?>
+                                <?php 
+                                // Distribute parent categories into exactly 3 columns (SePay style)
+                                $columns = [[], [], []];
+                                $colIndex = 0;
+                                foreach ($headerCategories as $parentCat) {
+                                    $columns[$colIndex % 3][] = $parentCat;
+                                    $colIndex++;
+                                }
+                                
+                                foreach ($columns as $columnCats): 
+                                ?>
+                                    <div class="mega-column">
+                                        <?php foreach ($columnCats as $parentCat): 
+                                            $parentHasChildren = !empty($parentCat['children']);
+                                        ?>
+                                            <!-- Parent Category Block -->
+                                            <div class="mega-parent-block">
+                                                <!-- Parent Category Header -->
+                                                <div class="mega-parent-header">
+                                                    <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" class="mega-parent-title">
+                                                        <?php echo htmlspecialchars($parentCat['name']); ?>
+                                                    </a>
+                                                </div>
+                                                
+                                                <?php if ($parentHasChildren): ?>
+                                                    <div class="mega-child-list">
+                                                        <?php foreach ($parentCat['children'] as $childCat): 
+                                                            $childHasChildren = !empty($childCat['children']);
+                                                        ?>
+                                                            <div class="mega-child-item">
+                                                                <a href="<?php echo page_url('products', ['category' => $childCat['id']]); ?>" class="mega-child-link-group">
+                                                                    <div class="mega-child-info">
+                                                                        <span class="mega-child-name"><?php echo htmlspecialchars($childCat['name']); ?></span>
+                                                                        <?php if (!empty($childCat['description'])): ?>
+                                                                            <span class="mega-child-desc"><?php echo htmlspecialchars($childCat['description']); ?></span>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                </a>
+                                                                
+                                                                <?php if ($childHasChildren): ?>
+                                                                    <div class="mega-grandchild-list">
+                                                                        <?php foreach ($childCat['children'] as $grandchildCat): ?>
+                                                                            <a href="<?php echo page_url('products', ['category' => $grandchildCat['id']]); ?>" class="mega-grandchild-link">
+                                                                                <?php echo htmlspecialchars($grandchildCat['name']); ?>
+                                                                            </a>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
-
                 <!-- Search Bar -->
                 <div class="search-bar">
                     <form method="get" action="<?php echo base_url(); ?>">
@@ -154,13 +190,7 @@ if (class_exists('CategoriesModel')) {
                 ?>
                 <ul class="main-menu">
                     <li class="<?php echo ($currentPage == 'home') ? 'active' : ''; ?>"><a href="<?php echo base_url(); ?>">Trang chủ</a></li>
-                    <li class="has-dropdown <?php echo (in_array($currentPage, $productPages)) ? 'active' : ''; ?>">
-                        <a href="<?php echo nav_url('products'); ?>">Sản phẩm <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                        <div class="dropdown-menu">
-                            <a href="<?php echo page_url('products', ['order_by' => 'post_date']); ?>">Mới nhất</a>
-                            <a href="<?php echo page_url('products', ['order_by' => 'popular']); ?>">Phổ biến</a>
-                        </div>
-                    </li>
+
                     <li class="has-dropdown <?php echo (in_array($currentPage, $guidePages)) ? 'active' : ''; ?>">
                         <button type="button" class="dropdown-btn">Hướng dẫn <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                         <div class="dropdown-menu">
@@ -182,11 +212,31 @@ if (class_exists('CategoriesModel')) {
                     </li>
                     <li class="has-dropdown <?php echo ($currentPage == 'brands') ? 'active' : ''; ?>">
                         <a href="<?php echo nav_url('brands'); ?>">Thương hiệu <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                        <div class="dropdown-menu">
+                        <div class="dropdown-menu brands-mega-menu">
                             <?php if (!empty($headerBrands)): ?>
-                                <?php foreach ($headerBrands as $brand): ?>
-                                    <a href="<?php echo page_url('products', ['brand' => $brand['id']]); ?>"><?php echo htmlspecialchars($brand['name']); ?></a>
-                                <?php endforeach; ?>
+                                <div class="brands-mega-grid">
+                                    <?php 
+                                    // Distribute brands into exactly 4 columns for balanced height
+                                    $brandCols = [[], [], [], []];
+                                    $bIndex = 0;
+                                    foreach ($headerBrands as $brand) {
+                                        $brandCols[$bIndex % 4][] = $brand;
+                                        $bIndex++;
+                                    }
+                                    
+                                    foreach ($brandCols as $colBrands): 
+                                    ?>
+                                        <div class="brands-column">
+                                            <?php foreach ($colBrands as $brand): ?>
+                                                <a href="<?php echo page_url('products', ['brand' => $brand['id']]); ?>" class="brand-mega-link">
+                                                    <span class="brand-name"><?php echo htmlspecialchars($brand['name']); ?></span>
+                                                </a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="brands-empty">Không có thương hiệu</div>
                             <?php endif; ?>
                         </div>
                     </li>
@@ -490,48 +540,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // Flyout menu hover handling
-    document.querySelectorAll('.flyout-arrow').forEach(function(arrow) {
-        var submenuId = arrow.getAttribute('data-submenu');
-        var submenu = document.getElementById(submenuId);
 
-        if (submenu) {
-            arrow.addEventListener('mouseenter', function() {
-                submenu.style.opacity = '1';
-                submenu.style.visibility = 'visible';
-                submenu.style.transform = 'translateX(0)';
-                submenu.style.pointerEvents = 'auto';
-            });
-
-            arrow.addEventListener('mouseleave', function() {
-                setTimeout(function() {
-                    if (!submenu.matches(':hover') && !arrow.matches(':hover')) {
-                        submenu.style.opacity = '';
-                        submenu.style.visibility = '';
-                        submenu.style.transform = '';
-                        submenu.style.pointerEvents = '';
-                    }
-                }, 100);
-            });
-
-            submenu.addEventListener('mouseenter', function() {
-                submenu.style.opacity = '1';
-                submenu.style.visibility = 'visible';
-                submenu.style.transform = 'translateX(0)';
-                submenu.style.pointerEvents = 'auto';
-            });
-
-            submenu.addEventListener('mouseleave', function() {
-                setTimeout(function() {
-                    if (!arrow.matches(':hover') && !submenu.matches(':hover')) {
-                        submenu.style.opacity = '';
-                        submenu.style.visibility = '';
-                        submenu.style.transform = '';
-                        submenu.style.pointerEvents = '';
-                    }
-                }, 100);
-            });
-        }
-    });
 });
 </script>

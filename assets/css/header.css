@@ -170,7 +170,13 @@ body {
     pointer-events: none;
 }
 
-/* Remove all hover effects - only click on arrow works */
+/* Show categories-menu on hover */
+.categories-dropdown:hover .categories-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+}
 
 .categories-menu a {
     display: block;
@@ -306,7 +312,7 @@ body {
 }
 
 /* Show submenu on arrow hover */
-.flyout-arrow:hover + .flyout-submenu,
+.flyout-arrow:hover+.flyout-submenu,
 .flyout-submenu:hover {
     opacity: 1;
     visibility: visible;
@@ -315,7 +321,7 @@ body {
 }
 
 /* Also show when hovering the item itself but only if has children */
-.flyout-item.has-children:hover > .flyout-submenu {
+.flyout-item.has-children:hover>.flyout-submenu {
     opacity: 1;
     visibility: visible;
     transform: translateX(0);
@@ -328,9 +334,251 @@ body {
     font-size: 13px;
 }
 
-/* Arrow indicator for nested submenus */
-.flyout-submenu .flyout-arrow {
-    padding: 8px 10px;
+/* Categories Mega Menu (Sepay Style) */
+.categories-mega-menu {
+    width: 980px !important;
+    left: -100px !important;
+    padding: 30px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #E5E7EB !important;
+}
+
+.categories-mega-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 30px 40px !important;
+}
+
+.mega-column {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Parent Category Block & Dividers */
+.mega-parent-block {
+    padding-bottom: 24px !important;
+    margin-bottom: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.mega-parent-block:not(:last-child) {
+    border-bottom: 1px solid #E5E7EB !important;
+    /* Elegant horizontal separator line between parent categories */
+}
+
+/* Parent Category Style */
+.mega-parent-header {
+    padding-bottom: 0 !important;
+    margin-bottom: 16px !important;
+}
+
+.mega-parent-title {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    color: #4B5563 !important;
+    letter-spacing: 0.05em !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+    display: block !important;
+    padding: 0 !important;
+}
+
+.mega-parent-title:hover {
+    color: #356DF1 !important;
+}
+
+/* Child Category List */
+.mega-child-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+}
+
+.mega-child-item {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.mega-child-link-group {
+    display: flex !important;
+    align-items: flex-start !important;
+    text-decoration: none !important;
+}
+
+.mega-child-info {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.mega-child-name {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1F2937 !important;
+    line-height: 1.3 !important;
+    transition: color 0.2s ease !important;
+}
+
+.mega-child-link-group:hover .mega-child-name {
+    color: #356DF1 !important;
+}
+
+.mega-child-desc {
+    font-size: 12px !important;
+    color: #6B7280 !important;
+    margin-top: 2px !important;
+    line-height: 1.4 !important;
+    font-weight: 400 !important;
+}
+
+/* Grandchild Category Links (Vertical Stacked under children) */
+.mega-grandchild-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    padding-left: 16px !important;
+    /* Elegant natural indentation */
+}
+
+.mega-grandchild-link {
+    font-size: 13px !important;
+    color: #6B7280 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    display: block !important;
+    padding: 2px 0 !important;
+}
+
+.mega-grandchild-link:hover {
+    color: #356DF1 !important;
+    padding-left: 4px !important;
+}
+
+/* Responsive Design for Mega Menu */
+@media (max-width: 1200px) {
+    .categories-mega-menu {
+        width: 800px !important;
+        left: -80px !important;
+    }
+
+    .categories-mega-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px 30px !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .categories-mega-menu {
+        width: 100vw !important;
+        max-width: 720px !important;
+        left: -150px !important;
+        padding: 20px !important;
+    }
+
+    .categories-mega-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .categories-mega-menu {
+        width: 100vw !important;
+        max-width: 480px !important;
+        left: -20px !important;
+        padding: 15px !important;
+    }
+
+    .categories-mega-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    .mega-grandchild-list {
+        padding-left: 16px !important;
+    }
+}
+
+/* Brands Mega Menu */
+.brands-mega-menu {
+    width: 680px !important;
+    left: -200px !important;
+    padding: 24px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #E5E7EB !important;
+    background: #FFFFFF !important;
+}
+
+.brands-mega-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+}
+
+.brands-column {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.brand-mega-link {
+    display: block !important;
+    padding: 10px 16px !important;
+    color: #4B5563 !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    border-radius: 6px !important;
+    transition: all 0.25s ease !important;
+    line-height: 1.2 !important;
+}
+
+.brand-mega-link:hover {
+    color: #356DF1 !important;
+    background-color: #F3F4F6 !important;
+    padding-left: 20px !important;
+    /* Slide smoothly exactly matching standard dropdown */
+}
+
+.brands-empty {
+    color: #9CA3AF !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    padding: 10px !important;
+}
+
+/* Responsive adjustments for Brands Mega Menu */
+@media (max-width: 1024px) {
+    .brands-mega-menu {
+        width: 500px !important;
+        left: -150px !important;
+    }
+
+    .brands-mega-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .brands-mega-menu {
+        width: 280px !important;
+        left: -50px !important;
+        padding: 15px !important;
+    }
+
+    .brands-mega-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .brand-mega-link {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+    }
 }
 
 /* Search Bar */
@@ -422,11 +670,11 @@ body {
     padding: 0;
 }
 
-.main-menu > li {
+.main-menu>li {
     position: relative;
 }
 
-.main-menu > li > a {
+.main-menu>li>a {
     display: flex;
     align-items: center;
     padding: 22px 16px;
@@ -438,7 +686,7 @@ body {
     transition: color 0.3s ease;
 }
 
-.main-menu > li > a svg {
+.main-menu>li>a svg {
     margin-left: 8px;
     flex-shrink: 0;
 }
@@ -470,10 +718,11 @@ body {
     top: 100%;
     left: 0;
     background: white;
-    min-width: 280px;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 15px 0;
+    min-width: 240px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 12px !important;
+    border: 1px solid #E5E7EB !important;
+    padding: 10px 8px !important;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
@@ -490,25 +739,34 @@ body {
     pointer-events: auto;
 }
 
-/* Remove all hover effects - only click on arrow works */
-
 /* Ensure dropdown still works when parent has button */
-.has-dropdown > a,
-.has-dropdown > .dropdown-btn {
+.has-dropdown>a,
+.has-dropdown>.dropdown-btn {
     position: relative;
 }
 
 .dropdown-menu a {
-    display: block;
-    padding: 8px 20px;
-    color: #374151;
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s ease;
+    display: block !important;
+    padding: 10px 16px !important;
+    color: #4B5563 !important;
+    text-decoration: none !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    transition: all 0.25s ease !important;
 }
 
 .dropdown-menu a:not(.btn-view-cart):hover {
-    color: #356DF1;
+    color: #356DF1 !important;
+    background-color: #F3F4F6 !important;
+    padding-left: 20px !important;
+    /* Slide smoothly exactly matching brands menu */
+}
+
+.dropdown-menu hr {
+    border: 0 !important;
+    border-top: 1px solid #E5E7EB !important;
+    margin: 8px 12px !important;
 }
 
 .new-badge {
@@ -769,7 +1027,7 @@ body {
     .header-content {
         gap: 20px;
     }
-    
+
     .search-bar {
         max-width: none;
     }
@@ -780,21 +1038,21 @@ body {
         flex-wrap: wrap;
         gap: 15px;
     }
-    
+
     .search-bar {
         order: 3;
         width: 100%;
         max-width: none;
     }
-    
+
     .main-menu {
         display: none;
     }
-    
+
     .header-buttons {
         gap: 15px;
     }
-    
+
     .btn-get-started {
         padding: 8px 16px;
         font-size: 13px;
@@ -805,25 +1063,26 @@ body {
     .categories-dropdown {
         display: none;
     }
-    
+
     .header-buttons {
         gap: 10px;
     }
 }
+
 /* Active menu styling - ensure only one active at a time */
-.main-menu > li.active > a,
-.main-menu > li.active > .dropdown-btn {
+.main-menu>li.active>a,
+.main-menu>li.active>.dropdown-btn {
     color: #356DF1 !important;
 }
 
-.main-menu > li:not(.active) > a,
-.main-menu > li:not(.active) > .dropdown-btn {
+.main-menu>li:not(.active)>a,
+.main-menu>li:not(.active)>.dropdown-btn {
     color: #374151;
 }
 
-.main-menu > li:hover > a,
-.main-menu > li:hover > .dropdown-btn,
-.main-menu > li.active > a,
-.main-menu > li.active > .dropdown-btn {
+.main-menu>li:hover>a,
+.main-menu>li:hover>.dropdown-btn,
+.main-menu>li.active>a,
+.main-menu>li.active>.dropdown-btn {
     color: #356DF1;
 }

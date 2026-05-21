@@ -59,7 +59,6 @@ function displayCategoryChildren($children, $level = 1) {
                 </div>
                 <div class="item-info">
                     <span class="item-name"><?= htmlspecialchars($child['name'] ?? '') ?></span>
-                    <span class="item-count">(<?= $child['count'] ?? 0 ?>)</span>
                 </div>
                 <div class="item-controls">
                     <?php if (!empty($child['children'])): ?>
@@ -124,7 +123,6 @@ function displayCategoryChildren($children, $level = 1) {
             <div class="criteria-title">
                 <i class="fas fa-folder"></i>
                 <span>Danh Mục</span>
-                <span class="item-count">(<?= count($categories_data) ?>)</span>
             </div>
             <div class="criteria-controls">
                 <label class="switch">
@@ -146,7 +144,6 @@ function displayCategoryChildren($children, $level = 1) {
                             </div>
                             <div class="item-info">
                                 <span class="item-name"><?= htmlspecialchars($category['name'] ?? '') ?></span>
-                                <span class="item-count">(<?= $category['count'] ?? 0 ?>)</span>
                             </div>
                             <div class="item-controls">
                                 <?php if (!empty($category['children'])): ?>
@@ -183,7 +180,6 @@ function displayCategoryChildren($children, $level = 1) {
             <div class="criteria-title">
                 <i class="fas fa-tag"></i>
                 <span>Thương Hiệu</span>
-                <span class="item-count">(<?= count($brands_data) ?>)</span>
             </div>
             <div class="criteria-controls">
                 <label class="switch">
@@ -205,7 +201,6 @@ function displayCategoryChildren($children, $level = 1) {
                             </div>
                             <div class="item-info">
                                 <span class="item-name"><?= htmlspecialchars($brand['name'] ?? '') ?></span>
-                                <span class="item-count">(<?= $brand['count'] ?? 0 ?>)</span>
                             </div>
                             <div class="item-controls">
                                 <label class="switch">
@@ -231,7 +226,6 @@ function displayCategoryChildren($children, $level = 1) {
             <div class="criteria-title">
                 <i class="fas fa-dollar-sign"></i>
                 <span>Khoảng Giá</span>
-                <span class="item-count">(<?= count($price_ranges_data) ?>)</span>
             </div>
             <div class="criteria-controls">
                 <label class="switch">

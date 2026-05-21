@@ -288,14 +288,14 @@ class FilterConfigService {
      */
     public function getParentCategoriesForFilter(): array {
         try {
-            // Get ALL categories with their filter config sort order
+            // Get ALL categories with their filter config sort order (exclude news categories)
             $sql = "SELECT c.id, c.name, c.parent_id, c.sort_order, COUNT(p.id) as product_count,
                            COALESCE(fc.sort_order, c.sort_order, 999) as filter_sort_order,
                            COALESCE(fc.is_enabled, 1) as filter_enabled
                     FROM categories c
                     LEFT JOIN products p ON c.id = p.category_id AND p.status = 'active'
                     LEFT JOIN filter_config fc ON fc.criteria_type = 'categories' AND fc.item_id = c.id
-                    WHERE c.status = 'active' AND c.show_in_filter = 1
+                    WHERE c.status = 'active' AND c.show_in_filter = 1 AND (c.type != 'news' OR c.type IS NULL)
                     GROUP BY c.id
                     ORDER BY c.parent_id, filter_sort_order ASC, c.name ASC";
             
