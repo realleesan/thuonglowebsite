@@ -46,6 +46,7 @@
 }
 
 @media (max-width: 768px) {
+
     .dashboard-header,
     .account-header,
     .orders-header,
@@ -270,7 +271,7 @@
     .user-sidebar {
         transform: translateX(-100%);
     }
-    
+
     .user-sidebar.mobile-open {
         transform: translateX(0);
     }
@@ -279,7 +280,8 @@
 /* Layout Integration - Contained within site width */
 .user-content-with-sidebar {
     max-width: 1320px;
-    margin: 32px auto 60px auto; /* Add bottom margin to separate from footer */
+    margin: 32px auto 60px auto;
+    /* Add bottom margin to separate from footer */
     padding: 0 20px;
     display: flex;
     gap: 24px;
@@ -288,24 +290,28 @@
 
 .user-dashboard {
     flex: 1;
-    min-width: 0; /* Prevent flex item from overflowing */
+    min-width: 0;
+    /* Prevent flex item from overflowing */
 }
 
 @media (max-width: 768px) {
     .user-content-with-sidebar {
         flex-direction: column;
         padding: 0 16px;
-        margin-bottom: 40px; /* Ensure bottom spacing on mobile */
+        margin-bottom: 40px;
+        /* Ensure bottom spacing on mobile */
     }
-    
+
     .user-sidebar {
         width: 100%;
         position: static;
         order: -1;
     }
-    
+
     .user-dashboard {
-        padding-bottom: 40px; /* Reduce bottom padding on mobile */
-        margin-bottom: 20px; /* Reduce bottom margin on mobile */
+        padding-bottom: 40px;
+        /* Reduce bottom padding on mobile */
+        margin-bottom: 20px;
+        /* Reduce bottom margin on mobile */
     }
 }

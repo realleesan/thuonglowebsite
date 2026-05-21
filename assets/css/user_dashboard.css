@@ -1,9 +1,11 @@
 /* User Dashboard Styles - Clean & Professional */
 .user-dashboard {
-    background: #ffffff; /* Change from gray to white */
+    background: #ffffff;
+    /* Change from gray to white */
     min-height: 500px;
     width: 100%;
-    overflow: hidden; /* Prevent content overflow */
+    overflow: hidden;
+    /* Prevent content overflow */
     padding: 24px;
     border-radius: 12px;
     border: 1px solid #e5e7eb;
@@ -197,6 +199,7 @@
 }
 
 @media (max-width: 1024px) {
+
     .chart-widget-large,
     .chart-widget-purchase-trend {
         grid-column: span 1;
@@ -269,15 +272,15 @@
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
+
     .recent-orders-widget {
         grid-column: span 1;
     }
-    
+
     .quick-actions-widget {
         grid-column: span 1;
     }
-    
+
     .quick-actions {
         grid-template-columns: 1fr 1fr;
     }
@@ -534,11 +537,11 @@
     .dashboard-charts {
         grid-template-columns: 1fr 1fr;
     }
-    
+
     .chart-widget-large {
         grid-column: span 2;
     }
-    
+
     .dashboard-content {
         grid-template-columns: 1fr 1fr;
     }
@@ -548,30 +551,30 @@
     .user-dashboard {
         padding: 0;
     }
-    
+
     .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
         padding: 20px;
     }
-    
+
     .dashboard-charts {
         grid-template-columns: 1fr;
     }
-    
+
     .chart-widget-large {
         grid-column: span 1;
     }
-    
+
     .dashboard-content {
         grid-template-columns: 1fr;
     }
-    
+
     .quick-actions {
         grid-template-columns: 1fr;
     }
-    
+
     .summary-grid {
         grid-template-columns: 1fr;
     }

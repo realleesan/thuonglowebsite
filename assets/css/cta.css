@@ -113,15 +113,15 @@
         gap: 40px;
         min-height: 400px;
     }
-    
+
     .cta-image {
         height: 400px;
     }
-    
+
     .cta-text {
         padding-left: 20px;
     }
-    
+
     .cta-title,
     .cta-subtitle {
         font-size: 40px;
@@ -135,25 +135,25 @@
         text-align: center;
         min-height: auto;
     }
-    
+
     .cta-image {
         flex: none;
         order: 2;
         height: 300px;
         width: 100%;
     }
-    
+
     .cta-text {
         flex: none;
         order: 1;
         padding: 40px 20px;
     }
-    
+
     .cta-title,
     .cta-subtitle {
         font-size: 32px;
     }
-    
+
     .cta-description {
         font-size: 15px;
     }
@@ -163,16 +163,16 @@
     .cta-image {
         height: 250px;
     }
-    
+
     .cta-text {
         padding: 30px 20px;
     }
-    
+
     .cta-title,
     .cta-subtitle {
         font-size: 28px;
     }
-    
+
     .cta-button {
         padding: 12px 24px;
         font-size: 15px;

@@ -389,11 +389,11 @@
     .products-layout {
         grid-template-columns: 1fr;
     }
-    
+
     .filter-toggle-btn {
         display: block;
     }
-    
+
     /* Mobile sidebar styles are now unified in products.css */
 }
 
@@ -401,11 +401,11 @@
     .products-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .page-title {
         font-size: 2rem;
     }
-    
+
     .products-topbar {
         flex-direction: column;
         gap: 15px;

@@ -824,32 +824,32 @@
     .product-details-layout {
         grid-template-columns: 1fr;
     }
-    
+
     .product-sidebar {
         position: static;
     }
-    
+
     .product-title {
         font-size: 24px;
     }
-    
+
     .product-meta {
         flex-wrap: wrap;
         gap: 15px;
     }
-    
+
     .product-thumbnail {
         height: 200px;
     }
-    
+
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
-    
+
     .product-tabs {
         flex-wrap: wrap;
     }
-    
+
     .tab-button {
         padding: 12px 20px;
         font-size: 14px;
@@ -860,25 +860,25 @@
     .product-details-section {
         padding: 20px 0 40px;
     }
-    
+
     .product-title {
         font-size: 20px;
     }
-    
+
     .product-price .price {
         font-size: 20px;
     }
-    
-    .btn-order, 
+
+    .btn-order,
     .btn-cart {
         padding: 10px 16px;
         font-size: 14px;
     }
-    
+
     .products-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .related-products-section h3 {
         font-size: 20px;
     }
@@ -1070,12 +1070,12 @@
         grid-template-columns: 1fr;
         gap: 30px;
     }
-    
+
     .course-sidebar {
         position: static;
         order: -1;
     }
-    
+
     .objectives-grid {
         grid-template-columns: 1fr;
     }
@@ -1085,33 +1085,33 @@
     .course-title {
         font-size: 24px;
     }
-    
+
     .course-meta {
         flex-wrap: wrap;
         gap: 15px;
     }
-    
+
     .tabs-nav {
         gap: 20px;
         overflow-x: auto;
         padding-bottom: 5px;
     }
-    
+
     .tab-item {
         white-space: nowrap;
         flex-shrink: 0;
     }
-    
+
     .rating-overview {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .instructor-profile {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .instructor-stats {
         justify-content: center;
     }
@@ -1121,15 +1121,15 @@
     .course-details-section {
         padding: 20px 0 40px;
     }
-    
+
     .course-header {
         margin-bottom: 30px;
     }
-    
+
     .course-title {
         font-size: 20px;
     }
-    
+
     .course-card-content {
         padding: 20px 16px;
     }

@@ -427,7 +427,7 @@
         flex-direction: column;
         width: 100%;
     }
-    
+
     .wishlist-summary-actions .wishlist-btn {
         width: 100%;
         justify-content: center;
@@ -473,23 +473,23 @@
     .user-wishlist {
         padding: 16px;
     }
-    
+
     .wishlist-header {
         padding: 16px;
     }
-    
+
     .wishlist-header-left h1 {
         font-size: 20px;
     }
-    
+
     .wishlist-item {
         padding: 16px;
     }
-    
+
     .wishlist-item-actions {
         gap: 4px;
     }
-    
+
     .wishlist-btn-small,
     .wishlist-item-remove {
         width: 32px;

@@ -136,15 +136,15 @@
         padding: 24px;
         margin: 20px;
     }
-    
+
     .message-title {
         font-size: 24px;
     }
-    
+
     .message-actions {
         flex-direction: column;
     }
-    
+
     .message-actions .btn {
         width: 100%;
         justify-content: center;

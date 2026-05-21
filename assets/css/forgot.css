@@ -46,7 +46,8 @@
     flex: 1;
     height: 2px;
     background: #E5E7EB;
-    margin: -22px 5px 0 5px; /* Căn chỉnh để nằm giữa hình tròn */
+    margin: -22px 5px 0 5px;
+    /* Căn chỉnh để nằm giữa hình tròn */
 }
 
 /* --- TRẠNG THÁI --- */
@@ -58,7 +59,11 @@
     color: #fff;
     box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.2);
 }
-.step.active p { color: #356DF1; font-weight: 700; }
+
+.step.active p {
+    color: #356DF1;
+    font-weight: 700;
+}
 
 /* Đã hoàn thành (Màu xanh lá) */
 .step.completed span {
@@ -66,17 +71,25 @@
     border-color: #10B981;
     color: #fff;
 }
-.step.completed p { color: #10B981; }
+
+.step.completed p {
+    color: #10B981;
+}
 
 
 /* --- CÁC STYLE CŨ (Giữ lại để không lỗi giao diện khác) --- */
-.verification-extra { margin-top: 8px; }
-.inline-form { display: inline; }
+.verification-extra {
+    margin-top: 8px;
+}
+
+.inline-form {
+    display: inline;
+}
 
 @font-face {
     font-family: 'Font Awesome 5 Free';
     src: url('../fonts/awesome-5x/fa-solid-900.woff2') format('woff2'),
-         url('../fonts/awesome-5x/fa-solid-900.woff') format('woff');
+        url('../fonts/awesome-5x/fa-solid-900.woff') format('woff');
     font-weight: 900;
     font-style: normal;
     font-display: swap;
@@ -268,6 +281,7 @@
     cursor: pointer;
     padding: 0;
 }
+
 .forgot-actions .ref-code-action:hover {
     color: black;
     transform: translateY(-1px);

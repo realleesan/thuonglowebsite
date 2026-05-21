@@ -476,25 +476,25 @@
     .user-data-list {
         padding: 16px;
     }
-    
+
     .page-header {
         padding: 16px;
     }
-    
+
     .page-header-left h1 {
         font-size: 20px;
     }
-    
+
     .data-table th,
     .data-table td {
         padding: 10px 12px;
         font-size: 13px;
     }
-    
+
     .qr-cell {
         width: 60px;
     }
-    
+
     .qr-thumb {
         width: 40px;
         height: 40px;

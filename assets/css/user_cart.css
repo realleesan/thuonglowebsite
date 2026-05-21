@@ -503,7 +503,7 @@
         width: 100%;
         flex-direction: column;
     }
-    
+
     .cart-summary-actions .cart-btn {
         width: 100%;
         justify-content: center;
@@ -529,8 +529,13 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ========================================
@@ -574,26 +579,26 @@
     .user-cart {
         padding: 16px;
     }
-    
+
     .cart-actions {
         width: 100%;
     }
-    
+
     .cart-actions .cart-btn {
         flex: 1;
         justify-content: center;
     }
-    
+
     .cart-empty {
         padding: 40px 16px;
     }
-    
+
     .cart-empty-icon {
         width: 80px;
         height: 80px;
         font-size: 32px;
     }
-    
+
     .cart-empty h3 {
         font-size: 20px;
     }
@@ -611,6 +616,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -684,7 +690,7 @@
     border-color: #356DF1;
 }
 
-.cart-checkbox input:checked ~ .checkmark {
+.cart-checkbox input:checked~.checkmark {
     background-color: #356DF1;
     border-color: #356DF1;
 }
@@ -702,7 +708,7 @@
     transform: rotate(45deg);
 }
 
-.cart-checkbox input:checked ~ .checkmark:after {
+.cart-checkbox input:checked~.checkmark:after {
     display: block;
 }
 

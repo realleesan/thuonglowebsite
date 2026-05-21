@@ -9,7 +9,8 @@
 
 /* Breadcrumb Section */
 .breadcrumb-section {
-    background-color: #E1E9FD !important; /* Force light background */
+    background-color: #E1E9FD !important;
+    /* Force light background */
     padding: 20px 0;
     border-bottom: 1px solid rgba(53, 109, 241, 0.1);
 }
@@ -29,14 +30,16 @@
 
 /* Breadcrumb Links */
 .breadcrumb-link {
-    color: #444 !important; /* Màu đen như text bình thường - Force override */
+    color: #444 !important;
+    /* Màu đen như text bình thường - Force override */
     text-decoration: none !important;
     transition: all 0.3s ease;
     position: relative;
 }
 
 .breadcrumb-link:hover {
-    color: #356DF1 !important; /* Chỉ khi hover mới xanh - Force override */
+    color: #356DF1 !important;
+    /* Chỉ khi hover mới xanh - Force override */
     /* Bỏ text-decoration: underline; */
 }
 
@@ -78,7 +81,7 @@
     .breadcrumb-section {
         padding: 16px 0;
     }
-    
+
     .breadcrumb {
         font-size: 13px;
         gap: 10px;
@@ -90,21 +93,21 @@
     .breadcrumb-section {
         padding: 12px 0;
     }
-    
+
     .breadcrumb {
         font-size: 12px;
         gap: 8px;
         flex-wrap: wrap;
     }
-    
+
     /* Ẩn một số breadcrumb trung gian trên mobile nếu quá dài */
     .breadcrumb .breadcrumb-link:not(:first-child):not(:last-child),
     .breadcrumb .breadcrumb-current:not(:last-child) {
         display: none;
     }
-    
+
     /* Hiển thị dấu ... cho breadcrumb bị ẩn */
-    .breadcrumb .breadcrumb-link:first-child + .delimiter::after {
+    .breadcrumb .breadcrumb-link:first-child+.delimiter::after {
         content: "...";
         color: #4444445C;
         margin: 0 4px;
@@ -118,17 +121,19 @@
 /* High contrast mode support */
 @media (prefers-contrast: high) {
     .breadcrumb-link {
-        color: #000; /* Đen đậm hơn cho high contrast */
+        color: #000;
+        /* Đen đậm hơn cho high contrast */
     }
-    
+
     .breadcrumb-link:hover {
-        color: #0000EE; /* Xanh đậm khi hover */
+        color: #0000EE;
+        /* Xanh đậm khi hover */
     }
-    
+
     .breadcrumb-current {
         color: #000;
     }
-    
+
     .delimiter {
         color: #666;
     }

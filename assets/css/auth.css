@@ -9,7 +9,7 @@
 @font-face {
     font-family: 'Font Awesome 5 Free';
     src: url('../fonts/awesome-5x/fa-solid-900.woff2') format('woff2'),
-         url('../fonts/awesome-5x/fa-solid-900.woff') format('woff');
+        url('../fonts/awesome-5x/fa-solid-900.woff') format('woff');
     font-weight: 900;
     font-style: normal;
     font-display: swap;
@@ -21,7 +21,7 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(120deg, rgba(17, 24, 39, 0.78), rgba(37, 99, 235, 0.55)),
-                url('../img/about_hero_banner.jpg');
+        url('../img/about_hero_banner.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -29,6 +29,7 @@
     transform: scale(1.02);
     z-index: 0;
 }
+
 body {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -439,9 +440,17 @@ body {
     margin-top: 6px;
 }
 
-.strength-weak { color: #DC2626; }
-.strength-medium { color: #D97706; }
-.strength-strong { color: #059669; }
+.strength-weak {
+    color: #DC2626;
+}
+
+.strength-medium {
+    color: #D97706;
+}
+
+.strength-strong {
+    color: #059669;
+}
 
 .social-register {
     margin-top: 12px;
@@ -596,23 +605,23 @@ body {
     .step-indicator {
         padding: 0 10px;
     }
-    
+
     .step span {
         width: 32px;
         height: 32px;
         font-size: 14px;
     }
-    
+
     .step p {
         font-size: 11px;
     }
-    
+
     .step-line {
         width: 40px;
         margin: 0 8px;
         margin-bottom: 16px;
     }
-    
+
     .code-input {
         font-size: 20px;
         letter-spacing: 4px;
@@ -829,14 +838,14 @@ body {
         flex-direction: column;
         gap: 2px;
     }
-    
+
     .session-warning {
         top: 10px;
         right: 10px;
         left: 10px;
         max-width: none;
     }
-    
+
     .password-requirements small {
         font-size: 10px;
     }
@@ -847,11 +856,11 @@ body {
     .password-strength {
         color: #d1d5db;
     }
-    
+
     .req-unmet {
         color: #9ca3af;
     }
-    
+
     .password-requirements small {
         color: #9ca3af;
     }
@@ -884,19 +893,20 @@ body {
         background-color: #ff0000;
         padding: 2px 4px;
     }
-    
+
     .strength-medium .strength-text {
         color: #000000;
         background-color: #ffff00;
         padding: 2px 4px;
     }
-    
+
     .strength-strong .strength-text {
         color: #ffffff;
         background-color: #008000;
         padding: 2px 4px;
     }
 }
+
 /* Field Error Styles */
 .field-error {
     color: #dc2626;
@@ -925,6 +935,7 @@ body {
     border-color: #dc2626;
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
 }
+
 /* Agent Role Selection Styles */
 .role-selection {
     margin: 1.5rem 0;
@@ -962,7 +973,7 @@ body {
     background: #f8f9fa;
 }
 
-.role-option input[type="radio"]:checked + .role-label {
+.role-option input[type="radio"]:checked+.role-label {
     border-color: #007bff;
     background: #e7f3ff;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
@@ -1030,7 +1041,7 @@ body {
         flex-direction: row;
         gap: 1.5rem;
     }
-    
+
     .role-option {
         flex: 1;
     }
@@ -1085,7 +1096,7 @@ body {
     margin: 0;
 }
 
-.radio-option input[type="radio"]:checked + label {
+.radio-option input[type="radio"]:checked+label {
     color: #2563eb;
     font-weight: 600;
 }

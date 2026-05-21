@@ -114,11 +114,11 @@
     background-color: #f8fafc;
 }
 
-.category-item.active > .category-item-content {
+.category-item.active>.category-item-content {
     background-color: #eff6ff;
 }
 
-.category-item.active > .category-item-content .filter-item-label {
+.category-item.active>.category-item-content .filter-item-label {
     color: #356df1;
     font-weight: 600;
 }
@@ -154,12 +154,12 @@ input[type="checkbox"] {
     display: none;
 }
 
-input[type="checkbox"]:checked + .custom-checkbox {
+input[type="checkbox"]:checked+.custom-checkbox {
     background-color: #356df1;
     border-color: #356df1;
 }
 
-input[type="checkbox"]:checked + .custom-checkbox::after {
+input[type="checkbox"]:checked+.custom-checkbox::after {
     content: '\f00c';
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
@@ -186,12 +186,12 @@ input[type="radio"] {
     flex-shrink: 0;
 }
 
-input[type="radio"]:checked + .custom-radio {
+input[type="radio"]:checked+.custom-radio {
     background-color: #356df1;
     border-color: #356df1;
 }
 
-input[type="radio"]:checked + .custom-radio::after {
+input[type="radio"]:checked+.custom-radio::after {
     content: '';
     position: absolute;
     top: 4px;
@@ -307,11 +307,11 @@ input[type="radio"]:checked + .custom-radio::after {
     background: #f1f5f9;
 }
 
-.sub-categories .category-item.active > .category-item-content {
+.sub-categories .category-item.active>.category-item-content {
     background: #e0f2fe;
 }
 
-.sub-categories .category-item.active > .category-item-content .category-label {
+.sub-categories .category-item.active>.category-item-content .category-label {
     color: #0284c7;
     font-weight: 600;
 }
@@ -412,6 +412,7 @@ input[type="radio"]:checked + .custom-radio::after {
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+
     .products-sidebar,
     .categories-sidebar,
     .news-sidebar,
@@ -464,6 +465,7 @@ input[type="radio"]:checked + .custom-radio::after {
 }
 
 @media (max-width: 480px) {
+
     .products-sidebar,
     .categories-sidebar,
     .news-sidebar,
