@@ -211,7 +211,69 @@ function generateSlug($name) {
                                 </select>
                                 <small>Chọn danh mục cha nếu đây là danh mục con</small>
                             </div>
+
+                            <div class="form-group col-6">
+                                <label for="icon">Icon danh mục</label>
+                                <div class="icon-picker-container">
+                                    <div class="icon-picker-input-group" style="display: flex; gap: 8px;">
+                                        <div class="icon-preview-box" id="icon-preview-box" style="display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border: 1px solid #d1d5db; border-radius: 6px; background: #f9fafb; color: #356df1; font-size: 1.25rem;">
+                                            <i class="<?= htmlspecialchars($_POST['icon'] ?? 'fas fa-folder') ?>"></i>
+                                        </div>
+                                        <input type="text" id="icon" name="icon" value="<?= htmlspecialchars($_POST['icon'] ?? '') ?>" placeholder="Ví dụ: fas fa-laptop" style="flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 0 12px;">
+                                    </div>
+                                    <div class="icon-grid-selector" style="margin-top: 10px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; max-height: 150px; overflow-y: auto;">
+                                        <small style="display: block; margin-bottom: 8px; color: #6b7280; font-weight: 500;">Chọn nhanh từ bộ icon mẫu:</small>
+                                        <div class="icon-grid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px;">
+                                            <?php
+                                            $sampleIcons = [
+                                                // Folders & Documents
+                                                'fas fa-folder', 'fas fa-folder-open', 'fas fa-file-alt', 'fas fa-file-invoice', 'fas fa-book', 'fas fa-bookmark', 'fas fa-archive',
+                                                // Tech & Electronics
+                                                'fas fa-laptop', 'fas fa-desktop', 'fas fa-mobile-alt', 'fas fa-tablet-alt', 'fas fa-server', 'fas fa-database', 'fas fa-code', 'fas fa-headphones', 'fas fa-tv', 'fas fa-camera', 'fas fa-plug', 'fas fa-battery-full', 'fas fa-wifi',
+                                                // Shopping & Business
+                                                'fas fa-shopping-cart', 'fas fa-shopping-bag', 'fas fa-shopping-basket', 'fas fa-store', 'fas fa-gift', 'fas fa-tags', 'fas fa-tag', 'fas fa-wallet', 'fas fa-credit-card', 'fas fa-dollar-sign', 'fas fa-money-bill-wave', 'fas fa-briefcase', 'fas fa-chart-line', 'fas fa-chart-bar', 'fas fa-chart-pie',
+                                                // Clothes & Fashion & Beauty
+                                                'fas fa-tshirt', 'fas fa-socks', 'fas fa-crown', 'fas fa-gem', 'fas fa-glasses', 'fas fa-magic', 'fas fa-scissors', 'fas fa-brush', 'fas fa-spa',
+                                                // Tools & Maintenance
+                                                'fas fa-tools', 'fas fa-cog', 'fas fa-wrench', 'fas fa-key', 'fas fa-lock', 'fas fa-unlock', 'fas fa-shield-alt', 'fas fa-hammer', 'fas fa-screwdriver', 'fas fa-ruler',
+                                                // Shipping & Transportation & Travel
+                                                'fas fa-truck', 'fas fa-shipping-fast', 'fas fa-plane', 'fas fa-car', 'fas fa-bicycle', 'fas fa-motorcycle', 'fas fa-globe', 'fas fa-map-marker-alt', 'fas fa-compass', 'fas fa-route',
+                                                // Food & Drink
+                                                'fas fa-utensils', 'fas fa-coffee', 'fas fa-glass-martini-alt', 'fas fa-beer', 'fas fa-wine-glass', 'fas fa-pizza-slice', 'fas fa-hamburger', 'fas fa-ice-cream', 'fas fa-apple-alt', 'fas fa-cookie',
+                                                // Home & Building & Furniture
+                                                'fas fa-home', 'fas fa-building', 'fas fa-couch', 'fas fa-bed', 'fas fa-bath', 'fas fa-lightbulb', 'fas fa-shower', 'fas fa-door-open', 'fas fa-chair',
+                                                // Sports & Fitness & Game
+                                                'fas fa-dumbbell', 'fas fa-running', 'fas fa-swimmer', 'fas fa-medal', 'fas fa-trophy', 'fas fa-gamepad', 'fas fa-dice', 'fas fa-football-ball',
+                                                // Communications & Social & Media
+                                                'fas fa-comments', 'fas fa-envelope', 'fas fa-phone-alt', 'fas fa-share-alt', 'fas fa-user-friends', 'fas fa-bell', 'fas fa-calendar-alt', 'fas fa-clock', 'fas fa-images', 'fas fa-video', 'fas fa-music', 'fas fa-heart', 'fas fa-star',
+                                                // Science & Nature & Others
+                                                'fas fa-flask', 'fas fa-microscope', 'fas fa-graduation-cap', 'fas fa-leaf', 'fas fa-tree', 'fas fa-seedling', 'fas fa-sun', 'fas fa-moon', 'fas fa-cloud', 'fas fa-umbrella', 'fas fa-fire', 'fas fa-paw', 'fas fa-anchor', 'fas fa-atom', 'fas fa-brain', 'fas fa-eye', 'fas fa-smile', 'fas fa-thumbs-up'
+                                            ];
+                                            foreach ($sampleIcons as $ico):
+                                            ?>
+                                                <button type="button" class="icon-select-btn <?= ($_POST['icon'] ?? '') === $ico ? 'active' : '' ?>" data-icon="<?= $ico ?>" title="<?= $ico ?>" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #e5e7eb; border-radius: 4px; background: #fff; cursor: pointer; transition: all 0.2s; font-size: 1rem; color: #4b5563;">
+                                                    <i class="<?= $ico ?>"></i>
+                                                </button>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <style>
+                        .icon-select-btn:hover {
+                            border-color: #356df1 !important;
+                            background-color: #eef4ff !important;
+                            color: #356df1 !important;
+                        }
+                        .icon-select-btn.active {
+                            border-color: #356df1 !important;
+                            background-color: #356df1 !important;
+                            color: #fff !important;
+                        }
+                        </style>
+
 
                         <div class="form-group">
                             <label for="description" class="required">Mô tả danh mục</label>
@@ -368,5 +430,35 @@ function previewImageAdd(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+// Icon picker logic
+document.querySelectorAll('.icon-select-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.icon-select-btn').forEach(function(b) {
+            b.classList.remove('active');
+        });
+        
+        this.classList.add('active');
+        
+        var iconClass = this.getAttribute('data-icon');
+        document.getElementById('icon').value = iconClass;
+        
+        var previewI = document.getElementById('icon-preview-box').querySelector('i');
+        previewI.className = iconClass;
+    });
+});
+
+document.getElementById('icon').addEventListener('input', function() {
+    var val = this.value.trim() || 'fas fa-folder';
+    document.getElementById('icon-preview-box').querySelector('i').className = val;
+    
+    document.querySelectorAll('.icon-select-btn').forEach(function(b) {
+        if (b.getAttribute('data-icon') === val) {
+            b.classList.add('active');
+        } else {
+            b.classList.remove('active');
+        }
+    });
+});
 </script>
 

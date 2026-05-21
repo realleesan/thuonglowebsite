@@ -9,6 +9,7 @@ require_once __DIR__ . '/../models/BudgetProductsSectionModel.php';
 require_once __DIR__ . '/../models/SaleProductsSectionModel.php';
 require_once __DIR__ . '/../models/FeaturedCategoriesSectionModel.php';
 require_once __DIR__ . '/../models/FeaturedBrandsSectionModel.php';
+require_once __DIR__ . '/../models/LatestNewsSectionModel.php';
 require_once __DIR__ . '/../../core/view_init.php';
 
 class HomepageController {
@@ -21,6 +22,7 @@ class HomepageController {
     private $saleProductsSectionModel;
     private $featuredCategoriesSectionModel;
     private $featuredBrandsSectionModel;
+    private $latestNewsSectionModel;
 
     public function __construct() {
         $this->authService = new AuthService();
@@ -32,6 +34,7 @@ class HomepageController {
         $this->saleProductsSectionModel = new SaleProductsSectionModel();
         $this->featuredCategoriesSectionModel = new FeaturedCategoriesSectionModel();
         $this->featuredBrandsSectionModel = new FeaturedBrandsSectionModel();
+        $this->latestNewsSectionModel = new LatestNewsSectionModel();
     }
 
     /**
@@ -173,6 +176,27 @@ class HomepageController {
                 ];
             }
             
+            // Initialize latest news section
+            $latestNewsSection = null;
+            try {
+                $latestNewsSection = $this->latestNewsSectionModel->getFirst();
+                
+                if (!$latestNewsSection) {
+                    $this->latestNewsSectionModel->createSection([
+                        'title' => '<h2 class="section-title">Tin tức <span class="highlight">Mới nhất</span></h2>',
+                        'is_active' => 1
+                    ]);
+                    $latestNewsSection = $this->latestNewsSectionModel->getFirst();
+                }
+            } catch (Exception $e) {
+                error_log("Latest news section error: " . $e->getMessage());
+                $latestNewsSection = [
+                    'id' => 0,
+                    'title' => '<h2 class="section-title">Tin tức <span class="highlight">Mới nhất</span></h2>',
+                    'is_active' => 1
+                ];
+            }
+            
             $data = [
                 'title' => 'Quản lý Trang chủ',
                 'heroSections' => $heroSections,
@@ -182,6 +206,7 @@ class HomepageController {
                 'saleProductsSection' => $saleProductsSection,
                 'featuredCategoriesSection' => $featuredCategoriesSection,
                 'featuredBrandsSection' => $featuredBrandsSection,
+                'latestNewsSection' => $latestNewsSection,
                 'user' => $this->getCurrentUser()
             ];
 
@@ -1028,6 +1053,121 @@ class HomepageController {
             }
         } catch (Exception $e) {
             error_log("Error in toggleFeaturedBrandsStatus: " . $e->getMessage());
+            $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    /**
+     * Edit latest news section
+     */
+    public function editLatestNews(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            // Get or create latest news section
+            $section = $this->latestNewsSectionModel->getFirst();
+            if (!$section) {
+                // Create default section if not exists
+                $this->latestNewsSectionModel->createSection([
+                    'title' => '<h2 class="section-title">Tin tức <span class="highlight">Mới nhất</span></h2>',
+                    'is_active' => 1
+                ]);
+                $section = $this->latestNewsSectionModel->getFirst();
+            }
+
+            if ($section) {
+                $data = [
+                    'title' => 'Chỉnh sửa Section Tin tức Mới nhất',
+                    'latestNewsSection' => $section,
+                    'user' => $this->getCurrentUser()
+                ];
+                $this->renderView('admin/homepage/edit_latest_news', $data);
+            } else {
+                $this->setFlashMessage('error', 'Không thể tạo section');
+                $this->redirect('?page=admin&module=homepage');
+            }
+        } catch (Exception $e) {
+            error_log("Error in editLatestNews: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Update latest news section
+     */
+    public function updateLatestNews(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $id = $_POST['id'] ?? 0;
+            $title = $_POST['title'] ?? '';
+            $isActive = isset($_POST['is_active']) && $_POST['is_active'] == '1' ? 1 : 0;
+
+            if ($id > 0) {
+                $result = $this->latestNewsSectionModel->updateSection($id, [
+                    'title' => $title,
+                    'is_active' => $isActive
+                ]);
+
+                if ($this->isAjaxRequest()) {
+                    $this->sendJsonResponse([
+                        'success' => $result,
+                        'message' => $result ? 'Đã cập nhật section thành công' : 'Có lỗi xảy ra khi cập nhật'
+                    ]);
+                } else {
+                    if ($result) {
+                        $this->setFlashMessage('success', 'Đã cập nhật section thành công');
+                    } else {
+                        $this->setFlashMessage('error', 'Có lỗi xảy ra khi cập nhật');
+                    }
+                    $this->redirect('?page=admin&module=homepage');
+                }
+            } else {
+                if ($this->isAjaxRequest()) {
+                    $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+                } else {
+                    $this->setFlashMessage('error', 'Invalid ID');
+                    $this->redirect('?page=admin&module=homepage');
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Error in updateLatestNews: " . $e->getMessage());
+            if ($this->isAjaxRequest()) {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()]);
+            } else {
+                $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+                $this->redirect('?page=admin&module=homepage');
+            }
+        }
+    }
+
+    /**
+     * Toggle latest news section status
+     */
+    public function toggleLatestNewsStatus(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? 0;
+            if ($id > 0) {
+                $result = $this->latestNewsSectionModel->toggleStatus($id);
+                $this->sendJsonResponse([
+                    'success' => $result,
+                    'message' => $result ? 'Đã cập nhật trạng thái thành công' : 'Có lỗi xảy ra khi cập nhật trạng thái'
+                ]);
+            } else {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+            }
+        } catch (Exception $e) {
+            error_log("Error in toggleLatestNewsStatus: " . $e->getMessage());
             $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
         }
     }

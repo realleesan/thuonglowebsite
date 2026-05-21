@@ -61,6 +61,7 @@ try {
     $featuredProductsSection = $homeData['featuredProductsSection'] ?? ['is_active' => true];
     $featuredCategoriesSection = $homeData['featuredCategoriesSection'] ?? ['is_active' => true];
     $featuredBrandsSection = $homeData['featuredBrandsSection'] ?? ['is_active' => true];
+    $latestNewsSection = $homeData['latestNewsSection'] ?? ['is_active' => true];
     
     // Fallback: fetch featured brands directly if service doesn't provide them
     if (empty($featuredBrands) && isset($service) && method_exists($service, 'getFeaturedBrands')) {
@@ -245,7 +246,7 @@ try {
 <section class="popular-courses-section">
     <div class="container">
         <div class="section-header">
-            <?php echo $featuredProductsSection['title'] ?? '<h2 class="section-title">Sản phẩm <span class="highlight">Nổi bật</span></h2>'; ?>
+            <?php echo $featuredProductsSection['title'] ?? ''; ?>
             <a href="?page=products" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -446,7 +447,7 @@ try {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <div class="empty-state">
-                                <p>Chưa có sản phẩm mới nào. Vui lòng quay lại sau.</p>
+                                <p>Chưa có tin tức nào. Vui lòng quay lại sau.</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -832,10 +833,11 @@ try {
 <?php endif; ?>
 
 <!-- Latest News Section -->
+<?php if (isset($latestNewsSection) && $latestNewsSection['is_active']): ?>
 <section class="latest-news-section">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Tin tức <span class="highlight">Mới nhất</span></h2>
+            <?php echo $latestNewsSection['title'] ?? ''; ?>
             <a href="?page=news" class="see-more-btn">
                 Xem thêm
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -892,6 +894,7 @@ try {
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- Why Choose ThuongLo -->
 <section class="mission-section">

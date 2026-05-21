@@ -156,22 +156,30 @@ class PublicService extends BaseService
             ['is_active' => 1, 'title' => '<h2 class="section-title">Thương hiệu <span class="highlight">Nổi bật</span></h2>']
         );
         
+        $latestNewsSection = $this->callModelMethod(
+            'LatestNewsSectionModel',
+            'getFirst',
+            [],
+            ['is_active' => 1, 'title' => '<h2 class="section-title">Tin tức <span class="highlight">Mới nhất</span></h2>']
+        );
+        
         // Transform keys to match home view expectations
         return [
+            'heroSection' => $data['heroSection'] ?? [],
             'featuredProducts' => $data['featured_products'] ?? [],
             'latestProducts' => $data['latest_products'] ?? [],
             'budgetProducts' => $data['budget_products'] ?? [],
             'saleProducts' => $data['sale_products'] ?? [],
             'featuredCategories' => $data['featured_categories'] ?? [],
             'featuredBrands' => $data['featured_brands'] ?? [],
-            'latestNews' => $data['latest_news'] ?? [],
-            // Add actual section settings from database
             'featuredProductsSection' => $featuredProductsSection,
             'latestProductsSection' => $latestProductsSection,
             'budgetProductsSection' => $budgetProductsSection,
             'saleProductsSection' => $saleProductsSection,
             'featuredCategoriesSection' => $featuredCategoriesSection,
-            'featuredBrandsSection' => $featuredBrandsSection
+            'featuredBrandsSection' => $featuredBrandsSection,
+            'latestNewsSection' => $latestNewsSection,
+            'latestNews' => $data['latest_news'] ?? [],
         ];
     }
 

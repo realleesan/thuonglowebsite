@@ -5,6 +5,23 @@ require_once __DIR__ . '/../../services/AuthService.php';
 $authService = new AuthService();
 $isAuthenticated = $authService->isAuthenticated();
 
+// Get current page
+$currentPage = isset($_GET['page']) ? $_GET['page'] : 'home';
+
+// Also check if we're on the root path (index.php or /)
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+
+// If accessing root or index.php directly without page param, set to home
+if (empty($_GET['page']) && ($requestUri === '/' || $requestUri === '/index.php' || preg_match('#^/[^/]*\.php$#', $requestUri))) {
+    $currentPage = 'home';
+}
+
+// Define page groups for dropdown menus
+$guidePages = ['about', 'guide', 'contact', 'faq'];
+$newsPages = ['news'];
+$productPages = ['products', 'details', 'course-details']; // Removed 'categories' from here
+
 // Try to get categories from global $publicService
 $headerCategories = [];
 $newsCategories = [];
@@ -107,7 +124,10 @@ if (class_exists('CategoriesModel')) {
                                             <!-- Parent Category Block -->
                                             <div class="mega-parent-block">
                                                 <!-- Parent Category Header -->
-                                                <div class="mega-parent-header">
+                                                <div class="mega-parent-header" style="display: flex; align-items: center; gap: 8px;">
+                                                    <?php if (!empty($parentCat['icon'])): ?>
+                                                        <span class="mega-parent-icon" style="color: #356df1; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="<?php echo htmlspecialchars($parentCat['icon']); ?>"></i></span>
+                                                    <?php endif; ?>
                                                     <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" class="mega-parent-title">
                                                         <?php echo htmlspecialchars($parentCat['name']); ?>
                                                     </a>
@@ -119,7 +139,10 @@ if (class_exists('CategoriesModel')) {
                                                             $childHasChildren = !empty($childCat['children']);
                                                         ?>
                                                             <div class="mega-child-item">
-                                                                <a href="<?php echo page_url('products', ['category' => $childCat['id']]); ?>" class="mega-child-link-group">
+                                                                <a href="<?php echo page_url('products', ['category' => $childCat['id']]); ?>" class="mega-child-link-group" style="display: flex; align-items: flex-start; gap: 8px;">
+                                                                    <?php if (!empty($childCat['icon'])): ?>
+                                                                        <span class="mega-child-icon" style="color: #356df1; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><i class="<?php echo htmlspecialchars($childCat['icon']); ?>"></i></span>
+                                                                    <?php endif; ?>
                                                                     <div class="mega-child-info">
                                                                         <span class="mega-child-name"><?php echo htmlspecialchars($childCat['name']); ?></span>
                                                                         <?php if (!empty($childCat['description'])): ?>
@@ -131,8 +154,11 @@ if (class_exists('CategoriesModel')) {
                                                                 <?php if ($childHasChildren): ?>
                                                                     <div class="mega-grandchild-list">
                                                                         <?php foreach ($childCat['children'] as $grandchildCat): ?>
-                                                                            <a href="<?php echo page_url('products', ['category' => $grandchildCat['id']]); ?>" class="mega-grandchild-link">
-                                                                                <?php echo htmlspecialchars($grandchildCat['name']); ?>
+                                                                            <a href="<?php echo page_url('products', ['category' => $grandchildCat['id']]); ?>" class="mega-grandchild-link" style="display: inline-flex; align-items: center; gap: 6px;">
+                                                                                <?php if (!empty($grandchildCat['icon'])): ?>
+                                                                                    <span class="mega-grandchild-icon" style="color: #356df1; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="<?php echo htmlspecialchars($grandchildCat['icon']); ?>"></i></span>
+                                                                                <?php endif; ?>
+                                                                                <span><?php echo htmlspecialchars($grandchildCat['name']); ?></span>
                                                                             </a>
                                                                         <?php endforeach; ?>
                                                                     </div>
@@ -170,24 +196,7 @@ if (class_exists('CategoriesModel')) {
         <div class="container">
             <div class="nav-content">
                 <!-- Main Menu -->
-                <?php
-                // Get current page
-                $currentPage = isset($_GET['page']) ? $_GET['page'] : 'home';
-                
-                // Also check if we're on the root path (index.php or /)
-                $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-                $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-                
-                // If accessing root or index.php directly without page param, set to home
-                if (empty($_GET['page']) && ($requestUri === '/' || $requestUri === '/index.php' || preg_match('#^/[^/]*\.php$#', $requestUri))) {
-                    $currentPage = 'home';
-                }
-                
-                // Define page groups for dropdown menus
-                $guidePages = ['about', 'guide', 'contact', 'faq'];
-                $newsPages = ['news'];
-                $productPages = ['products', 'details', 'course-details']; // Removed 'categories' from here
-                ?>
+
                 <ul class="main-menu">
                     <li class="<?php echo ($currentPage == 'home') ? 'active' : ''; ?>"><a href="<?php echo base_url(); ?>">Trang chủ</a></li>
 

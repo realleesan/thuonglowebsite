@@ -621,6 +621,87 @@ unset($_SESSION['flash_error']);
     </div>
 </div>
 
+<!-- Latest News Section -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="fas fa-newspaper text-info me-2"></i>
+                    Section Tin tức Mới nhất
+                </h5>
+                <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề và hiển thị section tin tức mới nhất</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($latestNewsSection)): ?>
+            <div class="text-center py-5">
+                <img src="https://illustrations.popsy.co/gray/folder.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                <h6 class="text-muted">Chưa có cấu hình</h6>
+                <p class="text-muted small">Section tin tức mới nhất chưa được cấu hình</p>
+                <a href="?page=admin&module=homepage&action=edit_latest_news" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Tạo cấu hình
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 fw-bold text-muted border-0" style="width: 80px;">ID</th>
+                            <th class="fw-bold text-muted border-0">Tiêu đề</th>
+                            <th class="text-center fw-bold text-muted border-0" style="width: 120px;">Trạng thái</th>
+                            <th class="text-end pe-4 fw-bold text-muted border-0" style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $latestNewsSection['id']; ?></td>
+                            <td class="align-middle">
+                                <div class="text-dark">
+                                    <?php 
+                                    $title = $latestNewsSection['title'] ?? '';
+                                    $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                    $title = strip_tags($title);
+                                    $title = trim($title);
+                                    echo $title ?: '(Không có tiêu đề)';
+                                    ?>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle">
+                                <?php if ($latestNewsSection['is_active']): ?>
+                                    <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge rounded-pill bg-soft-secondary text-muted px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-end pe-4 align-middle">
+                                <div class="btn-group" role="group">
+                                    <a href="?page=admin&module=homepage&action=edit_latest_news" 
+                                       class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-icon btn-light-<?php echo $latestNewsSection['is_active'] ? 'warning' : 'success'; ?>"
+                                            onclick="toggleLatestNewsStatus(<?php echo $latestNewsSection['id']; ?>)"
+                                            title="<?php echo $latestNewsSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                        <i class="fas fa-<?php echo $latestNewsSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
 <script>
 function toggleHeroStatus(id) {
     if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Hero Section này?')) {
@@ -715,6 +796,21 @@ function toggleFeaturedCategoriesStatus(id) {
 function toggleFeaturedBrandsStatus(id) {
     if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Thương hiệu Nổi bật?')) {
         fetch('?page=admin&module=homepage&action=toggle-featured-brands-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleLatestNewsStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Tin tức Mới nhất?')) {
+        fetch('?page=admin&module=homepage&action=toggle-latest-news-status', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: id })

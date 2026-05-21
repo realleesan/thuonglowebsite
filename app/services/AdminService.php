@@ -1200,6 +1200,17 @@ class AdminService extends BaseService
                 $bindings[] = $filters['status'];
             }
 
+            if (!empty($filters['level'])) {
+                $level = (int)$filters['level'];
+                if ($level === 1) {
+                    $conditions[] = "(parent_id IS NULL OR parent_id = 0)";
+                } elseif ($level === 2) {
+                    $conditions[] = "parent_id IN (SELECT id FROM categories WHERE parent_id IS NULL OR parent_id = 0) AND (parent_id IS NOT NULL AND parent_id != 0)";
+                } elseif ($level === 3) {
+                    $conditions[] = "parent_id IN (SELECT id FROM categories WHERE parent_id IN (SELECT id FROM categories WHERE parent_id IS NULL OR parent_id = 0)) AND parent_id NOT IN (SELECT id FROM categories WHERE parent_id IS NULL OR parent_id = 0) AND (parent_id IS NOT NULL AND parent_id != 0)";
+                }
+            }
+
             $whereClause = !empty($conditions) ? 'WHERE ' . implode(' AND ', $conditions) : '';
             $countSql = "SELECT COUNT(*) as total FROM categories {$whereClause}";
             $totalResult = $categoriesModel->query($countSql, $bindings);

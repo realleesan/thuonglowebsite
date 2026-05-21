@@ -11,13 +11,15 @@ try {
     // Search and filter parameters
     $search = $_GET['search'] ?? '';
     $status_filter = $_GET['status'] ?? '';
+    $level_filter = $_GET['level'] ?? '';
     $current_page = max(1, (int)($_GET['p'] ?? 1));
     $per_page = 10;
     
     // Prepare filters for AdminService
     $filters = [
         'search' => $search,
-        'status' => $status_filter
+        'status' => $status_filter,
+        'level' => $level_filter
     ];
     
     // Get categories data using AdminService
@@ -141,6 +143,16 @@ foreach ($allCategories as $cat) {
                         <option value="inactive" <?= $status_filter == 'inactive' ? 'selected' : '' ?>>Không hoạt động</option>
                     </select>
                 </div>
+
+                <div class="filter-item">
+                    <label for="level">Cấp độ:</label>
+                    <select id="level" name="level">
+                        <option value="">Tất cả cấp độ</option>
+                        <option value="1" <?= $level_filter == '1' ? 'selected' : '' ?>>Cấp 1</option>
+                        <option value="2" <?= $level_filter == '2' ? 'selected' : '' ?>>Cấp 2</option>
+                        <option value="3" <?= $level_filter == '3' ? 'selected' : '' ?>>Cấp 3</option>
+                    </select>
+                </div>
                 
                 <div class="filter-actions">
                     <button type="submit" class="btn btn-secondary">
@@ -164,29 +176,41 @@ foreach ($allCategories as $cat) {
     </div>
 
     <!-- Categories Table -->
+    <style>
+        .table-container .admin-table th {
+            white-space: normal !important;
+            word-break: break-word !important;
+            font-size: 11px !important;
+            padding: 10px 4px !important;
+            vertical-align: middle !important;
+            text-transform: uppercase;
+            line-height: 1.2 !important;
+        }
+    </style>
     <div class="table-container">
-        <table class="admin-table">
+        <table class="admin-table" style="table-layout: fixed; width: 100%;">
             <thead>
                 <tr>
-                    <th width="40">
+                    <th width="35">
                         <input type="checkbox" id="select-all">
                     </th>
-                    <th width="60">ID</th>
-                    <th width="80">Hình ảnh</th>
-                    <th>Tên danh mục</th>
-                    <th width="80">Cấp độ</th>
-                    <th width="150">Slug</th>
+                    <th width="40">ID</th>
+                    <th width="65">Ảnh</th>
+                    <th width="40" class="text-center">Icon</th>
+                    <th width="200">Tên danh mục</th>
+                    <th width="70">Cấp</th>
+                    <th width="120">Slug</th>
                     <th>Mô tả</th>
-                    <th width="100">Số sản phẩm</th>
-                    <th width="100">Trạng thái</th>
-                    <th width="120">Ngày tạo</th>
-                    <th width="120">Thao tác</th>
+                    <th width="90">Số SP</th>
+                    <th width="90">Trạng thái</th>
+                    <th width="90">Ngày tạo</th>
+                    <th width="110">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($paged_categories)): ?>
                     <tr>
-                        <td colspan="10" class="no-data">
+                        <td colspan="12" class="no-data">
                             <i class="fas fa-inbox"></i>
                             <p>Không tìm thấy danh mục nào</p>
                         </td>
@@ -210,10 +234,17 @@ foreach ($allCategories as $cat) {
                                     </div>
                                 <?php endif; ?>
                             </td>
+                            <td class="text-center">
+                                <?php if (!empty($category['icon'])): ?>
+                                    <span style="color: #356DF1; font-size: 1.25rem;"><i class="<?= htmlspecialchars($category['icon']) ?>"></i></span>
+                                <?php else: ?>
+                                    <span class="text-muted" style="font-size: 0.85rem;">—</span>
+                                <?php endif; ?>
+                            </td>
                             <td>
-                                <div class="category-info">
+                                <div class="category-info" style="max-width: 200px; overflow-wrap: break-word;">
                                     <?php $level = $categoryLevels[$category['id']] ?? 1; ?>
-                                    <h4 class="category-name" style="padding-left: <?= ($level - 1) * 20 ?>px;">
+                                    <h4 class="category-name" style="padding-left: <?= ($level - 1) * 20 ?>px; font-size: 14px; white-space: normal; word-break: break-word; line-height: 1.4; margin: 0;">
                                         <?= str_repeat('— ', $level - 1) ?><?= htmlspecialchars($category['name']) ?>
                                     </h4>
                                 </div>
@@ -222,17 +253,16 @@ foreach ($allCategories as $cat) {
                                 <span class="level-badge level-<?= $level ?>">Cấp <?= $level ?></span>
                             </td>
                             <td>
-                                <code class="slug-text"><?= htmlspecialchars($category['slug']) ?></code>
+                                <code class="slug-text" style="display: inline-block; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;" title="<?= htmlspecialchars($category['slug']) ?>"><?= htmlspecialchars($category['slug']) ?></code>
                             </td>
                             <td>
                                 <?php $desc = $category['description'] ?? ''; ?>
                                 <?php if (!empty($desc)): ?>
-                                    <p class="category-description">
-                                        <?= htmlspecialchars(mb_substr($desc, 0, 80)) ?>
-                                        <?= mb_strlen($desc) > 80 ? '...' : '' ?>
+                                    <p class="category-description" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0;" title="<?= htmlspecialchars($desc) ?>">
+                                        <?= htmlspecialchars($desc) ?>
                                     </p>
                                 <?php else: ?>
-                                    <span class="text-muted">Chưa có mô tả</span>
+                                    <span class="text-muted" style="font-size: 0.85rem;">Chưa có mô tả</span>
                                 <?php endif; ?>
                             </td>
                             <td>

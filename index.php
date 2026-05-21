@@ -2082,6 +2082,17 @@ switch($page) {
                         $homepageController->toggleFeaturedBrandsStatus();
                         exit;
                     
+                    // Latest News actions
+                    case 'edit_latest_news':
+                        $homepageController->editLatestNews();
+                        exit;
+                    case 'update_latest_news':
+                        $homepageController->updateLatestNews();
+                        exit;
+                    case 'toggle-latest-news-status':
+                        $homepageController->toggleLatestNewsStatus();
+                        exit;
+                    
                     // Hero Button actions (delegated)
                     case 'createButton':
                         $homepageController->createButton();
