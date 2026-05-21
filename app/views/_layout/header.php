@@ -101,11 +101,49 @@ if ($isAuthenticated) {
 }
 ?>
 
+<?php
+// Initialize dynamic Top Banner settings
+$topBanner = null;
+try {
+    if (!class_exists('TopBannerModel')) {
+        require_once __DIR__ . '/../../models/TopBannerModel.php';
+    }
+    if (class_exists('TopBannerModel')) {
+        $topBannerModel = new TopBannerModel();
+        // Retrieve the first record (including inactive ones to check status)
+        $topBanner = $topBannerModel->getFirst();
+    }
+} catch (Exception $e) {
+    error_log("Top banner frontend load error: " . $e->getMessage());
+}
+
+// Fallback to static banner if DB connection fails or record is not created yet
+if (!$topBanner) {
+    $topBanner = [
+        'id' => 0,
+        'content' => 'Chào mừng đến với ThuongLo! Nền tảng data nguồn hàng và dịch vụ thương mại xuyên biên giới hàng đầu.',
+        'button_text' => 'Khám phá ngay!',
+        'button_url' => '?page=products',
+        'is_active' => 1
+    ];
+}
+
+// Only render top banner if it's set to active
+if (isset($topBanner['is_active']) && $topBanner['is_active']):
+?>
     <div class="top-banner">
         <div class="container">
-            <p>Chào mừng đến với ThuongLo! Nền tảng data nguồn hàng và dịch vụ thương mại xuyên biên giới hàng đầu. <a href="?page=products">Khám phá ngay!</a></p>
+            <p>
+                <?php echo htmlspecialchars($topBanner['content']); ?>
+                <?php if (!empty($topBanner['button_text'])): ?>
+                    <a href="<?php echo htmlspecialchars($topBanner['button_url'] ?? '?page=products'); ?>">
+                        <?php echo htmlspecialchars($topBanner['button_text']); ?>
+                    </a>
+                <?php endif; ?>
+            </p>
         </div>
     </div>
+<?php endif; ?>
 
     <!-- Main Header -->
     <header class="main-header">

@@ -14,6 +14,8 @@ require_once __DIR__ . '/../models/WhyChooseSectionModel.php';
 require_once __DIR__ . '/../models/WhyChooseItemModel.php';
 require_once __DIR__ . '/../models/CustomCategorySectionModel.php';
 require_once __DIR__ . '/../models/CategoriesModel.php';
+require_once __DIR__ . '/../models/CtaSectionModel.php';
+require_once __DIR__ . '/../models/TopBannerModel.php';
 require_once __DIR__ . '/../../core/view_init.php';
 
 class HomepageController {
@@ -31,6 +33,8 @@ class HomepageController {
     private $whyChooseItemModel;
     private $customCategorySectionModel;
     private $categoriesModel;
+    private $ctaSectionModel;
+    private $topBannerModel;
 
     public function __construct() {
         $this->authService = new AuthService();
@@ -47,6 +51,8 @@ class HomepageController {
         $this->whyChooseItemModel = new WhyChooseItemModel();
         $this->customCategorySectionModel = new CustomCategorySectionModel();
         $this->categoriesModel = new CategoriesModel();
+        $this->ctaSectionModel = new CtaSectionModel();
+        $this->topBannerModel = new TopBannerModel();
     }
 
     /**
@@ -237,6 +243,62 @@ class HomepageController {
             } catch (Exception $e) {
                 error_log("Error fetching custom category sections: " . $e->getMessage());
             }
+
+            // Initialize CTA Section
+            $ctaSection = null;
+            try {
+                $ctaSection = $this->ctaSectionModel->getFirst();
+                if (!$ctaSection) {
+                    $this->ctaSectionModel->createSection([
+                        'title' => 'Trở thành một trong <span class="highlight">500+</span>',
+                        'subtitle' => 'Đại Lý Affiliate ThuongLo',
+                        'content' => 'Tham gia cùng chúng tôi và kiếm thu nhập thụ động từ việc giới thiệu dịch vụ thương mại xuyên biên giới hàng đầu Việt Nam',
+                        'button_text' => 'Đăng ký ngay',
+                        'button_url' => '?page=agent',
+                        'background_color' => '#ECEDEF',
+                        'image_url' => 'home/cta-final-1.png',
+                        'is_active' => 1
+                    ]);
+                    $ctaSection = $this->ctaSectionModel->getFirst();
+                }
+            } catch (Exception $e) {
+                error_log("CTA section error: " . $e->getMessage());
+                $ctaSection = [
+                    'id' => 0,
+                    'title' => 'Trở thành một trong <span class="highlight">500+</span>',
+                    'subtitle' => 'Đại Lý Affiliate ThuongLo',
+                    'content' => 'Tham gia cùng chúng tôi và kiếm thu nhập thụ động từ việc giới thiệu dịch vụ thương mại xuyên biên giới hàng đầu Việt Nam',
+                    'button_text' => 'Đăng ký ngay',
+                    'button_url' => '?page=agent',
+                    'background_color' => '#ECEDEF',
+                    'image_url' => 'home/cta-final-1.png',
+                    'is_active' => 1
+                ];
+            }
+
+            // Initialize Top Banner
+            $topBanner = null;
+            try {
+                $topBanner = $this->topBannerModel->getFirst();
+                if (!$topBanner) {
+                    $this->topBannerModel->createBanner([
+                        'content' => 'Chào mừng đến với ThuongLo! Nền tảng data nguồn hàng và dịch vụ thương mại xuyên biên giới hàng đầu.',
+                        'button_text' => 'Khám phá ngay!',
+                        'button_url' => '?page=products',
+                        'is_active' => 1
+                    ]);
+                    $topBanner = $this->topBannerModel->getFirst();
+                }
+            } catch (Exception $e) {
+                error_log("Top banner error: " . $e->getMessage());
+                $topBanner = [
+                    'id' => 0,
+                    'content' => 'Chào mừng đến với ThuongLo! Nền tảng data nguồn hàng và dịch vụ thương mại xuyên biên giới hàng đầu.',
+                    'button_text' => 'Khám phá ngay!',
+                    'button_url' => '?page=products',
+                    'is_active' => 1
+                ];
+            }
             
             $data = [
                 'title' => 'Quản lý Trang chủ',
@@ -250,6 +312,8 @@ class HomepageController {
                 'latestNewsSection' => $latestNewsSection,
                 'whyChooseSection' => $whyChooseSection,
                 'customCategorySections' => $customCategorySections,
+                'ctaSection' => $ctaSection,
+                'topBanner' => $topBanner,
                 'user' => $this->getCurrentUser()
             ];
 
@@ -444,6 +508,246 @@ class HomepageController {
             }
         } catch (Exception $e) {
             error_log("Error in toggleFeaturedProductsStatus: " . $e->getMessage());
+            $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    /**
+     * Edit CTA section
+     */
+    public function editCta(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $section = $this->ctaSectionModel->getFirst();
+            if (!$section) {
+                $this->ctaSectionModel->createSection([
+                    'title' => 'Trở thành một trong <span class="highlight">500+</span>',
+                    'subtitle' => 'Đại Lý Affiliate ThuongLo',
+                    'content' => 'Tham gia cùng chúng tôi và kiếm thu nhập thụ động từ việc giới thiệu dịch vụ thương mại xuyên biên giới hàng đầu Việt Nam',
+                    'button_text' => 'Đăng ký ngay',
+                    'button_url' => '?page=agent',
+                    'background_color' => '#ECEDEF',
+                    'image_url' => 'home/cta-final-1.png',
+                    'is_active' => 1
+                ]);
+                $section = $this->ctaSectionModel->getFirst();
+            }
+
+            $data = [
+                'title' => 'Chỉnh sửa Section CTA',
+                'section' => $section,
+                'user' => $this->getCurrentUser()
+            ];
+            $this->renderView('admin/homepage/edit_cta', $data);
+        } catch (Exception $e) {
+            error_log("Error in editCta: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Update CTA section
+     */
+    public function updateCta(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $this->redirect('?page=admin&module=homepage');
+            }
+
+            $id = $_POST['id'] ?? 0;
+            if ($id > 0) {
+                $title = $_POST['title'] ?? '';
+                $subtitle = $_POST['subtitle'] ?? '';
+                $content = $_POST['content'] ?? '';
+                $button_text = $_POST['button_text'] ?? '';
+                $button_url = $_POST['button_url'] ?? '';
+                $background_color = $_POST['background_color'] ?? '#ECEDEF';
+                $is_active = isset($_POST['is_active']) ? 1 : 0;
+                $image_url = $_POST['existing_image'] ?? '';
+
+                // Handle image upload if a file was provided
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $fileTmpPath = $_FILES['image']['tmp_name'];
+                    $fileName = $_FILES['image']['name'];
+                    $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    
+                    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+                    if (in_array($fileExtension, $allowedExtensions)) {
+                        $uploadDir = __DIR__ . '/../../uploads/home/';
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        
+                        $newFileName = 'cta_' . time() . '.' . $fileExtension;
+                        $dest_path = $uploadDir . $newFileName;
+                        
+                        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                            $image_url = 'uploads/home/' . $newFileName;
+                        }
+                    }
+                }
+
+                $updateData = [
+                    'title' => $title,
+                    'subtitle' => $subtitle,
+                    'content' => $content,
+                    'button_text' => $button_text,
+                    'button_url' => $button_url,
+                    'background_color' => $background_color,
+                    'image_url' => $image_url,
+                    'is_active' => $is_active
+                ];
+
+                $result = $this->ctaSectionModel->updateSection($id, $updateData);
+
+                if ($result) {
+                    $this->setFlashMessage('success', 'Đã cập nhật Section CTA thành công');
+                } else {
+                    $this->setFlashMessage('error', 'Có lỗi xảy ra khi cập nhật');
+                }
+                $this->redirect('?page=admin&module=homepage');
+            } else {
+                $this->setFlashMessage('error', 'ID không hợp lệ');
+                $this->redirect('?page=admin&module=homepage');
+            }
+        } catch (Exception $e) {
+            error_log("Error in updateCta: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Toggle CTA status
+     */
+    public function toggleCtaStatus(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? 0;
+
+            if ($id > 0) {
+                $result = $this->ctaSectionModel->toggleStatus($id);
+                $this->sendJsonResponse(['success' => $result, 'message' => $result ? 'Đã cập nhật trạng thái' : 'Có lỗi xảy ra']);
+            } else {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+            }
+        } catch (Exception $e) {
+            error_log("Error in toggleCtaStatus: " . $e->getMessage());
+            $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
+        }
+    }
+
+    /**
+     * Edit Top Banner
+     */
+    public function editTopBanner(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $banner = $this->topBannerModel->getFirst();
+            if (!$banner) {
+                $this->topBannerModel->createBanner([
+                    'content' => 'Chào mừng đến với ThuongLo! Nền tảng data nguồn hàng và dịch vụ thương mại xuyên biên giới hàng đầu.',
+                    'button_text' => 'Khám phá ngay!',
+                    'button_url' => '?page=products',
+                    'is_active' => 1
+                ]);
+                $banner = $this->topBannerModel->getFirst();
+            }
+
+            $data = [
+                'title' => 'Chỉnh sửa Top Banner',
+                'banner' => $banner,
+                'user' => $this->getCurrentUser()
+            ];
+            $this->renderView('admin/homepage/edit_top_banner', $data);
+        } catch (Exception $e) {
+            error_log("Error in editTopBanner: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Update Top Banner
+     */
+    public function updateTopBanner(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $this->redirect('?page=admin&module=homepage');
+            }
+
+            $id = $_POST['id'] ?? 0;
+            if ($id > 0) {
+                $content = $_POST['content'] ?? '';
+                $button_text = $_POST['button_text'] ?? '';
+                $button_url = $_POST['button_url'] ?? '';
+                $is_active = isset($_POST['is_active']) ? 1 : 0;
+
+                $updateData = [
+                    'content' => $content,
+                    'button_text' => $button_text,
+                    'button_url' => $button_url,
+                    'is_active' => $is_active
+                ];
+
+                $result = $this->topBannerModel->updateBanner($id, $updateData);
+
+                if ($result) {
+                    $this->setFlashMessage('success', 'Đã cập nhật Top Banner thành công');
+                } else {
+                    $this->setFlashMessage('error', 'Có lỗi xảy ra khi cập nhật');
+                }
+                $this->redirect('?page=admin&module=homepage');
+            } else {
+                $this->setFlashMessage('error', 'ID không hợp lệ');
+                $this->redirect('?page=admin&module=homepage');
+            }
+        } catch (Exception $e) {
+            error_log("Error in updateTopBanner: " . $e->getMessage());
+            $this->setFlashMessage('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            $this->redirect('?page=admin&module=homepage');
+        }
+    }
+
+    /**
+     * Toggle Top Banner status
+     */
+    public function toggleTopBannerStatus(): void {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = $data['id'] ?? 0;
+
+            if ($id > 0) {
+                $result = $this->topBannerModel->toggleStatus($id);
+                $this->sendJsonResponse(['success' => $result, 'message' => $result ? 'Đã cập nhật trạng thái' : 'Có lỗi xảy ra']);
+            } else {
+                $this->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+            }
+        } catch (Exception $e) {
+            error_log("Error in toggleTopBannerStatus: " . $e->getMessage());
             $this->sendJsonResponse(['success' => false, 'message' => 'Có lỗi xảy ra']);
         }
     }

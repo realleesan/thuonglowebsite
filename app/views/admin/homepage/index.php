@@ -894,6 +894,185 @@ unset($_SESSION['flash_error']);
         <?php endif; ?>
 </div>
 
+<!-- CTA Section -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="fas fa-bullhorn text-warning me-2"></i>
+                    Section Call To Action (CTA)
+                </h5>
+                <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề, nội dung, hình ảnh và nút bấm của Section CTA ở cuối trang</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($ctaSection)): ?>
+            <div class="text-center py-5">
+                <img src="https://illustrations.popsy.co/gray/folder.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                <h6 class="text-muted">Chưa có cấu hình</h6>
+                <p class="text-muted small">Section CTA chưa được cấu hình</p>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 fw-bold text-muted border-0" style="width: 80px;">ID</th>
+                            <th class="fw-bold text-muted border-0" style="width: 100px;">Hình ảnh</th>
+                            <th class="fw-bold text-muted border-0">Tiêu đề</th>
+                            <th class="text-center fw-bold text-muted border-0" style="width: 120px;">Trạng thái</th>
+                            <th class="text-end pe-4 fw-bold text-muted border-0" style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $ctaSection['id']; ?></td>
+                            <td class="align-middle">
+                                <?php
+                                 $imgUrl = $ctaSection['image_url'] ?? '';
+                                 if ($imgUrl) {
+                                     $finalImg = (strpos($imgUrl, 'http') === 0) ? $imgUrl : img_url($imgUrl);
+                                     echo '<img src="'.$finalImg.'" class="rounded shadow-sm" style="width: 80px; height: 50px; object-fit: cover;" onerror="this.src=\'https://via.placeholder.com/80x50?text=No+Image\'">';
+                                } else {
+                                    echo '<div class="rounded bg-light d-flex align-items-center justify-content-center text-muted" style="width: 80px; height: 50px; font-size: 10px;">No Image</div>';
+                                }
+                                ?>
+                            </td>
+                            <td class="align-middle">
+                                <div class="text-dark fw-bold">
+                                    <?php 
+                                    $title = $ctaSection['title'] ?? '';
+                                    $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+                                    $title = strip_tags($title);
+                                    $title = trim($title);
+                                    echo $title ?: '(Không có tiêu đề)';
+                                    ?>
+                                </div>
+                                <?php if (!empty($ctaSection['subtitle'])): ?>
+                                    <div class="text-muted small">
+                                        <?php echo htmlspecialchars(strip_tags($ctaSection['subtitle'])); ?>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center align-middle">
+                                <?php if ($ctaSection['is_active']): ?>
+                                    <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge rounded-pill bg-soft-secondary text-muted px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-end pe-4 align-middle">
+                                <div class="btn-group" role="group">
+                                    <a href="?page=admin&module=homepage&action=edit-cta" 
+                                       class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-icon btn-light-<?php echo $ctaSection['is_active'] ? 'warning' : 'success'; ?>"
+                                            onclick="toggleCtaStatus(<?php echo $ctaSection['id']; ?>)"
+                                            title="<?php echo $ctaSection['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                        <i class="fas fa-<?php echo $ctaSection['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Top Banner Section -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0 fw-bold text-dark">
+                    <i class="fas fa-flag text-success me-2"></i>
+                    Thanh thông báo đầu trang (Top Banner)
+                </h5>
+                <p class="text-muted small mb-0 mt-1">Quản lý tiêu đề thông báo, tiêu đề nút chuyển hướng và liên kết hiển thị ở trên cùng của trang web</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($topBanner)): ?>
+            <div class="text-center py-5">
+                <img src="https://illustrations.popsy.co/gray/folder.svg" alt="Empty" style="width: 150px;" class="mb-3">
+                <h6 class="text-muted">Chưa có cấu hình</h6>
+                <p class="text-muted small">Thanh thông báo chưa được cấu hình</p>
+            </div>
+        <?php else: ?>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 fw-bold text-muted border-0" style="width: 80px;">ID</th>
+                            <th class="fw-bold text-muted border-0">Nội dung thông báo</th>
+                            <th class="fw-bold text-muted border-0" style="width: 250px;">Nút chuyển hướng</th>
+                            <th class="text-center fw-bold text-muted border-0" style="width: 120px;">Trạng thái</th>
+                            <th class="text-end pe-4 fw-bold text-muted border-0" style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted align-middle">#<?php echo $topBanner['id']; ?></td>
+                            <td class="align-middle">
+                                <div class="text-dark fw-bold">
+                                    <?php echo htmlspecialchars($topBanner['content']); ?>
+                                </div>
+                            </td>
+                            <td class="align-middle">
+                                <?php if (!empty($topBanner['button_text'])): ?>
+                                    <div class="badge bg-light text-dark border p-2">
+                                        <i class="fas fa-link me-1 text-muted"></i>
+                                        <?php echo htmlspecialchars($topBanner['button_text']); ?> 
+                                        <span class="text-muted small ms-1">(<?php echo htmlspecialchars($topBanner['button_url']); ?>)</span>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted small">Không có nút bấm</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center align-middle">
+                                <?php if ($topBanner['is_active']): ?>
+                                    <span class="badge rounded-pill bg-soft-success text-success px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang hiện
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge rounded-pill bg-soft-secondary text-muted px-3 py-2">
+                                        <i class="fas fa-circle me-1 small"></i> Đang ẩn
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-end pe-4 align-middle">
+                                <div class="btn-group" role="group">
+                                    <a href="?page=admin&module=homepage&action=edit-top-banner" 
+                                       class="btn btn-icon btn-light-primary" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-icon btn-light-<?php echo $topBanner['is_active'] ? 'warning' : 'success'; ?>"
+                                            onclick="toggleTopBannerStatus(<?php echo $topBanner['id']; ?>)"
+                                            title="<?php echo $topBanner['is_active'] ? 'Tạm ẩn' : 'Hiển thị'; ?>">
+                                        <i class="fas fa-<?php echo $topBanner['is_active'] ? 'eye-slash' : 'eye'; ?>"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
 
 
 <script>
@@ -1038,6 +1217,42 @@ function toggleLatestNewsStatus(id) {
 function toggleWhyChooseStatus(id) {
     if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section Tại sao chọn ThuongLo?')) {
         fetch('?page=admin&module=homepage&action=toggle-why-choose-status', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleCtaStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Section CTA?')) {
+        fetch('?page=admin&module=homepage&action=toggle-cta-status', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) window.location.reload();
+            else alert(d.message);
+        });
+    }
+}
+
+function toggleTopBannerStatus(id) {
+    if (confirm('Bạn có muốn thay đổi trạng thái hiển thị của Thanh thông báo đầu trang?')) {
+        fetch('?page=admin&module=homepage&action=toggle-top-banner-status', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',

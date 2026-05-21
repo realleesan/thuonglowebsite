@@ -2118,6 +2118,28 @@ switch($page) {
                         $homepageController->toggleCustomCategoryStatus();
                         exit;
                     
+                    // CTA Section actions
+                    case 'edit-cta':
+                        $homepageController->editCta();
+                        exit;
+                    case 'update-cta':
+                        $homepageController->updateCta();
+                        exit;
+                    case 'toggle-cta-status':
+                        $homepageController->toggleCtaStatus();
+                        exit;
+                    
+                    // Top Banner actions
+                    case 'edit-top-banner':
+                        $homepageController->editTopBanner();
+                        exit;
+                    case 'update-top-banner':
+                        $homepageController->updateTopBanner();
+                        exit;
+                    case 'toggle-top-banner-status':
+                        $homepageController->toggleTopBannerStatus();
+                        exit;
+                    
                     // Hero Button actions (delegated)
                     case 'createButton':
                         $homepageController->createButton();
