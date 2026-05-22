@@ -149,53 +149,55 @@ try {
     <?php else: ?>
     
     <div class="data-table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Tên nhà cung cấp</th>
-                    <th>Địa chỉ</th>
-                    <th>WeChat</th>
-                    <th>Điện thoại</th>
-                    <th>Phân loại phong cách</th>
-                    <th>Ảnh cửa hàng</th>
-                    <th>QR WeChat</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $startIndex = ($pagination['current_page'] - 1) * $pagination['per_page'];
-                foreach ($dataList as $index => $row): 
-                ?>
-                <tr>
-                    <td data-col="0"><?php echo $startIndex + $index + 1; ?></td>
-                    <td data-col="1"><?php echo htmlspecialchars($row['supplier_name'] ?? ''); ?></td>
-                    <td data-col="2"><?php echo htmlspecialchars($row['address'] ?? ''); ?></td>
-                    <td data-col="3"><?php echo htmlspecialchars($row['wechat_account'] ?? ''); ?></td>
-                    <td data-col="4"><?php echo htmlspecialchars($row['phone'] ?? ''); ?></td>
-                    <td data-col="5"><?php echo htmlspecialchars($row['style_classification'] ?? ''); ?></td>
-                    <td data-col="6" class="store-image-cell">
-                        <?php if (!empty($row['store_image'])): ?>
-                        <span class="store-image-trigger" onclick="openQrModal('<?php echo htmlspecialchars($row['store_image']); ?>')" title="Xem ảnh cửa hàng">
-                            <i class="fas fa-store store-image-icon"></i>
-                        </span>
-                        <?php else: ?>
-                        -
-                        <?php endif; ?>
-                    </td>
-                    <td data-col="7" class="qr-cell">
-                        <?php if (!empty($row['wechat_qr'])): ?>
-                        <span class="qr-trigger" onclick="openQrModal('<?php echo htmlspecialchars($row['wechat_qr']); ?>')" title="Xem QR">
-                            <i class="fas fa-qrcode qr-icon" title="Xem QR"></i>
-                        </span>
-                        <?php else: ?>
-                        -
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên nhà cung cấp</th>
+                        <th>Địa chỉ</th>
+                        <th>WeChat</th>
+                        <th>Điện thoại</th>
+                        <th>Phân loại phong cách</th>
+                        <th>Ảnh cửa hàng</th>
+                        <th>QR WeChat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $startIndex = ($pagination['current_page'] - 1) * $pagination['per_page'];
+                    foreach ($dataList as $index => $row): 
+                    ?>
+                    <tr>
+                        <td data-col="0"><?php echo $startIndex + $index + 1; ?></td>
+                        <td data-col="1"><?php echo htmlspecialchars($row['supplier_name'] ?? ''); ?></td>
+                        <td data-col="2"><?php echo htmlspecialchars($row['address'] ?? ''); ?></td>
+                        <td data-col="3"><?php echo htmlspecialchars($row['wechat_account'] ?? ''); ?></td>
+                        <td data-col="4"><?php echo htmlspecialchars($row['phone'] ?? ''); ?></td>
+                        <td data-col="5"><?php echo htmlspecialchars($row['style_classification'] ?? ''); ?></td>
+                        <td data-col="6" class="store-image-cell">
+                            <?php if (!empty($row['store_image'])): ?>
+                            <span class="store-image-trigger" onclick="openQrModal('<?php echo htmlspecialchars($row['store_image']); ?>')" title="Xem ảnh cửa hàng">
+                                <i class="fas fa-store store-image-icon"></i>
+                            </span>
+                            <?php else: ?>
+                            -
+                            <?php endif; ?>
+                        </td>
+                        <td data-col="7" class="qr-cell">
+                            <?php if (!empty($row['wechat_qr'])): ?>
+                            <span class="qr-trigger" onclick="openQrModal('<?php echo htmlspecialchars($row['wechat_qr']); ?>')" title="Xem QR">
+                                <i class="fas fa-qrcode qr-icon" title="Xem QR"></i>
+                            </span>
+                            <?php else: ?>
+                            -
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
         
         <!-- Pagination -->
         <?php if ($pagination['last_page'] > 1): ?>

@@ -580,31 +580,34 @@ class DeviceAccessService implements ServiceInterface {
         $device = $this->model->findByUserAndSession($userId, $currentSessionId);
         
         // Nếu không tìm thấy thiết bị, có thể do session_id đã được regeneration
-        // Thử tìm thiết bị active gần nhất của user để cập nhật session_id
         if (!$device) {
             error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device=NOT_FOUND - checking for session regeneration");
             
-            // Tìm thiết bị active của user
-            $activeDevices = $this->model->getActiveDevices($userId);
-            if (!empty($activeDevices)) {
-                // Lấy thiết bị đầu tiên (thường là thiết bị hiện tại)
-                $device = $activeDevices[0];
-                
-                // Cập nhật session_id cho thiết bị
-                $this->model->updateSessionId($device['id'], $currentSessionId);
-                error_log("checkCurrentDeviceSession: updated session_id for device " . $device['id']);
-                
-                // Kiểm tra lại status
-                if ($device['status'] !== 'active') {
-                    error_log("checkCurrentDeviceSession: user=$userId, device status=" . $device['status']);
-                    return false;
-                }
-                
-                return true;
+            // 1. Ưu tiên tìm theo device_id đã lưu trong session
+            $deviceId = $_SESSION['device_id'] ?? null;
+            
+            if ($deviceId) {
+                $device = $this->model->findByIdAndUser($deviceId, $userId);
             }
             
-            // Không có thiết bị active nào
-            return false;
+            // 2. Fallback tìm theo IP + Trình duyệt + OS
+            if (!$device) {
+                $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+                $deviceInfo = $this->model->parseUserAgent($ua);
+                $ip = $this->model->getClientIP();
+                
+                $device = $this->model->findByIPAndDevice($userId, $ip, $deviceInfo['browser'], $deviceInfo['os']);
+            }
+            
+            // Nếu tìm thấy thiết bị cũ khớp, cập nhật lại session_id mới
+            if ($device) {
+                $this->model->updateSessionId($device['id'], $currentSessionId);
+                $_SESSION['device_id'] = $device['id']; // Đảm bảo session có lưu ID
+                error_log("checkCurrentDeviceSession: remapped session_id for device " . $device['id']);
+            } else {
+                error_log("checkCurrentDeviceSession: could not find matching device for regenerated session");
+                return false;
+            }
         }
         
         if ($device['status'] !== 'active') {
@@ -612,6 +615,9 @@ class DeviceAccessService implements ServiceInterface {
             error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device status=" . $device['status']);
             return false;
         }
+        
+        // Cập nhật thời gian hoạt động để không bị xóa cleanup
+        $this->model->updateLastActivity($device['id']);
         
         error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device FOUND, status=" . $device['status']);
         return true;

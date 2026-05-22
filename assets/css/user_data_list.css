@@ -183,6 +183,12 @@
 /* ========================================
    Data Table
    ======================================== */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
 .data-table {
     width: 100%;
     border-collapse: collapse;

@@ -2538,6 +2538,11 @@ Content Styles */
         grid-template-columns: 60px 1fr;
         gap: 12px;
     }
+
+    .orders-product-image {
+        width: 60px;
+        height: 60px;
+    }
 }
 
 .orders-item-image-col {
