@@ -352,7 +352,7 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                             <?php endif; ?>
                         </div>
                     </li>
-                    <li class="<?php echo ($currentPage == 'affiliate' || $currentPage == 'agent') ? 'active' : ''; ?>">
+                    <li class="has-dropdown <?php echo ($currentPage == 'affiliate' || $currentPage == 'agent' || $currentPage == 'agent-page') ? 'active' : ''; ?>">
                         <?php if ($isAuthenticated): ?>
                             <?php
                             // Check user's agent status from database for accuracy
@@ -401,11 +401,78 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                                 }
                             }
                             
-                            echo '<a href="' . htmlspecialchars($agentLink) . '">Đại lý</a>';
+                            echo '<a href="' . htmlspecialchars($agentLink) . '">Đại lý <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>';
                             ?>
                         <?php else: ?>
-                            <a href="?page=agent">Đại lý</a>
+                            <a href="?page=agent">Đại lý <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
                         <?php endif; ?>
+
+                        <style>
+                        .agent-mega-menu {
+                            min-width: 540px !important;
+                            padding: 20px !important;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+                            border-radius: 12px !important;
+                            border: 1px solid #e2e8f0 !important;
+                            margin-top: 8px !important;
+                            background: white !important;
+                        }
+                        .agent-mega-grid {
+                            display: grid !important;
+                            grid-template-columns: repeat(2, 1fr) !important;
+                            gap: 16px !important;
+                        }
+                        .agent-mega-item {
+                            display: flex !important;
+                            align-items: flex-start !important;
+                            gap: 12px !important;
+                            padding: 10px !important;
+                            border-radius: 8px !important;
+                            text-decoration: none !important;
+                            transition: all 0.2s ease-in-out !important;
+                        }
+                        .agent-mega-item:hover {
+                            background-color: #f8fafc !important;
+                        }
+                        .agent-mega-item:hover .agent-mega-title {
+                            color: #356df1 !important;
+                        }
+                        .agent-mega-item:hover .agent-mega-icon {
+                            transform: scale(1.05);
+                        }
+                        </style>
+                        <div class="dropdown-menu agent-mega-menu">
+                            <div class="agent-mega-grid">
+                                <a href="?page=agent-page&key=chuong_trinh" class="agent-mega-item">
+                                    <span class="agent-mega-icon" style="color: #356df1; font-size: 1.15rem; display: inline-flex; background: #eef2ff; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 8px; transition: transform 0.2s;"><i class="fas fa-handshake"></i></span>
+                                    <div class="agent-mega-info">
+                                        <span class="agent-mega-title" style="display: block; font-weight: 600; color: #1e293b; font-size: 13.5px; margin-bottom: 2px; transition: color 0.2s;">Chương trình đại lý</span>
+                                        <span class="agent-mega-desc" style="display: block; color: #64748b; font-size: 11px; line-height: 1.4; font-weight: normal;">Hợp tác phát triển cùng Thuong Lo</span>
+                                    </div>
+                                </a>
+                                <a href="?page=agent-page&key=huong_dan" class="agent-mega-item">
+                                    <span class="agent-mega-icon" style="color: #10b981; font-size: 1.15rem; display: inline-flex; background: #ecfdf5; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 8px; transition: transform 0.2s;"><i class="fas fa-book-open"></i></span>
+                                    <div class="agent-mega-info">
+                                        <span class="agent-mega-title" style="display: block; font-weight: 600; color: #1e293b; font-size: 13.5px; margin-bottom: 2px; transition: color 0.2s;">Hướng dẫn đăng ký</span>
+                                        <span class="agent-mega-desc" style="display: block; color: #64748b; font-size: 11px; line-height: 1.4; font-weight: normal;">Các bước tham gia dễ dàng nhất</span>
+                                    </div>
+                                </a>
+                                <a href="?page=agent-page&key=chinh_sach" class="agent-mega-item">
+                                    <span class="agent-mega-icon" style="color: #f59e0b; font-size: 1.15rem; display: inline-flex; background: #fffbeb; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 8px; transition: transform 0.2s;"><i class="fas fa-shield-alt"></i></span>
+                                    <div class="agent-mega-info">
+                                        <span class="agent-mega-title" style="display: block; font-weight: 600; color: #1e293b; font-size: 13.5px; margin-bottom: 2px; transition: color 0.2s;">Chính sách đại lý</span>
+                                        <span class="agent-mega-desc" style="display: block; color: #64748b; font-size: 11px; line-height: 1.4; font-weight: normal;">Quyền lợi & Hoa hồng hấp dẫn</span>
+                                    </div>
+                                </a>
+                                <a href="?page=agent-page&key=tai_nguyen" class="agent-mega-item">
+                                    <span class="agent-mega-icon" style="color: #8b5cf6; font-size: 1.15rem; display: inline-flex; background: #f5f3ff; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 8px; transition: transform 0.2s;"><i class="fas fa-folder-open"></i></span>
+                                    <div class="agent-mega-info">
+                                        <span class="agent-mega-title" style="display: block; font-weight: 600; color: #1e293b; font-size: 13.5px; margin-bottom: 2px; transition: color 0.2s;">Tài nguyên tiếp thị</span>
+                                        <span class="agent-mega-desc" style="display: block; color: #64748b; font-size: 11px; line-height: 1.4; font-weight: normal;">Kho tài liệu và banner quảng bá</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
                     </li>
                 </ul>
 
@@ -590,6 +657,20 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                 </li>
                 
                 <li class="<?php echo ($currentPage == 'brands') ? 'drawer-active' : ''; ?>"><a href="<?php echo nav_url('brands'); ?>">Thương hiệu</a></li>
+                
+                <!-- Agent Submenu -->
+                <li class="drawer-has-submenu <?php echo ($currentPage == 'affiliate' || $currentPage == 'agent' || $currentPage == 'agent-page') ? 'drawer-active' : ''; ?>">
+                    <button type="button" class="drawer-submenu-toggle">
+                        Đại lý
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1L5 5L9 1"/></svg>
+                    </button>
+                    <ul class="drawer-submenu">
+                        <li><a href="?page=agent-page&key=chuong_trinh">Chương trình đại lý</a></li>
+                        <li><a href="?page=agent-page&key=huong_dan">Hướng dẫn đăng ký đại lý</a></li>
+                        <li><a href="?page=agent-page&key=chinh_sach">Chính sách đại lý</a></li>
+                        <li><a href="?page=agent-page&key=tai_nguyen">Tài nguyên - tài liệu đại lý</a></li>
+                    </ul>
+                </li>
                 
                 <?php if ($isAuthenticated): ?>
                     <li class="<?php echo ($currentPage == 'users') ? 'drawer-active' : ''; ?>"><a href="<?php echo nav_url('users'); ?>">Tài khoản của tôi</a></li>

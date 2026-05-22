@@ -1,223 +1,145 @@
 <?php
 /**
  * Terms of Service Page
- * Standardized with View Initialization System
+ * Standardized with View Initialization System and Dynamic Subpage content
  */
 
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
-// Chọn service phù hợp cho terms (ưu tiên inject từ routing)
-$service = isset($currentService) ? $currentService : ($publicService ?? null);
+require_once __DIR__ . '/../../models/SubPageModel.php';
+$subPageModel = new SubPageModel();
+$pageData = $subPageModel->getByPageKey('terms');
 
-// 2. Khởi tạo biến dữ liệu
-$termsData = [];
-$showErrorMessage = false;
-$errorMessage = '';
-
-try {
-    // Lấy dữ liệu từ Service
-    if ($service && method_exists($service, 'getTermsPageData')) {
-        $termsData = $service->getTermsPageData();
-    } else {
-        $termsData = [];
-    }
-    
-} catch (Exception $e) {
-    if (isset($errorHandler)) {
-        $result = $errorHandler->handleViewError($e, 'terms', []);
-        $showErrorMessage = true;
-        $errorMessage = $result['message'];
-    }
-}
+// Parse dynamic content
+$title = $pageData ? $pageData['title'] : 'Điều khoản dịch vụ';
+$content = $pageData ? $pageData['content'] : '';
+$banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
-<!-- Terms of Service Page Content -->
-<?php if ($showErrorMessage): ?>
-<div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
-    <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
-</div>
-<?php endif; ?>
+
+<!-- Custom Premium CSS for Terms Dynamic Page -->
+<style>
+    .dynamic-terms-hero {
+        position: relative;
+        padding: 80px 0;
+        background: <?= !empty($banner) ? "url('$banner') no-repeat center center / cover" : "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" ?>;
+        color: white;
+        text-align: center;
+        margin-bottom: 40px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .dynamic-terms-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(2px);
+        z-index: 1;
+    }
+    .dynamic-terms-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    .dynamic-terms-hero h1 {
+        font-size: 36px;
+        font-weight: 800;
+        margin: 0 0 12px 0;
+        letter-spacing: -0.025em;
+    }
+    .dynamic-terms-hero p {
+        font-size: 16px;
+        color: #cbd5e1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .dynamic-terms-container {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 50px;
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+    .dynamic-terms-container h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 28px;
+        margin-bottom: 16px;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 8px;
+    }
+    .dynamic-terms-container h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-top: 24px;
+        margin-bottom: 12px;
+    }
+    .dynamic-terms-container ul, .dynamic-terms-container ol {
+        padding-left: 20px;
+        margin-bottom: 20px;
+    }
+    .dynamic-terms-container li {
+        margin-bottom: 8px;
+    }
+    .dynamic-terms-container strong {
+        color: #111827;
+        font-weight: 600;
+    }
+    .dynamic-terms-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 16px auto;
+        display: block;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+</style>
 
 <!-- Main Content -->
-<div id="wrapper-container" class="wrapper-container">
-    <div class="content-pusher">
-        <div id="main-content">
-            <div class="elementor elementor-terms">
-                <?php 
-                // Breadcrumb sẽ được hiển thị từ master layout
-                ?>
-
-                
-
-                <!-- Terms Content -->
-                <section class="terms-section">
-                    <div class="container">
-                        <div class="terms-content">
-                            
-
-                            <div class="terms-sections">
-                                <div class="terms-section-item">
-                                    <h2>1. Chấp nhận Điều khoản</h2>
-                                    <p>Bằng việc truy cập và sử dụng website ThuongLo, bạn xác nhận đã đọc, hiểu và đồng ý bị ràng buộc bởi các điều khoản này. Nếu bạn không đồng ý với bất kỳ phần nào của điều khoản, vui lòng không sử dụng dịch vụ của chúng tôi.</p>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>2. Định nghĩa</h2>
-                                    <ul>
-                                        <li><strong>Website:</strong> Nền tảng thương mại điện tử ThuongLo tại địa chỉ thuonglo.com</li>
-                                        <li><strong>Dịch vụ:</strong> Các sản phẩm và dịch vụ được cung cấp trên website</li>
-                                        <li><strong>Người dùng:</strong> Bất kỳ cá nhân hoặc tổ chức truy cập hoặc sử dụng website</li>
-                                        <li><strong>Khách hàng:</strong> Người dùng thực hiện mua hàng trên website</li>
-                                        <li><strong>Sản phẩm:</strong> Các mặt hàng được bán trên nền tảng ThuongLo</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>3. Đăng ký tài khoản</h2>
-                                    <p>Để sử dụng đầy đủ tính năng, bạn cần đăng ký tài khoản với các yêu cầu:</p>
-                                    <ul>
-                                        <li>Cung cấp thông tin cá nhân chính xác, đầy đủ và cập nhật</li>
-                                        <li>Bảo mật tài khoản và mật khẩu đăng nhập</li>
-                                        <li>Chịu trách nhiệm cho mọi hoạt động dưới tài khoản của bạn</li>
-                                        <li>Thông báo ngay cho chúng tôi khi phát hiện tài khoản bị xâm phạm</li>
-                                        <li>Không tạo nhiều tài khoản cho cùng một mục đích</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>4. Sản phẩm và Giá cả</h2>
-                                    <p>Chúng tôi cam kết:</p>
-                                    <ul>
-                                        <li>Cung cấp sản phẩm chính hãng 100%</li>
-                                        <li>Thông tin sản phẩm chính xác và đầy đủ</li>
-                                        <li>Giá cả cạnh tranh và minh bạch</li>
-                                        <li>Giá có thể thay đổi mà không cần thông báo trước</li>
-                                        <li>Không chịu trách nhiệm cho lỗi kỹ thuật hiển thị giá</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>5. Đặt hàng và Thanh toán</h2>
-                                    <p>Quy trình đặt hàng và thanh toán:</p>
-                                    <ul>
-                                        <li>Đơn hàng chỉ được xác nhận sau khi thanh toán thành công</li>
-                                        <li>Chúng tôi có quyền hủy đơn hàng nếu phát hiện gian lận</li>
-                                        <li>Khách hàng chịu trách nhiệm cung cấp thông tin giao hàng chính xác</li>
-                                        <li>Phí vận chuyển sẽ được hiển thị rõ ràng trong quá trình thanh toán</li>
-                                        <li>Chúng tôi hỗ trợ nhiều phương thức thanh toán an toàn</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>6. Giao hàng và Nhận hàng</h2>
-                                    <p>Về vận chuyển và nhận hàng:</p>
-                                    <ul>
-                                        <li>Thời gian giao hàng dự kiến: 2-5 ngày làm việc</li>
-                                        <li>Khách hàng cần kiểm tra hàng hóa trước khi nhận</li>
-                                        <li>Chúng tôi không chịu trách nhiệm cho sai sót thông tin địa chỉ</li>
-                                        <li>Trường hợp hàng hóa hư hỏng, chúng tôi sẽ đổi trả miễn phí</li>
-                                        <li>Rủi ro mất mát chuyển sang cho khách hàng khi nhận hàng thành công</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>7. Đổi trả và Hoàn tiền</h2>
-                                    <p>Chính sách đổi trả:</p>
-                                    <ul>
-                                        <li>Đổi trả trong vòng 30 ngày kể từ ngày nhận hàng</li>
-                                        <li>Sản phẩm còn nguyên tag, chưa qua sử dụng</li>
-                                        <li>Cung cấp hóa đơn mua hàng và tem bảo hành</li>
-                                        <li>Chi phí vận chuyển đổi trả do khách hàng chịu</li>
-                                        <li>Hoàn tiền trong 5-7 ngày làm việc sau khi nhận hàng trả lại</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>8. Quyền sở hữu trí tuệ</h2>
-                                    <p>Toàn bộ nội dung trên website ThuongLo bao gồm:</p>
-                                    <ul>
-                                        <li>Thiết kế, logo, hình ảnh, văn bản là tài sản của ThuongLo</li>
-                                        <li>Bảo vệ bởi luật bản quyền và sở hữu trí tuệ</li>
-                                        <li>Nghiêm cấm sao chép, phân phối mà không có sự cho phép</li>
-                                        <li>Vi phạm sẽ được xử lý theo quy định pháp luật</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>9. Hành vi bị cấm</h2>
-                                    <p>Người dùng không được:</p>
-                                    <ul>
-                                        <li>Sử dụng website cho mục đích bất hợp pháp</li>
-                                        <li>Cố gắng xâm nhập hệ thống hoặc gây hại</li>
-                                        <li>Đăng tải nội dung vi phạm đạo đức, pháp luật</li>
-                                        <li>Thực hiện hành vi gian lận hoặc lừa đảo</li>
-                                        <li>Can thiệp vào hoạt động bình thường của website</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>10. Bảo mật thông tin</h2>
-                                    <p>Chúng tôi cam kết:</p>
-                                    <ul>
-                                        <li>Bảo vệ thông tin cá nhân của khách hàng</li>
-                                        <li>Không chia sẻ thông tin cho bên thứ ba</li>
-                                        <li>Áp dụng các biện pháp an ninh hiện đại</li>
-                                        <li>Tuân thủ Luật Bảo mật dữ liệu cá nhân</li>
-                                        <li>Thông tin chỉ được sử dụng cho mục đích phục vụ khách hàng</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>11. Hạn chế trách nhiệm</h2>
-                                    <p>ThuongLo không chịu trách nhiệm cho:</p>
-                                    <ul>
-                                        <li>Tổn thất gián tiếp phát sinh từ việc sử dụng website</li>
-                                        <li>Lỗi kỹ thuật từ bên thứ ba (ngân hàng, vận chuyển)</li>
-                                        <li>Sự cố bất khả kháng (thiên tai, chiến tranh)</li>
-                                        <li>Nội dung từ các liên kết ngoài website</li>
-                                        <li>Hành vi của người dùng khác</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>12. Giải quyết tranh chấp</h2>
-                                    <p>Mọi tranh chấp sẽ được giải quyết theo quy trình:</p>
-                                    <ul>
-                                        <li>Ưu tiên thương lượng, hòa giải giữa các bên</li>
-                                        <li>Áp dụng pháp luật Việt Nam</li>
-                                        <li>Tòa án nhân dân có thẩm quyền sẽ giải quyết</li>
-                                        <li>Chi phí phát sinh sẽ do bên vi phạm chịu</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>13. Thay đổi điều khoản</h2>
-                                    <p>Chúng tôi có quyền:</p>
-                                    <ul>
-                                        <li>Thay đổi, cập nhật điều khoản định kỳ</li>
-                                        <li>Thông báo thay đổi qua email hoặc website</li>
-                                        <li>Điều khoản mới có hiệu lực ngay khi đăng tải</li>
-                                        <li>Việc tiếp tục sử dụng đồng nghĩa với chấp nhận điều khoản mới</li>
-                                    </ul>
-                                </div>
-
-                                <div class="terms-section-item">
-                                    <h2>14. Liên hệ</h2>
-                                    <p>Nếu có câu hỏi về điều khoản dịch vụ, vui lòng liên hệ:</p>
-                                    <ul>
-                                        <li>Email: support@thuonglo.com</li>
-                                        <li>Hotline: 1900-1234</li>
-                                        <li>Địa chỉ: 123 Nguyễn Huệ, Quận 1, TP.HCM</li>
-                                        <li>Thời gian: 8:00 - 22:00 hàng ngày</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                           
-                        </div>
-                    </div>
-                </section>
+<div id="wrapper-container" class="wrapper-container" style="padding: 40px 0;">
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="dynamic-terms-hero">
+            <div class="container">
+                <h1><?= htmlspecialchars($title) ?></h1>
+                <p>Điều khoản dịch vụ và quy chế hoạt động chính thức của hệ thống ThuongLo</p>
             </div>
+        </div>
+
+        <!-- Render Dynamic Content -->
+        <div class="dynamic-terms-container">
+            <?php if (!empty($content)): ?>
+                <?= $content ?>
+            <?php else: ?>
+                <!-- Fallback to original static HTML if DB is not ready -->
+                <h2>Điều khoản dịch vụ và chính sách sử dụng</h2>
+                <p>Chào mừng bạn đến với hệ thống ThuongLo.com. Khi bạn truy cập, đăng ký tài khoản hoặc sử dụng dịch vụ của chúng tôi, đồng nghĩa với việc bạn đồng ý tuân thủ các điều khoản dịch vụ dưới đây:</p>
+                
+                <h3>1. Tài khoản Người dùng</h3>
+                <p>Bạn chịu trách nhiệm bảo mật tài khoản và mật khẩu của mình. Mọi hoạt động phát sinh dưới tài khoản của bạn sẽ thuộc trách nhiệm cá nhân của bạn.</p>
+                
+                <h3>2. Sở hữu trí tuệ</h3>
+                <p>Tất cả nội dung, gói dữ liệu nhà cung cấp, hình ảnh, mã nguồn và hệ thống tự động hóa thuộc quyền sở hữu trí tuệ độc quyền của ThuongLo. Nghiêm cấm mọi hành vi sao chép, phân phối hoặc bán lại khi chưa được sự đồng ý bằng văn bản của ban quản trị.</p>
+                
+                <h3>3. Giới hạn trách nhiệm</h3>
+                <p>Chúng tôi luôn nỗ lực đảm bảo độ chính xác cao nhất của thông tin, tuy nhiên không chịu trách nhiệm trước bất kỳ tổn thất gián tiếp nào phát sinh do quá trình sử dụng dữ liệu.</p>
+                
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 30px 0;">
+                <p>Nếu có câu hỏi về điều khoản dịch vụ, vui lòng liên hệ:</p>
+                <ul>
+                    <li>Email: support@thuonglo.com</li>
+                    <li>Hotline: 1900-1234</li>
+                    <li>Địa chỉ: 123 Nguyễn Huệ, Quận 1, TP.HCM</li>
+                    <li>Thời gian: 8:00 - 22:00 hàng ngày</li>
+                </ul>
+            <?php endif; ?>
         </div>
     </div>
 </div>

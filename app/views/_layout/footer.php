@@ -169,39 +169,43 @@
                                             <div class="elementor-element elementor-element-35fbdc8 elementor-widget__width-initial elementor-widget elementor-widget-thim-ekits-social" data-id="35fbdc8" data-element_type="widget" data-widget_type="thim-ekits-social.default">
                                                 <div class="elementor-widget-container">
                                                     <div class="social-swapper">
+                                                        <?php
+                                                        require_once __DIR__ . '/../../../app/models/SubPageModel.php';
+                                                        $subPageModel = new SubPageModel();
+                                                        $socialsData = $subPageModel->getByPageKey('footer_socials');
+                                                        $socialLinks = [];
+                                                        if ($socialsData && !empty($socialsData['content'])) {
+                                                            $socialLinks = json_decode($socialsData['content'], true);
+                                                        }
+
+                                                        // Fallback structure if empty
+                                                        if (empty($socialLinks)) {
+                                                            $socialLinks = [
+                                                                "facebook" => ["name" => "Facebook", "url" => "https://facebook.com", "visible" => true, "icon" => "fab fa-facebook"],
+                                                                "youtube" => ["name" => "Youtube", "url" => "https://youtube.com", "visible" => true, "icon" => "fab fa-youtube"],
+                                                                "instagram" => ["name" => "Instagram", "url" => "https://instagram.com", "visible" => true, "icon" => "fab fa-instagram"],
+                                                                "twitter" => ["name" => "X (Twitter)", "url" => "https://twitter.com", "visible" => true, "icon" => "fab fa-twitter"],
+                                                                "tiktok" => ["name" => "Tiktok", "url" => "https://tiktok.com", "visible" => true, "icon" => "fab fa-tiktok"],
+                                                                "linkedin" => ["name" => "Linkedin", "url" => "https://linkedin.com", "visible" => true, "icon" => "fab fa-linkedin"]
+                                                            ];
+                                                        }
+                                                        ?>
                                                         <ul class="thim-social-media">
-                                                            <li class="elementor-repeater-item-4b2b659">
-                                                                <a href="https://facebook.com" aria-label="Facebook">
-                                                                    <i aria-hidden="true" class="fab fa-facebook"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="elementor-repeater-item-7fc7620">
-                                                                <a href="https://youtube.com" aria-label="Youtube">
-                                                                    <i aria-hidden="true" class="fab fa-youtube"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="elementor-repeater-item-4a46acf">
-                                                                <a href="https://instagram.com" aria-label="Instagram">
-                                                                    <i aria-hidden="true" class="fab fa-instagram"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="elementor-repeater-item-6795e2d">
-                                                                <a href="https://twitter.com" aria-label="X (Twitter)">
-                                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                                                    </svg>
-                                                                </a>
-                                                            </li>
-                                                            <li class="elementor-repeater-item-9063424">
-                                                                <a href="https://tiktok.com" aria-label="Tiktok">
-                                                                    <i aria-hidden="true" class="fab fa-tiktok"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="elementor-repeater-item-f783640">
-                                                                <a href="https://linkedin.com" aria-label="Linkedin">
-                                                                    <i aria-hidden="true" class="fab fa-linkedin"></i>
-                                                                </a>
-                                                            </li>
+                                                            <?php foreach ($socialLinks as $key => $social): ?>
+                                                                <?php if (isset($social['visible']) && $social['visible']): ?>
+                                                                    <li class="elementor-repeater-item-social-<?= $key ?>">
+                                                                        <a href="<?= htmlspecialchars($social['url']) ?>" aria-label="<?= htmlspecialchars($social['name']) ?>" target="_blank">
+                                                                            <?php if ($key === 'twitter' && (empty($social['icon']) || $social['icon'] === 'fab fa-twitter' || strpos($social['icon'], 'svg') !== false)): ?>
+                                                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block; vertical-align: middle;">
+                                                                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                                                                </svg>
+                                                                            <?php else: ?>
+                                                                                <i aria-hidden="true" class="<?= htmlspecialchars($social['icon']) ?>"></i>
+                                                                            <?php endif; ?>
+                                                                        </a>
+                                                                    </li>
+                                                                <?php endif; ?>
+                                                            <?php endforeach; ?>
                                                         </ul>
                                                     </div>
                                                 </div>

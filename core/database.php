@@ -91,6 +91,11 @@ class Database {
     }
     
     public function limit($limit, $offset = 0) {
+        // Initialize query with SELECT if it's empty to prevent syntax error
+        if (empty($this->query)) {
+            $this->select();
+        }
+        
         if ($offset > 0) {
             $this->query .= " LIMIT {$offset}, {$limit}";
         } else {
@@ -111,6 +116,10 @@ class Database {
     }
     
     public function first() {
+        // Ensure query has SELECT clause before limiting
+        if (empty($this->query)) {
+            $this->select();
+        }
         $this->limit(1);
         $results = $this->get();
         return !empty($results) ? $results[0] : null;

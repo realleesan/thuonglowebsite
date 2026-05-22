@@ -12,6 +12,13 @@ mb_http_output('UTF-8');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($title) ? $title : 'Thuong Lo - Nền tảng học trực tuyến'; ?></title>
     
+    <!-- Dynamic SEO Meta Description -->
+    <?php if (isset($meta_description) && !empty($meta_description)): ?>
+        <meta name="description" content="<?php echo htmlspecialchars($meta_description); ?>">
+    <?php else: ?>
+        <meta name="description" content="Thuong Lo - Nền tảng data nguồn hàng và dịch vụ thương mại xuyên biên giới hàng đầu.">
+    <?php endif; ?>
+    
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="<?php echo icon_url(get_favicon()); ?>">
     

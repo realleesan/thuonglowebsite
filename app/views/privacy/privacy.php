@@ -1,217 +1,145 @@
 <?php
 /**
  * Privacy Policy Page
- * Standardized with View Initialization System
+ * Standardized with View Initialization System and Dynamic Subpage content
  */
 
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
-// Chọn service phù hợp cho privacy (ưu tiên inject từ routing)
-$service = isset($currentService) ? $currentService : ($publicService ?? null);
+require_once __DIR__ . '/../../models/SubPageModel.php';
+$subPageModel = new SubPageModel();
+$pageData = $subPageModel->getByPageKey('privacy');
 
-// 2. Khởi tạo biến dữ liệu
-$privacyData = [];
-$showErrorMessage = false;
-$errorMessage = '';
-
-try {
-    // Lấy dữ liệu từ Service
-    if ($service && method_exists($service, 'getPrivacyPageData')) {
-        $privacyData = $service->getPrivacyPageData();
-    } else {
-        $privacyData = [];
-    }
-    
-} catch (Exception $e) {
-    if (isset($errorHandler)) {
-        $result = $errorHandler->handleViewError($e, 'privacy', []);
-        $showErrorMessage = true;
-        $errorMessage = $result['message'];
-    }
-}
+// Parse dynamic content
+$title = $pageData ? $pageData['title'] : 'Chính sách bảo mật';
+$content = $pageData ? $pageData['content'] : '';
+$banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
-<!-- Privacy Policy Page Content -->
-<?php if ($showErrorMessage): ?>
-<div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
-    <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
-</div>
-<?php endif; ?>
+
+<!-- Custom Premium CSS for Privacy Dynamic Page -->
+<style>
+    .dynamic-privacy-hero {
+        position: relative;
+        padding: 80px 0;
+        background: <?= !empty($banner) ? "url('$banner') no-repeat center center / cover" : "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" ?>;
+        color: white;
+        text-align: center;
+        margin-bottom: 40px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .dynamic-privacy-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(2px);
+        z-index: 1;
+    }
+    .dynamic-privacy-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    .dynamic-privacy-hero h1 {
+        font-size: 36px;
+        font-weight: 800;
+        margin: 0 0 12px 0;
+        letter-spacing: -0.025em;
+    }
+    .dynamic-privacy-hero p {
+        font-size: 16px;
+        color: #cbd5e1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .dynamic-privacy-container {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 50px;
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+    .dynamic-privacy-container h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 28px;
+        margin-bottom: 16px;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 8px;
+    }
+    .dynamic-privacy-container h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-top: 24px;
+        margin-bottom: 12px;
+    }
+    .dynamic-privacy-container ul, .dynamic-privacy-container ol {
+        padding-left: 20px;
+        margin-bottom: 20px;
+    }
+    .dynamic-privacy-container li {
+        margin-bottom: 8px;
+    }
+    .dynamic-privacy-container strong {
+        color: #111827;
+        font-weight: 600;
+    }
+    .dynamic-privacy-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 16px auto;
+        display: block;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+</style>
 
 <!-- Main Content -->
-<div id="wrapper-container" class="wrapper-container">
-    <div class="content-pusher">
-        <div id="main-content">
-            <div class="elementor elementor-privacy">
-                <?php 
-                // Breadcrumb sẽ được hiển thị từ master layout
-                ?>
-
-              
-
-                <!-- Privacy Content -->
-                <section class="privacy-section">
-                    <div class="container">
-                        <div class="privacy-content">
-                            
-
-                            <div class="privacy-sections">
-                                <div class="privacy-section-item">
-                                    <h2>1. Thông tin chúng tôi thu thập</h2>
-                                    <p>Chúng tôi có thể thu thập các loại thông tin sau:</p>
-                                    <ul>
-                                        <li><strong>Thông tin cá nhân:</strong> Họ tên, email, số điện thoại, địa chỉ, ngày sinh</li>
-                                        <li><strong>Thông tin tài khoản:</strong> Tên đăng nhập, mật khẩu (đã mã hóa), lịch sử đăng nhập</li>
-                                        <li><strong>Thông tin giao dịch:</strong> Lịch sử mua hàng, phương thức thanh toán, địa chỉ giao hàng</li>
-                                        <li><strong>Thông tin thiết bị:</strong> IP address, loại trình duyệt, hệ điều hành, thiết bị sử dụng</li>
-                                        <li><strong>Thông tin sử dụng:</strong> Lịch sử duyệt web, sản phẩm xem, thời gian truy cập, tìm kiếm</li>
-                                        <li><strong>Thông tin marketing:</strong> Lựa chọn nhận email, SMS, thông báo đẩy</li>
-                                    </ul>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>2. Cách chúng tôi thu thập thông tin</h2>
-                                    <p>Thông tin được thu thập thông qua:</p>
-                                    <ul>
-                                        <li><strong>Form đăng ký:</strong> Khi bạn tạo tài khoản hoặc đăng ký nhận tin</li>
-                                        <li><strong>Quá trình mua hàng:</strong> Khi đặt hàng và thanh toán</li>
-                                        <li><strong>Cookies:</strong> Để ghi nhớ preferences và cải thiện trải nghiệm</li>
-                                        <li><strong>Analytics tools:</strong> Google Analytics để phân tích traffic website</li>
-                                        <li><strong>Tương tác trực tiếp:</strong> Chat, email, điện thoại với đội ngũ hỗ trợ</li>
-                                        <li><strong>Social media:</strong> Khi bạn kết nối qua mạng xã hội</li>
-                                    </ul>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>3. Mục đích sử dụng thông tin</h2>
-                                    <p>Chúng tôi sử dụng thông tin của bạn để:</p>
-                                    <ul>
-                                        <li>Cung cấp dịch vụ và xử lý đơn hàng</li>
-                                        <li>Cá nhân hóa trải nghiệm mua sắm</li>
-                                        <li>Gửi thông báo về đơn hàng và vận chuyển</li>
-                                        <li>Cung cấp hỗ trợ khách hàng</li>
-                                        <li>Gửi thông tin khuyến mãi (với sự cho phép của bạn)</li>
-                                        <li>Cải thiện sản phẩm và dịch vụ</li>
-                                        <li>Phòng chống gian lận và bảo mật</li>
-                                        <li>Thực hiện các nghĩa vụ pháp lý</li>
-                                    </ul>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>4. Chia sẻ thông tin với bên thứ ba</h2>
-                                    <p>Chúng tôi chỉ chia sẻ thông tin trong các trường hợp:</p>
-                                    <ul>
-                                        <li><strong>Đối tác dịch vụ:</strong> Đơn vị vận chuyển, thanh toán, logistics</li>
-                                        <li><strong>Nhà cung cấp:</strong> Để xử lý đơn hàng và bảo hành sản phẩm</li>
-                                        <li><strong>Cơ quan pháp luật:</strong> Khi có yêu cầu hợp lệ từ cơ quan chức năng</li>
-                                        <li><strong>Mua bán sáp nhập:</strong> Khi có sự thay đổi cấu trúc công ty</li>
-                                        <li><strong>Quảng cáo:</strong> Các nền tảng quảng cáo (với sự đồng ý của bạn)</li>
-                                    </ul>
-                                    <p>Tất cả các bên thứ ba đều phải tuân thủ tiêu chuẩn bảo mật dữ liệu của chúng tôi.</p>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>5. Bảo mật thông tin</h2>
-                                    <p>Chúng tôi áp dụng các biện pháp bảo mật:</p>
-                                    <ul>
-                                        <li><strong>Mã hóa dữ liệu:</strong> SSL/TLS cho tất cả kết nối</li>
-                                        <li><strong>Bảo mật mật khẩu:</strong> Mã hóa theo chuẩn bcrypt</li>
-                                        <li><strong>Firewall:</strong> Chặn các truy cập độc hại</li>
-                                        <li><strong>Antivirus:</strong> Quét và phòng chống malware</li>
-                                        <li><strong>Access control:</strong> Giới hạn quyền truy cập dữ liệu</li>
-                                        <li><strong>Backup:</strong> Sao lưu dữ liệu định kỳ</li>
-                                        <li><strong>Audit log:</strong> Ghi lại mọi truy cập dữ liệu</li>
-                                    </ul>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>6. Quyền của bạn</h2>
-                                    <p>Bạn có các quyền sau đối với thông tin cá nhân:</p>
-                                    <ul>
-                                        <li><strong>Quyền truy cập:</strong> Yêu cầu xem thông tin chúng tôi lưu trữ về bạn</li>
-                                        <li><strong>Quyền sửa đổi:</strong> Cập nhật hoặc chỉnh sửa thông tin cá nhân</li>
-                                        <li><strong>Quyền xóa:</strong> Yêu cầu xóa tài khoản và thông tin liên quan</li>
-                                        <li><strong>Quyền hạn chế:</strong> Giới hạn việc xử lý thông tin của bạn</li>
-                                        <li><strong>Quyền phản đối:</strong> Chống lại việc sử dụng thông tin cho marketing</li>
-                                        <li><strong>Quyền di chuyển:</strong> Yêu cầu chuyển dữ liệu sang nhà cung cấp khác</li>
-                                    </ul>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>7. Cookies và Tracking</h2>
-                                    <p>Website sử dụng cookies để:</p>
-                                    <ul>
-                                        <li>Ghi nhớ thông tin đăng nhập và giỏ hàng</li>
-                                        <li>Cá nhân hóa nội dung và quảng cáo</li>
-                                        <li>Phân tích hành vi người dùng</li>
-                                        <li>Cải thiện hiệu suất website</li>
-                                    </ul>
-                                    <p>Bạn có thể quản lý cookies qua cài đặt trình duyệt. Tuy nhiên, việc vô hiệu hóa cookies có thể ảnh hưởng đến trải nghiệm sử dụng.</p>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>8. Lưu trữ dữ liệu</h2>
-                                    <p>Chính sách lưu trữ của chúng tôi:</p>
-                                    <ul>
-                                        <li><strong>Tài khoản:</strong> Lưu trữ vĩnh viễn hoặc cho đến khi bạn yêu cầu xóa</li>
-                                        <li><strong>Đơn hàng:</strong> Lưu trữ 5 năm cho mục đích bảo hành và thuế</li>
-                                        <li><strong>Log hệ thống:</strong> Lưu trữ 90 ngày</li>
-                                        <li><strong>Marketing data:</strong> Lưu trữ 2 năm sau khi unsubscribed</li>
-                                        <li><strong>Payment data:</strong> Lưu trữ theo quy định của Ngân hàng Nhà nước</li>
-                                    </ul>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>9. Bảo vệ trẻ em</h2>
-                                    <p>Chúng tôi không thu thập thông tin cá nhân của trẻ em dưới 16 tuổi. Nếu phát hiện có thông tin trẻ em, chúng tôi sẽ:</p>
-                                    <ul>
-                                        <li>Xóa ngay lập tức thông tin liên quan</li>
-                                        <li>Thông báo cho phụ huynh/người giám hộ</li>
-                                        <li>Cung cấp hướng dẫn bảo vệ trẻ em online</li>
-                                    </ul>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>10. Thay đổi chính sách bảo mật</h2>
-                                    <p>Chúng tôi có thể cập nhật chính sách này khi:</p>
-                                    <ul>
-                                        <li>Thay đổi về pháp luật hoặc quy định</li>
-                                        <li>Cập nhật công nghệ hoặc quy trình</li>
-                                        <li>Mở rộng hoặc thay đổi dịch vụ</li>
-                                        <li>Phản hồi từ khách hàng</li>
-                                    </ul>
-                                    <p>Mọi thay đổi sẽ được thông báo qua email và đăng tải trên website trước 30 ngày áp dụng.</p>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>11. Liên hệ chúng tôi</h2>
-                                    <p>Nếu có câu hỏi hoặc yêu cầu về quyền riêng tư, vui lòng liên hệ:</p>
-                                    <ul>
-                                        <li><strong>Email:</strong> privacy@thuonglo.com</li>
-                                        <li><strong>Hotline:</strong> 1900-1234 (nhấn 3)</li>
-                                        <li><strong>Địa chỉ:</strong> 123 Nguyễn Huệ, Quận 1, TP.HCM</li>
-                                        <li><strong>Bộ phận:</strong> Chịu trách nhiệm bảo vệ dữ liệu cá nhân</li>
-                                    </ul>
-                                    <p>Chúng tôi cam kết phản hồi trong vòng 24 giờ làm việc.</p>
-                                </div>
-
-                                <div class="privacy-section-item">
-                                    <h2>12. Khiếu nại và giải quyết</h2>
-                                    <p>Nếu bạn cho rằng quyền riêng tư bị vi phạm:</p>
-                                    <ul>
-                                        <li>Liên hệ ngay với bộ phận bảo mật của chúng tôi</li>
-                                        <li>Cung cấp bằng chứng và mô tả chi tiết</li>
-                                        <li>Chúng tôi sẽ điều tra trong vòng 7 ngày làm việc</li>
-                                        <li>Nếu không hài lòng, bạn có thể khiếu nại lên Cục An toàn thông tin</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                          
-                        </div>
-                    </div>
-                </section>
+<div id="wrapper-container" class="wrapper-container" style="padding: 40px 0;">
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="dynamic-privacy-hero">
+            <div class="container">
+                <h1><?= htmlspecialchars($title) ?></h1>
+                <p>Cam kết bảo mật dữ liệu, thông tin cá nhân và tài sản thông tin tuyệt đối tại ThuongLo</p>
             </div>
+        </div>
+
+        <!-- Render Dynamic Content -->
+        <div class="dynamic-privacy-container">
+            <?php if (!empty($content)): ?>
+                <?= $content ?>
+            <?php else: ?>
+                <!-- Fallback to original static HTML if DB is not ready -->
+                <h2>Chính sách bảo mật thông tin cá nhân</h2>
+                <p>Thuong Lo cam kết bảo vệ tuyệt đối thông tin cá nhân của người dùng. Chính sách bảo mật dưới đây làm rõ cách thức chúng tôi thu thập, sử dụng và bảo vệ thông tin của bạn:</p>
+                
+                <h3>1. Thu thập thông tin</h3>
+                <p>Chúng tôi thu thập thông tin khi bạn đăng ký tài khoản, đặt mua gói dữ liệu hoặc đăng ký làm đại lý (gồm Tên, Email, Số điện thoại và thông tin thanh toán phục vụ rút tiền qua PayOS).</p>
+                
+                <h3>2. Sử dụng thông tin</h3>
+                <p>Thông tin thu thập được sử dụng để xử lý đơn hàng, gửi thông báo kích hoạt, hỗ trợ xử lý giao nhận logistics, và gửi ưu đãi khuyến mãi định kỳ (nếu bạn đồng ý nhận).</p>
+                
+                <h3>3. Bảo mật dữ liệu</h3>
+                <p>Chúng tôi sử dụng giao thức mã hóa dữ liệu SSL bảo mật cao và lưu trữ dữ liệu trên máy chủ an toàn. Cam kết không chia sẻ, mua bán thông tin cá nhân của bạn cho bên thứ ba dưới bất kỳ hình thức nào.</p>
+                
+                <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 30px 0;">
+                <p>Nếu bạn cho rằng quyền riêng tư bị vi phạm:</p>
+                <ul>
+                    <li>Liên hệ ngay với bộ phận bảo mật của chúng tôi</li>
+                    <li>Cung cấp bằng chứng và mô tả chi tiết</li>
+                    <li>Chúng tôi sẽ điều tra trong vòng 7 ngày làm việc</li>
+                    <li>Nếu không hài lòng, bạn có thể khiếu nại lên Cục An toàn thông tin</li>
+                </ul>
+            <?php endif; ?>
         </div>
     </div>
 </div>

@@ -38,6 +38,7 @@ $current_action = $_GET['action'] ?? 'index';
                     ['name' => 'Đơn hàng', 'url' => '?page=admin&module=orders', 'icon' => 'fas fa-shopping-cart'],
                     ['name' => 'Người dùng', 'url' => '?page=admin&module=users', 'icon' => 'fas fa-users'],
                     ['name' => 'Trang chủ', 'url' => '?page=admin&module=homepage', 'icon' => 'fas fa-home'],
+                    ['name' => 'Trang phụ', 'url' => '?page=admin&module=subpages', 'icon' => 'fas fa-copy'],
                     ['name' => 'Danh mục', 'url' => '?page=admin&module=categories', 'icon' => 'fas fa-tags'],
                     ['name' => 'Thương hiệu', 'url' => '?page=admin&module=brands', 'icon' => 'fas fa-copyright'],
                     ['name' => 'Tin tức', 'url' => '?page=admin&module=news', 'icon' => 'fas fa-newspaper'],
@@ -46,7 +47,8 @@ $current_action = $_GET['action'] ?? 'index';
                     ['name' => 'Đại lý', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-store', 'submenus' => [
                         ['name' => 'Danh sách', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-list'],
                         ['name' => 'Yêu cầu', 'url' => '?page=admin&module=affiliates&action=requests', 'icon' => 'fas fa-user-plus'],
-                        ['name' => 'Rút tiền', 'url' => '?page=admin&module=affiliates&action=withdrawals', 'icon' => 'fas fa-money-bill-wave']
+                        ['name' => 'Rút tiền', 'url' => '?page=admin&module=affiliates&action=withdrawals', 'icon' => 'fas fa-money-bill-wave'],
+                        ['name' => 'Nội dung', 'url' => '?page=admin&module=affiliates&action=content', 'icon' => 'fas fa-file-alt']
                     ]],
                     
                 ];
@@ -62,15 +64,21 @@ $current_action = $_GET['action'] ?? 'index';
                             ['name' => 'Cấu Hình Filter', 'url' => '?page=admin&module=products&action=filter_config', 'icon' => 'fas fa-sliders-h']
                         ];
                     }
-                    if (isset($menu['url']) && strpos($menu['url'], 'module=affiliates') !== false && strpos($menu['url'], 'action=requests') === false && strpos($menu['url'], 'action=withdrawals') === false) {
+                    if (isset($menu['url']) && strpos($menu['url'], 'module=affiliates') !== false && strpos($menu['url'], 'action=requests') === false && strpos($menu['url'], 'action=withdrawals') === false && strpos($menu['url'], 'action=content') === false) {
                         // This is affiliates menu - add submenu
                         $menu['submenus'] = [
                             ['name' => 'Danh sách', 'url' => '?page=admin&module=affiliates', 'icon' => 'fas fa-list'],
                             ['name' => 'Yêu cầu', 'url' => '?page=admin&module=affiliates&action=requests', 'icon' => 'fas fa-user-plus'],
-                            ['name' => 'Rút tiền', 'url' => '?page=admin&module=affiliates&action=withdrawals', 'icon' => 'fas fa-money-bill-wave']
+                            ['name' => 'Rút tiền', 'url' => '?page=admin&module=affiliates&action=withdrawals', 'icon' => 'fas fa-money-bill-wave'],
+                            ['name' => 'Nội dung', 'url' => '?page=admin&module=affiliates&action=content', 'icon' => 'fas fa-file-alt']
                         ];
                     }
                     $updatedMenus[] = $menu;
+
+                    // If this is homepage menu, insert Subpages menu immediately after it
+                    if (isset($menu['url']) && strpos($menu['url'], 'module=homepage') !== false) {
+                        $updatedMenus[] = ['name' => 'Trang phụ', 'url' => '?page=admin&module=subpages', 'icon' => 'fas fa-copy'];
+                    }
                 }
                 $menus = $updatedMenus;
             }
@@ -127,20 +135,24 @@ $current_action = $_GET['action'] ?? 'index';
                                     $subActive = true;
                                 }
                             }
-                            // Affiliates check: 'requests' action vs not (includes request_detail, approve_request, reject_request, delete_request)
-                            // 'withdrawals' action vs not (includes withdrawal_detail, approve_withdrawal, reject_withdrawal)
-                            if ($current_module === 'affiliates') {
-                                $isRequestsRelated = in_array($current_action, ['requests', 'request_detail', 'approve_request', 'reject_request', 'delete_request']);
-                                $isWithdrawalsRelated = in_array($current_action, ['withdrawals', 'withdrawal_detail', 'approve_withdrawal', 'reject_withdrawal']);
-                                
-                                if ($isRequestsRelated && strpos($submenu['url'], 'action=requests') !== false) {
-                                    $subActive = true;
-                                } elseif ($isWithdrawalsRelated && strpos($submenu['url'], 'action=withdrawals') !== false) {
-                                    $subActive = true;
-                                } elseif (!$isRequestsRelated && !$isWithdrawalsRelated && strpos($submenu['url'], 'action=requests') === false && strpos($submenu['url'], 'action=withdrawals') === false) {
-                                    $subActive = true;
-                                }
-                            }
+                             // Affiliates check: 'requests' action vs not (includes request_detail, approve_request, reject_request, delete_request)
+                             // 'withdrawals' action vs not (includes withdrawal_detail, approve_withdrawal, reject_withdrawal)
+                             // 'content' / 'content_edit' action vs not
+                             if ($current_module === 'affiliates') {
+                                 $isRequestsRelated = in_array($current_action, ['requests', 'request_detail', 'approve_request', 'reject_request', 'delete_request']);
+                                 $isWithdrawalsRelated = in_array($current_action, ['withdrawals', 'withdrawal_detail', 'approve_withdrawal', 'reject_withdrawal']);
+                                 $isContentRelated = in_array($current_action, ['content', 'content_edit']);
+                                 
+                                 if ($isRequestsRelated && strpos($submenu['url'], 'action=requests') !== false) {
+                                     $subActive = true;
+                                 } elseif ($isWithdrawalsRelated && strpos($submenu['url'], 'action=withdrawals') !== false) {
+                                     $subActive = true;
+                                 } elseif ($isContentRelated && strpos($submenu['url'], 'action=content') !== false) {
+                                     $subActive = true;
+                                 } elseif (!$isRequestsRelated && !$isWithdrawalsRelated && !$isContentRelated && strpos($submenu['url'], 'action=requests') === false && strpos($submenu['url'], 'action=withdrawals') === false && strpos($submenu['url'], 'action=content') === false) {
+                                     $subActive = true;
+                                 }
+                             }
                         }
                     ?>
                     <li class="submenu-item <?php echo $subActive ? 'active' : ''; ?>">

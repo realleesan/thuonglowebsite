@@ -105,7 +105,7 @@ switch($page) {
         $title = 'Giới thiệu - Thuong Lo';
         $content = 'app/views/about/about.php';
         $showPageHeader = true;
-        $showCTA = true;
+        $showCTA = false;
         $showBreadcrumb = true;
         $breadcrumbs = generate_breadcrumb('about');
         $currentService = $publicService ?? $currentService;
@@ -415,6 +415,72 @@ switch($page) {
                 exit;
                 break;
         }
+        break;
+
+    case 'agent-page':
+        // Load dynamic agent content page
+        $page_key = $_GET['key'] ?? '';
+        if (empty($page_key)) {
+            header('Location: ' . base_url());
+            exit;
+        }
+
+        require_once 'app/models/AgentContentModel.php';
+        $agentContentModel = new AgentContentModel();
+        $pageData = $agentContentModel->getByPageKey($page_key);
+
+        if (!$pageData) {
+            // Seed defaults if page key does not exist yet (fallback to prevent error screen)
+            $defaultPages = [
+                'chuong_trinh' => [
+                    'page_key' => 'chuong_trinh',
+                    'title' => 'Chương trình đại lý',
+                    'content' => '<h2>Chào mừng bạn đến với Chương trình Đại lý Thuong Lo</h2><p>Hệ thống đại lý của chúng tôi cung cấp giải pháp gia tăng thu nhập vượt trội cùng các công cụ hỗ trợ bán hàng tối tân nhất. Nội dung đang được cập nhật thêm bởi quản trị viên...</p>',
+                    'image' => '',
+                    'meta_title' => 'Chương trình Đại lý - Thuong Lo',
+                    'meta_description' => 'Tham gia chương trình đại lý Thuong Lo để nhận chiết khấu và hoa hồng cực cao.'
+                ],
+                'huong_dan' => [
+                    'page_key' => 'huong_dan',
+                    'title' => 'Hướng dẫn đăng ký đại lý',
+                    'content' => '<h2>Hướng dẫn các bước đăng ký làm đại lý Thuong Lo</h2><p>Để trở thành đại lý, vui lòng nhấp vào nút "Đăng Ký Ngay" ở chân trang, điền đầy đủ thông tin cá nhân và tài khoản thanh toán PayOS để được kích hoạt tự động. Nội dung chi tiết đang được cập nhật...</p>',
+                    'image' => '',
+                    'meta_title' => 'Hướng dẫn đăng ký đại lý - Thuong Lo',
+                    'meta_description' => 'Xem chi tiết các bước đăng ký tài khoản đại lý tại Thuong Lo nhanh chóng.'
+                ],
+                'chinh_sach' => [
+                    'page_key' => 'chinh_sach',
+                    'title' => 'Chính sách đại lý',
+                    'content' => '<h2>Chính sách đại lý & Quyền lợi hợp tác</h2><p>Chúng tôi cam kết mức chiết khấu hấp dẫn lên đến 30% giá trị gói dữ liệu cùng chế độ rút tiền tự động hoàn toàn miễn phí qua cổng PayOS. Chi tiết chính sách đang được cập nhật...</p>',
+                    'image' => '',
+                    'meta_title' => 'Chính sách đại lý - Thuong Lo',
+                    'meta_description' => 'Đọc các chính sách, điều khoản và quyền lợi dành cho đại lý Thuong Lo.'
+                ],
+                'tai_nguyen' => [
+                    'page_key' => 'tai_nguyen',
+                    'title' => 'Tài nguyên - tài liệu đại lý',
+                    'content' => '<h2>Kho tài nguyên & Tài liệu phục vụ đại lý tiếp thị</h2><p>Hệ thống cung cấp sẵn các bộ Banner truyền thông, File thiết kế SVG, Tài liệu giới thiệu sản phẩm và Đường dẫn tiếp thị tùy biến. Nội dung kho tài nguyên đang được cập nhật...</p>',
+                    'image' => '',
+                    'meta_title' => 'Tài nguyên - Tài liệu đại lý - Thuong Lo',
+                    'meta_description' => 'Tải xuống banner, hình ảnh, tài liệu giới thiệu và công cụ hỗ trợ bán hàng.'
+                ]
+            ];
+
+            if (isset($defaultPages[$page_key])) {
+                $pageData = $defaultPages[$page_key];
+            } else {
+                header('Location: ' . base_url());
+                exit;
+            }
+        }
+
+        // Set layout variables
+        $title = !empty($pageData['meta_title']) ? $pageData['meta_title'] : $pageData['title'] . ' - Thuong Lo';
+        $meta_description = !empty($pageData['meta_description']) ? $pageData['meta_description'] : '';
+        $content = 'app/views/affiliate/agent_page.php';
+        $showPageHeader = false;
+        $showCTA = false;
+        $showBreadcrumb = false;
         break;
 
     case 'users':
@@ -1061,6 +1127,132 @@ switch($page) {
                 }
                 break;
                 
+            case 'subpages':
+                $page_title = 'Quản lý Trang phụ';
+                require_once __DIR__ . '/app/models/SubPageModel.php';
+                $subPageModel = new SubPageModel();
+                
+                // Xử lý AJAX upload ảnh cho editor của Trang phụ
+                if ($action === 'upload_editor_image' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    while (ob_get_level() > 0) {
+                        ob_end_clean();
+                    }
+                    header('Content-Type: application/json');
+                    
+                    if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] === UPLOAD_ERR_OK) {
+                        $upload_dir = 'uploads/subpages/editor/';
+                        if (!is_dir($upload_dir)) {
+                            @mkdir($upload_dir, 0755, true);
+                        }
+                        $ext = strtolower(pathinfo($_FILES['upload_file']['name'], PATHINFO_EXTENSION));
+                        $allowed = ['jpg','jpeg','png','gif','webp'];
+                        if (in_array($ext, $allowed)) {
+                            $filename = 'editor_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                            $dest = $upload_dir . $filename;
+                            if (move_uploaded_file($_FILES['upload_file']['tmp_name'], $dest)) {
+                                echo json_encode(['success' => true, 'url' => $dest]);
+                            } else {
+                                echo json_encode(['success' => false, 'message' => 'Không thể di chuyển file đã upload']);
+                            }
+                        } else {
+                            echo json_encode(['success' => false, 'message' => 'Định dạng ảnh không hợp lệ']);
+                        }
+                    } else {
+                        echo json_encode(['success' => false, 'message' => 'Không có file hoặc lỗi upload']);
+                    }
+                    exit;
+                }
+                
+                // Xử lý POST update trang phụ
+                if ($action === 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $key = $_POST['page_key'] ?? $_GET['key'] ?? '';
+                    $errors = [];
+                    
+                    if (!empty($key)) {
+                        if ($key === 'footer_socials') {
+                            // Xử lý mạng xã hội
+                            $socials = $_POST['socials'] ?? [];
+                            // Chuẩn hóa và lưu JSON string
+                            $updateData = [
+                                'content' => json_encode($socials, JSON_UNESCAPED_UNICODE)
+                            ];
+                        } else {
+                            // Xử lý trang tĩnh thường
+                            $title_val = trim($_POST['title'] ?? '');
+                            $content_val = $_POST['content'] ?? '';
+                            $meta_title = trim($_POST['meta_title'] ?? '');
+                            $meta_description = trim($_POST['meta_description'] ?? '');
+                            
+                            if (empty($title_val)) {
+                                $errors[] = 'Tiêu đề không được để trống';
+                            }
+                            
+                            // Xử lý ảnh banner nếu có
+                            $image_path = $_POST['current_image'] ?? '';
+                            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                                $upload_dir = 'uploads/subpages/';
+                                if (!is_dir($upload_dir)) {
+                                    @mkdir($upload_dir, 0755, true);
+                                }
+                                $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                                $allowed = ['jpg','jpeg','png','gif','webp'];
+                                if (in_array($ext, $allowed)) {
+                                    $filename = 'banner_' . $key . '_' . time() . '.' . $ext;
+                                    $dest = $upload_dir . $filename;
+                                    if (move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
+                                        $image_path = $dest;
+                                    }
+                                } else {
+                                    $errors[] = 'Định dạng ảnh banner không hợp lệ. Chỉ hỗ trợ JPG, PNG, WEBP, GIF';
+                                }
+                            }
+                            
+                            $updateData = [
+                                'title' => $title_val,
+                                'content' => $content_val,
+                                'image' => !empty($image_path) ? $image_path : null,
+                                'meta_title' => !empty($meta_title) ? $meta_title : null,
+                                'meta_description' => !empty($meta_description) ? $meta_description : null
+                            ];
+                        }
+                        
+                        if (empty($errors)) {
+                            try {
+                                $updated = $subPageModel->updateByKey($key, $updateData);
+                                if ($updated) {
+                                    header('Location: ?page=admin&module=subpages&success=updated');
+                                    exit;
+                                } else {
+                                    $errors[] = 'Không có thay đổi nào hoặc không thể cập nhật';
+                                }
+                            } catch (Exception $e) {
+                                error_log('Subpage update error: ' . $e->getMessage());
+                                $errors[] = 'Lỗi hệ thống: ' . $e->getMessage();
+                            }
+                        }
+                    } else {
+                        header('Location: ?page=admin&module=subpages&error=invalid_key');
+                        exit;
+                    }
+                    
+                    if (!empty($errors)) {
+                        $error_msg = urlencode(implode(', ', $errors));
+                        header('Location: ?page=admin&module=subpages&action=edit&key=' . $key . '&error=' . $error_msg);
+                        exit;
+                    }
+                }
+                
+                // Định tuyến View Trang phụ
+                switch($action) {
+                    case 'edit':
+                        $content = 'app/views/admin/subpages/edit.php';
+                        break;
+                    default:
+                        $content = 'app/views/admin/subpages/index.php';
+                        break;
+                }
+                break;
+                
             case 'categories':
                 $page_title = 'Quản lý Danh mục';
                 
@@ -1420,6 +1612,105 @@ switch($page) {
                         exit;
                     }
                 }
+
+                // Handle POST update for affiliate content
+                if ($action === 'content_edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $key = $_POST['page_key'] ?? $_GET['key'] ?? '';
+                    $errors = [];
+                    
+                    if (!empty($key)) {
+                        $title = trim($_POST['title'] ?? '');
+                        $content_val = $_POST['content'] ?? '';
+                        $meta_title = trim($_POST['meta_title'] ?? '');
+                        $meta_description = trim($_POST['meta_description'] ?? '');
+                        
+                        if (empty($title)) {
+                            $errors[] = 'Tiêu đề không được để trống';
+                        }
+                        
+                        // Handle page banner image upload
+                        $image_path = $_POST['current_image'] ?? '';
+                        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                            $upload_dir = 'uploads/agent/';
+                            if (!is_dir($upload_dir)) {
+                                @mkdir($upload_dir, 0755, true);
+                            }
+                            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                            $allowed = ['jpg','jpeg','png','gif','webp'];
+                            if (in_array($ext, $allowed)) {
+                                $filename = 'banner_' . $key . '_' . time() . '.' . $ext;
+                                $dest = $upload_dir . $filename;
+                                if (move_uploaded_file($_FILES['image']['tmp_name'], $dest)) {
+                                    $image_path = $dest;
+                                }
+                            } else {
+                                $errors[] = 'Định dạng ảnh banner không hợp lệ. Chỉ hỗ trợ JPG, PNG, WEBP, GIF';
+                            }
+                        }
+                        
+                        if (empty($errors)) {
+                            try {
+                                require_once __DIR__ . '/app/models/AgentContentModel.php';
+                                $agentContentModel = new AgentContentModel();
+                                
+                                $updateData = [
+                                    'title' => $title,
+                                    'content' => $content_val,
+                                    'image' => !empty($image_path) ? $image_path : null,
+                                    'meta_title' => !empty($meta_title) ? $meta_title : null,
+                                    'meta_description' => !empty($meta_description) ? $meta_description : null
+                                ];
+                                
+                                $updated = $agentContentModel->updateByKey($key, $updateData);
+                                if ($updated) {
+                                    header('Location: ?page=admin&module=affiliates&action=content&success=updated');
+                                    exit;
+                                } else {
+                                    $errors[] = 'Không có thay đổi nào hoặc không thể cập nhật nội dung';
+                                }
+                            } catch (Exception $e) {
+                                error_log('Agent content update error: ' . $e->getMessage());
+                                $errors[] = 'Lỗi hệ thống: ' . $e->getMessage();
+                            }
+                        }
+                    } else {
+                        header('Location: ?page=admin&module=affiliates&action=content&error=invalid_key');
+                        exit;
+                    }
+                    
+                    if (!empty($errors)) {
+                        $error_msg = urlencode(implode(', ', $errors));
+                        header('Location: ?page=admin&module=affiliates&action=content_edit&key=' . $key . '&error=' . $error_msg);
+                        exit;
+                    }
+                }
+
+                // Handle AJAX image upload inside custom text editor
+                if ($action === 'upload_editor_image' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    if (ob_get_level() > 0) {
+                        ob_clean();
+                    }
+                    header('Content-Type: application/json');
+                    
+                    if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] === UPLOAD_ERR_OK) {
+                        $upload_dir = 'uploads/agent/editor/';
+                        if (!is_dir($upload_dir)) {
+                            @mkdir($upload_dir, 0755, true);
+                        }
+                        $ext = strtolower(pathinfo($_FILES['upload_file']['name'], PATHINFO_EXTENSION));
+                        $allowed = ['jpg','jpeg','png','gif','webp'];
+                        if (in_array($ext, $allowed)) {
+                            $filename = 'editor_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                            $dest = $upload_dir . $filename;
+                            if (move_uploaded_file($_FILES['upload_file']['tmp_name'], $dest)) {
+                                echo json_encode(['success' => true, 'url' => $dest]);
+                                exit;
+                            }
+                        }
+                    }
+                    echo json_encode(['success' => false, 'message' => 'Lỗi tải ảnh lên máy chủ']);
+                    exit;
+                }
                 
                 // Handle delete action BEFORE including layout
                 if ($action === 'delete' && isset($_GET['id'])) {
@@ -1439,6 +1730,12 @@ switch($page) {
                 }
                 
                 switch($action) {
+                    case 'content':
+                        $content = 'app/views/admin/affiliates/content_list.php';
+                        break;
+                    case 'content_edit':
+                        $content = 'app/views/admin/affiliates/content_edit.php';
+                        break;
                     case 'add':
                         $content = 'app/views/admin/affiliates/add.php';
                         break;
@@ -2177,90 +2474,90 @@ switch($page) {
                 }
                 break;
                 
-            // Remove hero-section routing
-            // case 'hero-section':
-            //     // Use HeroSectionController
-            //     require_once __DIR__ . '/app/controllers/HeroSectionController.php';
-            //     $heroSectionController = new HeroSectionController();
-            //     
-            //     $action = $_GET['action'] ?? 'index';
-            //     $id = $_GET['id'] ?? null;
-            //     
-            //     switch($action) {
-            //         case 'create':
-            //             // Disabled - only allow editing existing hero section
-            //             header('Location: ?page=admin&module=hero-section');
-            //             exit;
-            //         case 'edit':
-            //             if ($id) {
-            //                 $heroSectionController->edit($id);
-            //             } else {
-            //                 header('Location: ?page=admin&module=hero-section');
-            //             }
-            //             exit;
-            //         case 'update':
-            //             if ($id) {
-            //                 $heroSectionController->update($id);
-            //             } else {
-            //                 header('Location: ?page=admin&module=hero-section');
-            //             }
-            //             exit;
-            //         case 'toggle-status':
-            //             // Handle both JSON and form data
-            //             $id = 0;
-            //             if (isset($_POST['id'])) {
-            //                 $id = (int)$_POST['id'];
-            //             } else {
-            //                 // Try to get from JSON body
-            //                 $input = file_get_contents('php://input');
-            //                 $data = json_decode($input, true);
-            //                 $id = (int)($data['id'] ?? 0);
-            //             }
-            //             
-            //             if ($id > 0) {
-            //                 $heroSectionController->toggleStatus($id);
-            //             } else {
-            //                 $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
-            //             }
-            //             exit;
-            //         case 'delete':
-            //             // Disabled - hero sections cannot be deleted
-            //             header('Location: ?page=admin&module=hero-section');
-            //             exit;
-            //         case 'createButton':
-            //             $heroSectionController->createButton();
-            //             exit;
-            //         case 'updateButton':
-            //             $id = $_GET['id'] ?? $_POST['id'] ?? 0;
-            //             if ($id > 0) {
-            //                 $heroSectionController->updateButton($id);
-            //             } else {
-            //                 $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
-            //             }
-            //             exit;
-            //         case 'deleteButton':
-            //              $id = $_GET['id'] ?? $_POST['id'] ?? 0;
-            //              if ($id > 0) {
-            //                  $heroSectionController->deleteButton($id);
-            //              } else {
-            //                  $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
-            //              }
-            //              exit;
-            //          case 'update-buttons':
-            //              $heroSectionController->updateButtons();
-            //              exit;
-            //          case 'upload-image':
-            //              $heroSectionController->uploadImage();
-            //              exit;
-            //          case 'reorderButtons':
-            //              $heroSectionController->reorderButtons();
-            //              exit;
-            //          case 'index':
-            //         default:
-            //             $heroSectionController->index();
-            //             exit;
-            //     }
-            //     break;
+            // Restore hero-section routing
+            case 'hero-section':
+                // Use HeroSectionController
+                require_once __DIR__ . '/app/controllers/HeroSectionController.php';
+                $heroSectionController = new HeroSectionController();
+                
+                $action = $_GET['action'] ?? 'index';
+                $id = $_GET['id'] ?? null;
+                
+                switch($action) {
+                    case 'create':
+                        // Disabled - only allow editing existing hero section
+                        header('Location: ?page=admin&module=hero-section');
+                        exit;
+                    case 'edit':
+                        if ($id) {
+                            $heroSectionController->edit($id);
+                        } else {
+                            header('Location: ?page=admin&module=hero-section');
+                        }
+                        exit;
+                    case 'update':
+                        if ($id) {
+                            $heroSectionController->update($id);
+                        } else {
+                            header('Location: ?page=admin&module=hero-section');
+                        }
+                        exit;
+                    case 'toggle-status':
+                        // Handle both JSON and form data
+                        $id = 0;
+                        if (isset($_POST['id'])) {
+                            $id = (int)$_POST['id'];
+                        } else {
+                            // Try to get from JSON body
+                            $input = file_get_contents('php://input');
+                            $data = json_decode($input, true);
+                            $id = (int)($data['id'] ?? 0);
+                        }
+                        
+                        if ($id > 0) {
+                            $heroSectionController->toggleStatus($id);
+                        } else {
+                            $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid ID']);
+                        }
+                        exit;
+                    case 'delete':
+                        // Disabled - hero sections cannot be deleted
+                        header('Location: ?page=admin&module=hero-section');
+                        exit;
+                    case 'createButton':
+                        $heroSectionController->createButton();
+                        exit;
+                    case 'updateButton':
+                        $id = $_GET['id'] ?? $_POST['id'] ?? 0;
+                        if ($id > 0) {
+                            $heroSectionController->updateButton($id);
+                        } else {
+                            $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+                        }
+                        exit;
+                    case 'deleteButton':
+                         $id = $_GET['id'] ?? $_POST['id'] ?? 0;
+                         if ($id > 0) {
+                             $heroSectionController->deleteButton($id);
+                         } else {
+                             $heroSectionController->sendJsonResponse(['success' => false, 'message' => 'Invalid button ID']);
+                         }
+                         exit;
+                     case 'update-buttons':
+                         $heroSectionController->updateButtons();
+                         exit;
+                     case 'upload-image':
+                         $heroSectionController->uploadImage();
+                         exit;
+                     case 'reorderButtons':
+                         $heroSectionController->reorderButtons();
+                         exit;
+                     case 'index':
+                    default:
+                        $heroSectionController->index();
+                        exit;
+                }
+                break;
                 
             default:
                 $page_title = 'Dashboard';

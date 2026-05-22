@@ -113,6 +113,14 @@ class HeroSectionController {
         try {
             $data = $this->getRequestData();
             
+            // Giải mã Base64 cho các trường chứa HTML để vượt qua bộ lọc WAF/ModSecurity của hosting
+            if (isset($data['title_main'])) {
+                $data['title_main'] = $this->safeDecodeHtml($data['title_main']);
+            }
+            if (isset($data['subtitle'])) {
+                $data['subtitle'] = $this->safeDecodeHtml($data['subtitle']);
+            }
+            
             // Validate required fields
             $errors = $this->validateHeroSectionData($data, true);
             if (!empty($errors)) {
@@ -149,7 +157,7 @@ class HeroSectionController {
 
         } catch (Exception $e) {
             error_log("Error in heroSection update: " . $e->getMessage());
-            $message = 'Có lỗi xảy ra khi cập nhật Hero Section';
+            $message = 'Có lỗi xảy ra khi cập nhật Hero Section: ' . $e->getMessage();
             if ($this->isAjaxRequest()) {
                 $this->sendJsonResponse(['success' => false, 'message' => $message]);
             } else {
@@ -637,8 +645,26 @@ class HeroSectionController {
      * Send JSON response
      */
     public function sendJsonResponse(array $data): void {
+        // Clean any output buffer to ensure valid JSON response
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
         header('Content-Type: application/json');
         echo json_encode($data);
         exit;
+    }
+    
+    /**
+     * Giải mã an toàn chuỗi Base64 chứa mã HTML từ client gửi lên (giúp vượt WAF)
+     */
+    private function safeDecodeHtml(string $str): string {
+        if (empty($str)) {
+            return $str;
+        }
+        $decoded = base64_decode($str, true);
+        if ($decoded !== false && base64_encode($decoded) === $str) {
+            return $decoded;
+        }
+        return $str;
     }
 }

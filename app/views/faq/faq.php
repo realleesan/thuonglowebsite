@@ -1,165 +1,122 @@
 <?php
 /**
  * FAQ Page
- * Standardized with View Initialization System
+ * Standardized with View Initialization System and Dynamic Subpage content
  */
 
 // 1. Khởi tạo View an toàn & ServiceManager
 require_once __DIR__ . '/../../../core/view_init.php';
 
-// Chọn service phù hợp cho faq (ưu tiên inject từ routing)
-$service = isset($currentService) ? $currentService : ($publicService ?? null);
+require_once __DIR__ . '/../../models/SubPageModel.php';
+$subPageModel = new SubPageModel();
+$pageData = $subPageModel->getByPageKey('faq');
 
-// 2. Khởi tạo biến dữ liệu
-$faqData = [];
-$showErrorMessage = false;
-$errorMessage = '';
-
-try {
-    // Lấy dữ liệu từ Service
-    if ($service && method_exists($service, 'getFaqPageData')) {
-        $faqData = $service->getFaqPageData();
-    } else {
-        $faqData = [];
-    }
-    
-} catch (Exception $e) {
-    if (isset($errorHandler)) {
-        $result = $errorHandler->handleViewError($e, 'faq', []);
-        $showErrorMessage = true;
-        $errorMessage = $result['message'];
-    }
-}
+// Parse dynamic content
+$title = $pageData ? $pageData['title'] : 'Câu hỏi thường gặp';
+$content = $pageData ? $pageData['content'] : '';
+$banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
-<!-- FAQ Page Content -->
-<?php if ($showErrorMessage): ?>
-<div class="error-message" style="background: #f8d7da; color: #721c24; padding: 15px; margin: 20px 0; border-radius: 5px; text-align: center;">
-    <strong>Thông báo:</strong> <?php echo htmlspecialchars($errorMessage); ?>
-</div>
-<?php endif; ?>
+
+<!-- Custom Premium CSS for FAQ Dynamic Page -->
+<style>
+    .dynamic-faq-hero {
+        position: relative;
+        padding: 80px 0;
+        background: <?= !empty($banner) ? "url('$banner') no-repeat center center / cover" : "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" ?>;
+        color: white;
+        text-align: center;
+        margin-bottom: 40px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .dynamic-faq-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(2px);
+        z-index: 1;
+    }
+    .dynamic-faq-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    .dynamic-faq-hero h1 {
+        font-size: 36px;
+        font-weight: 800;
+        margin: 0 0 12px 0;
+        letter-spacing: -0.025em;
+    }
+    .dynamic-faq-hero p {
+        font-size: 16px;
+        color: #94a3b8;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .dynamic-faq-container {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 50px;
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+    .dynamic-faq-container h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 28px;
+        margin-bottom: 14px;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 8px;
+    }
+    .dynamic-faq-container p {
+        margin-bottom: 16px;
+    }
+    .dynamic-faq-container strong {
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    .dynamic-faq-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 16px auto;
+        display: block;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+</style>
 
 <!-- Main Content -->
-<div id="wrapper-container" class="wrapper-container">
-    <div class="content-pusher">
-        <div id="main-content">
-            <div class="elementor elementor-faq">
-                <?php 
-                // Breadcrumb sẽ được hiển thị từ master layout
-                ?>
-
-
-                <!-- FAQ Section -->
-                <section class="faq-section">
-                    <div class="container">
-                        <div class="section-header">
-                            <h2 class="section-title">Câu hỏi thường gặp</h2>
-                            <p class="section-subtitle">Các câu hỏi được chúng tôi tổng hợp từ khách hàng</p>
-                        </div>
-                        
-                        <div class="faq-content">
-                            <div class="faq-categories">
-                                <div class="faq-category">
-                                    <h3>Đơn hàng & Thanh toán</h3>
-                                    <div class="faq-items">
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Làm thế nào để đặt hàng trên ThuongLo?</h4>
-                                            <div class="faq-answer">
-                                                <p>Bạn có thể đặt hàng trực tiếp trên website bằng cách chọn sản phẩm, thêm vào giỏ hàng và tiến hành thanh toán. Chúng tôi hỗ trợ nhiều hình thức thanh toán tiện lợi.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Các phương thức thanh toán nào được chấp nhận?</h4>
-                                            <div class="faq-answer">
-                                                <p>Chúng tôi chấp nhận thanh toán khi nhận hàng (COD), chuyển khoản ngân hàng, thẻ tín dụng/ghi nợ, ví điện tử và trả góp 0%.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Làm thế nào để theo dõi đơn hàng của tôi?</h4>
-                                            <div class="faq-answer">
-                                                <p>Sau khi đặt hàng, bạn sẽ nhận được mã vận đơn qua email/SMS. Bạn có thể theo dõi đơn hàng trên website hoặc liên hệ hotline để được hỗ trợ.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="faq-category">
-                                    <h3>Sản phẩm & Chất lượng</h3>
-                                    <div class="faq-items">
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Sản phẩm có chính hãng không?</h4>
-                                            <div class="faq-answer">
-                                                <p>Tất cả sản phẩm trên ThuongLo đều được cam kết chính hãng 100%, có nguồn gốc rõ ràng và đầy đủ giấy tờ chứng nhận chất lượng.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Làm thế nào để chọn size phù hợp?</h4>
-                                            <div class="faq-answer">
-                                                <p>Mỗi sản phẩm đều có bảng size chi tiết. Bạn có thể tham khảo bảng size hoặc liên hệ tư vấn để được đo size miễn phí và chọn size phù hợp nhất.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Sản phẩm có được bảo hành không?</h4>
-                                            <div class="faq-answer">
-                                                <p>Có, tất cả sản phẩm đều được bảo hành theo chính sách của từng thương hiệu. Thời gian bảo hành từ 6-24 tháng tùy loại sản phẩm.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="faq-category">
-                                    <h3>Giao hàng & Đổi trả</h3>
-                                    <div class="faq-items">
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Thời gian giao hàng bao lâu?</h4>
-                                            <div class="faq-answer">
-                                                <p>Thời gian giao hàng nội thành 2-3 ngày, các tỉnh khác 3-5 ngày. Chúng tôi có dịch vụ giao hàng nhanh trong 24 giờ cho các đơn hàng gấp.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Chính sách đổi trả như thế nào?</h4>
-                                            <div class="faq-answer">
-                                                <p>Bạn có thể đổi trả sản phẩm trong vòng 30 ngày nếu còn nguyên tag, chưa qua sử dụng và có hóa đơn. Chúng tôi hỗ trợ đổi trả miễn phí tại nhà.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Có giao hàng ra nước ngoài không?</h4>
-                                            <div class="faq-answer">
-                                                <p>Hiện tại chúng tôi chỉ giao hàng trong lãnh thổ Việt Nam. Trong tương lai chúng tôi sẽ mở rộng dịch vụ giao hàng quốc tế.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="faq-category">
-                                    <h3>Tài khoản & Ưu đãi</h3>
-                                    <div class="faq-items">
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Làm thế nào để tạo tài khoản?</h4>
-                                            <div class="faq-answer">
-                                                <p>Bạn có thể tạo tài khoản miễn phí trong 30 giây bằng email hoặc số điện thoại. Tài khoản giúp bạn theo dõi đơn hàng và tích điểm thưởng.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Chương trình thành viên có lợi ích gì?</h4>
-                                            <div class="faq-answer">
-                                                <p>Thành viên được tích điểm đổi quà, giảm giá sinh nhật, ưu tiên xem sản phẩm mới và nhiều đặc quyền khác tùy hạng thành viên.</p>
-                                            </div>
-                                        </div>
-                                        <div class="faq-item">
-                                            <h4 class="faq-question">Làm thế nào để nhận mã giảm giá?</h4>
-                                            <div class="faq-answer">
-                                                <p>Theo dõi fanpage, đăng ký email newsletter, kiểm tra app thường xuyên để không bỏ lỡ các mã giảm giá và chương trình khuyến mãi hấp dẫn.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        
-                    </div>
-                </section>
+<div id="wrapper-container" class="wrapper-container" style="padding: 40px 0;">
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="dynamic-faq-hero">
+            <div class="container">
+                <h1><?= htmlspecialchars($title) ?></h1>
+                <p>Tổng hợp các thắc mắc thường gặp về Logistics, Đơn hàng và Thanh toán tại ThuongLo</p>
             </div>
+        </div>
+
+        <!-- Render Dynamic Content -->
+        <div class="dynamic-faq-container">
+            <?php if (!empty($content)): ?>
+                <?= $content ?>
+            <?php else: ?>
+                <!-- Fallback to original static HTML if DB is not ready -->
+                <h3>Đơn hàng &amp; Thanh toán</h3>
+                <p><strong>Làm thế nào để đặt hàng trên ThuongLo?</strong><br>Bạn có thể đặt hàng trực tiếp trên website bằng cách chọn sản phẩm, thêm vào giỏ hàng và tiến hành thanh toán. Chúng tôi hỗ trợ nhiều hình thức thanh toán tiện lợi.</p>
+                <p><strong>Các phương thức thanh toán nào được chấp nhận?</strong><br>Chúng tôi chấp nhận thanh toán khi nhận hàng (COD), chuyển khoản ngân hàng, ví điện tử và cổng thanh toán tự động PayOS.</p>
+                
+                <h3>Giao hàng &amp; Đổi trả</h3>
+                <p><strong>Thời gian giao hàng bao lâu?</strong><br>Thời gian giao hàng nội thành 2-3 ngày, các tỉnh khác từ 3-5 ngày làm việc.</p>
+                <p><strong>Chính sách đổi trả như thế nào?</strong><br>Bạn có thể đổi trả sản phẩm trong vòng 30 ngày nếu sản phẩm còn nguyên tem mác, chưa qua sử dụng và kèm hóa đơn mua hàng.</p>
+            <?php endif; ?>
         </div>
     </div>
 </div>
