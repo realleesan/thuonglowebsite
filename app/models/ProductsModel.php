@@ -484,7 +484,6 @@ class ProductsModel extends BaseModel {
         return $this->db->query($sql, [$productId]) ?: [];
     }
 
-    // Alias methods for compatibility
     public function getLatest($limit = 8) {
         return $this->getLatestForHome($limit);
     }
@@ -495,5 +494,49 @@ class ProductsModel extends BaseModel {
 
     public function getSale($limit = 8) {
         return $this->getSaleForHome($limit);
+    }
+
+    /**
+     * Get category IDs associated with a product
+     */
+    public function getProductCategories($productId): array {
+        try {
+            $sql = "SELECT category_id FROM product_categories WHERE product_id = ?";
+            $rows = $this->db->query($sql, [$productId]);
+            if (empty($rows)) {
+                // Fallback to single category_id if table or rows do not exist/are empty
+                $prod = $this->find($productId);
+                return !empty($prod['category_id']) ? [(int)$prod['category_id']] : [];
+            }
+            return array_map('intval', array_column($rows, 'category_id'));
+        } catch (\Exception $e) {
+            // Fallback in case table does not exist yet
+            $prod = $this->find($productId);
+            return !empty($prod['category_id']) ? [(int)$prod['category_id']] : [];
+        }
+    }
+
+    /**
+     * Update category associations for a product
+     */
+    public function updateProductCategories($productId, array $categoryIds): bool {
+        try {
+            // Delete old mappings
+            $this->db->query("DELETE FROM product_categories WHERE product_id = ?", [$productId]);
+            
+            if (empty($categoryIds)) {
+                return true;
+            }
+            
+            // Insert new mappings
+            foreach ($categoryIds as $catId) {
+                $this->db->query("INSERT IGNORE INTO product_categories (product_id, category_id) VALUES (?, ?)", [$productId, (int)$catId]);
+            }
+            
+            return true;
+        } catch (\Exception $e) {
+            error_log("Error in updateProductCategories: " . $e->getMessage());
+            return false;
+        }
     }
 }

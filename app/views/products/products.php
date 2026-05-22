@@ -44,7 +44,6 @@ if (!function_exists('renderCategoryTree')) {
             $html .= '<span class="custom-checkbox"></span>';
             $html .= '<span class="category-label">' . htmlspecialchars($node['name']) . '</span>';
             $html .= '</label>';
-            $html .= '<span class="category-count">' . ($node['product_count'] ?? 0) . '</span>';
             $html .= '</div>';
             
             if ($hasChildren) {
@@ -385,7 +384,6 @@ if (!function_exists('renderCategoryTree')) {
             $html .= '<span class="custom-checkbox"></span>';
             $html .= '<span class="category-label">' . htmlspecialchars($node['name']) . '</span>';
             $html .= '</label>';
-            $html .= '<span class="category-count">' . ($node['product_count'] ?? 0) . '</span>';
             $html .= '</div>';
             
             if ($hasChildren) {
@@ -688,7 +686,6 @@ if (!function_exists('renderCategoryTree')) {
                                                                             <span class="custom-checkbox"></span>
                                                                             <span class="category-label"><?php echo htmlspecialchars($brand['name']); ?></span>
                                                                         </label>
-                                                                        <span class="category-count"><?php echo $brand['product_count']; ?></span>
                                                                     </div>
                                                                 </li>
                                                             <?php endif; ?>

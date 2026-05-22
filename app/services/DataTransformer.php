@@ -8,9 +8,24 @@ require_once __DIR__ . '/ViewSecurityHelper.php';
 
 class DataTransformer {
     private $security;
+    private static $productCategoryCounts = [];
     
     public function __construct() {
         $this->security = new ViewSecurityHelper();
+    }
+    
+    private function getProductCategoryCount($productId) {
+        if (!isset(self::$productCategoryCounts[$productId])) {
+            try {
+                require_once __DIR__ . '/../../core/database.php';
+                $db = Database::getInstance();
+                $result = $db->query("SELECT COUNT(*) as count FROM product_categories WHERE product_id = ?", [$productId]);
+                self::$productCategoryCounts[$productId] = (int)($result[0]['count'] ?? 0);
+            } catch (\Exception $e) {
+                self::$productCategoryCounts[$productId] = 0;
+            }
+        }
+        return self::$productCategoryCounts[$productId];
     }
     
     /**
@@ -21,8 +36,12 @@ class DataTransformer {
             return [];
         }
         
+        $productId = (int)$product['id'];
+        $catCount = $this->getProductCategoryCount($productId);
+        $categoryName = $catCount > 1 ? 'Nhiều danh mục' : ($product['category_name'] ?? '');
+        
         return [
-            'id' => (int) $product['id'],
+            'id' => $productId,
             'name' => $this->security->escapeHtml($product['name'] ?? ''),
             'slug' => $product['slug'] ?? '',
             'description' => $product['description'] ?? '',
@@ -30,7 +49,7 @@ class DataTransformer {
             'sale_price' => $product['sale_price'] ? (float) $product['sale_price'] : null,
             'image' => $product['image'] ?? '/assets/images/default-product.jpg',
             'category_id' => (int) ($product['category_id'] ?? 0),
-            'category_name' => $this->security->escapeHtml($product['category_name'] ?? ''),
+            'category_name' => $this->security->escapeHtml($categoryName),
             'status' => $product['status'] ?? 'active',
             'featured' => (bool) ($product['featured'] ?? false),
             'formatted_price' => $this->security->formatMoney($product['price'] ?? 0),

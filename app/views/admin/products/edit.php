@@ -35,7 +35,8 @@ try {
     $product = !empty($products) ? $products[0] : null;
 
     // Get categories
-    $categories = $categoriesModel->getActive();
+    $service = isset($currentService) ? $currentService : ($adminService ?? null);
+    $categories = $service ? $service->getParentCategoriesForDropdown() : $categoriesModel->getActive();
 
     // Get brands for dropdown
     $brands = $brandsModel->getActive();
@@ -56,6 +57,13 @@ try {
 }
 
 // Handle form submission
+$selected_category_ids = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $selected_category_ids = array_map('intval', $_POST['category_ids'] ?? []);
+} else {
+    $selected_category_ids = $productsModel->getProductCategories($product_id);
+}
+
 $errors = [];
 $success = false;
 
@@ -69,7 +77,8 @@ if (isset($_SESSION['product_saved']) && $_SESSION['product_saved'] === $product
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST['data_action'])) {
     // Validation
     $name = trim($_POST['name'] ?? '');
-    $category_id = (int)($_POST['category_id'] ?? 0);
+    $category_ids = array_map('intval', $_POST['category_ids'] ?? []);
+    $category_id = !empty($category_ids) ? (int)$category_ids[0] : 0;
     $price = (float)($_POST['price'] ?? 0);
     $description = trim($_POST['description'] ?? '');
     $status = $_POST['status'] ?? 'active';
@@ -78,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST['data_action'])) {
         $errors[] = 'Tên data không được để trống';
     }
     
-    if ($category_id <= 0) {
+    if (empty($category_ids)) {
         $errors[] = 'Vui lòng chọn danh mục';
     }
     
@@ -159,6 +168,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST['data_action'])) {
                 'updated_at'       => date('Y-m-d H:i:s')
             ];
             $updated = $productsModel->update($product_id, $updateData);
+            if ($updated) {
+                $productsModel->updateProductCategories($product_id, $category_ids);
+            }
         } catch (Exception $e) {
             $errors[] = 'Lỗi cập nhật: ' . $e->getMessage();
             $updated = false;
@@ -294,16 +306,145 @@ $data_structure_json = $form_data['data_structure'] ?? '';
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="category_id" class="required">Danh mục</label>
-                            <select id="category_id" name="category_id" required>
-                                <option value="">Chọn danh mục</option>
-                                <?php foreach ($categories as $category): ?>
-                                    <option value="<?= $category['id'] ?>"
-                                            <?= (($form_data['category_id'] ?? '') == $category['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($category['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                            <label class="required">Danh mục</label>
+                            <div class="category-select-dropdown">
+                                <div class="category-select-header" id="category-select-header">
+                                    <span id="selected-categories-label">Chọn danh mục</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="category-select-options" id="category-options-list">
+                                    <?php foreach ($categories as $category): ?>
+                                        <div class="category-option-item" style="padding-left: <?= (($category['level'] ?? 0) * 16) + 12 ?>px;">
+                                            <label class="category-checkbox-label">
+                                                <input type="checkbox" name="category_ids[]" value="<?= $category['id'] ?>"
+                                                       class="category-checkbox"
+                                                       data-name="<?= htmlspecialchars(trim(ltrim($category['name'], '— '))) ?>"
+                                                       <?= (in_array($category['id'], $selected_category_ids ?? [])) ? 'checked' : '' ?>>
+                                                <span><?= htmlspecialchars($category['name']) ?></span>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            
+                            <style>
+                            .category-select-dropdown {
+                                position: relative;
+                                width: 100%;
+                            }
+                            .category-select-header {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 10px 14px;
+                                background: #ffffff;
+                                border: 1px solid #d1d5db;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                color: #374151;
+                                min-height: 42px;
+                                box-sizing: border-box;
+                                transition: all 0.2s ease;
+                            }
+                            .category-select-header:hover {
+                                border-color: #9ca3af;
+                            }
+                            .category-select-header.active {
+                                border-color: #3b82f6;
+                                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+                            }
+                            .category-select-options {
+                                position: absolute;
+                                top: calc(100% + 4px);
+                                left: 0;
+                                width: 100%;
+                                max-height: 250px;
+                                overflow-y: auto;
+                                background: #ffffff;
+                                border: 1px solid #e5e7eb;
+                                border-radius: 8px;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                                z-index: 50;
+                                display: none;
+                                padding: 6px 0;
+                                box-sizing: border-box;
+                            }
+                            .category-select-options.show {
+                                display: block;
+                            }
+                            .category-option-item {
+                                display: flex;
+                                align-items: center;
+                                padding: 8px 14px;
+                                transition: background 0.15s ease;
+                            }
+                            .category-option-item:hover {
+                                background: #f3f4f6;
+                            }
+                            .category-checkbox-label {
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                                width: 100%;
+                                cursor: pointer;
+                                font-size: 14px;
+                                color: #374151;
+                                user-select: none;
+                            }
+                            .category-checkbox-label input[type="checkbox"] {
+                                width: 16px;
+                                height: 16px;
+                                border: 1px solid #d1d5db;
+                                border-radius: 4px;
+                                cursor: pointer;
+                            }
+                            </style>
+                            
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var header = document.getElementById('category-select-header');
+                                var optionsList = document.getElementById('category-options-list');
+                                
+                                header.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    optionsList.classList.toggle('show');
+                                    header.classList.toggle('active');
+                                });
+                                
+                                document.addEventListener('click', function(e) {
+                                    if (!header.contains(e.target) && !optionsList.contains(e.target)) {
+                                        optionsList.classList.remove('show');
+                                        header.classList.remove('active');
+                                    }
+                                });
+                                
+                                window.updateCategorySelectionText = function() {
+                                    var checkboxes = document.querySelectorAll('.category-checkbox:checked');
+                                    var label = document.getElementById('selected-categories-label');
+                                    
+                                    if (checkboxes.length === 0) {
+                                        label.textContent = 'Chọn danh mục';
+                                        label.style.color = '#9ca3af';
+                                    } else {
+                                        var names = [];
+                                        checkboxes.forEach(function(cb) {
+                                            names.push(cb.getAttribute('data-name'));
+                                        });
+                                        label.textContent = names.join(', ');
+                                        label.style.color = '#374151';
+                                    }
+                                };
+                                
+                                // Attach change listener to checkboxes
+                                document.querySelectorAll('.category-checkbox').forEach(function(cb) {
+                                    cb.addEventListener('change', window.updateCategorySelectionText);
+                                });
+                                
+                                // Initial run
+                                window.updateCategorySelectionText();
+                            });
+                            </script>
                         </div>
 
                         <div class="form-group">
