@@ -15,6 +15,9 @@ function initializeProductsPage() {
     // Initialize filter functionality
     initializeFilterFunctionality();
 
+    // Initialize filter accordion
+    initializeFilterAccordion();
+
     // Initialize collapsible categories
     initializeCollapsibleCategories();
 
@@ -23,6 +26,20 @@ function initializeProductsPage() {
 
     // Initialize responsive behavior
     initializeResponsiveBehavior();
+}
+
+// Filter Accordion Functionality
+function initializeFilterAccordion() {
+    const filterTitles = document.querySelectorAll('.filter-title');
+
+    filterTitles.forEach(title => {
+        title.addEventListener('click', function (e) {
+            if (window.innerWidth <= 1024) {
+                // Toggle active class to show/hide content via CSS
+                this.classList.toggle('active');
+            }
+        });
+    });
 }
 
 // Filter Toggle Functionality

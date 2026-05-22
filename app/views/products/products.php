@@ -660,7 +660,10 @@ if (!function_exists('renderCategoryTree')) {
                                         <?php if ($criteria_name === 'categories' && ($criteria_enabled['categories'] ?? true)): ?>
                                         <!-- Categories Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title"><i class="fas fa-th-large"></i> Danh mục</h3>
+                                            <h3 class="filter-title">
+                                                <div class="title-icon-wrapper"><i class="fas fa-th-large"></i> Danh mục</div>
+                                                <i class="fas fa-chevron-down chevron-icon"></i>
+                                            </h3>
                                             <div class="filter-content">
                                                 <?php if (!empty($categoryTree)): ?>
                                                     <?php echo renderCategoryTree($categoryTree, $categoryId); ?>
@@ -671,7 +674,10 @@ if (!function_exists('renderCategoryTree')) {
                                         <?php elseif ($criteria_name === 'brands' && ($criteria_enabled['brands'] ?? true)): ?>
                                         <!-- Brand Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title"><i class="fas fa-tag"></i> Thương hiệu</h3>
+                                            <h3 class="filter-title">
+                                                <div class="title-icon-wrapper"><i class="fas fa-tag"></i> Thương hiệu</div>
+                                                <i class="fas fa-chevron-down chevron-icon"></i>
+                                            </h3>
                                             <div class="filter-content">
                                                 <ul class="brand-list">
                                                     <?php if (!empty($brands)): ?>
@@ -698,7 +704,10 @@ if (!function_exists('renderCategoryTree')) {
                                         <?php elseif ($criteria_name === 'price_ranges' && ($criteria_enabled['price_ranges'] ?? true)): ?>
                                         <!-- Price Range Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title"><i class="fas fa-coins"></i> Khoảng giá</h3>
+                                            <h3 class="filter-title">
+                                                <div class="title-icon-wrapper"><i class="fas fa-coins"></i> Khoảng giá</div>
+                                                <i class="fas fa-chevron-down chevron-icon"></i>
+                                            </h3>
                                             <div class="filter-content">
                                                 <div class="price-range-fields">
                                                     <div class="price-input-wrapper">
