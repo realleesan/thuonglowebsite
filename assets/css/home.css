@@ -46,13 +46,11 @@
     box-sizing: border-box;
 }
 
-html {
-    overflow-x: hidden;
-}
-
+html,
 body {
-    max-width: 100%;
-    /* Keep vertical scrollbar for system - handled by html usually */
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
 body {
@@ -193,51 +191,89 @@ body {
 
 @media (max-width: 768px) {
     .hero-section {
-        padding: 60px 0;
+        padding: 50px 0 !important;
+        overflow: hidden !important;
     }
 
     .hero-content {
-        flex-direction: column;
-        gap: 40px;
-        text-align: center;
+        flex-direction: column !important;
+        gap: 30px !important;
+        text-align: center !important;
+        padding: 0 15px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .hero-left,
     .hero-right {
-        max-width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+        box-sizing: border-box !important;
     }
 
     .hero-title {
-        font-size: 36px;
+        font-size: 32px !important;
+        line-height: 1.3 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        margin-bottom: 15px !important;
+    }
+
+    .hero-subtitle,
+    .hero-subtitle p {
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+    }
+
+    .hero-image {
+        width: 100% !important;
+        max-width: 400px !important;
+        margin: 0 auto !important;
+    }
+
+    .hero-image img {
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
     }
 
     .hero-buttons {
-        justify-content: center;
+        justify-content: center !important;
+        gap: 12px !important;
     }
 }
 
 @media (max-width: 480px) {
     .hero-section {
-        padding: 40px 0;
+        padding: 35px 0 !important;
     }
 
     .hero-title {
-        font-size: 28px;
+        font-size: 24px !important;
+        line-height: 1.3 !important;
     }
 
+    .hero-subtitle,
     .hero-subtitle p {
-        font-size: 14px;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
     }
 
     .btn-primary,
     .btn-secondary {
-        padding: 12px 24px;
-        font-size: 14px;
+        padding: 10px 20px !important;
+        font-size: 14px !important;
+        width: 100% !important;
+        max-width: 280px !important;
+        text-align: center !important;
     }
 
     .hero-buttons {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
     }
 }
 
@@ -795,47 +831,58 @@ body {
     }
 
     .courses-slider {
-        margin: 0;
-        padding: 0 45px;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        width: 100% !important;
     }
 
+    /* Clip the entire slider wrapper - this is the viewport window */
+    .courses-slider-wrapper {
+        overflow: hidden !important;
+        width: 100% !important;
+    }
+
+    /* The clipping container - JS measures THIS width for moveDistance */
+    .courses-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* The scrolling strip */
     .courses-grid {
-        gap: 20px;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 0 !important;
+        width: 100% !important;
+        will-change: transform;
     }
 
+    /* Each card = exactly 100% of courses-grid */
     .courses-grid .course-item {
-        flex: 0 0 100%;
-        /* Mobile: 1 item per view */
-        min-width: auto;
-        width: 100%;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 !important;
     }
 
     .slider-nav {
-        display: flex;
-        width: 40px;
-        height: 40px;
-    }
-
-    .slider-nav svg {
-        width: 18px;
-        height: 18px;
-    }
-
-    .slider-nav-prev {
-        left: 2px;
-    }
-
-    .slider-nav-next {
-        right: 2px;
+        display: none !important;
     }
 
     .course-image img {
         height: 200px;
+        object-fit: cover;
     }
 
-    /* Show more pagination bullets on mobile for single item navigation */
+    /* Pagination bullets on mobile */
     .pagination-bullet {
-        width: 25px;
+        width: 20px;
         height: 6px;
     }
 }
@@ -862,35 +909,22 @@ body {
     }
 
     .courses-slider {
-        padding: 0 40px;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     .slider-nav {
-        width: 35px;
-        height: 35px;
-    }
-
-    .slider-nav svg {
-        width: 16px;
-        height: 16px;
-    }
-
-    .slider-nav-prev {
-        left: 2px;
-    }
-
-    .slider-nav-next {
-        right: 2px;
+        display: none !important;
     }
 
     .pagination-bullet {
-        width: 20px;
+        width: 15px;
         height: 5px;
-        gap: 6px;
     }
 
     .slider-pagination {
         gap: 6px;
+        margin-top: 25px;
     }
 }
 
@@ -1050,12 +1084,14 @@ body {
 
     .elementor-section.elementor-element-2932ede .section-header {
         flex-direction: column;
-        gap: 20px;
-        align-items: flex-start;
+        gap: 15px;
+        align-items: center;
+        text-align: center;
     }
 
     .elementor-section.elementor-element-2932ede .section-title {
         font-size: 28px;
+        text-align: center;
     }
 }
 

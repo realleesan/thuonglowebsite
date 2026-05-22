@@ -63,17 +63,12 @@ document.addEventListener('DOMContentLoaded', function () {
     initLatestNewsSection();
 });
 
-/**
- * Generic slider initialization logic to reuse for multiple sections
- */
 function initGenericSlider(sectionOrSelector) {
     const section = typeof sectionOrSelector === 'string' ? document.querySelector(sectionOrSelector) : sectionOrSelector;
     if (!section) return;
 
-    const sectionSelector = typeof sectionOrSelector === 'string' ? sectionOrSelector : (section.id ? '#' + section.id : '.' + section.className.trim().replace(/\s+/g, '.'));
-
     // Handle different slider structures
-    let slider, slidesGrid, bullets, prevBtn, nextBtn;
+    let slider, slidesGrid, bullets = [], prevBtn, nextBtn, paginationContainer;
 
     const isCustomerSays = section.classList.contains('customer-says-section');
     const isUpcomingEvents = section.classList.contains('upcoming-events-section');
@@ -84,25 +79,25 @@ function initGenericSlider(sectionOrSelector) {
         const sliderWrapper = section.querySelector('.testimonial-slider-wrapper');
         slider = section.querySelector('.testimonial-slider');
         slidesGrid = slider?.querySelector('.testimonials-grid');
-        bullets = section.querySelectorAll('.pagination-dot');
+        paginationContainer = section.querySelector('.testimonial-pagination') || section.querySelector('.slider-pagination');
         prevBtn = sliderWrapper?.querySelector('.testimonial-nav-prev');
         nextBtn = sliderWrapper?.querySelector('.testimonial-nav-next');
     } else if (isUpcomingEvents) {
         slider = section.querySelector('.events-slider');
         slidesGrid = slider?.querySelector('.events-grid');
-        bullets = section.querySelectorAll('.pagination-bullet');
+        paginationContainer = section.querySelector('.events-pagination') || section.querySelector('.slider-pagination');
         prevBtn = slider?.querySelector('.slider-nav-prev');
         nextBtn = slider?.querySelector('.slider-nav-next');
     } else if (isLatestNews) {
         slider = section.querySelector('.news-slider');
         slidesGrid = slider?.querySelector('.news-grid');
-        bullets = section.querySelectorAll('.pagination-bullet');
+        paginationContainer = section.querySelector('.news-pagination') || section.querySelector('.slider-pagination');
         prevBtn = slider?.querySelector('.slider-nav-prev');
         nextBtn = slider?.querySelector('.slider-nav-next');
     } else {
         slider = section.querySelector('.courses-slider');
         slidesGrid = slider?.querySelector('.courses-grid');
-        bullets = section.querySelectorAll('.pagination-bullet');
+        paginationContainer = section.querySelector('.slider-pagination');
         prevBtn = section?.querySelector('.slider-nav-prev');
         nextBtn = section?.querySelector('.slider-nav-next');
     }
@@ -116,6 +111,7 @@ function initGenericSlider(sectionOrSelector) {
 
     // Responsive variables
     let itemsPerView, maxIndex, itemWidth, gap, moveDistance;
+    let lastMaxIndex = -1;
 
     function calculateDimensions() {
         const viewportWidth = window.innerWidth;
@@ -150,12 +146,40 @@ function initGenericSlider(sectionOrSelector) {
         if (firstItem) {
             // Get actual computed column gap from container
             const computedStyle = window.getComputedStyle(slidesGrid);
-            const gridGap = parseFloat(computedStyle.gap || computedStyle.columnGap) || 15;
-            gap = gridGap;
+            // BUGFIX: parseFloat('0px') = 0, and 0 || 15 = 15 (wrong!).
+            // Use nullish-safe parsing: explicitly check for NaN.
+            const rawGap = parseFloat(computedStyle.gap || computedStyle.columnGap);
+            gap = isNaN(rawGap) ? 15 : rawGap;
 
-            // Measure actual client width of a slide item
-            itemWidth = firstItem.getBoundingClientRect().width;
-            moveDistance = itemWidth + gap;
+            if (itemsPerView === 1) {
+                // On mobile single-item view: use the clipping container's width
+                // for pixel-perfect alignment. item getBoundingClientRect can be
+                // unreliable when CSS flex-basis:100% resolves late.
+                const clipContainer = slidesGrid.parentElement; // .courses-container
+                const clipWidth = clipContainer
+                    ? clipContainer.getBoundingClientRect().width
+                    : firstItem.getBoundingClientRect().width;
+                itemWidth = clipWidth;
+                moveDistance = clipWidth; // gap=0 on mobile, move exactly 1 container width
+
+                // Sync: set each card's width explicitly to match the measured container
+                // This eliminates any CSS/JS mismatch from vw or % resolution timing
+                Array.from(slidesGrid.children).forEach(item => {
+                    item.style.setProperty('width', clipWidth + 'px', 'important');
+                    item.style.setProperty('min-width', clipWidth + 'px', 'important');
+                    item.style.setProperty('max-width', clipWidth + 'px', 'important');
+                });
+            } else {
+                // Multi-item desktop view: measure item directly
+                // Also clear any inline widths set by mobile single-item logic
+                Array.from(slidesGrid.children).forEach(item => {
+                    item.style.width = '';
+                    item.style.minWidth = '';
+                    item.style.maxWidth = '';
+                });
+                itemWidth = firstItem.getBoundingClientRect().width;
+                moveDistance = itemWidth + gap;
+            }
         } else {
             // Fallback default calculations
             itemWidth = 270;
@@ -164,17 +188,47 @@ function initGenericSlider(sectionOrSelector) {
         }
     }
 
+    function rebuildPagination() {
+        if (!paginationContainer) return;
+
+        // Only rebuild if the total number of bullets changed
+        if (maxIndex === lastMaxIndex && paginationContainer.children.length > 0) return;
+
+        lastMaxIndex = maxIndex;
+        paginationContainer.innerHTML = '';
+
+        const bulletClass = isCustomerSays ? 'pagination-dot' : 'pagination-bullet';
+        const numBullets = maxIndex + 1;
+
+        for (let i = 0; i < numBullets; i++) {
+            const bullet = document.createElement('span');
+            bullet.className = `${bulletClass}${i === currentIndex ? ' active' : ''}`;
+            bullet.addEventListener('click', () => {
+                goToSlide(i);
+            });
+            paginationContainer.appendChild(bullet);
+        }
+
+        // Update bullets reference
+        bullets = paginationContainer.querySelectorAll('.' + bulletClass);
+    }
+
     function updateSlider() {
         // Recalculate dimensions in case viewport size changed
         calculateDimensions();
+
+        // Rebuild pagination bullets dynamically to match responsive viewport count
+        rebuildPagination();
 
         const translateX = -(currentIndex * moveDistance);
         slidesGrid.style.transform = `translateX(${translateX}px)`;
 
         // Update pagination bullets
-        bullets.forEach((bullet, index) => {
-            bullet.classList.toggle('active', index === currentIndex);
-        });
+        if (bullets && bullets.length > 0) {
+            bullets.forEach((bullet, index) => {
+                bullet.classList.toggle('active', index === currentIndex);
+            });
+        }
 
         // Update navigation buttons styling and accessibility
         if (prevBtn) {
@@ -193,13 +247,6 @@ function initGenericSlider(sectionOrSelector) {
             updateSlider();
         }
     }
-
-    // Event listeners for pagination bullets
-    bullets.forEach((bullet, index) => {
-        bullet.addEventListener('click', () => {
-            goToSlide(index);
-        });
-    });
 
     // Event listeners for navigation arrows
     if (prevBtn) {
@@ -252,6 +299,8 @@ function initGenericSlider(sectionOrSelector) {
 
     // Handle window resize dynamically
     window.addEventListener('resize', debounce(() => {
+        // Reset lastMaxIndex to force bullet count calculation if size changes
+        lastMaxIndex = -1;
         updateSlider();
     }, 150));
 

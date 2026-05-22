@@ -116,7 +116,9 @@ body {
 .logo img,
 .logo svg {
     height: auto;
-    width: 200px;
+    width: 160px;
+    max-width: 160px;
+    object-fit: contain;
 }
 
 /* Categories Dropdown */
@@ -1179,12 +1181,11 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 2000;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1999;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
 }
 
 .mobile-drawer-overlay.open {
@@ -1192,31 +1193,37 @@ body {
     visibility: visible;
 }
 
-/* Mobile Nav Drawer */
+/* Mobile Nav Drawer - TOP DOWN DROPDOWN (SePay style) */
 .mobile-nav-drawer {
     position: fixed;
     top: 0;
-    left: -320px;
-    width: 300px;
-    height: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 100vh;
     background-color: #ffffff;
-    z-index: 2001;
-    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-110%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .mobile-nav-drawer.open {
-    left: 0;
+    transform: translateY(0);
 }
 
 .drawer-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
+    padding: 15px 20px;
     border-bottom: 1px solid #f3f4f6;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .drawer-close-btn {
@@ -1241,7 +1248,8 @@ body {
 .drawer-content {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
+    padding: 16px 20px 30px;
+    max-height: calc(100vh - 65px);
 }
 
 .drawer-search {
@@ -1352,16 +1360,18 @@ body {
 /* Special Auth buttons in Drawer */
 .drawer-login-btn {
     margin-top: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 12px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 13px 12px !important;
     border-radius: 8px;
-    background-color: #356df1;
+    background-color: #356df1 !important;
     color: #ffffff !important;
     text-align: center;
+    font-size: 15px !important;
     font-weight: 600;
+    text-decoration: none !important;
     box-shadow: 0 4px 6px -1px rgba(53, 109, 241, 0.2);
 }
 
@@ -1371,20 +1381,26 @@ body {
 
 .drawer-register-btn {
     margin-top: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 12px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 13px 12px !important;
     border-radius: 8px;
-    background-color: #f3f4f6;
-    color: #1f2937 !important;
+    background-color: transparent !important;
+    border: 2px solid #d1d5db !important;
+    color: #374151 !important;
     text-align: center;
+    font-size: 15px !important;
     font-weight: 600;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
 }
 
 .drawer-register-btn:hover {
-    background-color: #e5e7eb !important;
+    background-color: #f3f4f6 !important;
+    border-color: #356df1 !important;
+    color: #356df1 !important;
 }
 
 .drawer-logout-btn {
@@ -1410,10 +1426,10 @@ body {
 
     .header-content {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         align-items: center;
         justify-content: space-between;
-        gap: 15px 0;
+        gap: 10px;
         padding: 10px 0;
     }
 
@@ -1421,18 +1437,279 @@ body {
         order: 1;
     }
 
+    .logo img,
+    .logo svg {
+        width: 140px !important;
+        max-width: 140px !important;
+    }
+
     .mobile-header-right {
         order: 2;
     }
 
     .search-bar {
-        order: 3;
-        width: 100%;
-        max-width: none !important;
-        margin-top: 5px;
+        display: none !important;
     }
 
     .header-buttons {
         display: none !important;
+    }
+}
+
+/* CUSTOM SEPAY MOBILE MEGA MENU DROP-DOWN ACCORDION STYLES BY ANTIGRAVITY */
+@media (max-width: 991px) {
+    .mobile-mega-menu {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+        padding: 10px 0 10px 15px !important;
+        border-left: 2px solid #e2e8f0 !important;
+        margin-left: 10px !important;
+        margin-top: 10px !important;
+    }
+
+    .mobile-mega-all-products-link {
+        font-weight: 600 !important;
+        color: #356df1 !important;
+        font-size: 14px !important;
+        padding: 5px 0 5px 15px !important;
+        margin-bottom: 5px !important;
+        display: block !important;
+    }
+
+    .drawer-parent-block {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        margin-top: 8px !important;
+    }
+
+    .drawer-parent-header {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        color: #64748b !important;
+        letter-spacing: 0.05em !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 0 !important;
+    }
+
+    .drawer-parent-header a {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        color: inherit !important;
+        text-transform: uppercase !important;
+        padding: 0 !important;
+        display: inline !important;
+    }
+
+    .drawer-parent-icon {
+        color: #356df1 !important;
+        font-size: 0.95rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .drawer-child-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        padding-left: 5px !important;
+    }
+
+    .drawer-child-item {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    .drawer-child-link-group {
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        text-decoration: none !important;
+        padding: 0 !important;
+    }
+
+    .drawer-child-icon {
+        color: #356df1 !important;
+        font-size: 1rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        margin-top: 2px !important;
+        background: #eff6ff !important;
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 6px !important;
+    }
+
+    .drawer-child-info {
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: left !important;
+    }
+
+    .drawer-child-name {
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        color: #1e293b !important;
+        line-height: 1.3 !important;
+        padding: 0 !important;
+        display: inline-block !important;
+    }
+
+    .drawer-child-desc {
+        font-size: 11px !important;
+        color: #64748b !important;
+        margin-top: 2px !important;
+        line-height: 1.4 !important;
+        font-weight: 400 !important;
+        padding: 0 !important;
+        display: inline-block !important;
+    }
+
+    .drawer-grandchild-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding-left: 38px !important;
+        margin-top: 4px !important;
+    }
+
+    .drawer-grandchild-link {
+        font-size: 12.5px !important;
+        color: #64748b !important;
+        text-decoration: none !important;
+        padding: 2px 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    .drawer-grandchild-link:hover {
+        color: #356df1 !important;
+    }
+
+    .drawer-grandchild-icon {
+        color: #356df1 !important;
+        font-size: 0.8rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* Hamburger → X animation when drawer is open */
+#mobileMenuToggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+#mobileMenuToggle.active span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+#mobileMenuToggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Drawer logo sizing fix */
+.drawer-logo img,
+.drawer-logo svg {
+    width: 150px !important;
+    max-width: 150px !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+
+/* Fix drawer submenu (mobile-mega-menu) open state */
+.drawer-has-submenu.active .mobile-mega-menu,
+.drawer-has-submenu.active .drawer-submenu {
+    max-height: 2000px !important;
+    opacity: 1 !important;
+}
+
+/* Drawer register btn - consistent size */
+.drawer-register-btn {
+    font-size: 15px !important;
+}
+
+/* Fix: Sản phẩm toggle button height - match other items */
+.drawer-has-submenu>.drawer-submenu-toggle {
+    padding: 14px 0 !important;
+    min-height: unset !important;
+    height: auto !important;
+    line-height: 1.5 !important;
+}
+
+/* Agent submenu icons in mobile drawer */
+.drawer-submenu .drawer-agent-item {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 8px 0 !important;
+    text-decoration: none !important;
+    color: #374151 !important;
+}
+
+.drawer-submenu .drawer-agent-item:hover {
+    color: #356df1 !important;
+}
+
+.drawer-agent-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+    font-size: 1rem !important;
+}
+
+.drawer-agent-info {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.drawer-agent-title {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    line-height: 1.3 !important;
+}
+
+.drawer-agent-desc {
+    font-size: 11px !important;
+    color: #64748b !important;
+    margin-top: 1px !important;
+    line-height: 1.4 !important;
+}
+
+/* Fix slider card bleeding on mobile - ensure container clips properly */
+@media (max-width: 768px) {
+
+    .popular-courses-section,
+    .latest-products-section,
+    .budget-products-section,
+    .sale-products-section,
+    .new-release-section {
+        overflow: hidden !important;
+    }
+
+    .courses-slider-wrapper {
+        overflow: hidden !important;
+        width: 100% !important;
+    }
+
+    .courses-slider {
+        overflow: hidden !important;
     }
 }

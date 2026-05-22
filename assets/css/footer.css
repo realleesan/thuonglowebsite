@@ -510,6 +510,13 @@
         margin-bottom: 15px;
     }
 
+    /* Footer logo size on mobile - make it properly sized */
+    .elementor-element-18fb26a img {
+        width: 160px !important;
+        max-width: 160px !important;
+        height: auto !important;
+    }
+
     .elementor-element-d6709c2 {
         text-align: center;
     }

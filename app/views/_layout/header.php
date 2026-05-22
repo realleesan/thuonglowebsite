@@ -617,14 +617,96 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                         Sản phẩm
                         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1L5 5L9 1"/></svg>
                     </button>
-                    <ul class="drawer-submenu">
-                        <li><a href="<?php echo nav_url('products'); ?>">Tất cả sản phẩm</a></li>
+                    <div class="drawer-submenu mobile-mega-menu">
+                        <a href="<?php echo nav_url('products'); ?>" class="mobile-mega-all-products-link">Tất cả sản phẩm</a>
                         <?php if (!empty($headerCategories)): ?>
-                            <?php foreach ($headerCategories as $parentCat): ?>
-                                <li><a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>"><?php echo htmlspecialchars($parentCat['name']); ?></a></li>
+                            <?php foreach ($headerCategories as $parentCat): 
+                                $parentHasChildren = !empty($parentCat['children']);
+                            ?>
+                                <!-- Parent Category Group -->
+                                <div class="drawer-parent-block">
+                                    <div class="drawer-parent-header">
+                                        <?php if (!empty($parentCat['icon'])): ?>
+                                            <span class="drawer-parent-icon">
+                                                <?php if (strpos($parentCat['icon'], '.svg') !== false || strpos($parentCat['icon'], '/') !== false): ?>
+                                                    <img src="<?php echo htmlspecialchars($parentCat['icon']); ?>" alt="" style="width: 0.95rem; height: 0.95rem; object-fit: contain;">
+                                                <?php else: ?>
+                                                    <i class="<?php echo htmlspecialchars($parentCat['icon']); ?>"></i>
+                                                <?php endif; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>">
+                                            <?php echo htmlspecialchars($parentCat['name']); ?>
+                                        </a>
+                                    </div>
+                                    
+                                    <?php if ($parentHasChildren): ?>
+                                        <div class="drawer-child-list">
+                                            <?php foreach ($parentCat['children'] as $childCat): 
+                                                $childHasChildren = !empty($childCat['children']);
+                                            ?>
+                                                <div class="drawer-child-item">
+                                                    <a href="<?php echo page_url('products', ['category' => $childCat['id']]); ?>" class="drawer-child-link-group">
+                                                        <?php if (!empty($childCat['icon'])): ?>
+                                                            <span class="drawer-child-icon">
+                                                                <?php if (strpos($childCat['icon'], '.svg') !== false || strpos($childCat['icon'], '/') !== false): ?>
+                                                                    <img src="<?php echo htmlspecialchars($childCat['icon']); ?>" alt="" style="width: 0.85rem; height: 0.85rem; object-fit: contain;">
+                                                                <?php else: ?>
+                                                                    <i class="<?php echo htmlspecialchars($childCat['icon']); ?>"></i>
+                                                                <?php endif; ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                        <div class="drawer-child-info">
+                                                            <span class="drawer-child-name"><?php echo htmlspecialchars($childCat['name']); ?></span>
+                                                            <?php 
+                                                            $showDesc = false;
+                                                            if (!empty($childCat['description'])) {
+                                                                $nameL = mb_strtolower(trim($childCat['name']), 'UTF-8');
+                                                                $descL = mb_strtolower(trim($childCat['description']), 'UTF-8');
+                                                                if ($nameL !== $descL) {
+                                                                    if (mb_strlen($descL, 'UTF-8') > 20) {
+                                                                        if (mb_strpos($descL, $nameL) !== false) {
+                                                                            if (mb_strlen($descL, 'UTF-8') > mb_strlen($nameL, 'UTF-8') + 15) {
+                                                                                $showDesc = true;
+                                                                            }
+                                                                        } else {
+                                                                            $showDesc = true;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            if ($showDesc): ?>
+                                                                <span class="drawer-child-desc"><?php echo htmlspecialchars($childCat['description']); ?></span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </a>
+                                                    
+                                                    <?php if ($childHasChildren): ?>
+                                                        <div class="drawer-grandchild-list">
+                                                            <?php foreach ($childCat['children'] as $grandchildCat): ?>
+                                                                <a href="<?php echo page_url('products', ['category' => $grandchildCat['id']]); ?>" class="drawer-grandchild-link">
+                                                                    <?php if (!empty($grandchildCat['icon'])): ?>
+                                                                        <span class="drawer-grandchild-icon">
+                                                                            <?php if (strpos($grandchildCat['icon'], '.svg') !== false || strpos($grandchildCat['icon'], '/') !== false): ?>
+                                                                                <img src="<?php echo htmlspecialchars($grandchildCat['icon']); ?>" alt="" style="width: 0.8rem; height: 0.8rem; object-fit: contain;">
+                                                                            <?php else: ?>
+                                                                                <i class="<?php echo htmlspecialchars($grandchildCat['icon']); ?>"></i>
+                                                                            <?php endif; ?>
+                                                                        </span>
+                                                                    <?php endif; ?>
+                                                                    <span><?php echo htmlspecialchars($grandchildCat['name']); ?></span>
+                                                                </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
-                    </ul>
+                    </div>
                 </li>
 
                 <!-- Guides Submenu -->
@@ -665,10 +747,50 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1L5 5L9 1"/></svg>
                     </button>
                     <ul class="drawer-submenu">
-                        <li><a href="?page=agent-page&key=chuong_trinh">Chương trình đại lý</a></li>
-                        <li><a href="?page=agent-page&key=huong_dan">Hướng dẫn đăng ký đại lý</a></li>
-                        <li><a href="?page=agent-page&key=chinh_sach">Chính sách đại lý</a></li>
-                        <li><a href="?page=agent-page&key=tai_nguyen">Tài nguyên - tài liệu đại lý</a></li>
+                        <li>
+                            <a href="?page=agent-page&key=chuong_trinh" class="drawer-agent-item">
+                                <span class="drawer-agent-icon" style="color: #356df1; background: #eef2ff;">
+                                    <i class="fas fa-handshake"></i>
+                                </span>
+                                <span class="drawer-agent-info">
+                                    <span class="drawer-agent-title">Chương trình đại lý</span>
+                                    <span class="drawer-agent-desc">Hợp tác phát triển cùng Thuong Lo</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="?page=agent-page&key=huong_dan" class="drawer-agent-item">
+                                <span class="drawer-agent-icon" style="color: #10b981; background: #ecfdf5;">
+                                    <i class="fas fa-book-open"></i>
+                                </span>
+                                <span class="drawer-agent-info">
+                                    <span class="drawer-agent-title">Hướng dẫn đăng ký</span>
+                                    <span class="drawer-agent-desc">Các bước tham gia dễ dàng nhất</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="?page=agent-page&key=chinh_sach" class="drawer-agent-item">
+                                <span class="drawer-agent-icon" style="color: #f59e0b; background: #fffbeb;">
+                                    <i class="fas fa-shield-alt"></i>
+                                </span>
+                                <span class="drawer-agent-info">
+                                    <span class="drawer-agent-title">Chính sách đại lý</span>
+                                    <span class="drawer-agent-desc">Quyền lợi & Hoa hồng hấp dẫn</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="?page=agent-page&key=tai_nguyen" class="drawer-agent-item">
+                                <span class="drawer-agent-icon" style="color: #8b5cf6; background: #f5f3ff;">
+                                    <i class="fas fa-folder-open"></i>
+                                </span>
+                                <span class="drawer-agent-info">
+                                    <span class="drawer-agent-title">Tài nguyên tiếp thị</span>
+                                    <span class="drawer-agent-desc">Kho tài liệu và banner quảng bá</span>
+                                </span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 

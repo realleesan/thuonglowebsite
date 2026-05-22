@@ -412,17 +412,25 @@ document.addEventListener('DOMContentLoaded', function () {
         function openMobileDrawer() {
             mobileNavDrawer.classList.add('open');
             mobileDrawerOverlay.classList.add('open');
+            mobileMenuToggle.classList.add('active');
             document.body.style.overflow = 'hidden'; // Disable background scrolling
         }
 
         function closeMobileDrawer() {
             mobileNavDrawer.classList.remove('open');
             mobileDrawerOverlay.classList.remove('open');
+            mobileMenuToggle.classList.remove('active');
             document.body.style.overflow = ''; // Restore vertical scroll
         }
 
         // Open Drawer
-        mobileMenuToggle.addEventListener('click', openMobileDrawer);
+        mobileMenuToggle.addEventListener('click', function () {
+            if (mobileNavDrawer.classList.contains('open')) {
+                closeMobileDrawer();
+            } else {
+                openMobileDrawer();
+            }
+        });
 
         // Close Drawer
         if (drawerCloseBtn) {
@@ -450,14 +458,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
-                // Toggle sliding submenu
-                const submenu = parentLi.querySelector('.drawer-submenu');
+                // Toggle sliding submenu - supports both .drawer-submenu and .mobile-mega-menu
+                const submenu = parentLi.querySelector('.drawer-submenu, .mobile-mega-menu');
                 if (submenu) {
                     if (parentLi.classList.contains('active')) {
                         submenu.style.maxHeight = submenu.scrollHeight + 'px';
                         submenu.style.opacity = '1';
-                        submenu.style.margin = '10px 0 10px 15px';
+                        submenu.style.margin = '10px 0 10px 0';
+                        // After transition, allow dynamic expansion for nested submenus
+                        setTimeout(() => {
+                            submenu.style.maxHeight = 'none';
+                        }, 350);
                     } else {
+                        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                        // Force reflow
+                        submenu.offsetHeight;
                         submenu.style.maxHeight = '0';
                         submenu.style.opacity = '0';
                         submenu.style.margin = '0';
