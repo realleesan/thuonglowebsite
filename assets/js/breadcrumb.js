@@ -45,13 +45,9 @@ class BreadcrumbManager {
         if (!this.breadcrumbElement) return;
 
         const breadcrumbItems = this.breadcrumbElement.querySelectorAll('.breadcrumb-link, .breadcrumb-current');
-        const isMobile = window.innerWidth <= 480;
 
-        if (isMobile && breadcrumbItems.length > 3) {
-            this.collapseBreadcrumb(breadcrumbItems);
-        } else {
-            this.expandBreadcrumb(breadcrumbItems);
-        }
+        // Luôn luôn hiển thị đầy đủ breadcrumb trên mobile theo yêu cầu
+        this.expandBreadcrumb(breadcrumbItems);
     }
 
     /**
@@ -60,7 +56,7 @@ class BreadcrumbManager {
     collapseBreadcrumb(items) {
         items.forEach((item, index) => {
             const delimiter = item.nextElementSibling;
-            
+
             // Hiển thị item đầu và cuối, ẩn các item ở giữa
             if (index === 0 || index === items.length - 1) {
                 item.style.display = '';
@@ -109,7 +105,7 @@ class BreadcrumbManager {
      */
     addKeyboardNavigation() {
         const breadcrumbLinks = this.breadcrumbElement.querySelectorAll('.breadcrumb-link');
-        
+
         breadcrumbLinks.forEach((link, index) => {
             link.addEventListener('keydown', (e) => {
                 switch (e.key) {
@@ -160,7 +156,7 @@ class BreadcrumbManager {
     trackBreadcrumbClick(linkElement) {
         const breadcrumbText = linkElement.textContent.trim();
         const breadcrumbUrl = linkElement.href;
-        
+
         // Gửi event tracking (có thể tích hợp với Google Analytics, etc.)
         if (typeof gtag !== 'undefined') {
             gtag('event', 'breadcrumb_click', {
@@ -168,7 +164,7 @@ class BreadcrumbManager {
                 'breadcrumb_url': breadcrumbUrl
             });
         }
-        
+
         // Console log cho development
         console.log('Breadcrumb clicked:', {
             text: breadcrumbText,
@@ -261,7 +257,7 @@ const BreadcrumbUtils = {
         if (!container) return;
 
         let html = '<nav class="breadcrumb" aria-label="Breadcrumb navigation">';
-        
+
         breadcrumbs.forEach((item, index) => {
             if (index > 0) {
                 html += `

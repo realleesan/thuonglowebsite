@@ -428,7 +428,7 @@ input[type="radio"]:checked+.custom-radio::after {
         width: 100%;
         height: auto;
         max-height: 100vh;
-        z-index: 1000;
+        z-index: 9999;
         transform: translateY(-100%);
         transition: transform 0.3s ease;
         overflow-y: auto;
@@ -460,7 +460,7 @@ input[type="radio"]:checked+.custom-radio::after {
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
+        z-index: 9998;
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;

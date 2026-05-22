@@ -100,18 +100,7 @@
         flex-wrap: wrap;
     }
 
-    /* Ẩn một số breadcrumb trung gian trên mobile nếu quá dài */
-    .breadcrumb .breadcrumb-link:not(:first-child):not(:last-child),
-    .breadcrumb .breadcrumb-current:not(:last-child) {
-        display: none;
-    }
-
-    /* Hiển thị dấu ... cho breadcrumb bị ẩn */
-    .breadcrumb .breadcrumb-link:first-child+.delimiter::after {
-        content: "...";
-        color: #4444445C;
-        margin: 0 4px;
-    }
+    /* Bỏ ẩn breadcrumb trên mobile theo yêu cầu của người dùng để hiển thị đầy đủ */
 }
 
 /* ===================================
