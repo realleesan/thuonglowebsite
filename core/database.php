@@ -132,8 +132,14 @@ class Database {
     public function query($sql, $bindings = []) {
         try {
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($bindings);
-            return $stmt->fetchAll();
+            $success = $stmt->execute($bindings);
+            
+            // Native PDO check: only fetch rows if the query returns a result set (columns > 0)
+            if ($stmt->columnCount() > 0) {
+                return $stmt->fetchAll();
+            }
+            
+            return $success;
         } catch (PDOException $e) {
             throw new Exception("Raw query failed: " . $e->getMessage());
         }

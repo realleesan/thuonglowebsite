@@ -224,7 +224,16 @@ $timeline = generateOrderTimeline($order);
                             <div class="order-product-row">
                                 <div class="product-thumb">
                                     <?php if (!empty($item['product_image'])): ?>
-                                        <?php $imgUrl = strpos($item['product_image'], 'http') === 0 ? $item['product_image'] : '/uploads/products/' . $item['product_image']; ?>
+                                        <?php 
+                                        $image = $item['product_image'];
+                                        if (strpos($image, 'http') === 0) {
+                                            $imgUrl = $image;
+                                        } elseif (strpos($image, 'assets/') === 0 || strpos($image, 'uploads/') === 0) {
+                                            $imgUrl = $image;
+                                        } else {
+                                            $imgUrl = 'assets/images/products/' . ltrim($image, '/');
+                                        }
+                                        ?>
                                         <img src="<?= $imgUrl ?>" alt="<?= htmlspecialchars($item['product_name'] ?? 'Product') ?>">
                                     <?php else: ?>
                                         <div class="no-thumb"><i class="fas fa-image"></i></div>

@@ -483,6 +483,27 @@ class EmailNotificationService implements ServiceInterface {
                     <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}">{{contact_email}}</a></p>
                     <p style="color: #6c757d; font-size: 14px;">Trân trọng,<br>Đội ngũ {{website_name}}</p>
                 </div>
+            ',
+            'password_reset' => '
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #ffffff;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="color: #2c3e50; margin: 0;">Khôi phục mật khẩu</h2>
+                        <p style="color: #7f8c8d; margin: 5px 0 0 0;">Hệ thống bán hàng ThuongLo</p>
+                    </div>
+                    <div style="line-height: 1.6; color: #34495e;">
+                        <p>Xin chào <strong>{{user_name}}</strong>,</p>
+                        <p>Chúng tôi đã nhận được yêu cầu khôi phục mật khẩu từ bạn. Vui lòng sử dụng mã xác thực (OTP) bên dưới để tiếp tục quá trình:</p>
+                        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin: 20px 0; text-align: center; border: 1px dashed #bdc3c7;">
+                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #2980b9;">{{verification_code}}</span>
+                        </div>
+                        <p style="color: #e74c3c; font-weight: bold;">Mã này có hiệu lực trong vòng 10 phút.</p>
+                        <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với bộ phận hỗ trợ nếu nghi ngờ tài khoản bị xâm nhập.</p>
+                    </div>
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #7f8c8d; text-align: center;">
+                        <p>Liên hệ hỗ trợ: <a href="mailto:{{contact_email}}" style="color: #2980b9; text-decoration: none;">{{contact_email}}</a></p>
+                        <p>&copy; ' . date('Y') . ' {{website_name}}. All rights reserved.</p>
+                    </div>
+                </div>
             '
         ];
     }
@@ -549,6 +570,40 @@ class EmailNotificationService implements ServiceInterface {
             
         } catch (Exception $e) {
             error_log("Device verification email failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Gửi email mã xác thực đặt lại mật khẩu (OTP 6 số)
+     */
+    public function sendPasswordResetCode(string $userEmail, string $userName, string $code): bool {
+        try {
+            $this->setupMailer();
+            
+            // Recipient
+            $this->mailer->addAddress($userEmail, $userName);
+            
+            // Content
+            $this->mailer->Subject = 'Mã xác thực khôi phục mật khẩu - ThuongLo';
+            
+            $emailBody = $this->getEmailTemplate('password_reset', [
+                'user_name' => $userName,
+                'verification_code' => $code,
+                'contact_email' => $this->emailConfig['support_email'],
+                'website_name' => 'ThuongLo'
+            ]);
+            
+            $this->mailer->Body = $emailBody;
+            $this->mailer->AltBody = "Mã xác thực khôi phục mật khẩu của bạn là: {$code}. Mã có hiệu lực trong 10 phút.";
+            
+            $result = $this->mailer->send();
+            $this->resetMailer();
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            error_log("Password reset email failed: " . $e->getMessage());
             return false;
         }
     }

@@ -210,10 +210,20 @@ class AuthController {
         // Get CSRF token
         $csrfToken = $this->authService->getCsrfToken();
         
+        // Get current step from session
+        $step = $_SESSION['forgot_step'] ?? 'input';
+        
+        // Defensive check: if step is not input but email is missing, revert to input
+        if ($step !== 'input' && empty($_SESSION['forgot_email'])) {
+            $step = 'input';
+            $_SESSION['forgot_step'] = 'input';
+        }
+        
         $this->renderView('auth/forgot', [
             'csrf_token' => $csrfToken,
             'error' => $error,
             'success' => $success,
+            'step' => $step,
             'page_title' => 'Quên mật khẩu',
             'form_action' => '?page=forgot&action=process',
             'login_url' => '?page=login'
@@ -237,13 +247,187 @@ class AuthController {
             return;
         }
         
-        $email = $_POST['email'] ?? '';
+        $action = $_POST['action'] ?? '';
         
-        $result = $this->authService->initiatePasswordReset($email);
+        // Ensure dependencies are loaded
+        require_once __DIR__ . '/../services/InputValidator.php';
+        require_once __DIR__ . '/../models/UsersModel.php';
         
-        // Always show success message to prevent email enumeration
-        $this->setFlashMessage('success', $result['message']);
-        $this->redirect('?page=forgot');
+        $usersModel = new UsersModel();
+        $validator = new InputValidator();
+        
+        switch ($action) {
+            case 'send_code':
+                $email = $_POST['contact'] ?? '';
+                
+                if (empty($email)) {
+                    $this->setFlashMessage('error', 'Email không được để trống');
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                if (!$validator->validateEmail($email)) {
+                    $this->setFlashMessage('error', 'Email không hợp lệ');
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Check if user exists
+                $user = $usersModel->findBy('email', $email);
+                if (!$user) {
+                    $this->setFlashMessage('error', 'Email không tồn tại trong hệ thống');
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Generate 6-digit OTP
+                $otpCode = sprintf("%06d", random_int(100000, 999999));
+                
+                // Invalidate old active reset tokens for this email
+                $usersModel->query("UPDATE password_reset_tokens SET used_at = NOW() WHERE email = ? AND used_at IS NULL", [$email]);
+                
+                // Store OTP in database
+                $expiresAt = date('Y-m-d H:i:s', time() + 600); // 10 minutes expiry
+                $sql = "INSERT INTO password_reset_tokens (email, token, expires_at, created_at) VALUES (?, ?, ?, NOW())";
+                $usersModel->query($sql, [$email, $otpCode, $expiresAt]);
+                
+                // Save state to session
+                $_SESSION['forgot_email'] = $email;
+                $_SESSION['forgot_step'] = 'verify';
+                
+                // Send email notification with OTP
+                require_once __DIR__ . '/../services/EmailNotificationService.php';
+                $emailService = new EmailNotificationService();
+                $sendResult = $emailService->sendPasswordResetCode($email, $user['name'] ?? $email, $otpCode);
+                
+                if ($sendResult) {
+                    $this->setFlashMessage('success', 'Mã xác thực đã được gửi tới email của bạn. Vui lòng kiểm tra hộp thư.');
+                } else {
+                    $this->setFlashMessage('error', 'Không thể gửi email xác thực. Vui lòng thử lại sau.');
+                    $_SESSION['forgot_step'] = 'input'; // Stay/revert to input step
+                }
+                
+                $this->redirect('?page=forgot');
+                return;
+                
+            case 'verify_code':
+                $email = $_SESSION['forgot_email'] ?? '';
+                $code = $_POST['verification_code'] ?? '';
+                
+                if (empty($email)) {
+                    $this->setFlashMessage('error', 'Phiên làm việc đã hết hạn. Vui lòng nhập lại email.');
+                    $_SESSION['forgot_step'] = 'input';
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                if (empty($code) || strlen($code) !== 6 || !is_numeric($code)) {
+                    $this->setFlashMessage('error', 'Mã xác thực phải là 6 chữ số');
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Check code in database
+                $sql = "SELECT * FROM password_reset_tokens WHERE email = ? AND token = ? AND used_at IS NULL AND expires_at > NOW()";
+                $tokenRecord = $usersModel->query($sql, [$email, $code]);
+                
+                if (empty($tokenRecord)) {
+                    $this->setFlashMessage('error', 'Mã xác thực không hợp lệ hoặc đã hết hạn');
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Set step to reset and save verified OTP code
+                $_SESSION['forgot_step'] = 'reset';
+                $_SESSION['verified_otp'] = $code;
+                
+                $this->setFlashMessage('success', 'Mã xác thực chính xác. Vui lòng đặt mật khẩu mới.');
+                $this->redirect('?page=forgot');
+                return;
+                
+            case 'change_contact':
+                // Reset flow
+                $_SESSION['forgot_step'] = 'input';
+                unset($_SESSION['forgot_email'], $_SESSION['verified_otp']);
+                $this->redirect('?page=forgot');
+                return;
+                
+            case 'reset_password':
+                $email = $_SESSION['forgot_email'] ?? '';
+                $verifiedOtp = $_SESSION['verified_otp'] ?? '';
+                $newPassword = $_POST['new_password'] ?? '';
+                $confirmPassword = $_POST['confirm_password'] ?? '';
+                
+                if (empty($email) || empty($verifiedOtp)) {
+                    $this->setFlashMessage('error', 'Yêu cầu không hợp lệ. Vui lòng thực hiện lại từ đầu.');
+                    $_SESSION['forgot_step'] = 'input';
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                if (empty($newPassword) || strlen($newPassword) < 8) {
+                    $this->setFlashMessage('error', 'Mật khẩu mới phải có ít nhất 8 ký tự');
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                if ($newPassword !== $confirmPassword) {
+                    $this->setFlashMessage('error', 'Mật khẩu xác nhận không khớp');
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Check password complexity
+                $passwordValidation = $validator->validatePassword($newPassword);
+                if (!$passwordValidation['valid']) {
+                    $this->setFlashMessage('error', implode(', ', $passwordValidation['errors']));
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Re-verify the OTP code in database
+                $sql = "SELECT * FROM password_reset_tokens WHERE email = ? AND token = ? AND used_at IS NULL AND expires_at > NOW()";
+                $tokenRecord = $usersModel->query($sql, [$email, $verifiedOtp]);
+                
+                if (empty($tokenRecord)) {
+                    $this->setFlashMessage('error', 'Mã xác thực đã hết hạn hoặc không hợp lệ. Vui lòng thực hiện lại.');
+                    $_SESSION['forgot_step'] = 'input';
+                    unset($_SESSION['forgot_email'], $_SESSION['verified_otp']);
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Get user
+                $user = $usersModel->findBy('email', $email);
+                if (!$user) {
+                    $this->setFlashMessage('error', 'Người dùng không tồn tại');
+                    $_SESSION['forgot_step'] = 'input';
+                    $this->redirect('?page=forgot');
+                    return;
+                }
+                
+                // Update password securely
+                $updateResult = $usersModel->updatePasswordSecure($user['id'], $newPassword, true);
+                
+                if ($updateResult) {
+                    // Mark token as used
+                    $usersModel->query("UPDATE password_reset_tokens SET used_at = NOW() WHERE email = ? AND token = ?", [$email, $verifiedOtp]);
+                    
+                    // Clear all session states
+                    unset($_SESSION['forgot_email'], $_SESSION['forgot_step'], $_SESSION['verified_otp']);
+                    
+                    $this->setFlashMessage('success', 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới.');
+                    $this->redirect('?page=login');
+                } else {
+                    $this->setFlashMessage('error', 'Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại.');
+                    $this->redirect('?page=forgot');
+                }
+                return;
+                
+            default:
+                $this->redirect('?page=forgot');
+                return;
+        }
     }
     
     /**
@@ -433,6 +617,7 @@ class AuthController {
     private function renderView(string $view, array $data = []): void {
         // Set up view data for layout
         $viewData = $data;
+        extract($data);
         
         // Set layout variables
         $content = __DIR__ . "/../views/{$view}.php";
