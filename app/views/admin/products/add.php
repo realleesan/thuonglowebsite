@@ -41,6 +41,11 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Force show errors during form submission to prevent WSOD
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
     // Validation
     $name = trim($_POST['name'] ?? '');
     $category_ids = array_map('intval', $_POST['category_ids'] ?? []);
@@ -98,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $insertData = [
             'name'             => $name,
-            'slug'             => createSlugProduct($name),
+            'slug'             => '',
             'category_id'      => $category_id,
             'brand_id'         => !empty($_POST['brand_id']) ? (int)$_POST['brand_id'] : null,
             'price'            => $price,
@@ -152,8 +157,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     @rename($image_path, $new_path);
                     $productsModel->update($id, ['image' => $new_path]);
                 }
-                // Redirect properly using header
-                header('Location: ?page=admin&module=products');
+                // Redirect properly using header (with JS fallback if headers already sent)
+                if (!headers_sent()) {
+                    header('Location: ?page=admin&module=products');
+                } else {
+                    echo '<script>window.location.href = "?page=admin&module=products";</script>';
+                }
                 exit;
             } else {
                 $errors[] = 'Không thể lưu data';

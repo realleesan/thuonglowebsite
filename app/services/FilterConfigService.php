@@ -218,7 +218,7 @@ class FilterConfigService {
     public function getCategoriesForFilter(): array {
         try {
             // Get categories with their filter config sort order (exclude news categories)
-            $sql = "SELECT c.id, c.name, c.parent_id, c.sort_order, c.slug, c.image, c.status, c.icon, c.description, COUNT(p.id) as product_count,
+            $sql = "SELECT c.id, c.name, c.parent_id, c.sort_order, c.slug, c.image, c.status, c.icon, c.color, c.description, COUNT(p.id) as product_count,
                            COALESCE(fc.sort_order, c.sort_order, 999) as filter_sort_order,
                            COALESCE(fc.is_enabled, 1) as filter_enabled
                     FROM categories c
@@ -246,6 +246,7 @@ class FilterConfigService {
                     'product_count' => (int)$row['product_count'],
                     'enabled' => (bool)($row['filter_enabled'] ?? 1),
                     'icon' => $row['icon'] ?? '',
+                    'color' => $row['color'] ?? null,
                     'description' => $row['description'] ?? '',
                     'children' => []
                 ];

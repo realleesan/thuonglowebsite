@@ -17,7 +17,11 @@ require_once __DIR__ . '/../../../../core/view_init.php';
 $product_id = (int)($_GET['id'] ?? 0);
 
 if (!$product_id) {
-    header('Location: ?page=admin&module=products&error=invalid_id');
+    if (!headers_sent()) {
+        header('Location: ?page=admin&module=products&error=invalid_id');
+    } else {
+        echo '<script>window.location.href = "?page=admin&module=products&error=invalid_id";</script>';
+    }
     exit;
 }
 
@@ -43,7 +47,11 @@ try {
 
     // Redirect if product not found
     if (!$product) {
-        header('Location: ?page=admin&module=products&error=not_found');
+        if (!headers_sent()) {
+            header('Location: ?page=admin&module=products&error=not_found');
+        } else {
+            echo '<script>window.location.href = "?page=admin&module=products&error=not_found";</script>';
+        }
         exit;
     }
 
@@ -75,6 +83,11 @@ if (isset($_SESSION['product_saved']) && $_SESSION['product_saved'] === $product
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST['data_action'])) {
+    // Force show errors during form submission to prevent WSOD
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
     // Validation
     $name = trim($_POST['name'] ?? '');
     $category_ids = array_map('intval', $_POST['category_ids'] ?? []);
@@ -259,6 +272,7 @@ $data_structure_json = $form_data['data_structure'] ?? '';
 
     <!-- Form -->
     <form method="POST" action="?page=admin&module=products&action=edit&id=<?= $product_id ?>&tab=<?= htmlspecialchars($_GET['tab'] ?? 'tab-basic') ?>" enctype="multipart/form-data" class="admin-form" novalidate>
+        <input type="hidden" id="data_action" name="data_action" value="">
         <!-- Tab Navigation -->
         <div class="product-details-tabs">
             <div class="tabs-header">
@@ -1084,7 +1098,10 @@ function submitProductForm() {
     var activeTab = document.querySelector('.tab-btn.active');
     var tabParam = activeTab ? '&tab=' + activeTab.dataset.tab : '';
     
-    document.getElementById('data_action').value = '';
+    var dataAction = document.getElementById('data_action');
+    if (dataAction) {
+        dataAction.value = '';
+    }
     var form = document.querySelector('.admin-form');
     form.action = '?page=admin&module=products&action=edit&id=<?= $product_id ?>' + tabParam;
     form.submit();
@@ -1093,7 +1110,7 @@ function submitProductForm() {
 // Check required fields before submit
 function checkRequiredFields() {
     var name = document.getElementById('name').value.trim();
-    var category = document.getElementById('category_id').value;
+    var categoryChecked = document.querySelectorAll('.category-checkbox:checked').length > 0;
     var price = document.getElementById('price').value;
     var description = document.getElementById('description').value;
     
@@ -1102,7 +1119,7 @@ function checkRequiredFields() {
     if (!name) {
         errors.push('Tên sản phẩm');
     }
-    if (!category || category === '0') {
+    if (!categoryChecked) {
         errors.push('Danh mục');
     }
     if (!price || parseFloat(price) <= 0) {
@@ -1118,7 +1135,10 @@ function checkRequiredFields() {
     }
     
     // Set data_action to empty for main form save
-    document.getElementById('data_action').value = '';
+    var dataAction = document.getElementById('data_action');
+    if (dataAction) {
+        dataAction.value = '';
+    }
     
     return true;
 }

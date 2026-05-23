@@ -8,7 +8,7 @@
 $search = $_GET['search'] ?? '';
 $categoryFilter = (int)($_GET['category'] ?? 0);
 $selectedProductId = (int)($_GET['id'] ?? 0); // Using 'id' parameter for selected product
-$page = max(1, (int)($_GET['page'] ?? 1));
+$page = max(1, (int)($_GET['p'] ?? $_GET['page'] ?? 1));
 $activeTab = $_GET['tab'] ?? 'manual';
 $perPage = 20;
 
@@ -420,7 +420,7 @@ function getProductDataCount($productId) {
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-            <a href="?page=admin&module=products&action=data&page=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
+            <a href="?page=admin&module=products&action=data&p=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
                class="<?= $i === $page ? 'active' : '' ?>">
                 <?= $i ?>
             </a>

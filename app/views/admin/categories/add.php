@@ -376,6 +376,18 @@ function generateSlug($name) {
                         <div class="form-section-divider"></div>
                         <h4 class="subsection-title">Tùy chọn hiển thị</h4>
 
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="color">Màu sắc danh mục (hiển thị trên Mega Menu)</label>
+                                <div class="color-picker-container" style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="color" id="color_picker" style="width: 40px; height: 40px; padding: 0; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">
+                                    <input type="text" id="color" name="color" value="<?= htmlspecialchars($_POST['color'] ?? '') ?>" placeholder="#000000 hoặc trống (mặc định)" style="width: 150px;">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="reset-color-btn" style="padding: 6px 12px; font-size: 0.85rem;">Mặc định</button>
+                                </div>
+                                <small>Chọn màu để làm nổi bật tên danh mục trên thanh menu. Bấm "Mặc định" để xóa màu.</small>
+                            </div>
+                        </div>
+
                         <div class="form-row checkbox-row">
                             <?php
                             // Xác định giá trị checkbox: nếu đang POST (có lỗi) thì dùng isset, nếu load lần đầu thì dùng giá trị mặc định
@@ -555,5 +567,33 @@ document.getElementById('remove-svg-btn').addEventListener('click', function() {
         }
     });
 });
+
+// Color picker logic
+var colorInput = document.getElementById('color');
+var colorPicker = document.getElementById('color_picker');
+var resetColorBtn = document.getElementById('reset-color-btn');
+
+function updateColorPicker() {
+    var val = colorInput.value.trim();
+    if (val && /^#[0-9A-Fa-f]{6}$/i.test(val)) {
+        colorPicker.value = val;
+    } else {
+        colorPicker.value = '#000000';
+    }
+}
+
+colorPicker.addEventListener('input', function() {
+    colorInput.value = this.value;
+});
+
+colorInput.addEventListener('input', updateColorPicker);
+
+resetColorBtn.addEventListener('click', function() {
+    colorInput.value = '';
+    colorPicker.value = '#000000';
+});
+
+// Init
+updateColorPicker();
 </script>
 

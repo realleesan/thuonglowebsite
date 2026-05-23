@@ -213,7 +213,8 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                                                     <?php if (!empty($parentCat['icon'])): ?>
                                                         <span class="mega-parent-icon" style="color: #356df1; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><?php if (strpos($parentCat['icon'], '.svg') !== false || strpos($parentCat['icon'], '/') !== false): ?><img src="<?php echo htmlspecialchars($parentCat['icon']); ?>" alt="" style="width: 1.1rem; height: 1.1rem; object-fit: contain;"><?php else: ?><i class="<?php echo htmlspecialchars($parentCat['icon']); ?>"></i><?php endif; ?></span>
                                                     <?php endif; ?>
-                                                    <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" class="mega-parent-title">
+                                                    <?php $parentColorStyle = !empty($parentCat['color']) ? 'style="--cat-color: ' . htmlspecialchars($parentCat['color']) . ';"' : ''; ?>
+                                                    <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" class="mega-parent-title" <?php echo $parentColorStyle; ?>>
                                                         <?php echo htmlspecialchars($parentCat['name']); ?>
                                                     </a>
                                                 </div>
@@ -229,7 +230,8 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                                                                         <span class="mega-child-icon" style="color: #356df1; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;"><?php if (strpos($childCat['icon'], '.svg') !== false || strpos($childCat['icon'], '/') !== false): ?><img src="<?php echo htmlspecialchars($childCat['icon']); ?>" alt="" style="width: 1rem; height: 1rem; object-fit: contain;"><?php else: ?><i class="<?php echo htmlspecialchars($childCat['icon']); ?>"></i><?php endif; ?></span>
                                                                     <?php endif; ?>
                                                                     <div class="mega-child-info">
-                                                                        <span class="mega-child-name"><?php echo htmlspecialchars($childCat['name']); ?></span>
+                                                                        <?php $childColorStyle = !empty($childCat['color']) ? 'style="--cat-color: ' . htmlspecialchars($childCat['color']) . ';"' : ''; ?>
+                                                                        <span class="mega-child-name" <?php echo $childColorStyle; ?>><?php echo htmlspecialchars($childCat['name']); ?></span>
                                                                         <?php 
                                                                         $showDesc = false;
                                                                         if (!empty($childCat['description'])) {
@@ -261,7 +263,8 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                                                                                 <?php if (!empty($grandchildCat['icon'])): ?>
                                                                                     <span class="mega-grandchild-icon" style="color: #356df1; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;"><?php if (strpos($grandchildCat['icon'], '.svg') !== false || strpos($grandchildCat['icon'], '/') !== false): ?><img src="<?php echo htmlspecialchars($grandchildCat['icon']); ?>" alt="" style="width: 0.85rem; height: 0.85rem; object-fit: contain;"><?php else: ?><i class="<?php echo htmlspecialchars($grandchildCat['icon']); ?>"></i><?php endif; ?></span>
                                                                                 <?php endif; ?>
-                                                                                <span><?php echo htmlspecialchars($grandchildCat['name']); ?></span>
+                                                                                <?php $grandchildColorStyle = !empty($grandchildCat['color']) ? 'style="--cat-color: ' . htmlspecialchars($grandchildCat['color']) . ';"' : ''; ?>
+                                                                                <span <?php echo $grandchildColorStyle; ?>><?php echo htmlspecialchars($grandchildCat['name']); ?></span>
                                                                             </a>
                                                                         <?php endforeach; ?>
                                                                     </div>
@@ -635,7 +638,8 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                                                 <?php endif; ?>
                                             </span>
                                         <?php endif; ?>
-                                        <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>">
+                                        <?php $parentColorStyleDrawer = !empty($parentCat['color']) ? 'style="--cat-color: ' . htmlspecialchars($parentCat['color']) . ';"' : ''; ?>
+                                        <a href="<?php echo page_url('products', ['category' => $parentCat['id']]); ?>" <?php echo $parentColorStyleDrawer; ?>>
                                             <?php echo htmlspecialchars($parentCat['name']); ?>
                                         </a>
                                     </div>
@@ -657,7 +661,8 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                                                             </span>
                                                         <?php endif; ?>
                                                         <div class="drawer-child-info">
-                                                            <span class="drawer-child-name"><?php echo htmlspecialchars($childCat['name']); ?></span>
+                                                            <?php $childColorStyleDrawer = !empty($childCat['color']) ? 'style="--cat-color: ' . htmlspecialchars($childCat['color']) . ';"' : ''; ?>
+                                                            <span class="drawer-child-name" <?php echo $childColorStyleDrawer; ?>><?php echo htmlspecialchars($childCat['name']); ?></span>
                                                             <?php 
                                                             $showDesc = false;
                                                             if (!empty($childCat['description'])) {
@@ -694,7 +699,8 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                                                                             <?php endif; ?>
                                                                         </span>
                                                                     <?php endif; ?>
-                                                                    <span><?php echo htmlspecialchars($grandchildCat['name']); ?></span>
+                                                                    <?php $grandchildColorStyleDrawer = !empty($grandchildCat['color']) ? 'style="--cat-color: ' . htmlspecialchars($grandchildCat['color']) . ';"' : ''; ?>
+                                                                    <span <?php echo $grandchildColorStyleDrawer; ?>><?php echo htmlspecialchars($grandchildCat['name']); ?></span>
                                                                 </a>
                                                             <?php endforeach; ?>
                                                         </div>

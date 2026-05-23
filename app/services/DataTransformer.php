@@ -117,6 +117,7 @@ class DataTransformer {
             'image' => $category['image'] ?? '',
             'parent_id' => $category['parent_id'] ?? null,
             'icon' => $category['icon'] ?? '',
+            'color' => $category['color'] ?? null,
             'product_count' => (int) ($category['product_count'] ?? $category['products_count'] ?? 0),
             'description' => $this->security->escapeHtml($category['description'] ?? ''),
             'status' => $category['status'] ?? 'inactive',

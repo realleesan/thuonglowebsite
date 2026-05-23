@@ -10,7 +10,7 @@ class CategoriesModel extends BaseModel {
     protected $table = 'categories';
     protected $fillable = [
         'name', 'slug', 'description', 'image', 'parent_id',
-        'sort_order', 'status', 'featured', 'show_in_filter', 'type', 'icon'
+        'sort_order', 'status', 'featured', 'show_in_filter', 'type', 'icon', 'color'
     ];
     
     /**
