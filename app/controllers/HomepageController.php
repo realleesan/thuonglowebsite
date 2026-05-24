@@ -574,24 +574,54 @@ class HomepageController {
                 $image_url = $_POST['existing_image'] ?? '';
 
                 // Handle image upload if a file was provided
-                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                    $fileTmpPath = $_FILES['image']['tmp_name'];
-                    $fileName = $_FILES['image']['name'];
-                    $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-                    
-                    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
-                    if (in_array($fileExtension, $allowedExtensions)) {
-                        $uploadDir = __DIR__ . '/../../uploads/home/';
-                        if (!is_dir($uploadDir)) {
-                            mkdir($uploadDir, 0777, true);
-                        }
+                if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                    if ($_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                        $fileTmpPath = $_FILES['image']['tmp_name'];
+                        $fileName = $_FILES['image']['name'];
+                        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                         
-                        $newFileName = 'cta_' . time() . '.' . $fileExtension;
-                        $dest_path = $uploadDir . $newFileName;
-                        
-                        if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                            $image_url = 'uploads/home/' . $newFileName;
+                        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+                        if (in_array($fileExtension, $allowedExtensions)) {
+                            // Save directly to the assets home directory
+                            $uploadDir = __DIR__ . '/../../assets/images/home/';
+                            if (!is_dir($uploadDir)) {
+                                if (!mkdir($uploadDir, 0775, true)) {
+                                    error_log("updateCta: Failed to create upload folder: " . $uploadDir);
+                                    $this->setFlashMessage('error', 'Lỗi phân quyền: Không thể tạo thư mục assets/images/home/');
+                                    $this->redirect('?page=admin&module=homepage');
+                                }
+                            }
+                            
+                            $newFileName = 'cta_' . time() . '.' . $fileExtension;
+                            $dest_path = $uploadDir . $newFileName;
+                            
+                            if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                                $image_url = 'home/' . $newFileName;
+                            } else {
+                                error_log("updateCta: move_uploaded_file failed from $fileTmpPath to $dest_path");
+                                $this->setFlashMessage('error', 'Lỗi máy chủ: Không thể lưu file tải lên vào thư mục assets/images/home/ (Vui lòng kiểm tra phân quyền)');
+                                $this->redirect('?page=admin&module=homepage');
+                            }
+                        } else {
+                            error_log("updateCta: Invalid file type uploaded: " . $fileExtension);
+                            $this->setFlashMessage('error', 'Lỗi định dạng: Chỉ cho phép tải lên các định dạng ảnh: ' . implode(', ', $allowedExtensions));
+                            $this->redirect('?page=admin&module=homepage');
                         }
+                    } else {
+                        // Detailed upload error reporting
+                        $uploadErrCode = $_FILES['image']['error'];
+                        $errMessages = [
+                            UPLOAD_ERR_INI_SIZE   => 'Dung lượng file tải lên vượt quá giới hạn cấu hình (upload_max_filesize) trong php.ini',
+                            UPLOAD_ERR_FORM_SIZE  => 'Dung lượng file vượt quá giới hạn cho phép của Form',
+                            UPLOAD_ERR_PARTIAL    => 'File chỉ mới được tải lên một phần',
+                            UPLOAD_ERR_NO_TMP_DIR => 'Không tìm thấy thư mục tạm trên máy chủ',
+                            UPLOAD_ERR_CANT_WRITE => 'Không thể ghi file xuống ổ đĩa máy chủ',
+                            UPLOAD_ERR_EXTENSION  => 'Quá trình upload bị chặn bởi một tiện ích mở rộng PHP'
+                        ];
+                        $errMsg = $errMessages[$uploadErrCode] ?? 'Lỗi upload không xác định (mã ' . $uploadErrCode . ')';
+                        error_log("updateCta: image upload error code " . $uploadErrCode);
+                        $this->setFlashMessage('error', 'Lỗi upload ảnh: ' . $errMsg);
+                        $this->redirect('?page=admin&module=homepage');
                     }
                 }
 
@@ -611,7 +641,7 @@ class HomepageController {
                 if ($result) {
                     $this->setFlashMessage('success', 'Đã cập nhật Section CTA thành công');
                 } else {
-                    $this->setFlashMessage('error', 'Có lỗi xảy ra khi cập nhật');
+                    $this->setFlashMessage('error', 'Có lỗi xảy ra khi cập nhật trong Cơ sở dữ liệu');
                 }
                 $this->redirect('?page=admin&module=homepage');
             } else {

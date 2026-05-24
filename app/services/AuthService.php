@@ -105,6 +105,7 @@ class AuthService implements ServiceInterface {
             try {
                 require_once __DIR__ . '/DeviceAccessService.php';
                 $deviceService = new DeviceAccessService();
+                $deviceService->setDeviceCookie($deviceSessionId); // Set secure signed cookie
                 $deviceModel = $deviceService->getModel('DeviceAccessModel');
                 if ($deviceModel) {
                     $deviceModel->setCurrentDevice($userId, $deviceSessionId);
@@ -139,6 +140,40 @@ class AuthService implements ServiceInterface {
      * Requirements: 2.1, 2.2
      */
     public function authenticate(string $login, string $password): array {
+        // If a pending user ID already exists in the session (meaning there is an ongoing unverified device login),
+        // we should block any new authentication attempts until it is resolved or cleared.
+        if (!empty($_SESSION['pending_user_id'])) {
+            $pendingSessionId = $_SESSION['pending_device_session_id'] ?? null;
+            if ($pendingSessionId) {
+                try {
+                    $deviceServiceFile = __DIR__ . '/DeviceAccessService.php';
+                    if (file_exists($deviceServiceFile)) {
+                        require_once $deviceServiceFile;
+                        $deviceService = new DeviceAccessService();
+                        $deviceSession = $deviceService->pollDeviceStatus((int)$pendingSessionId);
+                        if ($deviceSession['success'] && $deviceSession['status'] === 'pending') {
+                            // Strictly block login and force verification
+                            return [
+                                'success' => false,
+                                'requires_device_verification' => true,
+                                'device_session_id' => $pendingSessionId,
+                                'message' => $_SESSION['device_verify_message'] ?? 'Tài khoản này đang chờ xác thực thiết bị. Vui lòng hoàn thành xác thực.'
+                            ];
+                        }
+                    }
+                } catch (Throwable $e) {
+                    // Fail-safe cleanup if an error occurs while checking
+                    unset($_SESSION['pending_user_id']);
+                }
+            }
+        }
+
+        // Clear any leftover pending session states before initiating a new authentication
+        unset($_SESSION['pending_user_id']);
+        unset($_SESSION['pending_user_data']);
+        unset($_SESSION['pending_device_session_id']);
+        unset($_SESSION['device_verify_message']);
+
         try {
             // Log authentication attempt
             $this->securityLogger->logAuthAttempt('login_attempt', [
@@ -801,6 +836,16 @@ class AuthService implements ServiceInterface {
      */
     public function verifyCsrfToken(string $token): bool {
         return $this->sessionManager->verifyCsrfToken($token);
+    }
+    
+    /**
+     * Clear all pending device verification session states
+     */
+    public function clearPendingSession(): void {
+        unset($_SESSION['pending_user_id']);
+        unset($_SESSION['pending_user_data']);
+        unset($_SESSION['pending_device_session_id']);
+        unset($_SESSION['device_verify_message']);
     }
     
     /**

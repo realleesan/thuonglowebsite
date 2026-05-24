@@ -24,6 +24,11 @@ class AuthController {
             return;
         }
         
+        // If they visit the login page normally, clear any pending device verification session states
+        if (empty($_GET['device_verify'])) {
+            $this->authService->clearPendingSession();
+        }
+        
         // Don't unset flash messages here - let master.php handle them
         // Get any flash messages for backward compatibility (not used anymore)
         $error = $_SESSION['flash_error'] ?? null;
@@ -49,6 +54,9 @@ class AuthController {
             $this->redirect('?page=login');
             return;
         }
+        
+        // Clear pending states when starting a fresh login process
+        $this->authService->clearPendingSession();
         
         // Verify CSRF token
         $csrfToken = $_POST['csrf_token'] ?? '';

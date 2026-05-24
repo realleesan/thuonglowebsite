@@ -5,7 +5,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     // --- KHỞI TẠO BIẾN ---
     console.log('user_access.js loaded');
-    
+
     const pendingDeviceId = new URLSearchParams(window.location.search).get('device_session_id');
     const isVerifyPage = new URLSearchParams(window.location.search).get('device_verify') === '1';
 
@@ -27,28 +27,28 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==========================================
     function initAccessManagement() {
         console.log('initAccessManagement called');
-        
+
         // Thêm các hàm đóng modal toàn cục
-        window.closeApproveConfirmModal = function() {
+        window.closeApproveConfirmModal = function () {
             const confirmModal = document.getElementById('approveConfirmModal');
             if (confirmModal) {
                 confirmModal.classList.remove('active');
             }
         };
-        
-        window.closePasswordModal = function() {
+
+        window.closePasswordModal = function () {
             const modalEl = document.getElementById('passwordConfirmModal');
             if (modalEl) {
                 modalEl.classList.remove('active');
             }
         };
-        
+
         const btnApprove = document.querySelectorAll('.btn-approve');
         const btnReject = document.querySelectorAll('.btn-reject');
         const btnRemove = document.querySelectorAll('.btn-remove');
-        
+
         console.log('Found buttons - approve:', btnApprove.length, 'reject:', btnReject.length, 'remove:', btnRemove.length);
-        
+
         const passwordModal = document.getElementById('passwordConfirmModal');
         const btnConfirmApprove = document.getElementById('btnConfirmApprove');
 
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 targetDeviceId = this.getAttribute('data-id');
                 const deviceName = this.getAttribute('data-name');
                 const deviceInfo = this.getAttribute('data-info');
-                
+
                 // Hiển thị thông tin trong modal xác nhận
                 document.getElementById('confirmDeviceName').textContent = deviceName;
                 document.getElementById('confirmDeviceInfo').textContent = deviceInfo || '';
@@ -73,21 +73,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         });
-        
+
         // Bấm nút Đồng ý trong modal xác nhận -> Hiện modal mật khẩu
         const btnConfirmDevice = document.getElementById('btnConfirmDevice');
         if (btnConfirmDevice) {
-            btnConfirmDevice.addEventListener('click', function() {
+            btnConfirmDevice.addEventListener('click', function () {
                 // Close confirm modal
                 const confirmModal = document.getElementById('approveConfirmModal');
                 if (confirmModal) {
                     confirmModal.classList.remove('active');
                 }
-                
+
                 // Reset password fields
                 document.getElementById('confirmPassword').value = '';
                 document.getElementById('confirmPassword2').value = '';
-                
+
                 // Show password modal
                 const modalEl = document.getElementById('passwordConfirmModal');
                 if (modalEl) {
@@ -105,27 +105,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 const password2Input = document.getElementById('confirmPassword2');
                 const passwordError = document.getElementById('passwordError');
                 const password2Error = document.getElementById('password2Error');
-                
+
                 // Reset validation
                 passwordInput.classList.remove('is-invalid');
                 password2Input.classList.remove('is-invalid');
                 passwordError.classList.remove('show');
                 password2Error.classList.remove('show');
-                
+
                 if (!password) {
                     passwordInput.classList.add('is-invalid');
                     passwordError.classList.add('show');
                     passwordError.textContent = 'Vui lòng nhập mật khẩu.';
                     return;
                 }
-                
+
                 if (!password2) {
                     password2Input.classList.add('is-invalid');
                     password2Error.classList.add('show');
                     password2Error.textContent = 'Vui lòng nhập lại mật khẩu.';
                     return;
                 }
-                
+
                 if (password !== password2) {
                     password2Input.classList.add('is-invalid');
                     password2Error.classList.add('show');
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (modalEl) {
                                 modalEl.classList.remove('active');
                             }
-                            
+
                             if (data.approved_device_session_id) {
                                 // Thông báo cho Device A (người duyệt)
                                 alert('Đã phê duyệt thiết bị thành công! Bạn sẽ được đăng xuất và thiết bị kia sẽ tự đăng nhập.');
@@ -284,17 +284,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // ==========================================
-    // LOGIC TRÊN TRANG LOGIN (POPUP XÁC THỰC)
-    // ==========================================
     function initDeviceVerification() {
         // Tạo HTML cho popup xác thực nếu chưa có
         if (!document.getElementById('deviceVerifyModal')) {
             injectVerifyModal();
         }
-
-        // Inject modal HTML
-        injectVerifyModal();
 
         // ========== Step Navigation ==========
         const step1 = document.getElementById('verifyStep1');
@@ -312,19 +306,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const otpInput = document.getElementById('deviceVerifyOtpCode');
 
         // Step 1: Start verification
-        document.getElementById('btnStartVerify').addEventListener('click', function() {
+        document.getElementById('btnStartVerify').addEventListener('click', function () {
             step1.classList.add('d-none-custom');
             step2.classList.remove('d-none-custom');
         });
 
         // Step 2: Confirm method selection
-        document.getElementById('btnConfirmMethod').addEventListener('click', function() {
+        document.getElementById('btnConfirmMethod').addEventListener('click', function () {
             const selectedMethod = document.querySelector('input[name="verifyMethod"]:checked').value;
-            
+
             if (selectedMethod === 'email') {
                 step2.classList.add('d-none-custom');
                 emailStep.classList.remove('d-none-custom');
-                
+
                 // Reset email/OTP step states
                 const emailInputStepEl = document.getElementById('emailInputStep');
                 const otpInputStepEl = document.getElementById('otpInputStep');
@@ -348,30 +342,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 startApprovalPolling();
             }
         });
-        
+
         // Add visual feedback for radio selection
         const radioOptions = document.querySelectorAll('.radio-option');
         radioOptions.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 radioOptions.forEach(opt => opt.classList.remove('selected'));
                 this.classList.add('selected');
             });
         });
 
         // Back to Step 1 from Step 2
-        document.getElementById('btnBackStep1').addEventListener('click', function() {
+        document.getElementById('btnBackStep1').addEventListener('click', function () {
             step2.classList.add('d-none-custom');
             step1.classList.remove('d-none-custom');
         });
 
         // Back to Step 2 from Email Step
-        document.getElementById('btnBackToOptions').addEventListener('click', function() {
+        document.getElementById('btnBackToOptions').addEventListener('click', function () {
             emailStep.classList.add('d-none-custom');
             step2.classList.remove('d-none-custom');
         });
 
         // Back to Step 2 from Remote Step
-        document.getElementById('btnBackFromRemote').addEventListener('click', function() {
+        document.getElementById('btnBackFromRemote').addEventListener('click', function () {
             remoteStep.classList.add('d-none-custom');
             step2.classList.remove('d-none-custom');
         });
@@ -381,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const displayEmail = document.getElementById('displayMaskedEmail');
             const emailStepEl = document.getElementById('emailInputStep');
             const otpStepEl = document.getElementById('otpInputStep');
-            
+
             if (displayEmail) displayEmail.textContent = maskedEmail;
             if (emailStepEl) {
                 emailStepEl.classList.add('d-none-custom');
@@ -493,46 +487,46 @@ document.addEventListener('DOMContentLoaded', function () {
         // Function to start polling for remote approval
         function startApprovalPolling() {
             if (pollInterval) clearInterval(pollInterval);
-            
+
             pollInterval = setInterval(() => {
                 fetch(`api.php?path=device/poll-status&device_session_id=${pendingDeviceId}`)
-                .then(res => res.json())
-                .then(data => {
-                    console.log('Poll status:', data);
-                    if (data.success) {
-                        if (data.status === 'active') {
-                            clearInterval(pollInterval);
-                            
-                            // Kiểm tra nếu có redirect_url từ login completed
-                            if (data.login_completed && data.redirect_url) {
-                                hideModal();
-                                setTimeout(() => {
-                                    alert('Đăng nhập thành công! Chào mừng bạn.');
-                                    window.location.href = data.redirect_url;
-                                }, 300);
-                            } else {
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log('Poll status:', data);
+                        if (data.success) {
+                            if (data.status === 'active') {
+                                clearInterval(pollInterval);
+
+                                // Kiểm tra nếu có redirect_url từ login completed
+                                if (data.login_completed && data.redirect_url) {
+                                    hideModal();
+                                    setTimeout(() => {
+                                        alert('Đăng nhập thành công! Chào mừng bạn.');
+                                        window.location.href = data.redirect_url;
+                                    }, 300);
+                                } else {
+                                    // Đóng modal trước khi alert
+                                    hideModal();
+                                    setTimeout(() => {
+                                        alert('Thiết bị đã được phê duyệt! Đang chuyển hướng...');
+                                        window.location.href = '?page=users';
+                                    }, 300);
+                                }
+                            } else if (data.status === 'rejected') {
+                                clearInterval(pollInterval);
                                 // Đóng modal trước khi alert
                                 hideModal();
                                 setTimeout(() => {
-                                    alert('Thiết bị đã được phê duyệt! Đang chuyển hướng...');
-                                    window.location.href = '?page=users';
+                                    alert('Đăng nhập thất bại: Thiết bị của bạn đã bị từ chối. Vui lòng thử lại hoặc liên hệ quản trị viên.');
+                                    // Xóa các tham số device_verify và chuyển về trang login thuần
+                                    window.location.href = '?page=login';
                                 }, 300);
                             }
-                        } else if (data.status === 'rejected') {
-                            clearInterval(pollInterval);
-                            // Đóng modal trước khi alert
-                            hideModal();
-                            setTimeout(() => {
-                                alert('Đăng nhập thất bại: Thiết bị của bạn đã bị từ chối. Vui lòng thử lại hoặc liên hệ quản trị viên.');
-                                // Xóa các tham số device_verify và chuyển về trang login thuần
-                                window.location.href = '?page=login';
-                            }, 300);
                         }
-                    }
-                })
-                .catch(err => {
-                    console.error('Poll error:', err);
-                });
+                    })
+                    .catch(err => {
+                        console.error('Poll error:', err);
+                    });
             }, 5000); // 5 giây một lần
         }
     }
@@ -642,31 +636,47 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
         `;
-        
+
         // Insert modal at the body to avoid being inside the login form
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // Add close button event listener
         const closeBtn = document.getElementById('btnCloseModal');
         if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                // Close modal and redirect to login
-                const modalEl = document.getElementById('deviceVerifyModal');
-                if (modalEl) {
-                    modalEl.classList.remove('active');
+            closeBtn.addEventListener('click', function () {
+                // Clear the poll interval if any is running
+                if (pollInterval) {
+                    clearInterval(pollInterval);
                 }
-                // Remove query params and go to login
-                window.location.href = '?page=login';
+
+                // Clear the otp cooldown timer if any is running
+                if (otpCooldownTimer) {
+                    clearInterval(otpCooldownTimer);
+                }
+
+                // Send API request to clear pending session
+                fetch('api.php?path=device/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                }).finally(() => {
+                    // Close modal and redirect to login
+                    const modalEl = document.getElementById('deviceVerifyModal');
+                    if (modalEl) {
+                        modalEl.classList.remove('active');
+                    }
+                    // Remove query params and go to login
+                    window.location.href = '?page=login';
+                });
             });
         }
-        
+
         // Show the modal
         const modalEl = document.getElementById('deviceVerifyModal');
         if (modalEl) {
             modalEl.classList.add('active');
         }
     }
-    
+
     // Custom function to hide modal
     function hideModal() {
         const modalEl = document.getElementById('deviceVerifyModal');

@@ -933,7 +933,13 @@ unset($_SESSION['flash_error']);
                                 <?php
                                  $imgUrl = $ctaSection['image_url'] ?? '';
                                  if ($imgUrl) {
-                                     $finalImg = (strpos($imgUrl, 'http') === 0) ? $imgUrl : img_url($imgUrl);
+                                     if (strpos($imgUrl, 'http') === 0) {
+                                         $finalImg = $imgUrl;
+                                     } elseif (strpos($imgUrl, 'uploads/') === 0 || strpos($imgUrl, 'assets/') === 0) {
+                                         $finalImg = base_url($imgUrl);
+                                     } else {
+                                         $finalImg = img_url($imgUrl);
+                                     }
                                      echo '<img src="'.$finalImg.'" class="rounded shadow-sm" style="width: 80px; height: 50px; object-fit: cover;" onerror="this.src=\'https://via.placeholder.com/80x50?text=No+Image\'">';
                                 } else {
                                     echo '<div class="rounded bg-light d-flex align-items-center justify-content-center text-muted" style="width: 80px; height: 50px; font-size: 10px;">No Image</div>';

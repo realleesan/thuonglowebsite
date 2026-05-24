@@ -74,11 +74,47 @@ class DeviceAccessService implements ServiceInterface {
         $ip = $this->model->getClientIP();
         $deviceInfo = $this->model->parseUserAgent($ua);
 
+        // --- NEW OPTIMIZED DEVICE CHECK VIA SIGNED COOKIE ---
+        $cookieDeviceId = null;
+        if (!empty($_COOKIE['verified_device_id'])) {
+            $parts = explode('|', $_COOKIE['verified_device_id']);
+            if (count($parts) === 2) {
+                $decId = (int)$parts[0];
+                $sig = $parts[1];
+                $expectedSig = hash_hmac('sha256', $decId, 'thuonglo_secret_salt_12345');
+                if (hash_equals($expectedSig, $sig)) {
+                    $cookieDeviceId = $decId;
+                }
+            }
+        }
+
+        // If a valid device cookie exists, check if it belongs to this user and is active
+        if ($cookieDeviceId !== null) {
+            $cookieDevice = $this->model->find($cookieDeviceId);
+            if ($cookieDevice && (int)$cookieDevice['user_id'] === $userId && $cookieDevice['status'] === 'active') {
+                // Yes! This is the exact same verified device!
+                // Update session_id and last_activity
+                $this->model->updateSessionId($cookieDeviceId, $currentSessionId);
+                $this->model->updateLastActivity($cookieDeviceId);
+                
+                // Refresh the cookie lifetime
+                $this->setDeviceCookie($cookieDeviceId);
+                
+                return [
+                    'success' => true,
+                    'requires_verification' => false,
+                    'device_id' => $cookieDeviceId
+                ];
+            }
+        }
+        // ----------------------------------------------------
+
         // Bước 1: Kiểm tra xem thiết bị này đã có phiên active chưa (theo session_id)
         $existingDevice = $this->model->findByUserAndSession($userId, $currentSessionId);
         if ($existingDevice && $existingDevice['status'] === 'active') {
             // Thiết bị đã được xác thực - cập nhật last_activity
             $this->model->updateLastActivity($existingDevice['id']);
+            $this->setDeviceCookie($existingDevice['id']); // Refresh cookie just in case
             return [
                 'success' => true,
                 'requires_verification' => false,
@@ -90,6 +126,7 @@ class DeviceAccessService implements ServiceInterface {
         // (Đây là trường hợp đăng nhập lần đầu tiên trên thiết bị này)
         if ($activeCount === 0) {
             $deviceId = $this->registerCurrentDevice($userId, 'active');
+            $this->setDeviceCookie($deviceId); // Set secure cookie
             return [
                 'success' => true,
                 'requires_verification' => false,
@@ -97,11 +134,10 @@ class DeviceAccessService implements ServiceInterface {
             ];
         }
 
-        // Bước 3: Có thiết bị khác đang đăng nhập rồi
-        // Kiểm tra xem thiết bị này có phải là cùng thiết bị đã đăng nhập trước đó không
-        // (Dùng IP + Browser + OS để xác định - đây là cách nhận diện ổn định)
+        // Bước 3: Đã loại bỏ cơ chế bypass thụ động qua IP+Browser+OS cũ để tránh lỗi bảo mật/trùng Wi-Fi.
+        // Chỉ chấp nhận thiết bị cũ nếu có Cookie định danh hợp lệ đã được kiểm tra ở trên.
         
-        // Tìm thiết bị đã active hoặc pending có cùng IP + Browser + OS
+        // Tìm thiết bị PENDING có cùng IP + Browser + OS để tái sử dụng
         $matchingDevice = $this->model->findByIPAndDevice(
             $userId, 
             $ip, 
@@ -109,49 +145,24 @@ class DeviceAccessService implements ServiceInterface {
             $deviceInfo['os']
         );
 
-        // Nếu tìm thấy thiết bị với cùng IP + Browser + OS và đang active
-        // -> Đây là trường hợp session regeneration (session_id đổi nhưng cùng thiết bị)
-        if ($matchingDevice && $matchingDevice['status'] === 'active') {
-            // Cập nhật session_id mới
+        // Bước 4: Kiểm tra xem thiết bị này đã có phiên pending nào trùng khớp chưa
+        // Nếu có, ta tái sử dụng phiên pending đó (cập nhật session_id và last_activity)
+        // và yêu cầu xác thực thiết bị, tuyệt đối không cho phép tự động kích hoạt.
+        if ($matchingDevice && $matchingDevice['status'] === 'pending') {
             $this->model->updateSessionId($matchingDevice['id'], $currentSessionId);
             $this->model->updateLastActivity($matchingDevice['id']);
             
             return [
                 'success' => true,
-                'requires_verification' => false,
-                'device_id' => $matchingDevice['id'],
-                'session_regenerated' => true
+                'requires_verification' => true,
+                'device_session_id' => $matchingDevice['id'],
+                'active_count' => $activeCount,
+                'max_devices' => self::MAX_DEVICES,
+                'message' => 'Tài khoản đã có thiết bị đăng nhập. Vui lòng xác thực thiết bị này để tiếp tục.'
             ];
         }
 
-        // Bước 4: Thiết bị mới (khác browser hoặc IP) - cần xác thực từ thiết bị đang có
-        // Chỉ cho phép auto-activate nếu thiết bị này đã được duyệt trước đó VÀ browser/os khớp
-        // (Trường hợp: user đã xác thực thiết bị này trước đó)
-        
-        // Tìm thiết bị pending đã được duyệt (status = 'active' đã từng xác thực)
-        // Nhưng chỉ cho phép nếu browser + os khớp với thiết bị đã lưu
-        $pendingDevices = $this->model->getPendingDevices($userId);
-        foreach ($pendingDevices as $pending) {
-            // Chỉ auto-activate nếu IP + Browser + OS đều khớp
-            if ($pending['ip_address'] === $ip && 
-                $pending['browser'] === $deviceInfo['browser'] && 
-                $pending['os'] === $deviceInfo['os']) {
-                
-                // Thiết bị này đã từng được xác thực trước đó, cho phép đăng nhận
-                $this->model->updateDeviceStatus($pending['id'], 'active');
-                $this->model->updateSessionId($pending['id'], $currentSessionId);
-                $this->model->updateLastActivity($pending['id']);
-                
-                return [
-                    'success' => true,
-                    'requires_verification' => false,
-                    'device_id' => $pending['id'],
-                    'reactivated' => true
-                ];
-            }
-        }
-
-        // Bước 5: Thiết bị hoàn toàn mới - cần xác thực
+        // Bước 5: Thiết bị hoàn toàn mới - tạo một phiên pending mới và yêu cầu xác thực
         $deviceId = $this->registerCurrentDevice($userId, 'pending');
         return [
             'success' => true,
@@ -291,6 +302,7 @@ class DeviceAccessService implements ServiceInterface {
         // OTP đúng - activate device
         $this->model->updateDeviceStatus($deviceSessionId, 'active');
         $this->model->setCurrentDevice($userId, $deviceSessionId);
+        $this->setDeviceCookie($deviceSessionId); // Set secure signed cookie
 
         // Lấy session_id của thiết bị mới
         $newDevice = $this->model->find($deviceSessionId);
@@ -621,5 +633,22 @@ class DeviceAccessService implements ServiceInterface {
         
         error_log("checkCurrentDeviceSession: user=$userId, session=$currentSessionId, device FOUND, status=" . $device['status']);
         return true;
+    }
+
+    /**
+     * Set a secure signed cookie for the device
+     */
+    public function setDeviceCookie(int $deviceId): void {
+        $secret = 'thuonglo_secret_salt_12345';
+        $signature = hash_hmac('sha256', $deviceId, $secret);
+        $cookieValue = $deviceId . '|' . $signature;
+        
+        // Set secure HTTP-only cookie for 1 year
+        // We use ob_start or check headers_sent to prevent warnings
+        if (!headers_sent()) {
+            setcookie('verified_device_id', $cookieValue, time() + 365 * 24 * 60 * 60, '/', '', false, true);
+        } else {
+            error_log("setDeviceCookie: headers already sent, could not set verified_device_id cookie");
+        }
     }
 }

@@ -24,6 +24,8 @@ $section = array_merge([
 // Get flash messages
 $error = $_SESSION['flash_error'] ?? '';
 unset($_SESSION['flash_error']);
+$success = $_SESSION['flash_success'] ?? '';
+unset($_SESSION['flash_success']);
 ?>
 
 <div class="hero-section-page hero-section-edit-page">
@@ -45,9 +47,18 @@ unset($_SESSION['flash_error']);
     </div>
 
     <?php if ($error): ?>
-        <div class="alert alert-danger">
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 8px;">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            <?php echo htmlspecialchars($error); ?>
+            <strong>Thất bại!</strong> <?php echo htmlspecialchars($error); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($success): ?>
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 8px;">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Thành công!</strong> <?php echo htmlspecialchars($success); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
@@ -139,7 +150,13 @@ unset($_SESSION['flash_error']);
                                 <?php
                                 $imgUrl = $section['image_url'] ?? '';
                                 if ($imgUrl) {
-                                    $finalImg = (strpos($imgUrl, 'http') === 0) ? $imgUrl : img_url($imgUrl);
+                                    if (strpos($imgUrl, 'http') === 0) {
+                                        $finalImg = $imgUrl;
+                                    } elseif (strpos($imgUrl, 'uploads/') === 0 || strpos($imgUrl, 'assets/') === 0) {
+                                        $finalImg = base_url($imgUrl);
+                                    } else {
+                                        $finalImg = img_url($imgUrl);
+                                    }
                                     echo '<img id="image-preview" src="'.$finalImg.'" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: contain;">';
                                 } else {
                                     echo '<img id="image-preview" src="https://via.placeholder.com/250x150?text=No+Image" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: contain;">';

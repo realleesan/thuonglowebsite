@@ -32,7 +32,13 @@ if ($ctaSection && isset($ctaSection['is_active']) && $ctaSection['is_active']):
     $imgUrl = $ctaSection['image_url'] ?? '';
     $finalImg = '';
     if ($imgUrl) {
-        $finalImg = (strpos($imgUrl, 'http') === 0) ? $imgUrl : img_url($imgUrl);
+        if (strpos($imgUrl, 'http') === 0) {
+            $finalImg = $imgUrl;
+        } elseif (strpos($imgUrl, 'uploads/') === 0 || strpos($imgUrl, 'assets/') === 0) {
+            $finalImg = base_url($imgUrl);
+        } else {
+            $finalImg = img_url($imgUrl);
+        }
     } else {
         $finalImg = img_url('home/cta-final-1.png');
     }

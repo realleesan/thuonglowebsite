@@ -604,6 +604,17 @@ try {
         // DEVICE ACCESS MANAGEMENT API
         // ==========================================
         
+        case 'device/cancel':
+            if ($method === 'POST') {
+                require_once __DIR__ . '/app/services/AuthService.php';
+                $authService = new AuthService();
+                $authService->clearPendingSession();
+                echo json_encode(['success' => true, 'message' => 'Pending verification session cleared']);
+            } else {
+                throw new Exception('Method not allowed', 405);
+            }
+            break;
+            
         case 'device/verify-email':
             if ($method === 'POST') {
                 require_once __DIR__ . '/app/services/DeviceAccessService.php';
@@ -639,9 +650,7 @@ try {
                     }
                     
                     // Clear pending data
-                    unset($_SESSION['pending_user_id']);
-                    unset($_SESSION['pending_user_data']);
-                    unset($_SESSION['pending_device_session_id']);
+                    $authService->clearPendingSession();
                 }
                 
                 echo json_encode($result);
@@ -680,9 +689,7 @@ try {
                         $result['login_completed'] = true;
                         $result['redirect_url'] = '?page=users';
                         // Xóa pending data
-                        unset($_SESSION['pending_user_id']);
-                        unset($_SESSION['pending_user_data']);
-                        unset($_SESSION['pending_device_session_id']);
+                        $authService->clearPendingSession();
                     }
                 }
                 

@@ -1,7 +1,7 @@
 -- Create cta_sections table
 CREATE TABLE IF NOT EXISTS `cta_sections` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
-    `title` varchar(255) NOT NULL,
+    `title` text NOT NULL,
     `subtitle` varchar(255) DEFAULT NULL,
     `content` text DEFAULT NULL,
     `button_text` varchar(255) NOT NULL DEFAULT 'Đăng ký ngay',
