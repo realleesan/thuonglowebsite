@@ -155,16 +155,16 @@
     flex-shrink: 0;
 }
 
-input[type="checkbox"] {
+.sidebar-content input[type="checkbox"] {
     display: none;
 }
 
-input[type="checkbox"]:checked+.custom-checkbox {
+.sidebar-content input[type="checkbox"]:checked+.custom-checkbox {
     background-color: #356df1;
     border-color: #356df1;
 }
 
-input[type="checkbox"]:checked+.custom-checkbox::after {
+.sidebar-content input[type="checkbox"]:checked+.custom-checkbox::after {
     content: '\f00c';
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
@@ -176,7 +176,7 @@ input[type="checkbox"]:checked+.custom-checkbox::after {
     transform: translate(-50%, -50%);
 }
 
-input[type="radio"] {
+.sidebar-content input[type="radio"] {
     display: none;
 }
 
@@ -191,12 +191,12 @@ input[type="radio"] {
     flex-shrink: 0;
 }
 
-input[type="radio"]:checked+.custom-radio {
+.sidebar-content input[type="radio"]:checked+.custom-radio {
     background-color: #356df1;
     border-color: #356df1;
 }
 
-input[type="radio"]:checked+.custom-radio::after {
+.sidebar-content input[type="radio"]:checked+.custom-radio::after {
     content: '';
     position: absolute;
     top: 4px;
