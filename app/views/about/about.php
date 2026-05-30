@@ -8,6 +8,7 @@ $pageData = $subPageModel->getByPageKey('about');
 
 // Parse dynamic content or fallback to static HTML
 $title = $pageData ? $pageData['title'] : 'Giới thiệu';
+$subtitle = $pageData && !empty($pageData['subtitle']) ? $pageData['subtitle'] : 'Khám phá năng lực cốt lõi của ThuongLo.com - Giải pháp tự động hóa logistics & nguồn hàng gốc';
 $content = $pageData ? $pageData['content'] : '';
 $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
@@ -109,7 +110,7 @@ $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
         <div class="dynamic-about-hero">
             <div class="container">
                 <h1><?= htmlspecialchars($title) ?></h1>
-                <p>Khám phá năng lực cốt lõi của ThuongLo.com - Giải pháp tự động hóa logistics & nguồn hàng gốc</p>
+                <p><?= htmlspecialchars($subtitle) ?></p>
             </div>
         </div>
 

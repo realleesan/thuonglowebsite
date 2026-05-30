@@ -14,6 +14,7 @@ if (!isset($pageData) || !$pageData) {
 }
 
 $pageTitle = $pageData['title'];
+$pageSubtitle = !empty($pageData['subtitle']) ? $pageData['subtitle'] : 'Cùng Thuong Lo phát triển sự nghiệp kinh doanh bền vững';
 $pageContent = $pageData['content'];
 $pageBanner = $pageData['image'];
 
@@ -49,7 +50,7 @@ $breadcrumbs = [
                     <?= htmlspecialchars($pageTitle) ?>
                 </h1>
                 <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-top: 12px; font-weight: 400; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    Cùng Thuong Lo phát triển sự nghiệp kinh doanh bền vững
+                    <?= htmlspecialchars($pageSubtitle) ?>
                 </p>
             </div>
         </div>
@@ -63,7 +64,7 @@ $breadcrumbs = [
                     <?= htmlspecialchars($pageTitle) ?>
                 </h1>
                 <p style="color: rgba(255, 255, 255, 0.85); font-size: 1.1rem; margin-top: 12px; font-weight: 400; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    Hệ thống thông tin chính thống cập nhật liên tục phục vụ cộng đồng đối tác đại lý Thuong Lo
+                    <?= htmlspecialchars($pageSubtitle) ?>
                 </p>
             </div>
         </div>

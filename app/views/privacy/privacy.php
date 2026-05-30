@@ -13,6 +13,7 @@ $pageData = $subPageModel->getByPageKey('privacy');
 
 // Parse dynamic content
 $title = $pageData ? $pageData['title'] : 'Chính sách bảo mật';
+$subtitle = $pageData && !empty($pageData['subtitle']) ? $pageData['subtitle'] : 'Cam kết bảo mật dữ liệu, thông tin cá nhân và tài sản thông tin tuyệt đối tại ThuongLo';
 $content = $pageData ? $pageData['content'] : '';
 $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
@@ -109,7 +110,7 @@ $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
         <div class="dynamic-privacy-hero">
             <div class="container">
                 <h1><?= htmlspecialchars($title) ?></h1>
-                <p>Cam kết bảo mật dữ liệu, thông tin cá nhân và tài sản thông tin tuyệt đối tại ThuongLo</p>
+                <p><?= htmlspecialchars($subtitle) ?></p>
             </div>
         </div>
 

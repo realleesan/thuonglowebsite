@@ -1096,6 +1096,7 @@ switch($page) {
                             
                             $updateData = [
                                 'title' => $title_val,
+                                'subtitle' => trim($_POST['subtitle'] ?? ''),
                                 'content' => $content_val,
                                 'image' => !empty($image_path) ? $image_path : null,
                                 'meta_title' => !empty($meta_title) ? $meta_title : null,
@@ -1542,6 +1543,7 @@ switch($page) {
                                 
                                 $updateData = [
                                     'title' => $title,
+                                    'subtitle' => trim($_POST['subtitle'] ?? ''),
                                     'content' => $content_val,
                                     'image' => !empty($image_path) ? $image_path : null,
                                     'meta_title' => !empty($meta_title) ? $meta_title : null,

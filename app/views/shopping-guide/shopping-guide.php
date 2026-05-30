@@ -13,6 +13,7 @@ $pageData = $subPageModel->getByPageKey('shopping_guide');
 
 // Parse dynamic content
 $title = $pageData ? $pageData['title'] : 'Hướng dẫn mua hàng';
+$subtitle = $pageData && !empty($pageData['subtitle']) ? $pageData['subtitle'] : 'Quy trình đặt mua nguồn hàng & tự động Logistics tại ThuongLo nhanh chóng, bảo mật và an toàn';
 $content = $pageData ? $pageData['content'] : '';
 $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
@@ -109,7 +110,7 @@ $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
         <div class="dynamic-guide-hero">
             <div class="container">
                 <h1><?= htmlspecialchars($title) ?></h1>
-                <p>Quy trình đặt mua nguồn hàng & tự động Logistics tại ThuongLo nhanh chóng, bảo mật và an toàn</p>
+                <p><?= htmlspecialchars($subtitle) ?></p>
             </div>
         </div>
 

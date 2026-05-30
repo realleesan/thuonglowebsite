@@ -13,6 +13,7 @@ $pageData = $subPageModel->getByPageKey('faq');
 
 // Parse dynamic content
 $title = $pageData ? $pageData['title'] : 'Câu hỏi thường gặp';
+$subtitle = $pageData && !empty($pageData['subtitle']) ? $pageData['subtitle'] : 'Tổng hợp các thắc mắc thường gặp về Logistics, Đơn hàng và Thanh toán tại ThuongLo';
 $content = $pageData ? $pageData['content'] : '';
 $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
@@ -99,7 +100,7 @@ $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
         <div class="dynamic-faq-hero">
             <div class="container">
                 <h1><?= htmlspecialchars($title) ?></h1>
-                <p>Tổng hợp các thắc mắc thường gặp về Logistics, Đơn hàng và Thanh toán tại ThuongLo</p>
+                <p><?= htmlspecialchars($subtitle) ?></p>
             </div>
         </div>
 

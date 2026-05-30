@@ -73,6 +73,15 @@ $error = $_GET['error'] ?? '';
                         <small style="color: #6b7280; display: block; margin-top: 4px;">Tiêu đề chính sẽ hiển thị nổi bật ở đầu trang nội dung phía người dùng.</small>
                     </div>
 
+                    <!-- Subtitle -->
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="subtitle" style="font-weight: 600; color: #374151; display: block; margin-bottom: 8px;">Tiêu đề phụ (Subtitle):</label>
+                        <input type="text" id="subtitle" name="subtitle" value="<?= htmlspecialchars($page['subtitle'] ?? '') ?>" 
+                               placeholder="Nhập tiêu đề phụ dưới tiêu đề chính..."
+                               style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px;">
+                        <small style="color: #6b7280; display: block; margin-top: 4px;">Tiêu đề phụ sẽ hiển thị nhỏ hơn ở ngay bên dưới tiêu đề chính.</small>
+                    </div>
+
                     <!-- Mixed Text and Image Editor -->
                     <div class="form-group" style="margin-bottom: 20px;">
                         <label class="required" style="font-weight: 600; color: #374151; display: block; margin-bottom: 8px;">Nội dung trang (Hỗ trợ xen kẽ Văn bản và Hình ảnh):</label>

@@ -13,6 +13,7 @@ $pageData = $subPageModel->getByPageKey('terms');
 
 // Parse dynamic content
 $title = $pageData ? $pageData['title'] : 'Điều khoản dịch vụ';
+$subtitle = $pageData && !empty($pageData['subtitle']) ? $pageData['subtitle'] : 'Điều khoản dịch vụ và quy chế hoạt động chính thức của hệ thống ThuongLo';
 $content = $pageData ? $pageData['content'] : '';
 $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
 ?>
@@ -109,7 +110,7 @@ $banner = ($pageData && !empty($pageData['image'])) ? $pageData['image'] : '';
         <div class="dynamic-terms-hero">
             <div class="container">
                 <h1><?= htmlspecialchars($title) ?></h1>
-                <p>Điều khoản dịch vụ và quy chế hoạt động chính thức của hệ thống ThuongLo</p>
+                <p><?= htmlspecialchars($subtitle) ?></p>
             </div>
         </div>
 
