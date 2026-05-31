@@ -350,7 +350,14 @@ class UserService extends BaseService
                 return false;
             }
             
-            return $wishlistModel->removeProduct($itemId);
+            // Check if this matches a wishlist item ID for this user first
+            $item = $wishlistModel->find($itemId);
+            if ($item && $item['user_id'] == $userId) {
+                return $wishlistModel->removeProduct($itemId);
+            }
+            
+            // Otherwise, treat as product ID and delete by user and product
+            return $wishlistModel->removeByProduct($userId, (int)$itemId);
         } catch (\Exception $e) {
             $this->handleError($e, ['method' => 'removeFromWishlist', 'user_id' => $userId, 'item_id' => $itemId]);
             return false;

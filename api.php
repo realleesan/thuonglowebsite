@@ -1076,7 +1076,7 @@ try {
                 $wishlistData = $userService->getWishlistData($_SESSION['user_id']);
                 
                 $productIds = array_map(function($item) {
-                    return $item['id'];
+                    return $item['product_id'];
                 }, $wishlistData['items'] ?? []);
                 
                 echo json_encode([
