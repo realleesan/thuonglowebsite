@@ -418,13 +418,37 @@ function getProductDataCount($productId) {
 
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
-        <div class="pagination">
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-            <a href="?page=admin&module=products&action=data&p=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
-               class="<?= $i === $page ? 'active' : '' ?>">
-                <?= $i ?>
-            </a>
-            <?php endfor; ?>
+        <div class="pagination-container">
+            <div class="pagination">
+                <?php if ($page > 1): ?>
+                    <a href="?page=admin&module=products&action=data&p=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
+                       class="pagination-btn">
+                        <i class="fas fa-chevron-left"></i>
+                        Trước
+                    </a>
+                <?php endif; ?>
+
+                <?php
+                $start_page = max(1, $page - 2);
+                $end_page = min($totalPages, $page + 2);
+                
+                for ($i = $start_page; $i <= $end_page; $i++): ?>
+                    <a href="?page=admin&module=products&action=data&p=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
+                       class="pagination-number <?= $i === $page ? 'active' : '' ?>"><?= $i ?></a>
+                <?php endfor; ?>
+
+                <?php if ($page < $totalPages): ?>
+                    <a href="?page=admin&module=products&action=data&p=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
+                       class="pagination-btn">
+                        Sau
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                <?php endif; ?>
+            </div>
+            
+            <div class="pagination-info">
+                Trang <?= $page ?> / <?= $totalPages ?>
+            </div>
         </div>
         <?php endif; ?>
     </div>
@@ -691,13 +715,38 @@ function getProductDataCount($productId) {
             
             <!-- Pagination -->
             <?php if ($dataPaginated && $dataPaginated['last_page'] > 1): ?>
-            <div class="pagination">
-                <?php for ($i = 1; $i <= $dataPaginated['last_page']; $i++): ?>
-                <a href="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=list&dm_page=<?= $i ?>" 
-                   class="<?= $i === $dmPage ? 'active' : '' ?>">
-                    <?= $i ?>
-                </a>
-                <?php endfor; ?>
+            <div class="pagination-container">
+                <div class="pagination">
+                    <?php if ($dmPage > 1): ?>
+                        <a href="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=list&dm_page=<?= $dmPage - 1 ?>" 
+                           class="pagination-btn">
+                            <i class="fas fa-chevron-left"></i>
+                            Trước
+                        </a>
+                    <?php endif; ?>
+
+                    <?php
+                    $total_dm_pages = $dataPaginated['last_page'];
+                    $start_dm_page = max(1, $dmPage - 2);
+                    $end_dm_page = min($total_dm_pages, $dmPage + 2);
+                    
+                    for ($i = $start_dm_page; $i <= $end_dm_page; $i++): ?>
+                        <a href="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=list&dm_page=<?= $i ?>" 
+                           class="pagination-number <?= $i === $dmPage ? 'active' : '' ?>"><?= $i ?></a>
+                    <?php endfor; ?>
+
+                    <?php if ($dmPage < $total_dm_pages): ?>
+                        <a href="?page=admin&module=products&action=data&id=<?= $selectedProductId ?>&tab=list&dm_page=<?= $dmPage + 1 ?>" 
+                           class="pagination-btn">
+                            Sau
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="pagination-info">
+                    Trang <?= $dmPage ?> / <?= $total_dm_pages ?>
+                </div>
             </div>
             <?php endif; ?>
             <?php else: ?>

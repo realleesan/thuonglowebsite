@@ -7,7 +7,7 @@
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>ThuongLo Affiliate</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url('logo/logo_mini.svg'); ?>">
+    <link rel="icon" type="image/svg+xml" href="<?php echo icon_url(get_favicon()); ?>">
     
     <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
