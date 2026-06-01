@@ -286,7 +286,7 @@ $performance_data = [
             <div class="link-item">
                 <label>Link chính:</label>
                 <div class="link-preview">
-                    <code id="mainReferralLink">https://thuonglo.com/?ref=<?= htmlspecialchars($affiliate['referral_code']) ?></code>
+                    <code id="mainReferralLink"><?= page_url('register', ['ref' => $affiliate['referral_code']]) ?></code>
                     <button type="button" class="btn btn-sm btn-outline" onclick="copyLink('mainReferralLink')">
                         <i class="fas fa-copy"></i>
                     </button>
@@ -296,7 +296,7 @@ $performance_data = [
             <div class="link-item">
                 <label>Link sản phẩm:</label>
                 <div class="link-preview">
-                    <code id="productReferralLink">https://thuonglo.com/products?ref=<?= htmlspecialchars($affiliate['referral_code']) ?></code>
+                    <code id="productReferralLink"><?= page_url('products', ['ref' => $affiliate['referral_code']]) ?></code>
                     <button type="button" class="btn btn-sm btn-outline" onclick="copyLink('productReferralLink')">
                         <i class="fas fa-copy"></i>
                     </button>

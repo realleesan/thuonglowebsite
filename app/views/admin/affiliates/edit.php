@@ -245,7 +245,7 @@ function formatPrice($price) {
                             <div class="link-item">
                                 <label>Link giới thiệu:</label>
                                 <div class="link-preview">
-                                    <code id="referral_link">https://thuonglo.com/?ref=<span id="ref_code_display"><?= htmlspecialchars($_POST['referral_code'] ?? $affiliate['referral_code']) ?></span></code>
+                                    <code id="referral_link"><?= page_url('register') ?>&ref=<span id="ref_code_display"><?= htmlspecialchars($_POST['referral_code'] ?? $affiliate['referral_code']) ?></span></code>
                                     <button type="button" class="btn btn-sm btn-outline" onclick="copyLink()">
                                         <i class="fas fa-copy"></i>
                                     </button>

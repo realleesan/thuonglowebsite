@@ -31,13 +31,19 @@ try {
             $marketingData = $service->getMarketingData($affiliateId);
             $banners = $marketingData['banners'] ?? [];
             $campaigns = $marketingData['campaigns'] ?? [];
+            $affiliateLink = $marketingData['referral_link'] ?? '';
+            $qrCodeUrl = $marketingData['qr_code_url'] ?? '';
         }
     }
     
-    // Generate marketing data
-    $referralCode = $affiliateInfo['referral_code'] ?? '';
-    $affiliateLink = !empty($referralCode) ? base_url() . '?ref=' . urlencode($referralCode) : '';
-    $qrCodeUrl = !empty($affiliateLink) ? "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($affiliateLink) : '';
+    // Generate marketing data if not populated by service
+    if (empty($affiliateLink)) {
+        $referralCode = $affiliateInfo['referral_code'] ?? '';
+        $affiliateLink = !empty($referralCode) ? page_url('register', ['ref' => $referralCode]) : '';
+    }
+    if (empty($qrCodeUrl)) {
+        $qrCodeUrl = !empty($affiliateLink) ? "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($affiliateLink) : '';
+    }
     
 } catch (Exception $e) {
     $errorHandler->handleViewError($e, 'affiliate_marketing', []);

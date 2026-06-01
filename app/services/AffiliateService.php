@@ -63,6 +63,14 @@ class AffiliateService extends BaseService
                 }
             }
 
+            // Tạo affiliate_link cho thông tin hiển thị trên Dashboard
+            $referralCode = $affiliateInfo['referral_code'] ?? '';
+            if (empty($referralCode)) {
+                $referralCode = $this->generateReferralCode($affiliate['id']);
+                $affiliateInfo['referral_code'] = $referralCode;
+            }
+            $affiliateInfo['affiliate_link'] = page_url('register', ['ref' => $referralCode]);
+
             // Lấy dashboard data từ AffiliateModel (sử dụng affiliate id từ bảng affiliates)
             $dashboardData = $affiliateModel->getDashboardData($affiliate['id']);
 
@@ -616,9 +624,8 @@ class AffiliateService extends BaseService
                 $referralCode = $this->generateReferralCode($affiliate['id']);
             }
 
-            // Base URL cho referral
-            $baseUrl = $_ENV['APP_URL'] ?? ($_SERVER['APP_URL'] ?? 'https://thuonglo.com');
-            $referralLink = $baseUrl . '?ref=' . $referralCode;
+            // Base URL cho referral (dẫn đến trang đăng ký ?page=register kèm mã ref)
+            $referralLink = page_url('register', ['ref' => $referralCode]);
 
             // QR Code URL (sử dụng API QR generator miễn phí)
             $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($referralLink);
