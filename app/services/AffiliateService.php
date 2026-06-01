@@ -27,6 +27,81 @@ class AffiliateService extends BaseService
     }
 
     /**
+     * Lấy thông tin đại lý hoặc tự động tạo mới cho tài khoản có quyền Admin/Affiliate nếu chưa tồn tại.
+     */
+    private function getOrCreateAffiliate(int $userId): ?array
+    {
+        try {
+            $affiliateModel = $this->getModel('AffiliateModel');
+            $usersModel = $this->getModel('UsersModel');
+            
+            if (!$affiliateModel) {
+                return null;
+            }
+
+            $affiliate = $affiliateModel->getByUserId($userId);
+            if ($affiliate) {
+                return $affiliate;
+            }
+
+            // Kiểm tra quyền
+            $isEligible = false;
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $userId && isset($_SESSION['user_role'])) {
+                if (in_array($_SESSION['user_role'], ['admin', 'affiliate'])) {
+                    $isEligible = true;
+                }
+            }
+
+            if (!$isEligible && $usersModel) {
+                $userData = $usersModel->findById($userId);
+                if ($userData && in_array($userData['role'] ?? '', ['admin', 'affiliate'])) {
+                    $isEligible = true;
+                }
+            }
+
+            if ($isEligible) {
+                error_log("DEBUG: Auto-creating affiliate record for eligible user_id={$userId}");
+                
+                // Tạo mã giới thiệu
+                $referralCode = 'REF' . str_pad($userId, 4, '0', STR_PAD_LEFT);
+                // Đảm bảo mã giới thiệu là duy nhất
+                $counter = 1;
+                while ($affiliateModel->getByReferralCode($referralCode)) {
+                    $referralCode = 'REF' . str_pad($userId, 4, '0', STR_PAD_LEFT) . $counter;
+                    $counter++;
+                }
+
+                $newAffiliateData = [
+                    'user_id' => $userId,
+                    'referral_code' => $referralCode,
+                    'commission_rate' => 10,
+                    'status' => 'active', // Kích hoạt ngay lập tức
+                    'total_sales' => 0,
+                    'total_commission' => 0,
+                    'paid_commission' => 0,
+                    'pending_commission' => 0,
+                    'balance' => 0,
+                    'pending_withdrawal' => 0,
+                    'total_withdrawn' => 0
+                ];
+                
+                $affiliateModel->create($newAffiliateData);
+                
+                // Lấy lại thông tin đại lý sau khi tạo thành công
+                return $affiliateModel->getByUserId($userId);
+            }
+        } catch (\Exception $e) {
+            error_log("DEBUG: Error in getOrCreateAffiliate: " . $e->getMessage());
+        }
+
+        return null;
+    }
+
+
+    /**
      * Data cho Affiliate Dashboard (tổng quan).
      */
     public function getDashboardData(int $affiliateId): array
@@ -44,8 +119,8 @@ class AffiliateService extends BaseService
             }
 
             // Lấy thông tin affiliate + user (tìm theo user_id)
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
-            error_log("DEBUG getDashboardData: getByUserId({$affiliateId}) result=" . ($affiliate ? 'FOUND id=' . $affiliate['id'] : 'NULL'));
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
+            error_log("DEBUG getDashboardData: getOrCreateAffiliate({$affiliateId}) result=" . ($affiliate ? 'FOUND id=' . $affiliate['id'] : 'NULL'));
             if (!$affiliate) {
                 error_log("DEBUG getDashboardData: Affiliate not found, returning empty data");
                 return $this->getEmptyData();
@@ -192,7 +267,7 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
             if (!$affiliate) {
                 return $this->getEmptyData();
             }
@@ -224,7 +299,7 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
             if (!$affiliate) {
                 return $this->getEmptyData();
             }
@@ -394,7 +469,7 @@ class AffiliateService extends BaseService
             }
 
             // Verify affiliate exists
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
             if (!$affiliate) {
                 return $this->getEmptyData();
             }
@@ -506,7 +581,7 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($userId);
+            $affiliate = $this->getOrCreateAffiliate($userId);
             if (!$affiliate) {
                 return $this->getEmptyData();
             }
@@ -575,7 +650,7 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
             if (!$affiliate) {
                 return [];
             }
@@ -613,7 +688,7 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
             if (!$affiliate) {
                 return $this->getEmptyData();
             }
@@ -704,7 +779,7 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
             if (!$affiliate) {
                 return $this->getEmptyClicksData();
             }
@@ -778,7 +853,7 @@ class AffiliateService extends BaseService
             }
 
             // Lấy affiliate theo user_id
-            $affiliate = $affiliateModel->getByUserId($affiliateId);
+            $affiliate = $this->getOrCreateAffiliate($affiliateId);
             if (!$affiliate) {
                 return $this->getEmptyOrdersData();
             }
