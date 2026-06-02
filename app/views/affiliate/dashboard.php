@@ -191,61 +191,7 @@ ob_start();
     </div>
 </div>
 
-<!-- Charts Section -->
-<div class="dashboard-section">
-    <div class="charts-grid" 
-         data-revenue-labels='<?php echo json_encode($revenueChart['labels']); ?>'
-         data-revenue-data='<?php echo json_encode($revenueChart['data']); ?>'
-         data-clicks-labels='<?php echo json_encode($clicksChart['labels']); ?>'
-         data-clicks-data='<?php echo json_encode($clicksChart['data']); ?>'
-         data-conversion-labels='<?php echo json_encode($conversionChart['labels']); ?>'
-         data-conversion-data='<?php echo json_encode($conversionChart['data']); ?>'>
-        <!-- Revenue Chart -->
-        <div class="chart-card">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-line"></i>
-                        Doanh thu theo tuần
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-        </div>
 
-        <!-- Clicks Chart -->
-        <div class="chart-card">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-bar"></i>
-                        Lượt click theo tuần
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="clicksChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Conversion Chart -->
-        <div class="chart-card">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-pie"></i>
-                        Tỉ lệ chuyển đổi
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="conversionChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Recent Customers & Commission Status -->
 <div class="dashboard-section">

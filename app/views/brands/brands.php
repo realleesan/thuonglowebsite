@@ -288,7 +288,10 @@ if (!function_exists('getBrandSortOptions')) {
                                     <div class="sidebar-content">
                                         <!-- Product Count Filter -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title"><i class="fas fa-boxes"></i> Số lượng sản phẩm</h3>
+                                            <h3 class="filter-title">
+                                                <div class="title-icon-wrapper"><i class="fas fa-boxes"></i> Số lượng sản phẩm</div>
+                                                <i class="fas fa-chevron-down chevron-icon"></i>
+                                            </h3>
                                             <div class="filter-content">
                                                 <ul class="category-list">
                                                     <li class="category-item <?php echo empty($minProducts) ? 'active' : ''; ?>">
@@ -337,7 +340,7 @@ if (!function_exists('getBrandSortOptions')) {
 
                                         <!-- Actions -->
                                         <div class="filter-actions">
-                                            <button type="submit" class="apply-filters-btn">Áp dụng</button>
+                                            <button type="submit" class="apply-filters-btn">Áp dụng bộ lọc</button>
                                             <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=brands'">Đặt lại</button>
                                         </div>
                                     </div>

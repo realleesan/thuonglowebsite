@@ -9,7 +9,7 @@
 
 .news-layout {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 300px;
     gap: 40px;
     align-items: start;
 }
@@ -20,7 +20,28 @@
 }
 
 .news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 40px;
+}
+
+.filter-toggle-btn {
+    display: none;
+    background: none;
+    border: 2px solid #356df1;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-toggle-btn:hover {
+    background-color: #356df1;
+}
+
+.filter-toggle-btn:hover svg path {
+    fill: #ffffff;
 }
 
 .page-title {
@@ -435,6 +456,10 @@
     .news-layout {
         grid-template-columns: 1fr;
         gap: 40px;
+    }
+
+    .filter-toggle-btn {
+        display: block;
     }
 
     /* Mobile sidebar styles are now unified in products.css */

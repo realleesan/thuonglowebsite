@@ -47,6 +47,7 @@ try {
         $overview['pending_commission'] = $commissionsData['pending_commission'] ?? 0;
         $overview['paid_commission'] = $commissionsData['paid_commission'] ?? 0;
         $overview['total_earned'] = $overview['total_commission'];
+        $history = $commissionsData['history'] ?? [];
         
         // Get subscription vs logistics breakdown from database
         $overview['from_subscription'] = $commissionsData['from_subscription'] ?? ($overview['total_commission'] * 0.7);

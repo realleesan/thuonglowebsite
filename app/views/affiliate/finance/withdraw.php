@@ -26,6 +26,25 @@ $withdrawalSettings = [
     'rules' => []
 ];
 
+// Danh sách các ngân hàng được hỗ trợ bởi cổng PayOS
+$supportedBanksList = [
+    'MB Bank' => 'MB Bank (MB)',
+    'Vietcombank' => 'Vietcombank (VCB)',
+    'BIDV' => 'BIDV',
+    'Agribank' => 'Agribank (AGB)',
+    'OCB' => 'OCB',
+    'VietinBank' => 'VietinBank (CTG)',
+    'Sacombank' => 'Sacombank (STB)',
+    'Techcombank' => 'Techcombank (TCB)',
+    'ACB' => 'ACB',
+    'DongA Bank' => 'DongA Bank (DAB)',
+    'TPBank' => 'TPBank (TPB)',
+    'HDBank' => 'HDBank (HDB)',
+    'VPBank' => 'VPBank (VPB)',
+    'SHB' => 'SHB',
+    'VietCapital Bank' => 'VietCapital Bank (Bản Việt)'
+];
+
 try {
     if ($service) {
         // Get current affiliate ID from session
@@ -125,13 +144,30 @@ ob_start();
                 <!-- Bank Name -->
                 <div class="form-subgroup">
                     <label class="form-sublabel">Tên ngân hàng</label>
-                    <input type="text"
-                           class="form-input"
-                           id="bankName"
-                           name="bank_name"
-                           placeholder="VD: Vietcombank, Techcombank, BIDV..."
-                           value="<?php echo !empty($bankAccounts) ? htmlspecialchars($bankAccounts[0]['bank_name']) : ''; ?>"
-                           required>
+                    <?php $savedBank = !empty($bankAccounts) ? $bankAccounts[0]['bank_name'] : ''; ?>
+                    <select class="form-select" id="bankName" name="bank_name" required>
+                        <option value="">-- Chọn ngân hàng --</option>
+                        <?php foreach ($supportedBanksList as $key => $label): ?>
+                            <?php 
+                            $selected = false;
+                            if (!empty($savedBank)) {
+                                if (strcasecmp($savedBank, $key) === 0) {
+                                    $selected = true;
+                                } else {
+                                    // Chuẩn hóa chuỗi để so khớp mềm dẻo (không quan tâm viết hoa/thường, khoảng trắng, chữ bank)
+                                    $cleanSaved = str_replace([' bank', 'bank', ' '], '', mb_strtolower($savedBank, 'UTF-8'));
+                                    $cleanKey = str_replace([' bank', 'bank', ' '], '', mb_strtolower($key, 'UTF-8'));
+                                    if ($cleanSaved === $cleanKey) {
+                                        $selected = true;
+                                    }
+                                }
+                            }
+                            ?>
+                            <option value="<?php echo htmlspecialchars($key); ?>" <?php echo $selected ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
                 <!-- Account Number -->

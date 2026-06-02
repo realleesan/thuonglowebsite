@@ -48,6 +48,8 @@ try {
             'pending_withdrawal' => $financeData['pending_withdrawal'] ?? 0,
             'pending_commission' => $financeData['pending_commission'] ?? 0
         ];
+
+        $transactions = $financeData['transactions'] ?? [];
         
         // Get withdrawal settings from service
         $withdrawalSettings = $service->getWithdrawalSettings($affiliateId) ?? [

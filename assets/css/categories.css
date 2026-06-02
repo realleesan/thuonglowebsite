@@ -388,6 +388,10 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
+
+    .filter-toggle-btn {
+        display: block;
+    }
 }
 
 @media (max-width: 768px) {

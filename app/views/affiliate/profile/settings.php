@@ -15,7 +15,18 @@ $profileData = [
     'name' => '',
     'email' => '',
     'affiliate_link' => '',
-    'referral_code' => ''
+    'referral_code' => '',
+    'bank_info' => [
+        'bank_name' => '',
+        'account_number' => '',
+        'account_holder' => '',
+        'branch' => ''
+    ]
+];
+
+$bankList = [
+    'MB Bank', 'Vietcombank', 'BIDV', 'Agribank', 'OCB', 'VietinBank', 'Sacombank',
+    'Techcombank', 'ACB', 'DongA Bank', 'TPBank', 'HDBank', 'VPBank', 'SHB', 'VietCapital Bank'
 ];
 
 try {
@@ -37,15 +48,17 @@ try {
         
         $profileData = $dashboardData['affiliate'] ?? $profileData;
         
-        // Get bank list from service
-        $bankList = $service->getBankList($affiliateId) ?? [
-            'Vietcombank', 'Techcombank', 'VietinBank', 'BIDV', 'ACB', 'MB Bank', 'VPBank'
+        // Populate bank_info structure from flat fields in database
+        $profileData['bank_info'] = [
+            'bank_name' => $profileData['bank_name'] ?? '',
+            'account_number' => $profileData['bank_account'] ?? '',
+            'account_holder' => $profileData['account_holder'] ?? '',
+            'branch' => $profileData['branch'] ?? ''
         ];
     }
 } catch (Exception $e) {
     $errorHandler->handleViewError($e, 'affiliate_profile', []);
     error_log('Profile Settings Error: ' . $e->getMessage());
-    $bankList = ['Vietcombank', 'Techcombank', 'VietinBank', 'BIDV', 'ACB', 'MB Bank', 'VPBank'];
 }
 
 // Page title
@@ -216,10 +229,28 @@ ob_start();
                 <form id="bankAccountForm" class="profile-form">
                     <div class="form-group">
                         <label class="form-label required">Tên Ngân Hàng</label>
+                        <?php $savedBankName = $profileData['bank_info']['bank_name'] ?? ''; ?>
                         <select class="form-select" name="bank_name" required>
                             <option value="">-- Chọn ngân hàng --</option>
                             <?php foreach ($bankList as $bank): ?>
-                            <option value="<?php echo htmlspecialchars($bank); ?>" <?php echo ($profileData['bank_info']['bank_name'] ?? '') === $bank ? 'selected' : ''; ?>><?php echo htmlspecialchars($bank); ?></option>
+                                <?php 
+                                $selected = false;
+                                if (!empty($savedBankName)) {
+                                    if (strcasecmp($savedBankName, $bank) === 0) {
+                                        $selected = true;
+                                    } else {
+                                        // Chuẩn hóa chuỗi để so khớp mềm dẻo (không quan tâm viết hoa/thường, khoảng trắng, chữ bank)
+                                        $cleanSaved = str_replace([' bank', 'bank', ' '], '', mb_strtolower($savedBankName, 'UTF-8'));
+                                        $cleanBank = str_replace([' bank', 'bank', ' '], '', mb_strtolower($bank, 'UTF-8'));
+                                        if ($cleanSaved === $cleanBank) {
+                                            $selected = true;
+                                        }
+                                    }
+                                }
+                                ?>
+                                <option value="<?php echo htmlspecialchars($bank); ?>" <?php echo $selected ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($bank); ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>

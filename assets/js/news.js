@@ -1,185 +1,152 @@
 // News Page JavaScript
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize news page functionality
     initializeNewsPage();
 });
 
 function initializeNewsPage() {
+    // Initialize filter toggle
+    initializeFilterToggle();
+
     // Initialize filter functionality
     initializeFilterFunctionality();
-    
+
+    // Initialize filter accordion
+    initializeFilterAccordion();
+
     // Initialize pagination
     initializePagination();
-    
+
     // Initialize responsive behavior
     initializeResponsiveBehavior();
-    
+
     // Initialize news item interactions
     initializeNewsInteractions();
 }
 
+// Filter Accordion Functionality
+function initializeFilterAccordion() {
+    const filterTitles = document.querySelectorAll('.filter-title');
+
+    filterTitles.forEach(title => {
+        title.addEventListener('click', function (e) {
+            if (window.innerWidth <= 1024) {
+                // Toggle active class to show/hide content via CSS
+                this.classList.toggle('active');
+            }
+        });
+    });
+}
+
+// Filter Toggle Functionality
+function initializeFilterToggle() {
+    const filterToggleBtn = document.getElementById('filterToggle');
+    const sidebar = document.getElementById('newsSidebar');
+    const sidebarClose = document.getElementById('sidebarClose');
+
+    if (filterToggleBtn && sidebar) {
+        // Create overlay for mobile
+        let overlay = document.querySelector('.sidebar-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+        }
+
+        filterToggleBtn.addEventListener('click', function () {
+            toggleSidebar(sidebar, overlay);
+        });
+
+        // Close sidebar when clicking overlay
+        overlay.addEventListener('click', function () {
+            closeSidebar(sidebar, overlay);
+        });
+
+        // Close sidebar with close button
+        if (sidebarClose) {
+            sidebarClose.addEventListener('click', function () {
+                closeSidebar(sidebar, overlay);
+            });
+        }
+
+        // Close sidebar on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                closeSidebar(sidebar, overlay);
+            }
+        });
+    }
+}
+
+function toggleSidebar(sidebar, overlay) {
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    document.body.classList.toggle('sidebar-open');
+}
+
+function closeSidebar(sidebar, overlay) {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.classList.remove('sidebar-open');
+}
+
 // Filter Functionality
 function initializeFilterFunctionality() {
-    const resetBtn = document.querySelector('.reset-filters-btn');
-    const applyBtn = document.querySelector('.apply-filters-btn');
-    const filterLinks = document.querySelectorAll('.category-list a, .links-list a, .tags-cloud a');
-    
-    // Reset filters
-    if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-            resetAllFilters();
-        });
-    }
-    
-    // Apply filters
-    if (applyBtn) {
-        applyBtn.addEventListener('click', function() {
-            applyFilters();
-        });
-    }
-    
-    // Filter link clicks
-    filterLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleFilterSelection(this);
-        });
-    });
-}
+    const filterItems = document.querySelectorAll('.category-item-content');
 
-function resetAllFilters() {
-    // Remove active and filter-active states from all filter links
-    const activeFilters = document.querySelectorAll('.category-list a, .links-list a, .tags-cloud a');
-    activeFilters.forEach(filter => {
-        filter.classList.remove('filter-active');
-        const filterType = filter.getAttribute('data-filter-type');
-        
-        // Reset styles based on filter type
-        if (filterType === 'tag') {
-            filter.style.backgroundColor = '';
-            filter.style.color = '';
-            filter.style.borderColor = '';
-            filter.style.fontWeight = '';
-        } else {
-            filter.style.color = '';
-            filter.style.fontWeight = '';
-            filter.style.backgroundColor = '';
-        }
-    });
-    
-    console.log('All filters reset');
-    
-    // Redirect to news page without filters
-    window.location.href = '?page=news';
-}
+    filterItems.forEach(item => {
+        item.addEventListener('click', function (e) {
+            const checkbox = this.querySelector('input[type="checkbox"]');
+            const radio = this.querySelector('input[type="radio"]');
 
-function applyFilters() {
-    const activeFilters = document.querySelectorAll('.filter-active');
-    const filterParams = {
-        page: 'news'
-    };
-    const tags = []; // Array to store multiple tags
-    
-    activeFilters.forEach(filter => {
-        const filterType = filter.getAttribute('data-filter-type');
-        const filterValue = filter.getAttribute('data-filter-value');
-        
-        if (filterValue) {
-            // For tags, collect them in an array
-            if (filterType === 'tag') {
-                tags.push(filterValue);
-            } else {
-                filterParams[filterType] = filterValue;
+            // If we didn't click the input or label directly, toggle/select the input
+            if (e.target.tagName !== 'INPUT' && !e.target.closest('label')) {
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                } else if (radio) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             }
-        }
-    });
-    
-    console.log('Applying filters:', filterParams, 'Tags:', tags);
-    
-    // Build URL with filter parameters
-    let queryParts = [];
-    
-    // Add regular parameters
-    Object.keys(filterParams).forEach(key => {
-        queryParts.push(`${key}=${encodeURIComponent(filterParams[key])}`);
-    });
-    
-    // Add multiple tags as separate parameters
-    tags.forEach(tag => {
-        queryParts.push(`tag[]=${encodeURIComponent(tag)}`);
-    });
-    
-    const queryString = queryParts.join('&');
-    
-    // Redirect to filtered page
-    window.location.href = '?' + queryString;
-}
 
-function toggleFilterSelection(filterLink) {
-    const filterType = filterLink.getAttribute('data-filter-type');
-    
-    // For category and sort, only allow one selection at a time
-    if (filterType === 'category' || filterType === 'sort') {
-        // Remove filter-active from siblings
-        const siblings = filterLink.closest('ul, .tags-cloud').querySelectorAll('a');
-        siblings.forEach(sibling => {
-            if (sibling !== filterLink) {
-                sibling.classList.remove('filter-active');
-                sibling.style.color = '';
-                sibling.style.fontWeight = '';
-                sibling.style.backgroundColor = '';
+            // Update active class based on state
+            if (checkbox) {
+                const li = this.closest('.category-item');
+                if (checkbox.checked) {
+                    li.classList.add('active');
+                } else {
+                    li.classList.remove('active');
+                }
+            } else if (radio) {
+                const section = this.closest('.filter-section');
+                if (section) {
+                    section.querySelectorAll('.category-item').forEach(li => li.classList.remove('active'));
+                }
+                const li = this.closest('.category-item');
+                if (radio.checked) {
+                    li.classList.add('active');
+                }
             }
         });
-    }
-    // For tags, allow multiple selections (no need to clear siblings)
-    
-    // Toggle current filter
-    filterLink.classList.toggle('filter-active');
-    
-    // Add visual feedback based on filter type
-    if (filterLink.classList.contains('filter-active')) {
-        if (filterType === 'tag') {
-            // Tags: blue background + white text
-            filterLink.style.backgroundColor = '#356df1';
-            filterLink.style.color = '#ffffff';
-            filterLink.style.borderColor = '#356df1';
-            filterLink.style.fontWeight = '500';
-        } else {
-            // Category & Sort: blue text only
-            filterLink.style.color = '#356df1';
-            filterLink.style.fontWeight = '600';
-            filterLink.style.backgroundColor = 'transparent';
-        }
-    } else {
-        // Reset styles
-        if (filterType === 'tag') {
-            filterLink.style.backgroundColor = '';
-            filterLink.style.color = '';
-            filterLink.style.borderColor = '';
-            filterLink.style.fontWeight = '';
-        } else {
-            filterLink.style.color = '';
-            filterLink.style.fontWeight = '';
-            filterLink.style.backgroundColor = '';
-        }
-    }
+    });
 }
 
 // Pagination Functionality
 function initializePagination() {
     const pageLinks = document.querySelectorAll('.page-link');
-    
+
     pageLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             if (this.classList.contains('active')) {
                 e.preventDefault();
                 return;
             }
-            
+
             // Show loading state
             showLoadingState();
-            
+
             // Allow normal navigation
             // The page will reload with new pagination
         });
@@ -189,25 +156,29 @@ function initializePagination() {
 // Responsive Behavior
 function initializeResponsiveBehavior() {
     let resizeTimer;
-    
-    window.addEventListener('resize', function() {
+
+    window.addEventListener('resize', function () {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             handleResize();
         }, 250);
     });
-    
+
     // Initial check
     handleResize();
 }
 
 function handleResize() {
     const sidebar = document.getElementById('newsSidebar');
-    
+    const overlay = document.querySelector('.sidebar-overlay');
+
     if (window.innerWidth > 1024) {
         // Desktop view - ensure sidebar is visible
         if (sidebar) {
             sidebar.classList.remove('active');
+        }
+        if (overlay) {
+            overlay.classList.remove('active');
         }
         document.body.classList.remove('sidebar-open');
     }
@@ -217,39 +188,39 @@ function handleResize() {
 function initializeNewsInteractions() {
     // Add hover effect for news items
     const newsItems = document.querySelectorAll('.news-item');
-    
+
     newsItems.forEach(item => {
-        item.addEventListener('mouseenter', function() {
+        item.addEventListener('mouseenter', function () {
             this.style.transition = 'all 0.3s ease';
         });
     });
-    
+
     // Track news clicks for analytics
     const newsLinks = document.querySelectorAll('.news-title a, .read-more');
-    
+
     newsLinks.forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function () {
             const newsTitle = this.closest('.news-item').querySelector('.news-title a').textContent.trim();
             console.log('News clicked:', newsTitle);
-            
+
             // Here you could send analytics data
             // trackNewsClick(newsTitle);
         });
     });
-    
+
     // Read more link animation
     const readMoreLinks = document.querySelectorAll('.read-more');
-    
+
     readMoreLinks.forEach(link => {
-        link.addEventListener('mouseenter', function() {
+        link.addEventListener('mouseenter', function () {
             this.style.transform = 'translateX(5px)';
         });
-        
-        link.addEventListener('mouseleave', function() {
+
+        link.addEventListener('mouseleave', function () {
             this.style.transform = 'translateX(0)';
         });
     });
-    
+
     // Lazy loading for images
     if ('IntersectionObserver' in window) {
         const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -264,7 +235,7 @@ function initializeNewsInteractions() {
                 }
             });
         });
-        
+
         const lazyImages = document.querySelectorAll('img[data-src]');
         lazyImages.forEach(img => imageObserver.observe(img));
     }
@@ -277,7 +248,7 @@ function showLoadingState() {
         newsList.style.opacity = '0.6';
         newsList.style.pointerEvents = 'none';
     }
-    
+
     // Add loading spinner
     const loadingSpinner = document.createElement('div');
     loadingSpinner.className = 'loading-spinner';
@@ -289,7 +260,7 @@ function showLoadingState() {
         transform: translate(-50%, -50%);
         z-index: 9999;
     `;
-    
+
     const spinnerCSS = `
         .spinner {
             width: 40px;
@@ -305,14 +276,14 @@ function showLoadingState() {
             100% { transform: rotate(360deg); }
         }
     `;
-    
+
     if (!document.querySelector('#spinner-styles')) {
         const style = document.createElement('style');
         style.id = 'spinner-styles';
         style.textContent = spinnerCSS;
         document.head.appendChild(style);
     }
-    
+
     document.body.appendChild(loadingSpinner);
 }
 
@@ -322,7 +293,7 @@ function hideLoadingState() {
         newsList.style.opacity = '';
         newsList.style.pointerEvents = '';
     }
-    
+
     const loadingSpinner = document.querySelector('.loading-spinner');
     if (loadingSpinner) {
         loadingSpinner.remove();
@@ -339,7 +310,5 @@ function scrollToTop() {
 // Export functions for external use if needed
 window.NewsPage = {
     showLoadingState,
-    hideLoadingState,
-    resetAllFilters,
-    applyFilters
+    hideLoadingState
 };

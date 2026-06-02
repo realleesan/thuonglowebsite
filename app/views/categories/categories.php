@@ -220,10 +220,13 @@ $displayedCategories = $categories; // Already paginated by service
 
                             <!-- Right Column - Sidebar -->
                             <div class="categories-sidebar" id="categoriesSidebar">
-                                <form method="get" action="">
+                                <form method="get" action="" class="filter-form">
                                     <input type="hidden" name="page" value="categories">
+                                    <?php if ($orderBy): ?>
+                                        <input type="hidden" name="order_by" value="<?php echo htmlspecialchars($orderBy); ?>">
+                                    <?php endif; ?>
                                     <div class="sidebar-header">
-                                        <h3>Bộ Lọc</h3>
+                                        <h3>Bộ lọc</h3>
                                         <button type="button" class="sidebar-close" id="sidebarClose">
                                             <i class="fas fa-times"></i>
                                         </button>
@@ -231,7 +234,10 @@ $displayedCategories = $categories; // Already paginated by service
                                     <div class="sidebar-content">
                                         <!-- Course Count Filter (Radio Buttons) -->
                                         <div class="filter-section">
-                                            <h3 class="filter-title"><i class="fas fa-layer-group"></i> Số lượng sản phẩm</h3>
+                                            <h3 class="filter-title">
+                                                <div class="title-icon-wrapper"><i class="fas fa-layer-group"></i> Số lượng sản phẩm</div>
+                                                <i class="fas fa-chevron-down chevron-icon"></i>
+                                            </h3>
                                             <div class="filter-content">
                                                 <ul class="category-list">
                                                     <?php
@@ -297,8 +303,8 @@ $displayedCategories = $categories; // Already paginated by service
 
                                         <!-- Actions -->
                                         <div class="filter-actions">
-                                            <button type="button" class="apply-filters-btn" onclick="applyCategoryFilters()">Áp Dụng</button>
-                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=categories'">Đặt Lại</button>
+                                            <button type="submit" class="apply-filters-btn">Áp dụng bộ lọc</button>
+                                            <button type="button" class="reset-filters-btn" onclick="window.location.href='?page=categories'">Đặt lại</button>
                                         </div>
                                     </div>
                                 </form>
@@ -310,21 +316,3 @@ $displayedCategories = $categories; // Already paginated by service
         </div>
     </div>
 </div>
-
-<script>
-function applyCategoryFilters() {
-    // Get selected min products
-    const minProductsRadio = document.querySelector('input[name="min_products"]:checked');
-    const minProducts = minProductsRadio ? minProductsRadio.value : '';
-    
-    // Build URL - stay on categories page with min_products filter
-    let url = '?page=categories';
-    
-    if (minProducts) {
-        url += '&min_products=' + minProducts;
-    }
-    
-    // Redirect
-    window.location.href = url;
-}
-</script>

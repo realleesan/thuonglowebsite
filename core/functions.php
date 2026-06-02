@@ -374,11 +374,12 @@ if (!function_exists('versioned_asset')) {
         $assetUrl = asset_url($path);
         
         // Add version parameter for cache busting
-        if (isset($config['performance']['cache_assets']) && $config['performance']['cache_assets']) {
-            $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/assets/' . ltrim($path, '/');
-            $version = file_exists($fullPath) ? filemtime($fullPath) : time();
-            $assetUrl .= '?v=' . $version;
+        $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/assets/' . ltrim($path, '/');
+        if (!file_exists($fullPath)) {
+            $fullPath = __DIR__ . '/../assets/' . ltrim($path, '/');
         }
+        $version = file_exists($fullPath) ? filemtime($fullPath) : time();
+        $assetUrl .= '?v=' . $version;
         
         return $assetUrl;
     }
