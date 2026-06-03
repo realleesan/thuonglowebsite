@@ -334,56 +334,262 @@ document.addEventListener('keydown', function(e) {
     scheduleNextBlur();
 })();
 
-// Content Protection - Prevent copy, print, screenshot, right-click
+// Content Protection - Prevent copy, print, screenshot, right-click, F12
 (function initContentProtection() {
     if (!ENABLE_CONTENT_PROTECTION) return;
 
     // Create overlay element for blur protection
     const overlay = document.createElement('div');
     overlay.id = 'protection-overlay';
-    overlay.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;backdrop-filter:blur(20px);';
+    overlay.innerHTML = '<div class="overlay-content"></div>';
     document.body.appendChild(overlay);
 
-    // Disable keyboard shortcuts: Ctrl+C, Ctrl+V, Ctrl+U, Print Screen
+    let isDevToolsOpen = false;
+    let isWindowBlurred = false;
+    let screenshotWarningActive = false;
+
+    // Show protection overlay with specific reasons
+    function showProtectionOverlay(reason) {
+        if (!overlay) return;
+        
+        const content = overlay.querySelector('.overlay-content');
+        if (content) {
+            // If screenshot warning is active, force the screenshot warning message!
+            const activeReason = screenshotWarningActive ? 'screenshot' : reason;
+            
+            if (activeReason === 'devtools') {
+                content.innerHTML = `
+                    <div class="lock-icon"><i class="fas fa-terminal"></i></div>
+                    <h2>PHÁT HIỆN DEVELOPER TOOLS</h2>
+                    <p>Vui lòng đóng Developer Tools (F12) để tiếp tục xem nội dung dữ liệu sản phẩm.</p>
+                `;
+            } else if (activeReason === 'blur') {
+                content.innerHTML = `
+                    <div class="lock-icon"><i class="fas fa-eye-slash"></i></div>
+                    <h2>NỘI DUNG ĐƯỢC BẢO VỆ</h2>
+                    <p>Nhấp vào bất kỳ đâu trên màn hình này để tiếp tục xem.</p>
+                `;
+            } else if (activeReason === 'screenshot') {
+                content.innerHTML = `
+                    <div class="lock-icon"><i class="fas fa-camera"></i></div>
+                    <h2>CHỤP MÀN HÌNH BỊ CHẶN</h2>
+                    <p>Hệ thống không cho phép chụp ảnh hoặc quay màn hình nội dung này. Clipboard của bạn đã bị xóa.</p>
+                    <p style="margin-top: 15px; font-size: 13px; color: #ef4444; font-weight: 600;">Nhấp vào bất kỳ đâu trên màn hình này để tiếp tục xem.</p>
+                `;
+            }
+        }
+        
+        overlay.style.display = 'flex';
+        document.body.classList.add('protection-active');
+    }
+
+    // Hide protection overlay if safe
+    function hideProtectionOverlay() {
+        if (isDevToolsOpen) {
+            showProtectionOverlay('devtools');
+            return;
+        }
+        if (screenshotWarningActive) {
+            showProtectionOverlay('screenshot');
+            return;
+        }
+        if (document.hidden || !document.hasFocus()) {
+            showProtectionOverlay('blur');
+            return;
+        }
+        
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        document.body.classList.remove('protection-active');
+    }
+
+    // Safe dismissal check for the overlay
+    function dismissOverlayIfSafe() {
+        if (isDevToolsOpen || screenshotWarningActive) return;
+        
+        // Hide only if window actually has focus and page is visible
+        if (document.hasFocus() && document.visibilityState === 'visible') {
+            isWindowBlurred = false;
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+            document.body.classList.remove('protection-active');
+        }
+    }
+
+    // Click anywhere on overlay to dismiss it
+    overlay.addEventListener('click', dismissOverlayIfSafe);
+
+    // Also support scroll/keydown to dismiss the overlay (only if focused/visible/safe)
+    window.addEventListener('scroll', dismissOverlayIfSafe, { passive: true });
+    document.addEventListener('mousedown', dismissOverlayIfSafe);
+
+    // Trigger screenshot warning (Instantly kick to homepage)
+    function triggerScreenshotWarning() {
+        // Overwrite clipboard
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText('[Nội dung đã được bảo vệ - THUONGLO.COM]').catch(() => {});
+        }
+        window.location.replace('index.php');
+    }
+
+    // DevTools Detection Module
+    const DevToolsDetector = {
+        isOpen: false,
+        onChange: null,
+        
+        init(callback) {
+            this.onChange = callback;
+            
+            // Listen to resize
+            window.addEventListener('resize', () => this.detect());
+            
+            // Continuous size & property check
+            setInterval(() => this.detect(), 1000);
+            
+            // Debugger detection loop
+            this.runDebuggerCheck();
+            
+            // Console format getter check
+            this.runConsoleCheck();
+            
+            this.detect();
+        },
+        
+        detect() {
+            let open = false;
+            const threshold = 160;
+            
+            const widthDiff = window.outerWidth - window.innerWidth;
+            const heightDiff = window.outerHeight - window.innerHeight;
+            
+            // Desktop dimensions difference check
+            if (window.innerWidth > 768 && (widthDiff > threshold || heightDiff > threshold)) {
+                open = true;
+            }
+            
+            if (open !== this.isOpen) {
+                this.isOpen = open;
+                if (this.onChange) this.onChange(open);
+            }
+        },
+        
+        runDebuggerCheck() {
+            const self = this;
+            (function check() {
+                const start = performance.now();
+                debugger;
+                const end = performance.now();
+                if (end - start > 100) {
+                    if (!self.isOpen) {
+                        self.isOpen = true;
+                        if (self.onChange) self.onChange(true);
+                    }
+                }
+                setTimeout(check, 500);
+            })();
+        },
+        
+        runConsoleCheck() {
+            const self = this;
+            const element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function() {
+                    if (!self.isOpen) {
+                        self.isOpen = true;
+                        if (self.onChange) self.onChange(true);
+                    }
+                }
+            });
+            
+            setInterval(() => {
+                console.log(element);
+                console.clear();
+            }, 1000);
+        }
+    };
+
+    // Initialize DevToolsDetector
+    DevToolsDetector.init((isOpen) => {
+        isDevToolsOpen = isOpen;
+        if (isOpen) {
+            showProtectionOverlay('devtools');
+        } else {
+            hideProtectionOverlay();
+        }
+    });
+
+    // Disable keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        // Ctrl+C (Copy)
-        if (e.ctrlKey && e.key === 'c') {
+        // F12 key
+        if (e.key === 'F12' || e.keyCode === 123) {
             e.preventDefault();
             return false;
         }
-        // Ctrl+V (Paste)
-        if (e.ctrlKey && e.key === 'v') {
+        
+        // Inspect Shortcuts (Ctrl+Shift+I / J / C)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && 
+            (e.key === 'I' || e.key === 'i' || 
+             e.key === 'J' || e.key === 'j' || 
+             e.key === 'C' || e.key === 'c' || 
+             e.key === 'K' || e.key === 'k')) {
             e.preventDefault();
             return false;
         }
-        // Ctrl+U (View Source)
-        if (e.ctrlKey && e.key === 'u') {
+        
+        // macOS Inspector Shortcuts (Cmd+Alt+I / J / C)
+        if (e.metaKey && e.altKey && 
+            (e.key === 'I' || e.key === 'i' || 
+             e.key === 'J' || e.key === 'j' || 
+             e.key === 'C' || e.key === 'c')) {
             e.preventDefault();
             return false;
         }
-        // Print Screen key detection (limited, will trigger overlay)
+
+        // Copy & Paste
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C' || e.key === 'v' || e.key === 'V')) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // View Source
+        if (((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) || 
+            (e.metaKey && e.altKey && (e.key === 'u' || e.key === 'U'))) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Print Screen (PrtScn)
         if (e.key === 'PrintScreen' || e.keyCode === 44 || e.code === 'PrintScreen') {
             e.preventDefault();
-            showProtectionOverlay();
-            // Try to clear clipboard
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText('[Protected Content]').catch(() => {});
-            }
-            setTimeout(hideProtectionOverlay, 500);
+            triggerScreenshotWarning();
             return false;
         }
-        // Ctrl+P (Print)
-        if (e.ctrlKey && e.key === 'p') {
+        
+        // macOS screenshots
+        if (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5' || e.keyCode === 51 || e.keyCode === 52 || e.keyCode === 53)) {
             e.preventDefault();
+            triggerScreenshotWarning();
             return false;
         }
-        // Ctrl+S (Save)
-        if (e.ctrlKey && e.key === 's') {
+        
+        // Snipping Tool (Win+Shift+S)
+        if (e.metaKey && e.shiftKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) {
             e.preventDefault();
+            triggerScreenshotWarning();
             return false;
         }
-        // Ctrl+A (Select All) - only on data table
-        if (e.ctrlKey && e.key === 'a') {
+        
+        // Print / Save
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P' || e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            window.location.replace('index.php');
+            return false;
+        }
+        
+        // Select All inside table
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
             if (e.target.closest('.data-table-container')) {
                 e.preventDefault();
                 return false;
@@ -391,30 +597,15 @@ document.addEventListener('keydown', function(e) {
         }
     });
 
-    // Show overlay protection
-    function showProtectionOverlay() {
-        overlay.style.display = 'block';
-    }
-    function hideProtectionOverlay() {
-        overlay.style.display = 'none';
-    }
-
-    // Blur content when window/tab loses focus (print screen often causes this)
+    // Kick to homepage when window/tab loses focus (e.g., screenshot tool opens or user switches tabs)
     window.addEventListener('blur', function() {
-        showProtectionOverlay();
+        window.location.replace('index.php');
     });
 
-    // Remove blur when window regains focus
-    window.addEventListener('focus', function() {
-        hideProtectionOverlay();
-    });
-
-    // Detect tab visibility change
+    // Tab visibility changes
     document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'hidden') {
-            showProtectionOverlay();
-        } else {
-            hideProtectionOverlay();
+            window.location.replace('index.php');
         }
     });
 
@@ -444,12 +635,58 @@ document.addEventListener('keydown', function(e) {
         });
     });
 
-    // Warn on leaving page (optional protection)
-    window.addEventListener('beforeunload', function(e) {
-        if (document.querySelector('.blurred-cell')) {
-            e.preventDefault();
-            e.returnValue = '';
+    // Security Lockdown Trigger
+    function lockdown() {
+        if (observer) observer.disconnect();
+        document.body.innerHTML = `
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;background:#111827;color:#ffffff;font-family:'Inter',sans-serif;text-align:center;padding:20px;box-sizing:border-box;">
+                <div style="font-size:64px;color:#ef4444;margin-bottom:24px;"><i class="fas fa-exclamation-triangle"></i></div>
+                <h1 style="font-size:28px;font-weight:700;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px;">CẢNH BÁO BẢO MẬT</h1>
+                <p style="font-size:16px;color:#9ca3af;max-width:500px;line-height:1.6;margin:0 0 24px 0;">Phát hiện hành vi can thiệp trái phép vào cấu trúc trang web hoặc chụp ảnh màn hình. Phiên làm việc của bạn đã bị khóa để bảo vệ dữ liệu sản phẩm.</p>
+                <button onclick="window.location.reload()" style="padding:12px 28px;background:#356df1;color:#ffffff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.2s ease;box-shadow:0 4px 6px -1px rgba(53, 109, 241, 0.4);outline:none;">
+                    Tải lại trang
+                </button>
+            </div>
+        `;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText('[Security Block]').catch(() => {});
         }
+    }
+
+    // DOM Mutation Observer to detect element tampering
+    const observer = new MutationObserver((mutations) => {
+        let tampered = false;
+        
+        // Check if overlay was deleted
+        const overlayCheck = document.getElementById('protection-overlay');
+        if (!overlayCheck) {
+            tampered = true;
+        } else {
+            // Check if styles were modified to hide overlay when it should be active
+            const shouldBeActive = isDevToolsOpen || isWindowBlurred || screenshotWarningActive;
+            const style = window.getComputedStyle(overlayCheck);
+            if (shouldBeActive && (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0)) {
+                tampered = true;
+            }
+        }
+
+        // Check if body class was removed during active protection
+        const shouldHaveClass = isDevToolsOpen || isWindowBlurred || screenshotWarningActive;
+        const hasClass = document.body.classList.contains('protection-active');
+        if (shouldHaveClass && !hasClass) {
+            tampered = true;
+        }
+        
+        if (tampered) {
+            lockdown();
+        }
+    });
+
+    observer.observe(document.body, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+        attributeFilter: ['class', 'style', 'id']
     });
 })();
 </script>

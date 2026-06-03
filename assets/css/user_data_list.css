@@ -180,6 +180,86 @@
     width: 200%;
 }
 
+/* Security Protection Overlay */
+#protection-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 24, 39, 0.98);
+    /* Premium dark background */
+    z-index: 99999;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#protection-overlay .overlay-content {
+    max-width: 480px;
+    background: rgba(31, 41, 55, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 40px 30px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+#protection-overlay .lock-icon {
+    font-size: 54px;
+    color: #ef4444;
+    /* Premium red lock icon */
+    margin-bottom: 24px;
+    animation: lockPulse 2s infinite ease-in-out;
+}
+
+#protection-overlay h2 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    color: #f9fafb;
+    text-transform: uppercase;
+}
+
+#protection-overlay p {
+    font-size: 14px;
+    color: #9ca3af;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Blur main content when protection is active */
+body.protection-active .main-content {
+    filter: blur(30px) !important;
+    opacity: 0.05 !important;
+    pointer-events: none !important;
+    transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+@keyframes lockPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 /* ========================================
    Data Table
    ======================================== */
