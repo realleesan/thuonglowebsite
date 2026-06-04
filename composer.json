@@ -2,6 +2,14 @@
     "name": "thuonglo/website",
     "description": "Thuong Lo Website with Agent Registration System",
     "type": "project",
+    "config": {
+        "platform": {
+            "php": "7.4.30"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
     "require": {
         "php": ">=7.4",
         "phpoffice/phpspreadsheet": "^1.29"
