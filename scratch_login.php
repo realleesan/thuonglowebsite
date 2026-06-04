@@ -43,7 +43,22 @@ if ($user) {
         $db->prepare("UPDATE user_devices SET session_id = ?, last_activity = NOW() WHERE id = ?")
            ->execute([session_id(), $deviceId]);
     }
-    $_SESSION['device_id'] = $deviceId;
+
+    // Add device session to device_sessions if not exists (for Phase 2 Device Access security check)
+    $stmt = $db->prepare("SELECT id FROM device_sessions WHERE user_id = 1 AND session_id = ? LIMIT 1");
+    $stmt->execute([session_id()]);
+    $ds = $stmt->fetch();
+    $now = date('Y-m-d H:i:s');
+    if (!$ds) {
+        $db->prepare("INSERT INTO device_sessions (user_id, session_id, device_name, device_type, browser, os, ip_address, location, status, is_current, last_activity, created_at, updated_at) VALUES (1, ?, 'Chrome Windows', 'desktop', 'Chrome', 'Windows', '127.0.0.1', 'Local Network', 'active', 1, ?, ?, ?)")
+           ->execute([session_id(), $now, $now, $now]);
+        $dsId = $db->lastInsertId();
+    } else {
+        $dsId = $ds['id'];
+        $db->prepare("UPDATE device_sessions SET status = 'active', is_current = 1, last_activity = ?, updated_at = ? WHERE id = ?")
+           ->execute([$now, $now, $dsId]);
+    }
+    $_SESSION['device_id'] = $dsId;
     
     header('Location: index.php?page=affiliate');
     exit;

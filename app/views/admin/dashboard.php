@@ -61,14 +61,7 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
             <h1>Dashboard</h1>
             <p>Tổng quan và quản lý hệ thống</p>
         </div>
-        <div class="dashboard-header-right">
-            <select class="admin-form-control" id="dashboardPeriod">
-                <option value="today">Hôm nay</option>
-                <option value="7days" selected>7 ngày qua</option>
-                <option value="30days">30 ngày qua</option>
-                <option value="custom">Tùy chỉnh</option>
-            </select>
-        </div>
+        
     </div>
 
     <!-- Alerts Section -->
@@ -96,7 +89,7 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
     <!-- KPI Cards with Trends - Data cập nhật qua AJAX -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
                 <i class="fas fa-box"></i>
             </div>
             <div class="stat-content">
@@ -110,12 +103,22 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="stat-content">
-                <h3 id="stat-total-revenue"><?php echo number_format(($totalRevenue / 1000000), 1); ?>M</h3>
-                <p>Doanh thu (VNĐ)</p>
+                <h3 id="stat-total-revenue">
+                    <?php 
+                    if ($totalRevenue >= 1000000000) {
+                        echo number_format($totalRevenue / 1000000000, 1, ',', '.') . ' tỷ';
+                    } else if ($totalRevenue >= 1000000) {
+                        echo number_format($totalRevenue / 1000000, 1, ',', '.') . ' triệu';
+                    } else {
+                        echo number_format($totalRevenue, 0, ',', '.') . ' VNĐ';
+                    }
+                    ?>
+                </h3>
+                <p>Doanh thu hoàn thành (VNĐ)</p>
                 <div class="stat-trend trend-<?php echo ($trends['revenue']['direction'] ?? 'up'); ?>" id="trend-revenue">
                     <i class="fas fa-arrow-<?php echo ($trends['revenue']['direction'] ?? 'up'); ?>"></i>
                     <span><?php echo ($trends['revenue']['value'] ?? 0); ?>% so với tháng trước</span>
@@ -124,7 +127,7 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
                 <i class="fas fa-newspaper"></i>
             </div>
             <div class="stat-content">
@@ -146,13 +149,7 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
         <div class="chart-widget chart-widget-large">
             <div class="widget-header">
                 <h3>Doanh thu theo thời gian</h3>
-                <div class="chart-controls">
-                    <select class="admin-form-control" id="revenueChartPeriod">
-                        <option value="7days">7 ngày</option>
-                        <option value="30days" selected>30 ngày</option>
-                        <option value="12months">12 tháng</option>
-                    </select>
-                </div>
+                
             </div>
             <div class="widget-content" style="position:relative;">
                 <canvas id="revenueChart" width="400" height="200"></canvas>
@@ -176,6 +173,24 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
             </div>
             <div class="widget-content" style="position:relative;">
                 <canvas id="ordersStatusChart" width="400" height="300"></canvas>
+                <div class="orders-status-summary" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; font-size: 13px; color: #4b5563;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px;">
+                        <span style="display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #10B981; margin-right: 8px;"></span>Hoàn thành</span>
+                        <strong id="orders-completed-count">0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px;">
+                        <span style="display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #3B82F6; margin-right: 8px;"></span>Đang xử lý</span>
+                        <strong id="orders-processing-count">0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px;">
+                        <span style="display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #F59E0B; margin-right: 8px;"></span>Chờ xử lý</span>
+                        <strong id="orders-pending-count">0</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
+                        <span style="display: flex; align-items: center;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #EF4444; margin-right: 8px;"></span>Đã hủy</span>
+                        <strong id="orders-cancelled-count">0</strong>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -210,10 +225,10 @@ $totalRevenue = $stats['total_revenue'] ?? 0;
                                 <div class="product-rank"><?php echo $index + 1; ?></div>
                                 <div class="product-info">
                                     <strong><?php echo htmlspecialchars($product['name']); ?></strong>
-                                    <small><?php echo number_format($product['price'], 0, ',', '.'); ?> VNĐ</small>
+                                    <small><?php echo number_format($product['price'] ?? 0, 0, ',', '.'); ?> VNĐ</small>
                                 </div>
                                 <div class="product-badge">
-                                    <span class="admin-badge admin-badge-success"><?php echo $product['status']; ?></span>
+                                    <span class="admin-badge admin-badge-success">Đã bán: <?php echo $product['sales_count'] ?? 0; ?></span>
                                 </div>
                             </div>
                             <?php endforeach; ?>

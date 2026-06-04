@@ -62,7 +62,8 @@ class AdminService extends BaseService
             $data['recent_users'] = $this->transformer->transformUsers($recentUsers);
 
             // Charts data - tải qua AJAX thay vì server-side
-            $data['top_products']     = [];
+            $topProductsResult = $this->getDashboardTopProducts(5, '7days');
+            $data['top_products']     = $topProductsResult['data']['products'] ?? [];
             $data['recent_activities']= [];
             $data['charts_data']      = [];
             $data['alerts']           = [];
@@ -483,6 +484,7 @@ class AdminService extends BaseService
                 $products[] = [
                     'id'          => (int)$row['id'],
                     'name'        => $row['name'],
+                    'price'       => (float)$row['price'],
                     'sales_count' => (int)$row['sales_count'],
                     'revenue'     => (float)$row['revenue'],
                     'percentage'  => $percentage,
