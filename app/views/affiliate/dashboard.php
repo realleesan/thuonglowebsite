@@ -41,7 +41,7 @@ $commissionStatus = [
     'pending_count' => 0,
     'paid_count' => 0
 ];
-$revenueChart = ['labels' => [], 'data' => []];
+$revenueChart = ['labels' => [], 'data' => [], 'commission' => []];
 $clicksChart = ['labels' => [], 'data' => []];
 $conversionChart = ['labels' => [], 'data' => []];
 
@@ -62,7 +62,7 @@ try {
     $stats = $dashboardData['stats'] ?? $stats;
     $recentCustomers = $dashboardData['recent_customers'] ?? [];
     $commissionStatus = $dashboardData['commission_status'] ?? $commissionStatus;
-    $revenueChart = $dashboardData['revenue_chart'] ?? ['labels' => [], 'data' => []];
+    $revenueChart = $dashboardData['revenue_chart'] ?? ['labels' => [], 'data' => [], 'commission' => []];
     $clicksChart = $dashboardData['clicks_chart'] ?? ['labels' => [], 'data' => []];
     $conversionChart = $dashboardData['conversion_chart'] ?? ['labels' => [], 'data' => []];
     
@@ -95,20 +95,20 @@ ob_start();
         <div class="stat-content">
             <div class="stat-label">Doanh số tổng</div>
             <div class="stat-value" data-value="<?php echo $stats['total_revenue']; ?>">
-                <?php echo number_format($stats['total_revenue']); ?>đ
+                <?php echo number_format($stats['total_revenue'], 0, ',', '.'); ?>đ
             </div>
         </div>
     </div>
 
-    <!-- Doanh số tuần -->
+    <!-- Tổng hoa hồng -->
     <div class="stat-card stat-card-success">
         <div class="stat-icon">
-            <i class="fas fa-calendar-week"></i>
+            <i class="fas fa-coins"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Doanh số tuần</div>
-            <div class="stat-value" data-value="<?php echo $stats['weekly_revenue']; ?>">
-                <?php echo number_format($stats['weekly_revenue']); ?>đ
+            <div class="stat-label">Tổng hoa hồng</div>
+            <div class="stat-value" data-value="<?php echo $stats['total_commission']; ?>">
+                <?php echo number_format($stats['total_commission'], 0, ',', '.'); ?>đ
             </div>
         </div>
     </div>
@@ -121,7 +121,7 @@ ob_start();
         <div class="stat-content">
             <div class="stat-label">Doanh số tháng</div>
             <div class="stat-value" data-value="<?php echo $stats['monthly_revenue']; ?>">
-                <?php echo number_format($stats['monthly_revenue']); ?>đ
+                <?php echo number_format($stats['monthly_revenue'], 0, ',', '.'); ?>đ
             </div>
         </div>
     </div>
@@ -134,7 +134,7 @@ ob_start();
         <div class="stat-content">
             <div class="stat-label">Tổng khách hàng</div>
             <div class="stat-value" data-value="<?php echo $stats['total_customers']; ?>">
-                <?php echo number_format($stats['total_customers']); ?>
+                <?php echo number_format($stats['total_customers'], 0, ',', '.'); ?>
             </div>
         </div>
     </div>
@@ -234,7 +234,7 @@ ob_start();
                                 </td>
                                 <td><?php echo $customer['total_orders']; ?> đơn</td>
                                 <td class="text-success fw-semibold">
-                                    <?php echo number_format($customer['total_spent']); ?>đ
+                                    <?php echo number_format($customer['total_spent'], 0, ',', '.'); ?>đ
                                 </td>
                                 <td><?php echo date('d/m/Y', strtotime($customer['joined_date'])); ?></td>
                             </tr>
@@ -245,70 +245,25 @@ ob_start();
             </div>
         </div>
 
-        <!-- Commission Status -->
-        <div class="card">
+        <!-- Revenue & Commission Chart -->
+        <div class="card chart-card">
             <div class="card-header">
                 <h3 class="card-title">
-                    <i class="fas fa-wallet"></i>
-                    Trạng thái hoa hồng
+                    <i class="fas fa-chart-line"></i>
+                    Hiệu suất bán hàng (7 ngày qua)
                 </h3>
-                <a href="?page=affiliate&module=commissions" class="btn btn-sm btn-secondary">
-                    Chi tiết
+                <a href="?page=affiliate&module=reports&action=orders" class="btn btn-sm btn-secondary">
+                    Xem chi tiết
                 </a>
             </div>
             <div class="card-body">
-                <div class="commission-status-grid">
-                    <!-- Pending Commission -->
-                    <div class="commission-status-item">
-                        <div class="commission-status-icon commission-status-warning">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="commission-status-content">
-                            <div class="commission-status-label">Chờ thanh toán</div>
-                            <div class="commission-status-value">
-                                <?php echo number_format($commissionStatus['pending']); ?>đ
-                            </div>
-                            <div class="commission-status-count">
-                                <?php echo $commissionStatus['pending_count']; ?> đơn hàng
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Paid Commission -->
-                    <div class="commission-status-item">
-                        <div class="commission-status-icon commission-status-success">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="commission-status-content">
-                            <div class="commission-status-label">Đã thanh toán</div>
-                            <div class="commission-status-value">
-                                <?php echo number_format($commissionStatus['paid']); ?>đ
-                            </div>
-                            <div class="commission-status-count">
-                                <?php echo $commissionStatus['paid_count']; ?> đơn hàng
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Progress Bar -->
-                <div class="commission-progress">
-                    <?php 
-                    $total = $commissionStatus['pending'] + $commissionStatus['paid'];
-                    $paidPercentage = $total > 0 ? ($commissionStatus['paid'] / $total) * 100 : 0;
-                    ?>
-                    <div class="progress">
-                        <div class="progress-bar bg-success" 
-                             role="progressbar" 
-                             style="width: <?php echo $paidPercentage; ?>%"
-                             aria-valuenow="<?php echo $paidPercentage; ?>" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
-                            <?php echo number_format($paidPercentage, 1); ?>%
-                        </div>
-                    </div>
-                    <div class="commission-progress-label">
-                        Tỉ lệ thanh toán
+                <div class="charts-grid" 
+                     style="display: block; width: 100%;"
+                     data-revenue-labels="<?php echo htmlspecialchars(json_encode($revenueChart['labels'])); ?>"
+                     data-revenue-data="<?php echo htmlspecialchars(json_encode($revenueChart['data'])); ?>"
+                     data-commission-data="<?php echo htmlspecialchars(json_encode($revenueChart['commission'] ?? [])); ?>">
+                    <div style="height: 300px; width: 100%; position: relative;">
+                        <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
             </div>

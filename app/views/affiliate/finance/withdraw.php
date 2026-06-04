@@ -106,7 +106,7 @@ ob_start();
                 </label>
                 <div class="balance-display">
                     <div class="balance-amount" id="availableBalance" data-balance="<?php echo $wallet['balance']; ?>">
-                        <?php echo number_format($wallet['balance']); ?> đ
+                        <?php echo number_format($wallet['balance'], 0, ',', '.'); ?>đ
                     </div>
                 </div>
                 <small class="form-help">
@@ -215,7 +215,7 @@ ob_start();
                            data-max-amount="<?php echo (int)($withdrawalSettings['max_amount'] ?? 50000000); ?>"
                            placeholder="Nhập số tiền"
                            required>
-                    <span class="amount-suffix">VNĐ</span>
+                    <span class="amount-suffix">đ</span>
                 </div>
                 <div class="amount-suggestions">
                     <button type="button" class="amount-btn" onclick="setAmount(500000)">500K</button>
@@ -226,8 +226,8 @@ ob_start();
                 </div>
                 <small class="form-help">
                     <i class="fas fa-info-circle"></i>
-                    Tối thiểu: <?php echo number_format($withdrawalSettings['min_amount'] ?? 5000); ?> đ - 
-                    Tối đa: <?php echo number_format($withdrawalSettings['max_amount'] ?? 50000000); ?> đ
+                    Tối thiểu: <?php echo number_format($withdrawalSettings['min_amount'] ?? 5000, 0, ',', '.'); ?>đ - 
+                    Tối đa: <?php echo number_format($withdrawalSettings['max_amount'] ?? 50000000, 0, ',', '.'); ?>đ
                 </small>
             </div>
 
@@ -235,7 +235,7 @@ ob_start();
             <div class="balance-preview" id="balancePreview" style="display: none;">
                 <div class="preview-item">
                     <span class="preview-label">Số dư hiện tại:</span>
-                    <span class="preview-value"><?php echo number_format($wallet['balance']); ?> đ</span>
+                    <span class="preview-value"><?php echo number_format($wallet['balance'], 0, ',', '.'); ?>đ</span>
                 </div>
                 <div class="preview-item">
                     <span class="preview-label">Số tiền rút:</span>

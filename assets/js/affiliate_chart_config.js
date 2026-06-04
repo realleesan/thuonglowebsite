@@ -3,9 +3,9 @@
  * Initialize and configure Chart.js charts for affiliate dashboard
  */
 
-(function() {
+(function () {
     'use strict';
-    
+
     /**
      * Initialize charts when DOM is ready
      */
@@ -16,12 +16,13 @@
             console.log('Charts grid not found');
             return;
         }
-        
+
         // Parse chart data from data attributes
         const chartData = {
             revenue: {
                 labels: JSON.parse(chartsGrid.dataset.revenueLabels || '[]'),
-                data: JSON.parse(chartsGrid.dataset.revenueData || '[]')
+                data: JSON.parse(chartsGrid.dataset.revenueData || '[]'),
+                commission: JSON.parse(chartsGrid.dataset.commissionData || '[]')
             },
             clicks: {
                 labels: JSON.parse(chartsGrid.dataset.clicksLabels || '[]'),
@@ -32,13 +33,13 @@
                 data: JSON.parse(chartsGrid.dataset.conversionData || '[]')
             }
         };
-        
+
         // Check if Chart.js is loaded
         if (typeof Chart === 'undefined') {
             console.error('Chart.js is not loaded');
             return;
         }
-        
+
         // Revenue Chart (Line Chart)
         const revenueCtx = document.getElementById('revenueChart');
         if (revenueCtx && chartData.revenue.labels.length > 0) {
@@ -47,18 +48,31 @@
                 data: {
                     labels: chartData.revenue.labels,
                     datasets: [{
-                        label: 'Doanh thu (VNĐ)',
+                        label: 'Doanh số (VNĐ)',
                         data: chartData.revenue.data,
                         borderColor: '#356DF1',
-                        backgroundColor: 'rgba(53, 109, 241, 0.1)',
-                        borderWidth: 3,
+                        backgroundColor: 'rgba(53, 109, 241, 0.05)',
+                        borderWidth: 2.5,
                         fill: true,
                         tension: 0.4,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
                         pointBackgroundColor: '#356DF1',
                         pointBorderColor: '#fff',
-                        pointBorderWidth: 2
+                        pointBorderWidth: 1.5
+                    }, {
+                        label: 'Hoa hồng (VNĐ)',
+                        data: chartData.revenue.commission,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        pointBackgroundColor: '#10B981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 1.5
                     }]
                 },
                 options: {
@@ -66,19 +80,29 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 6,
+                                boxHeight: 6,
+                                font: {
+                                    size: 12,
+                                    family: 'Inter'
+                                }
+                            }
                         },
                         tooltip: {
                             backgroundColor: '#1F2937',
                             titleColor: '#fff',
                             bodyColor: '#fff',
                             padding: 12,
-                            borderColor: '#356DF1',
+                            borderColor: '#E5E7EB',
                             borderWidth: 1,
-                            displayColors: false,
+                            displayColors: true,
                             callbacks: {
-                                label: function(context) {
-                                    return new Intl.NumberFormat('vi-VN', {
+                                label: function (context) {
+                                    return ' ' + context.dataset.label + ': ' + new Intl.NumberFormat('vi-VN', {
                                         style: 'currency',
                                         currency: 'VND'
                                     }).format(context.parsed.y);
@@ -89,9 +113,16 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            suggestedMax: 1000000,
                             ticks: {
-                                callback: function(value) {
-                                    return (value / 1000000) + 'M';
+                                callback: function (value) {
+                                    if (value === 0) return '0';
+                                    if (value >= 1000000) {
+                                        return (value / 1000000).toFixed(value % 1000000 === 0 ? 0 : 1) + 'M';
+                                    } else if (value >= 1000) {
+                                        return (value / 1000).toFixed(value % 1000 === 0 ? 0 : 1) + 'K';
+                                    }
+                                    return value.toLocaleString();
                                 }
                             },
                             grid: {
@@ -107,7 +138,7 @@
                 }
             });
         }
-        
+
         // Clicks Chart (Bar Chart)
         const clicksCtx = document.getElementById('clicksChart');
         if (clicksCtx && chartData.clicks.labels.length > 0) {
@@ -143,9 +174,13 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            suggestedMax: 10,
                             ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString();
+                                stepSize: 1,
+                                callback: function (value) {
+                                    if (value % 1 === 0) {
+                                        return value.toLocaleString();
+                                    }
                                 }
                             },
                             grid: {
@@ -161,7 +196,7 @@
                 }
             });
         }
-        
+
         // Conversion Chart (Doughnut Chart)
         const conversionCtx = document.getElementById('conversionChart');
         if (conversionCtx && chartData.conversion.labels.length > 0) {
@@ -206,7 +241,7 @@
                             padding: 12,
                             displayColors: true,
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return context.label + ': ' + context.parsed + '%';
                                 }
                             }
@@ -222,15 +257,15 @@
                 }
             });
         }
-        
+
         console.log('Charts initialized successfully');
     }
-    
+
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initCharts);
     } else {
         initCharts();
     }
-    
+
 })();

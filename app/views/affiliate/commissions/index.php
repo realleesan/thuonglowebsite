@@ -76,9 +76,9 @@ ob_start();
             <i class="fas fa-check-circle"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Tổng đã nhận</div>
+            <div class="stat-label">Tổng hoa hồng đã nhận</div>
             <div class="stat-value" data-value="<?php echo $overview['paid']; ?>">
-                <?php echo number_format($overview['paid']); ?>đ
+                <?php echo number_format($overview['paid'], 0, ',', '.'); ?>đ
             </div>
             <div class="stat-meta">
                 Đã thanh toán
@@ -86,15 +86,15 @@ ob_start();
         </div>
     </div>
 
-    <!-- Đang chờ duyệt -->
+    <!-- Đang chờ thanh toán -->
     <div class="stat-card stat-card-warning">
         <div class="stat-icon">
             <i class="fas fa-clock"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Đang chờ duyệt</div>
+            <div class="stat-label">Đang chờ thanh toán</div>
             <div class="stat-value" data-value="<?php echo $overview['pending']; ?>">
-                <?php echo number_format($overview['pending']); ?>đ
+                <?php echo number_format($overview['pending'], 0, ',', '.'); ?>đ
             </div>
             <div class="stat-meta">
                 Chờ thanh toán
@@ -110,7 +110,7 @@ ob_start();
         <div class="stat-content">
             <div class="stat-label">Tổng hoa hồng</div>
             <div class="stat-value" data-value="<?php echo $overview['total_earned']; ?>">
-                <?php echo number_format($overview['total_earned']); ?>đ
+                <?php echo number_format($overview['total_earned'], 0, ',', '.'); ?>đ
             </div>
             <div class="stat-meta">
                 Tích lũy
@@ -193,7 +193,7 @@ ob_start();
                                 <!-- Hoa hồng -->
                                 <td class="text-right">
                                     <span class="commission-amount">
-                                        <?php echo number_format($item['commission_amount']); ?>đ
+                                        <?php echo number_format($item['commission_amount'], 0, ',', '.'); ?>đ
                                     </span>
                                 </td>
 

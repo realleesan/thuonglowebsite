@@ -217,14 +217,14 @@ ob_start();
                             <!-- Doanh số -->
                             <td class="text-right">
                                 <span class="text-muted">
-                                    <?php echo number_format($item['order_amount']); ?>đ
+                                    <?php echo number_format($item['order_amount'], 0, ',', '.'); ?>đ
                                 </span>
                             </td>
 
                             <!-- Hoa hồng -->
                             <td class="text-right">
                                 <span class="commission-amount">
-                                    <?php echo number_format($item['commission_amount']); ?>đ
+                                    <?php echo number_format($item['commission_amount'], 0, ',', '.'); ?>đ
                                 </span>
                                 <div class="commission-rate">
                                     <?php echo $item['commission_rate']; ?>%
@@ -268,7 +268,7 @@ ob_start();
                             <td class="text-right fw-bold">
                                 <?php 
                                 $totalCommission = array_sum(array_column($history, 'commission_amount'));
-                                echo number_format($totalCommission); 
+                                echo number_format($totalCommission, 0, ',', '.'); 
                                 ?>đ
                             </td>
                             <td colspan="2"></td>

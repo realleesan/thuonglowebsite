@@ -149,7 +149,7 @@ ob_start();
                                 </td>
                                 <td>
                                     <span class="tier-amount">
-                                        <?php echo number_format($tier['min_revenue']); ?>đ
+                                        <?php echo number_format($tier['min_revenue'], 0, ',', '.'); ?>đ
                                     </span>
                                 </td>
                                 <td>
@@ -158,7 +158,7 @@ ob_start();
                                         if ($tier['max_revenue'] === null) {
                                             echo 'Không giới hạn';
                                         } else {
-                                            echo number_format($tier['max_revenue']) . 'đ';
+                                            echo number_format($tier['max_revenue'], 0, ',', '.') . 'đ';
                                         }
                                         ?>
                                     </span>
@@ -173,7 +173,7 @@ ob_start();
                                         <?php 
                                         $exampleRevenue = 10000000; // 10 triệu
                                         $exampleCommission = $exampleRevenue * ($tier['rate'] / 100);
-                                        echo number_format($exampleCommission) . 'đ';
+                                        echo number_format($exampleCommission, 0, ',', '.') . 'đ';
                                         ?>
                                     </span>
                                     <div class="tier-example-note">

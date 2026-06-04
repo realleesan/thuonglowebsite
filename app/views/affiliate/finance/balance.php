@@ -59,7 +59,7 @@ ob_start();
 <div class="balance-card">
     <h3>Số dư hiện tại</h3>
     <div class="balance-amount">
-        <?php echo number_format($wallet['balance']); ?> VNĐ
+        <?php echo number_format($wallet['balance'], 0, ',', '.'); ?>đ
     </div>
 </div>
 <?php

@@ -90,7 +90,7 @@ ob_start();
         </div>
         <div class="stat-content">
             <div class="stat-label">Số dư khả dụng</div>
-            <div class="stat-value"><?php echo number_format($wallet['balance']); ?> đ</div>
+            <div class="stat-value"><?php echo number_format($wallet['balance'], 0, ',', '.'); ?>đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Có thể rút ngay</span>
             </div>
@@ -104,7 +104,7 @@ ob_start();
         </div>
         <div class="stat-content">
             <div class="stat-label">Đang xử lý</div>
-            <div class="stat-value"><?php echo number_format($wallet['pending_withdrawal'] ?? 0); ?> đ</div>
+            <div class="stat-value"><?php echo number_format($wallet['pending_withdrawal'] ?? 0, 0, ',', '.'); ?>đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Lệnh rút đang chờ</span>
             </div>
@@ -117,8 +117,8 @@ ob_start();
             <i class="fas fa-chart-line"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Tổng thu nhập</div>
-            <div class="stat-value"><?php echo number_format($wallet['total_earned']); ?> đ</div>
+            <div class="stat-label">Tổng hoa hồng tích lũy</div>
+            <div class="stat-value"><?php echo number_format($wallet['total_earned'], 0, ',', '.'); ?>đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Tất cả thời gian</span>
             </div>
@@ -218,17 +218,17 @@ ob_start();
                         <td>
                             <?php if ($transaction['amount'] > 0): ?>
                                 <span class="amount amount-positive">
-                                    +<?php echo number_format($transaction['amount']); ?> đ
+                                    +<?php echo number_format($transaction['amount'], 0, ',', '.'); ?>đ
                                 </span>
                             <?php else: ?>
                                 <span class="amount amount-negative">
-                                    <?php echo number_format($transaction['amount']); ?> đ
+                                    <?php echo number_format($transaction['amount'], 0, ',', '.'); ?>đ
                                 </span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <span class="balance-after">
-                                <?php echo number_format($transaction['balance_after']); ?> đ
+                                <?php echo number_format($transaction['balance_after'], 0, ',', '.'); ?>đ
                             </span>
                         </td>
                         <td>

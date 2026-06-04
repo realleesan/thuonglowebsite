@@ -283,12 +283,17 @@ class AffiliateService extends BaseService
             }
 
             $ordersGroupedByDate = [];
+            $commissionGroupedByDate = [];
             foreach ($orders ?? [] as $order) {
                 $date = date('Y-m-d', strtotime($order['created_at']));
                 if (!isset($ordersGroupedByDate[$date])) {
                     $ordersGroupedByDate[$date] = 0;
                 }
+                if (!isset($commissionGroupedByDate[$date])) {
+                    $commissionGroupedByDate[$date] = 0;
+                }
                 $ordersGroupedByDate[$date] += $order['total'] ?? $order['total_amount'] ?? 0;
+                $commissionGroupedByDate[$date] += $order['commission_amount'] ?? 0;
 
                 // Status breakdown
                 $status = $order['status'] ?? 'pending';
@@ -301,9 +306,11 @@ class AffiliateService extends BaseService
                 }
             }
 
+            $commissionChartData = [];
             foreach ($dateRange as $date) {
                 $revenueChartLabels[] = date('d/m', strtotime($date));
                 $revenueChartData[] = (float)($ordersGroupedByDate[$date] ?? 0);
+                $commissionChartData[] = (float)($commissionGroupedByDate[$date] ?? 0);
             }
 
             // Click chart mapping
@@ -326,7 +333,8 @@ class AffiliateService extends BaseService
 
             $revenueChart = [
                 'labels' => $revenueChartLabels,
-                'data' => $revenueChartData
+                'data' => $revenueChartData,
+                'commission' => $commissionChartData
             ];
 
             $clicksChart = [

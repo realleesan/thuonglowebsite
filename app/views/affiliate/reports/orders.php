@@ -66,7 +66,7 @@ ob_start();
         </div>
         <div class="stat-content">
             <div class="stat-label">Tổng Đơn Hàng</div>
-            <div class="stat-value"><?php echo number_format($totalOrders); ?></div>
+            <div class="stat-value"><?php echo number_format($totalOrders, 0, ',', '.'); ?></div>
             <div class="stat-footer">
                 <span class="stat-note">Tất cả đơn hàng</span>
             </div>
@@ -78,8 +78,8 @@ ob_start();
             <i class="fas fa-dollar-sign"></i>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Tổng Doanh Thu</div>
-            <div class="stat-value"><?php echo number_format($totalRevenue); ?> đ</div>
+            <div class="stat-label">Tổng Doanh Số</div>
+            <div class="stat-value"><?php echo number_format($totalRevenue, 0, ',', '.'); ?>đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Từ khách hàng</span>
             </div>
@@ -92,7 +92,7 @@ ob_start();
         </div>
         <div class="stat-content">
             <div class="stat-label">Tổng Hoa Hồng</div>
-            <div class="stat-value"><?php echo number_format($totalCommission); ?> đ</div>
+            <div class="stat-value"><?php echo number_format($totalCommission, 0, ',', '.'); ?>đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Thu nhập của bạn</span>
             </div>
@@ -105,7 +105,7 @@ ob_start();
         </div>
         <div class="stat-content">
             <div class="stat-label">Giá Trị TB</div>
-            <div class="stat-value"><?php echo number_format($avgOrderValue); ?> đ</div>
+            <div class="stat-value"><?php echo number_format($avgOrderValue, 0, ',', '.'); ?>đ</div>
             <div class="stat-footer">
                 <span class="stat-note">Trung bình/đơn</span>
             </div>
@@ -120,7 +120,7 @@ ob_start();
         <div class="chart-card-header">
             <h3 class="chart-title">
                 <i class="fas fa-chart-area"></i>
-                Doanh Thu & Hoa Hồng Theo Ngày
+                Doanh Số & Hoa Hồng Theo Ngày
             </h3>
         </div>
         <div class="chart-card-body">

@@ -25,51 +25,7 @@
 
     <!-- Right Side -->
     <div class="header-right">
-        <!-- Notifications -->
-        <div class="header-item notifications-dropdown">
-            <button type="button" class="header-btn" id="notificationsBtn">
-                <i class="fas fa-bell"></i>
-                <?php if (isset($unreadCount) && $unreadCount > 0): ?>
-                <span class="notification-badge"><?php echo $unreadCount > 9 ? '9+' : $unreadCount; ?></span>
-                <?php endif; ?>
-            </button>
-            <div class="dropdown-menu notifications-menu" id="notificationsMenu">
-                <div class="dropdown-header">
-                    <h6>Thông báo</h6>
-                </div>
-                <div class="dropdown-body">
-                    <?php if (!empty($notifications)): ?>
-                        <?php foreach ($notifications as $notif): ?>
-                        <div class="notification-item">
-                            <div class="notification-icon">
-                                <?php 
-                                $iconClass = 'fa-info-circle text-info';
-                                $type = $notif['type'] ?? 'info';
-                                if ($type === 'commission' || $type === 'success') $iconClass = 'fa-dollar-sign text-success';
-                                elseif ($type === 'customer' || $type === 'user') $iconClass = 'fa-user-plus text-info';
-                                elseif ($type === 'order') $iconClass = 'fa-shopping-cart text-warning';
-                                elseif ($type === 'error' || $type === 'danger') $iconClass = 'fa-exclamation-circle text-danger';
-                                ?>
-                                <i class="fas <?php echo $iconClass; ?>"></i>
-                            </div>
-                            <div class="notification-content">
-                                <p class="notification-text"><?php echo htmlspecialchars($notif['message'] ?? $notif['title'] ?? ''); ?></p>
-                                <span class="notification-time"><?php echo isset($notif['created_at']) ? timeAgo($notif['created_at']) : 'Vừa xong'; ?></span>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="notification-empty" style="text-align: center; padding: 20px; color: #6B7280;">
-                            <i class="fas fa-bell-slash" style="font-size: 24px; margin-bottom: 8px;"></i>
-                            <p style="margin: 0;">Không có thông báo nào</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <div class="dropdown-footer">
-                    <a href="?page=affiliate&module=notifications" class="view-all-btn">Xem tất cả</a>
-                </div>
-            </div>
-        </div>
+        
 
         <!-- User Menu -->
         <div class="header-item user-dropdown">
@@ -93,14 +49,7 @@
                     </div>
                 </div>
                 <div class="dropdown-body">
-                    <a href="?page=affiliate&module=profile" class="dropdown-item">
-                        <i class="fas fa-user"></i>
-                        <span>Hồ sơ cá nhân</span>
-                    </a>
-                    <a href="?page=affiliate&module=profile&action=settings" class="dropdown-item">
-                        <i class="fas fa-cog"></i>
-                        <span>Cài đặt</span>
-                    </a>
+                    
                     <div class="dropdown-divider"></div>
                     <a href="?page=logout" class="dropdown-item text-danger">
                         <i class="fas fa-sign-out-alt"></i>

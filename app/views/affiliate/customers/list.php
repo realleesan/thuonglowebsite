@@ -87,7 +87,7 @@ ob_start();
             </div>
             <div class="stat-card-content">
                 <div class="stat-card-label">Tổng doanh số</div>
-                <div class="stat-card-value"><?= number_format($stats['total_spent']) ?>đ</div>
+                <div class="stat-card-value"><?= number_format($stats['total_spent'], 0, ',', '.') ?>đ</div>
             </div>
         </div>
         <div class="stat-card stat-card-warning">
@@ -96,7 +96,7 @@ ob_start();
             </div>
             <div class="stat-card-content">
                 <div class="stat-card-label">Tổng hoa hồng</div>
-                <div class="stat-card-value"><?= number_format($stats['total_commission']) ?>đ</div>
+                <div class="stat-card-value"><?= number_format($stats['total_commission'], 0, ',', '.') ?>đ</div>
             </div>
         </div>
     </div>
@@ -227,13 +227,13 @@ ob_start();
                             </td>
                             <td data-label="Doanh số">
                                 <div class="customer-spent">
-                                    <?= number_format($customer['total_spent']) ?>đ
+                                    <?= number_format($customer['total_spent'], 0, ',', '.') ?>đ
                                 </div>
                             </td>
                             <td data-label="Hoa hồng">
                                 <div class="customer-commission">
                                     <span class="commission-amount">
-                                        <?= number_format($customer['commission_earned']) ?>đ
+                                        <?= number_format($customer['commission_earned'], 0, ',', '.') ?>đ
                                     </span>
                                 </div>
                             </td>
@@ -263,8 +263,8 @@ ob_start();
                     <tfoot>
                         <tr>
                             <td colspan="4"><strong>Tổng cộng</strong></td>
-                            <td><strong><?= number_format($stats['total_spent']) ?>đ</strong></td>
-                            <td><strong><?= number_format($stats['total_commission']) ?>đ</strong></td>
+                            <td><strong><?= number_format($stats['total_spent'], 0, ',', '.') ?>đ</strong></td>
+                            <td><strong><?= number_format($stats['total_commission'], 0, ',', '.') ?>đ</strong></td>
                             <td colspan="2"></td>
                         </tr>
                     </tfoot>
