@@ -183,12 +183,63 @@
 /* Responsive */
 @media (max-width: 768px) {
     .admin-sidebar {
-        transform: translateX(-100%);
+        top: 70px;
+        /* Under the header */
+        left: 0;
+        width: 100%;
+        height: auto;
+        max-height: calc(100vh - 70px);
+        transform: translateY(-110%);
+        transition: transform 0.3s ease, visibility 0.3s ease;
+        visibility: hidden;
+        border-right: none;
+        border-bottom: 1px solid #E5E7EB;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
     }
 
     .admin-sidebar.mobile-open {
-        transform: translateX(0);
+        transform: translateY(0);
+        visibility: visible;
     }
+
+    /* Hide sidebar logo header on mobile as it's redundant */
+    .admin-sidebar .sidebar-header {
+        display: none;
+    }
+
+    /* Compact sidebar navigation spacing for mobile */
+    .sidebar-nav {
+        padding: 10px 0;
+    }
+
+    /* Keep header on top of the sliding mobile drawer */
+    .admin-header {
+        left: 0;
+        padding: 0 16px;
+        z-index: 1001;
+        /* Higher than sidebar (1000) */
+    }
+}
+
+/* Mobile Drawer Overlay for Admin */
+.admin-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    /* Below sidebar (1000) and header (1001) */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.admin-overlay.open {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Admin Body & Layout Styles */

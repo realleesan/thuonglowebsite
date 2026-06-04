@@ -14,31 +14,32 @@
    Tablet (768px - 1024px)
    =================================== */
 @media (min-width: 768px) and (max-width: 1024px) {
+
     /* Stat Cards - 2 columns */
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     /* Sidebar visible */
     .affiliate-sidebar {
         width: 250px;
     }
-    
+
     /* Adjust main content */
     .affiliate-main {
         margin-left: 250px;
     }
-    
+
     /* Tables - Scroll horizontally */
     .table-responsive {
         overflow-x: auto;
     }
-    
+
     /* Grid adjustments */
     .grid-cols-4 {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .grid-cols-3 {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -48,59 +49,84 @@
    Mobile (< 768px)
    =================================== */
 @media (max-width: 768px) {
-    /* Sidebar - Hidden by default */
+
+    /* Sidebar - Slide-down from top of screen */
     .affiliate-sidebar {
-        transform: translateX(-100%);
-        width: 250px;
+        top: 70px;
+        /* Under the header */
+        left: 0;
+        width: 100%;
+        height: auto;
+        max-height: calc(100vh - 70px);
+        transform: translateY(-110%);
+        transition: transform 0.3s ease, visibility 0.3s ease;
+        visibility: hidden;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
     }
-    
+
     .affiliate-sidebar.mobile-open {
-        transform: translateX(0);
+        transform: translateY(0);
+        visibility: visible;
     }
-    
+
+    /* Hide sidebar logo header on mobile as it's redundant */
+    .affiliate-sidebar .sidebar-header {
+        display: none;
+    }
+
+    /* Compact sidebar navigation spacing for mobile */
+    .sidebar-nav {
+        padding: var(--space-3) 0;
+    }
+
     /* Main content - Full width */
     .affiliate-main {
         margin-left: 0;
     }
-    
-    .affiliate-sidebar.collapsed ~ .affiliate-main {
+
+    .affiliate-sidebar.collapsed~.affiliate-main {
         margin-left: 0;
     }
-    
-    /* Header - Full width */
+
+    /* Header - Full width with high z-index to stay on top */
     .affiliate-header {
         left: 0;
         padding: 0 16px;
+        z-index: 1001;
+        /* Higher than sidebar (1000) */
     }
-    
-    .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-header {
+
+    .affiliate-sidebar.collapsed~.affiliate-main .affiliate-header {
         left: 0;
     }
-    
+
     .header-title {
         font-size: 18px;
     }
-    
+
     .user-name {
         display: none;
     }
-    
+
     /* Breadcrumb - Full width */
     .affiliate-breadcrumb {
         left: 0;
         padding: 0 16px;
     }
-    
-    .affiliate-sidebar.collapsed ~ .affiliate-main .affiliate-breadcrumb {
+
+    .affiliate-sidebar.collapsed~.affiliate-main .affiliate-breadcrumb {
         left: 0;
     }
-    
+
     /* Content - Reduced padding */
     .affiliate-content {
         padding: 16px;
         margin-top: 140px;
     }
-    
+
     /* Stat Cards - Stack vertically */
     .stats-grid,
     .stats-grid-3,
@@ -108,152 +134,152 @@
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
+
     .stat-card {
         padding: 16px;
     }
-    
+
     .stat-icon {
         width: 48px;
         height: 48px;
         font-size: 20px;
     }
-    
+
     .stat-value {
         font-size: 20px;
     }
-    
+
     /* Cards - Reduced padding */
     .card {
         padding: 16px;
     }
-    
+
     .card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
-    
+
     /* Tables - Keep horizontal scroll on mobile */
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
-    
+
     /* Buttons - Full width */
     .btn-mobile-full {
         width: 100%;
         display: block;
     }
-    
+
     /* Forms - Full width */
     .form-row {
         grid-template-columns: 1fr;
     }
-    
+
     /* Page Header - Stack */
     .page-header {
         flex-direction: column;
         gap: 16px;
     }
-    
+
     .page-header-right {
         width: 100%;
     }
-    
+
     /* Footer - Stack vertically */
     .footer-content {
         flex-direction: column;
         text-align: center;
         gap: 12px;
     }
-    
+
     .footer-info {
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     /* Charts - Adjust height */
     .chart-card-body {
         height: 250px;
     }
-    
+
     /* Grid adjustments */
     .grid-cols-2,
     .grid-cols-3,
     .grid-cols-4 {
         grid-template-columns: 1fr;
     }
-    
+
     /* Commission/Tier grids */
     .commission-breakdown-grid,
     .commission-types-grid,
     .customer-value-metrics {
         grid-template-columns: 1fr;
     }
-    
+
     .how-it-works-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     /* Link cards */
     .link-cards {
         grid-template-columns: 1fr;
     }
-    
+
     .link-display {
         flex-direction: column;
     }
-    
+
     .btn-copy-link {
         width: 100%;
         justify-content: center;
     }
-    
+
     /* QR Code card */
     .qr-code-card {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .qr-code-actions {
         justify-content: center;
     }
-    
+
     /* Social share grid */
     .social-share-grid {
         grid-template-columns: 1fr;
     }
-    
+
     /* Campaigns */
     .campaigns-grid {
         grid-template-columns: 1fr;
     }
-    
+
     /* Profile tabs */
     .profile-tabs {
         flex-direction: column;
     }
-    
+
     .tab-btn {
         justify-content: flex-start;
     }
-    
+
     /* Form actions */
     .form-actions {
         flex-direction: column;
     }
-    
+
     .form-actions .btn {
         width: 100%;
     }
-    
+
     /* Pagination */
     .pagination-container {
         flex-direction: column;
         gap: 16px;
     }
-    
+
     /* Filter grids */
     .filters-grid,
     .filters-grid-2,
@@ -261,23 +287,23 @@
     .filters-grid-4 {
         grid-template-columns: 1fr;
     }
-    
+
     .filters-form .filter-group {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .filter-item {
         min-width: auto;
         width: 100%;
     }
-    
+
     .filter-actions {
         margin-left: 0;
         width: 100%;
         justify-content: stretch;
     }
-    
+
     .filter-actions .btn {
         flex: 1;
     }
@@ -287,58 +313,59 @@
    Extra Small Mobile (< 480px)
    =================================== */
 @media (max-width: 480px) {
+
     /* Further reduce spacing */
     .affiliate-content {
         padding: 12px;
     }
-    
+
     .card {
         padding: 12px;
     }
-    
+
     /* Stat value - Smaller font */
     .stat-value {
         font-size: 24px;
     }
-    
+
     /* Header title - Smaller */
     .header-title {
         font-size: 16px;
     }
-    
+
     /* Buttons - Smaller padding */
     .btn {
         padding: 8px 12px;
         font-size: 12px;
     }
-    
+
     /* Tables - Smaller text */
     .table {
         font-size: 12px;
     }
-    
+
     .table th,
     .table td {
         padding: 8px;
     }
-    
+
     /* How it works - single column */
     .how-it-works-grid {
         grid-template-columns: 1fr;
     }
-    
+
     /* Balance amount */
     .balance-amount {
         font-size: 36px;
     }
-    
+
     /* Customer detail */
     .customer-detail-avatar {
         width: 80px;
         height: 80px;
         font-size: 32px;
     }
-    
+
     .customer-detail-name {
         font-size: 20px;
     }
@@ -348,33 +375,34 @@
    Desktop (> 1024px)
    =================================== */
 @media (min-width: 1024px) {
+
     /* Stat Cards - 4 columns */
     .stats-grid {
         grid-template-columns: repeat(4, 1fr);
     }
-    
+
     /* Multi-column layouts */
     .content-grid-2 {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 24px;
     }
-    
+
     .content-grid-3 {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 24px;
     }
-    
+
     /* Sidebar - Full width */
     .affiliate-sidebar {
         width: 250px;
     }
-    
+
     .affiliate-sidebar.collapsed {
         width: 70px;
     }
-    
+
     /* Charts - Larger height */
     .chart-card-body {
         height: 350px;
@@ -385,6 +413,7 @@
    Print Styles
    =================================== */
 @media print {
+
     /* Hide navigation elements */
     .affiliate-sidebar,
     .affiliate-header,
@@ -392,30 +421,30 @@
     .affiliate-footer {
         display: none;
     }
-    
+
     /* Full width content */
     .affiliate-main {
         margin-left: 0;
     }
-    
+
     .affiliate-content {
         margin-top: 0;
         padding: 0;
     }
-    
+
     /* Remove shadows and transitions */
     .card,
     .stat-card {
         border: 1px solid #D1D5DB;
     }
-    
+
     /* Ensure proper page breaks */
     .card,
     .stat-card,
     .table {
         page-break-inside: avoid;
     }
-    
+
     /* Black and white */
     * {
         color: #000 !important;
@@ -483,4 +512,24 @@
     .mb-mobile-4 {
         margin-bottom: 0;
     }
+}
+
+/* Mobile Drawer Overlay for Affiliate */
+.affiliate-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    /* Below sidebar (1000) and header (1001), above page content */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.affiliate-overlay.open {
+    opacity: 1;
+    visibility: visible;
 }

@@ -3,48 +3,98 @@
  * NO INLINE JS - All interactions handled here
  */
 
-(function() {
+(function () {
     'use strict';
 
     // ===================================
-    // Sidebar Toggle
+    // Sidebar Toggle & Mobile Menu
     // ===================================
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('affiliateSidebar');
 
+    // Create overlay dynamically for mobile navigation
+    let overlay = document.querySelector('.affiliate-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'affiliate-overlay';
+        document.body.appendChild(overlay);
+    }
+
     if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            
-            // Save state to localStorage
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('affiliate_sidebar_collapsed', isCollapsed);
+        // Toggle action based on viewport width
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (window.innerWidth > 768) {
+                sidebar.classList.toggle('collapsed');
+
+                // Save state to localStorage
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                localStorage.setItem('affiliate_sidebar_collapsed', isCollapsed);
+            } else {
+                sidebar.classList.toggle('mobile-open');
+                const isOpen = sidebar.classList.contains('mobile-open');
+
+                // Manage overlay and body scroll
+                if (isOpen) {
+                    overlay.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    overlay.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+
+                // Toggle hamburger icon to times (X) icon
+                const icon = sidebarToggle.querySelector('i');
+                if (icon) {
+                    if (isOpen) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            }
         });
 
-        // Restore sidebar state from localStorage
+        // Restore sidebar state from localStorage on desktop
         const savedState = localStorage.getItem('affiliate_sidebar_collapsed');
-        if (savedState === 'true') {
+        if (savedState === 'true' && window.innerWidth > 768) {
             sidebar.classList.add('collapsed');
         }
     }
 
-    // ===================================
-    // Mobile Sidebar Toggle
-    // ===================================
-    if (window.innerWidth <= 768) {
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('mobile-open');
-            });
+    // Close mobile sidebar when clicking the overlay
+    overlay.addEventListener('click', function () {
+        if (sidebar && sidebar.classList.contains('mobile-open')) {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
 
-            // Close sidebar when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-                    sidebar.classList.remove('mobile-open');
-                }
-            });
+            const icon = sidebarToggle ? sidebarToggle.querySelector('i') : null;
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
         }
-    }
+    });
+
+    // Close mobile sidebar when clicking outside (safe fallback)
+    document.addEventListener('click', function (e) {
+        if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('mobile-open')) {
+            if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target) && !overlay.contains(e.target)) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+
+                const icon = sidebarToggle ? sidebarToggle.querySelector('i') : null;
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        }
+    });
 
     // ===================================
     // Notifications Dropdown
@@ -53,51 +103,51 @@
     const notificationsDropdown = document.querySelector('.notifications-dropdown .dropdown-menu');
 
     if (notificationsBtn) {
-        notificationsBtn.addEventListener('click', function(e) {
+        notificationsBtn.addEventListener('click', function (e) {
             e.stopPropagation();
-            
+
             // Close user menu if open
             if (userDropdown) {
                 userDropdown.classList.remove('show');
             }
-            
+
             // Toggle notifications
             if (notificationsDropdown) {
                 notificationsDropdown.classList.toggle('show');
             }
-            
+
             // Load notifications via AJAX if opening for first time
             if (notificationsDropdown && !notificationsDropdown.classList.contains('loaded')) {
                 loadNotifications();
             }
         });
     }
-    
+
     // Load notifications via AJAX
-    window.loadNotifications = function() {
+    window.loadNotifications = function () {
         const notificationsDropdown = document.querySelector('.notifications-dropdown .dropdown-body');
         if (!notificationsDropdown) return;
-        
+
         fetch('/api/affiliate/notifications')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.notifications) {
-                renderNotifications(data.notifications, data.unread_count);
-                if (notificationsDropdown.parentElement) {
-                    notificationsDropdown.parentElement.classList.add('loaded');
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.notifications) {
+                    renderNotifications(data.notifications, data.unread_count);
+                    if (notificationsDropdown.parentElement) {
+                        notificationsDropdown.parentElement.classList.add('loaded');
+                    }
                 }
-            }
-        })
-        .catch(error => {
-            console.error('Error loading notifications:', error);
-        });
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+            });
     };
-    
+
     // Render notifications
-    window.renderNotifications = function(notifications, unreadCount) {
+    window.renderNotifications = function (notifications, unreadCount) {
         const notificationsDropdown = document.querySelector('.notifications-dropdown .dropdown-body');
         const badge = document.querySelector('#notificationsBtn .badge');
-        
+
         // Update badge
         if (badge) {
             if (unreadCount > 0) {
@@ -107,9 +157,9 @@
                 badge.style.display = 'none';
             }
         }
-        
+
         if (!notificationsDropdown) return;
-        
+
         if (!notifications || notifications.length === 0) {
             notificationsDropdown.innerHTML = `
                 <div class="notification-empty">
@@ -119,12 +169,12 @@
             `;
             return;
         }
-        
+
         let html = '';
         notifications.forEach(notif => {
             const iconClass = getNotificationIcon(notif.type);
             const timeAgo = getTimeAgo(notif.created_at);
-            
+
             html += `
                 <div class="notification-item${notif.is_read ? '' : ' unread'}">
                     <div class="notification-icon">
@@ -137,10 +187,10 @@
                 </div>
             `;
         });
-        
+
         notificationsDropdown.innerHTML = html;
     };
-    
+
     // Get notification icon based on type
     function getNotificationIcon(type) {
         const icons = {
@@ -156,31 +206,31 @@
         };
         return icons[type] || 'fa-info-circle text-info';
     }
-    
+
     // Get time ago string
     function getTimeAgo(datetime) {
         if (!datetime) return 'Vừa xong';
-        
+
         const timestamp = new Date(datetime).getTime();
         const diff = Math.floor((Date.now() - timestamp) / 1000);
-        
+
         if (diff < 60) return 'Vừa xong';
         if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
         if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
         if (diff < 604800) return Math.floor(diff / 86400) + ' ngày trước';
-        
+
         return new Date(datetime).toLocaleDateString('vi-VN');
     }
-    
+
     // Escape HTML to prevent XSS
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     // Mark notification as read
-    window.markNotificationAsRead = function(notificationId) {
+    window.markNotificationAsRead = function (notificationId) {
         fetch('/api/affiliate/notifications/mark-read', {
             method: 'POST',
             headers: {
@@ -188,34 +238,34 @@
             },
             body: JSON.stringify({ id: notificationId })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadNotifications();
-            }
-        })
-        .catch(error => {
-            console.error('Error marking notification as read:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error marking notification as read:', error);
+            });
     };
-    
+
     // Mark all notifications as read
-    window.markAllNotificationsAsRead = function() {
+    window.markAllNotificationsAsRead = function () {
         fetch('/api/affiliate/notifications/mark-all-read', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadNotifications();
-            }
-        })
-        .catch(error => {
-            console.error('Error marking all notifications as read:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all notifications as read:', error);
+            });
     };
 
     // ===================================
@@ -225,14 +275,14 @@
     const userDropdown = document.querySelector('.user-dropdown .dropdown-menu');
 
     if (userMenuBtn) {
-        userMenuBtn.addEventListener('click', function(e) {
+        userMenuBtn.addEventListener('click', function (e) {
             e.stopPropagation();
-            
+
             // Close notifications if open
             if (notificationsDropdown) {
                 notificationsDropdown.classList.remove('show');
             }
-            
+
             // Toggle user menu
             if (userDropdown) {
                 userDropdown.classList.toggle('show');
@@ -241,7 +291,7 @@
     }
 
     // Close dropdowns when clicking outside
-    document.addEventListener('click', function() {
+    document.addEventListener('click', function () {
         if (notificationsDropdown) {
             notificationsDropdown.classList.remove('show');
         }
@@ -270,40 +320,40 @@
     // Sidebar Submenu Toggle
     // ===================================
     const menuItemsWithSubmenu = document.querySelectorAll('.nav-item.has-submenu');
-    
+
     menuItemsWithSubmenu.forEach(item => {
         const navLink = item.querySelector('.nav-link');
         const submenu = item.querySelector('.submenu');
-        
+
         if (navLink && submenu) {
             // Check if current page is in this submenu
             const submenuLinks = submenu.querySelectorAll('.submenu-link');
             let isCurrentInSubmenu = false;
-            
+
             submenuLinks.forEach(link => {
                 if (link.href === window.location.href) {
                     isCurrentInSubmenu = true;
                 }
             });
-            
+
             // Open submenu if current page is inside
             if (isCurrentInSubmenu || item.classList.contains('active')) {
                 item.classList.add('open');
             }
-            
+
             // Toggle on click
-            navLink.addEventListener('click', function(e) {
+            navLink.addEventListener('click', function (e) {
                 // Don't prevent default if sidebar is collapsed (let it navigate)
                 if (!sidebar || !sidebar.classList.contains('collapsed')) {
                     e.preventDefault();
-                    
+
                     // Close other submenus
                     menuItemsWithSubmenu.forEach(otherItem => {
                         if (otherItem !== item) {
                             otherItem.classList.remove('open');
                         }
                     });
-                    
+
                     // Toggle current submenu
                     item.classList.toggle('open');
                 }
@@ -315,7 +365,7 @@
     // Smooth Scroll for Anchor Links
     // ===================================
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
             if (href !== '#' && href !== '') {
                 e.preventDefault();
@@ -333,11 +383,11 @@
     // ===================================
     // Copy to Clipboard Utility
     // ===================================
-    window.copyToClipboard = function(text, button) {
+    window.copyToClipboard = function (text, button) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(function() {
+            navigator.clipboard.writeText(text).then(function () {
                 showCopySuccess(button);
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.error('Failed to copy:', err);
                 fallbackCopyToClipboard(text, button);
             });
@@ -353,14 +403,14 @@
         textArea.style.left = '-999999px';
         document.body.appendChild(textArea);
         textArea.select();
-        
+
         try {
             document.execCommand('copy');
             showCopySuccess(button);
         } catch (err) {
             console.error('Fallback copy failed:', err);
         }
-        
+
         document.body.removeChild(textArea);
     }
 
@@ -369,8 +419,8 @@
             const originalText = button.innerHTML;
             button.innerHTML = '<i class="fas fa-check"></i> Đã sao chép!';
             button.classList.add('btn-success');
-            
-            setTimeout(function() {
+
+            setTimeout(function () {
                 button.innerHTML = originalText;
                 button.classList.remove('btn-success');
             }, 2000);
@@ -380,7 +430,7 @@
     // ===================================
     // Format Currency
     // ===================================
-    window.formatCurrency = function(amount) {
+    window.formatCurrency = function (amount) {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND'
@@ -390,14 +440,14 @@
     // ===================================
     // Format Number
     // ===================================
-    window.formatNumber = function(number) {
+    window.formatNumber = function (number) {
         return new Intl.NumberFormat('vi-VN').format(number);
     };
 
     // ===================================
     // Format Date
     // ===================================
-    window.formatDate = function(dateString) {
+    window.formatDate = function (dateString) {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('vi-VN', {
             year: 'numeric',
@@ -409,7 +459,7 @@
     // ===================================
     // Show Alert Message
     // ===================================
-    window.showAlert = function(message, type = 'info') {
+    window.showAlert = function (message, type = 'info') {
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${type} alert-dismissible`;
         alertDiv.innerHTML = `
@@ -418,13 +468,13 @@
                 <i class="fas fa-times"></i>
             </button>
         `;
-        
+
         const content = document.querySelector('.affiliate-content');
         if (content) {
             content.insertBefore(alertDiv, content.firstChild);
-            
+
             // Auto dismiss after 5 seconds
-            setTimeout(function() {
+            setTimeout(function () {
                 alertDiv.remove();
             }, 5000);
         }
@@ -433,7 +483,7 @@
     // ===================================
     // Loading Spinner
     // ===================================
-    window.showLoading = function() {
+    window.showLoading = function () {
         const loadingDiv = document.createElement('div');
         loadingDiv.id = 'loadingSpinner';
         loadingDiv.className = 'loading-spinner';
@@ -446,7 +496,7 @@
         document.body.appendChild(loadingDiv);
     };
 
-    window.hideLoading = function() {
+    window.hideLoading = function () {
         const loadingDiv = document.getElementById('loadingSpinner');
         if (loadingDiv) {
             loadingDiv.remove();
@@ -456,7 +506,7 @@
     // ===================================
     // Confirm Dialog
     // ===================================
-    window.confirmAction = function(message, callback) {
+    window.confirmAction = function (message, callback) {
         if (confirm(message)) {
             callback();
         }
@@ -468,19 +518,19 @@
     function initTooltips() {
         const tooltips = document.querySelectorAll('[data-tooltip]');
         tooltips.forEach(element => {
-            element.addEventListener('mouseenter', function() {
+            element.addEventListener('mouseenter', function () {
                 const tooltipText = this.getAttribute('data-tooltip');
                 const tooltip = document.createElement('div');
                 tooltip.className = 'tooltip';
                 tooltip.textContent = tooltipText;
                 document.body.appendChild(tooltip);
-                
+
                 const rect = this.getBoundingClientRect();
                 tooltip.style.top = (rect.top - tooltip.offsetHeight - 5) + 'px';
                 tooltip.style.left = (rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)) + 'px';
             });
-            
-            element.addEventListener('mouseleave', function() {
+
+            element.addEventListener('mouseleave', function () {
                 const tooltip = document.querySelector('.tooltip');
                 if (tooltip) {
                     tooltip.remove();
