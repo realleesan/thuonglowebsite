@@ -15,6 +15,13 @@ $page = max(1, $page);
 $perPage = 12;
 $orderBy = $_GET['order_by'] ?? 'name';
 
+// Get filter parameters
+$minProducts = $_GET['min_products'] ?? null;
+$filters = [];
+if ($minProducts !== null && is_numeric($minProducts)) {
+    $filters['min_products'] = (int)$minProducts;
+}
+
 // Initialize data variables
 $categories = [];
 $pagination = [];
@@ -27,7 +34,7 @@ $errorMessage = '';
 try {
     // Get categories page data
     if ($service && method_exists($service, 'getCategoriesPageData')) {
-        $categoriesData = $service->getCategoriesPageData($page, $perPage, $orderBy);
+        $categoriesData = $service->getCategoriesPageData($page, $perPage, $orderBy, $filters);
     } else {
         $categoriesData = [];
     }
@@ -133,9 +140,6 @@ $displayedCategories = $categories; // Already paginated by service
                                         <?php foreach ($displayedCategories as $category): ?>
                                         <!-- Category Item -->
                                         <div class="category-item">
-                                            <div class="category-tag-wrapper">
-                                                <a href="#" class="category-tag"><?php echo htmlspecialchars($category['status'] ?? 'Phổ biến'); ?></a>
-                                            </div>
                                             <div class="category-image">
                                                 <a href="?page=products&category=<?php echo $category['id']; ?>">
                                                     <img src="<?php echo !empty($category['image']) ? htmlspecialchars($category['image']) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png'; ?>" 
@@ -265,7 +269,6 @@ $displayedCategories = $categories; // Already paginated by service
                                                                 <span class="custom-checkbox"></span>
                                                                 <span class="category-label">10+ Sản Phẩm</span>
                                                             </label>
-                                                            <span class="category-count"><?php echo $ranges['10+']; ?></span>
                                                         </div>
                                                     </li>
                                                     <li class="category-item <?php echo $currentMinProducts === '20' ? 'active' : ''; ?>">
@@ -275,7 +278,6 @@ $displayedCategories = $categories; // Already paginated by service
                                                                 <span class="custom-checkbox"></span>
                                                                 <span class="category-label">20+ Sản Phẩm</span>
                                                             </label>
-                                                            <span class="category-count"><?php echo $ranges['20+']; ?></span>
                                                         </div>
                                                     </li>
                                                     <li class="category-item <?php echo $currentMinProducts === '30' ? 'active' : ''; ?>">
@@ -285,7 +287,6 @@ $displayedCategories = $categories; // Already paginated by service
                                                                 <span class="custom-checkbox"></span>
                                                                 <span class="category-label">30+ Sản Phẩm</span>
                                                             </label>
-                                                            <span class="category-count"><?php echo $ranges['30+']; ?></span>
                                                         </div>
                                                     </li>
                                                 </ul>

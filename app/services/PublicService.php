@@ -251,123 +251,27 @@ class PublicService extends BaseService
         try {
             $page = $filters['page'] ?? 1;
             $limit = $filters['limit'] ?? 12;
-            $categoryId = $filters['category_id'] ?? null;
-            $brandId = $filters['brand_id'] ?? null;
-            $orderBy = $filters['order_by'] ?? 'post_date';
-            $search = $filters['search'] ?? '';
-            $priceType = $filters['price_type'] ?? ''; // 'free', 'paid', or empty string
-            $minPrice = isset($filters['min_price']) && $filters['min_price'] !== '' ? (float) $filters['min_price'] : null;
-            $maxPrice = isset($filters['max_price']) && $filters['max_price'] !== '' ? (float) $filters['max_price'] : null;
-            $supplier = $filters['supplier'] ?? '';
+            $offset = ($page - 1) * $limit;
 
-            // Lấy danh sách sản phẩm (lấy tất cả rồi lọc thủ công)
-            $products = $this->callModelMethod(
+            // Get total matching products count from database
+            $total = $this->callModelMethod(
                 'ProductsModel',
-                'getWithCategory',
-                [$limit * 10],
+                'getFilteredProductsCount',
+                [$filters],
                 []
             );
 
-            // Apply filters manually (in-memory filtering)
-            if (!is_array($products)) {
-                $products = [];
+            // Get paginated matching products from database
+            $paginatedProducts = $this->callModelMethod(
+                'ProductsModel',
+                'getFilteredProducts',
+                [$filters, $limit, $offset],
+                []
+            );
+
+            if (!is_array($paginatedProducts)) {
+                $paginatedProducts = [];
             }
-
-            // Filter by category
-            if ($categoryId) {
-                if (is_array($categoryId)) {
-                    $selectedCategoryIds = array_map('intval', $categoryId);
-                } else {
-                    $selectedCategoryIds = [(int)$categoryId];
-                }
-                
-                $allExpandedCategoryIds = [];
-                $categoriesModel = $this->getModel('CategoriesModel');
-                foreach ($selectedCategoryIds as $catId) {
-                    $allExpandedCategoryIds[] = $catId;
-                    if ($categoriesModel && method_exists($categoriesModel, 'getAllChildCategoryIds')) {
-                        $childIds = $categoriesModel->getAllChildCategoryIds($catId);
-                        if (is_array($childIds)) {
-                            $allExpandedCategoryIds = array_merge($allExpandedCategoryIds, $childIds);
-                        }
-                    }
-                }
-                $allExpandedCategoryIds = array_unique(array_map('intval', $allExpandedCategoryIds));
-
-                $products = array_filter($products, function ($product) use ($allExpandedCategoryIds) {
-                    return in_array((int) ($product['category_id'] ?? 0), $allExpandedCategoryIds, true);
-                });
-            }
-
-            // Filter by brand
-            if ($brandId) {
-                if (is_array($brandId)) {
-                    $selectedBrandIds = array_map('intval', $brandId);
-                } else {
-                    $selectedBrandIds = [(int)$brandId];
-                }
-                $products = array_filter($products, function ($product) use ($selectedBrandIds) {
-                    return in_array((int) ($product['brand_id'] ?? 0), $selectedBrandIds, true);
-                });
-            }
-
-            // Filter by price type (single value: 'free', 'paid', or empty)
-            if ($priceType === 'free') {
-                // Miễn phí: price = 0 hoặc sale_price = 0
-                $products = array_filter($products, function ($product) {
-                    $price = floatval($product['price'] ?? 0);
-                    $salePrice = floatval($product['sale_price'] ?? 0);
-                    return $price == 0 || $salePrice == 0;
-                });
-            } elseif ($priceType === 'paid') {
-                // Có phí: price > 0 hoặc sale_price > 0
-                $products = array_filter($products, function ($product) {
-                    $price = floatval($product['price'] ?? 0);
-                    $salePrice = floatval($product['sale_price'] ?? 0);
-                    return $price > 0 || $salePrice > 0;
-                });
-            }
-
-            // Filter by custom price range
-            if ($minPrice !== null || $maxPrice !== null) {
-                $products = array_filter($products, function ($product) use ($minPrice, $maxPrice) {
-                    $price = floatval($product['price'] ?? 0);
-                    $salePrice = floatval($product['sale_price'] ?? 0);
-                    $effectivePrice = $salePrice > 0 ? $salePrice : $price;
-
-                    if ($minPrice !== null && $effectivePrice < $minPrice) {
-                        return false;
-                    }
-                    if ($maxPrice !== null && $effectivePrice > $maxPrice) {
-                        return false;
-                    }
-
-                    return true;
-                });
-            }
-
-            // Filter by supplier
-            if ($supplier) {
-                $products = array_filter($products, function ($product) use ($supplier) {
-                    return stripos($product['supplier_name'] ?? '', $supplier) !== false;
-                });
-            }
-
-            // Search
-            if ($search && is_array($products)) {
-                $products = array_filter($products, function ($product) use ($search) {
-                    return stripos($product['name'], $search) !== false
-                        || stripos($product['description'] ?? '', $search) !== false;
-                });
-            }
-
-            // Sorting
-            $products = $this->sortProducts($products, $orderBy);
-
-            // Pagination
-            $total = count($products);
-            $offset = ($page - 1) * $limit;
-            $paginatedProducts = array_slice($products, $offset, $limit);
 
             return [
                 'products' => $this->transformer->transformProducts($paginatedProducts),
@@ -438,7 +342,46 @@ class PublicService extends BaseService
             }
 
             $category = null;
-            if (!empty($product['category_id'])) {
+            $productCategories = $this->callModelMethod(
+                'ProductsModel',
+                'getProductCategories',
+                [$productId],
+                []
+            );
+
+            if (!empty($productCategories)) {
+                $catList = [];
+                foreach ($productCategories as $catId) {
+                    $cat = $this->callModelMethod(
+                        'CategoriesModel',
+                        'find',
+                        [$catId]
+                    );
+                    if ($cat) {
+                        $catList[] = $cat;
+                    }
+                }
+
+                if (!empty($catList)) {
+                    // Sắp xếp phân cấp: danh mục cha đứng trước danh mục con
+                    usort($catList, function($a, $b) {
+                        if ($a['id'] == ($b['parent_id'] ?? 0)) {
+                            return -1;
+                        }
+                        if ($b['id'] == ($a['parent_id'] ?? 0)) {
+                            return 1;
+                        }
+                        return ($a['parent_id'] ?? 0) <=> ($b['parent_id'] ?? 0) ?: ($a['id'] <=> $b['id']);
+                    });
+
+                    // Lấy danh mục đầu tiên sau khi sắp xếp làm danh mục chính
+                    $category = $catList[0];
+                    
+                    // Ghép tên các danh mục lại bằng dấu " - "
+                    $catNames = array_column($catList, 'name');
+                    $category['name'] = implode(' - ', $catNames);
+                }
+            } elseif (!empty($product['category_id'])) {
                 $category = $this->callModelMethod(
                     'CategoriesModel',
                     'find',
@@ -780,7 +723,7 @@ class PublicService extends BaseService
      *
      * Dựa trên ViewDataService::getCategoriesPageData (phần public).
      */
-    public function getCategoriesPageData($page = 1, $perPage = 12, $orderBy = 'name'): array
+    public function getCategoriesPageData($page = 1, $perPage = 12, $orderBy = 'name', $filters = []): array
     {
         try {
             // Dùng getAllWithProductCounts để lấy tất cả danh mục active (không lọc show_in_filter)
@@ -793,6 +736,15 @@ class PublicService extends BaseService
 
             if (!is_array($allCategories)) {
                 $allCategories = [];
+            }
+
+            // Áp dụng bộ lọc số lượng sản phẩm tối thiểu
+            if (isset($filters['min_products']) && is_numeric($filters['min_products'])) {
+                $minProducts = (int)$filters['min_products'];
+                $allCategories = array_filter($allCategories, function($cat) use ($minProducts) {
+                    return ($cat['product_count'] ?? 0) >= $minProducts;
+                });
+                $allCategories = array_values($allCategories);
             }
 
             $sortedCategories = $this->sortCategories($allCategories, $orderBy);

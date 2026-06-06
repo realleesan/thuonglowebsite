@@ -539,4 +539,239 @@ class ProductsModel extends BaseModel {
             return false;
         }
     }
+
+    /**
+     * Get count of products matching specific filters
+     */
+    public function getFilteredProductsCount(array $filters): int {
+        $conditions = [];
+        $bindings = [];
+
+        $conditions[] = "p.status = 'active'";
+
+        // 1. Category Filter
+        if (!empty($filters['category_id'])) {
+            $catIds = is_array($filters['category_id']) ? $filters['category_id'] : [(int)$filters['category_id']];
+            $expandedIds = [];
+            if (class_exists('CategoriesModel')) {
+                $categoriesModel = new CategoriesModel();
+                foreach ($catIds as $catId) {
+                    $expandedIds[] = (int)$catId;
+                    $childIds = $categoriesModel->getAllChildCategoryIds($catId);
+                    if (is_array($childIds)) {
+                        $expandedIds = array_merge($expandedIds, $childIds);
+                    }
+                }
+            } else {
+                $expandedIds = array_map('intval', $catIds);
+            }
+            $expandedIds = array_unique($expandedIds);
+            
+            if (!empty($expandedIds)) {
+                $placeholders1 = [];
+                $placeholders2 = [];
+                foreach ($expandedIds as $i => $id) {
+                    $key1 = "cat_a_" . $i;
+                    $key2 = "cat_b_" . $i;
+                    $placeholders1[] = ":" . $key1;
+                    $placeholders2[] = ":" . $key2;
+                    $bindings[$key1] = $id;
+                    $bindings[$key2] = $id;
+                }
+                $placeholderStr1 = implode(',', $placeholders1);
+                $placeholderStr2 = implode(',', $placeholders2);
+                $conditions[] = "(p.category_id IN ({$placeholderStr1}) OR EXISTS (
+                    SELECT 1 FROM product_categories pc 
+                    WHERE pc.product_id = p.id AND pc.category_id IN ({$placeholderStr2})
+                ))";
+            }
+        }
+
+        // 2. Brand Filter
+        if (!empty($filters['brand_id'])) {
+            $brandIds = is_array($filters['brand_id']) ? $filters['brand_id'] : [(int)$filters['brand_id']];
+            $placeholders = [];
+            foreach ($brandIds as $i => $id) {
+                $key = "brand_" . $i;
+                $placeholders[] = ":" . $key;
+                $bindings[$key] = (int)$id;
+            }
+            $conditions[] = "p.brand_id IN (" . implode(',', $placeholders) . ")";
+        }
+
+        // 3. Price type (free vs paid)
+        if (!empty($filters['price_type'])) {
+            if ($filters['price_type'] === 'free') {
+                $conditions[] = "(p.price = 0 OR p.sale_price = 0)";
+            } elseif ($filters['price_type'] === 'paid') {
+                $conditions[] = "(p.price > 0 OR p.sale_price > 0)";
+            }
+        }
+
+        // 4. Price range
+        if (isset($filters['min_price']) && $filters['min_price'] !== '') {
+            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) >= :min_price";
+            $bindings['min_price'] = (float)$filters['min_price'];
+        }
+        if (isset($filters['max_price']) && $filters['max_price'] !== '') {
+            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) <= :max_price";
+            $bindings['max_price'] = (float)$filters['max_price'];
+        }
+
+        // 5. Supplier filter
+        if (!empty($filters['supplier'])) {
+            $conditions[] = "p.supplier_name LIKE :supplier";
+            $bindings['supplier'] = "%" . $filters['supplier'] . "%";
+        }
+
+        // 6. Search keyword
+        if (!empty($filters['search'])) {
+            $conditions[] = "(p.name LIKE :search OR p.description LIKE :search)";
+            $bindings['search'] = "%" . $filters['search'] . "%";
+        }
+
+        $whereClause = "";
+        if (!empty($conditions)) {
+            $whereClause = "WHERE " . implode(' AND ', $conditions);
+        }
+
+        $sql = "SELECT COUNT(DISTINCT p.id) as count FROM {$this->table} p {$whereClause}";
+        $result = $this->db->query($sql, $bindings);
+        return (int)($result[0]['count'] ?? 0);
+    }
+
+    /**
+     * Get paginated products matching specific filters
+     */
+    public function getFilteredProducts(array $filters, int $limit, int $offset): array {
+        $conditions = [];
+        $bindings = [];
+
+        $conditions[] = "p.status = 'active'";
+
+        // 1. Category Filter
+        if (!empty($filters['category_id'])) {
+            $catIds = is_array($filters['category_id']) ? $filters['category_id'] : [(int)$filters['category_id']];
+            $expandedIds = [];
+            if (class_exists('CategoriesModel')) {
+                $categoriesModel = new CategoriesModel();
+                foreach ($catIds as $catId) {
+                    $expandedIds[] = (int)$catId;
+                    $childIds = $categoriesModel->getAllChildCategoryIds($catId);
+                    if (is_array($childIds)) {
+                        $expandedIds = array_merge($expandedIds, $childIds);
+                    }
+                }
+            } else {
+                $expandedIds = array_map('intval', $catIds);
+            }
+            $expandedIds = array_unique($expandedIds);
+            
+            if (!empty($expandedIds)) {
+                $placeholders1 = [];
+                $placeholders2 = [];
+                foreach ($expandedIds as $i => $id) {
+                    $key1 = "cat_a_" . $i;
+                    $key2 = "cat_b_" . $i;
+                    $placeholders1[] = ":" . $key1;
+                    $placeholders2[] = ":" . $key2;
+                    $bindings[$key1] = $id;
+                    $bindings[$key2] = $id;
+                }
+                $placeholderStr1 = implode(',', $placeholders1);
+                $placeholderStr2 = implode(',', $placeholders2);
+                $conditions[] = "(p.category_id IN ({$placeholderStr1}) OR EXISTS (
+                    SELECT 1 FROM product_categories pc 
+                    WHERE pc.product_id = p.id AND pc.category_id IN ({$placeholderStr2})
+                ))";
+            }
+        }
+
+        // 2. Brand Filter
+        if (!empty($filters['brand_id'])) {
+            $brandIds = is_array($filters['brand_id']) ? $filters['brand_id'] : [(int)$filters['brand_id']];
+            $placeholders = [];
+            foreach ($brandIds as $i => $id) {
+                $key = "brand_" . $i;
+                $placeholders[] = ":" . $key;
+                $bindings[$key] = (int)$id;
+            }
+            $conditions[] = "p.brand_id IN (" . implode(',', $placeholders) . ")";
+        }
+
+        // 3. Price type (free vs paid)
+        if (!empty($filters['price_type'])) {
+            if ($filters['price_type'] === 'free') {
+                $conditions[] = "(p.price = 0 OR p.sale_price = 0)";
+            } elseif ($filters['price_type'] === 'paid') {
+                $conditions[] = "(p.price > 0 OR p.sale_price > 0)";
+            }
+        }
+
+        // 4. Price range
+        if (isset($filters['min_price']) && $filters['min_price'] !== '') {
+            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) >= :min_price";
+            $bindings['min_price'] = (float)$filters['min_price'];
+        }
+        if (isset($filters['max_price']) && $filters['max_price'] !== '') {
+            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) <= :max_price";
+            $bindings['max_price'] = (float)$filters['max_price'];
+        }
+
+        // 5. Supplier filter
+        if (!empty($filters['supplier'])) {
+            $conditions[] = "p.supplier_name LIKE :supplier";
+            $bindings['supplier'] = "%" . $filters['supplier'] . "%";
+        }
+
+        // 6. Search keyword
+        if (!empty($filters['search'])) {
+            $conditions[] = "(p.name LIKE :search OR p.description LIKE :search)";
+            $bindings['search'] = "%" . $filters['search'] . "%";
+        }
+
+        $whereClause = "";
+        if (!empty($conditions)) {
+            $whereClause = "WHERE " . implode(' AND ', $conditions);
+        }
+
+        // Ordering mapping
+        $orderBy = $filters['order_by'] ?? 'post_date';
+        $orderClause = "ORDER BY p.created_at DESC";
+        switch ($orderBy) {
+            case 'price_asc':
+                $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END ASC";
+                break;
+            case 'price_desc':
+                $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END DESC";
+                break;
+            case 'title_asc':
+                $orderClause = "ORDER BY p.name ASC";
+                break;
+            case 'title_desc':
+                $orderClause = "ORDER BY p.name DESC";
+                break;
+            case 'popular':
+                $orderClause = "ORDER BY p.views DESC";
+                break;
+            case 'post_date':
+            default:
+                $orderClause = "ORDER BY p.created_at DESC";
+                break;
+        }
+
+        $limitVal = (int)$limit;
+        $offsetVal = (int)$offset;
+
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            {$whereClause}
+            {$orderClause}
+            LIMIT {$limitVal} OFFSET {$offsetVal}
+        ";
+
+        return $this->db->query($sql, $bindings) ?? [];
+    }
 }

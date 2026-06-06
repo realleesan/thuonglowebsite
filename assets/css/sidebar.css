@@ -116,15 +116,11 @@
 }
 
 .category-item-content:hover {
-    background-color: #f8fafc;
-}
-
-.category-item.active>.category-item-content {
     background-color: #eff6ff;
 }
 
-.category-item.active>.category-item-content .filter-item-label {
-    font-weight: 600;
+.category-item-content:hover .filter-item-label {
+    color: #356df1;
 }
 
 /* Custom Checkbox/Radio Styling */
@@ -308,15 +304,11 @@
 
 /* Sub-category hover states */
 .sub-categories .category-item-content:hover {
-    background: #f1f5f9;
+    background-color: #eff6ff;
 }
 
-.sub-categories .category-item.active>.category-item-content {
-    background: #e0f2fe;
-}
-
-.sub-categories .category-item.active>.category-item-content .category-label {
-    font-weight: 600;
+.sub-categories .category-item-content:hover .category-label {
+    color: #356df1;
 }
 
 /* Price Filter */
