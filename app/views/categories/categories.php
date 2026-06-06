@@ -12,7 +12,7 @@ $service = isset($currentService) ? $currentService : ($publicService ?? null);
 // Get pagination and sorting parameters
 $page = isset($_GET['p']) ? (int) $_GET['p'] : 1;
 $page = max(1, $page);
-$perPage = 12;
+$perPage = 1000;
 $orderBy = $_GET['order_by'] ?? 'name';
 
 // Get filter parameters
@@ -71,6 +71,199 @@ try {
 $offset = ($page - 1) * $perPage;
 $totalPages = $pagination['last_page'] ?? 1;
 $displayedCategories = $categories; // Already paginated by service
+
+// Group child categories under parent categories using recursive ultimate-root tracing
+$allCategoriesMap = [];
+foreach ($displayedCategories as $cat) {
+    $allCategoriesMap[$cat['id']] = $cat;
+}
+
+// Function to find the ultimate root category ID of a category
+if (!function_exists('getUltimateRootParentId')) {
+    function getUltimateRootParentId($catId, $allCategoriesMap) {
+        $current = $allCategoriesMap[$catId] ?? null;
+        if (!$current) {
+            return $catId;
+        }
+        
+        $parentId = $current['parent_id'] ?? null;
+        if (empty($parentId)) {
+            return $catId;
+        }
+        
+        $visited = [$catId];
+        while (!empty($parentId)) {
+            if (in_array($parentId, $visited)) {
+                break; // prevent circular reference loops
+            }
+            $visited[] = $parentId;
+            if (!isset($allCategoriesMap[$parentId])) {
+                return $parentId;
+            }
+            $current = $allCategoriesMap[$parentId];
+            $nextParentId = $current['parent_id'] ?? null;
+            if (empty($nextParentId)) {
+                return $parentId;
+            }
+            $parentId = $nextParentId;
+        }
+        return $parentId;
+    }
+}
+
+// Function to get the display path relative to the root parent
+if (!function_exists('getCategoryDisplayPath')) {
+    function getCategoryDisplayPath($catId, $allCategoriesMap, $rootId) {
+        $pathNames = [];
+        $currentId = $catId;
+        $visited = [];
+        
+        while (!empty($currentId) && $currentId != $rootId) {
+            if (in_array($currentId, $visited)) {
+                break;
+            }
+            $visited[] = $currentId;
+            
+            if (isset($allCategoriesMap[$currentId])) {
+                $cat = $allCategoriesMap[$currentId];
+                array_unshift($pathNames, $cat['name']);
+                $currentId = $cat['parent_id'] ?? null;
+            } else {
+                break;
+            }
+        }
+        
+        return implode(' - ', $pathNames);
+    }
+}
+
+// Function to recursively build a category tree branch from a flat descendant list
+if (!function_exists('buildCategoryTreeFromList')) {
+    function buildCategoryTreeFromList(array $list, $parentId) {
+        $branch = [];
+        foreach ($list as $cat) {
+            $pId = $cat['parent_id'] ?? null;
+            if ($pId == $parentId) {
+                $children = buildCategoryTreeFromList($list, $cat['id']);
+                $cat['children'] = $children;
+                $branch[] = $cat;
+            }
+        }
+        return $branch;
+    }
+}
+
+// Recursive function to render a tree node as a collapsible row
+if (!function_exists('renderCategoryTreeNode')) {
+    function renderCategoryTreeNode($node, $level = 2) {
+        $children = $node['children'] ?? [];
+        $hasChildren = !empty($children);
+        $nodeId = $node['id'];
+        $nodeName = $node['name'];
+        $nodeDesc = $node['description'] ?? '';
+        $nodeImage = $node['image'] ?? '';
+        $nodeCount = $node['product_count'] ?? 0;
+        
+        $levelClass = "category-node-level-" . $level;
+        ?>
+        <div class="category-tree-node <?php echo $levelClass; ?> <?php echo $hasChildren ? 'has-children' : ''; ?>" id="cat-node-<?php echo $nodeId; ?>">
+            <div class="category-node-header">
+                <div class="node-left">
+                    <div class="node-image">
+                        <a href="?page=products&category[]=<?php echo $nodeId; ?>">
+                            <img src="<?php echo !empty($nodeImage) ? htmlspecialchars($nodeImage) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png'; ?>" 
+                                 alt="<?php echo htmlspecialchars($nodeName); ?>" loading="lazy">
+                        </a>
+                    </div>
+                    <div class="node-info">
+                        <h4 class="node-title">
+                            <a href="?page=products&category[]=<?php echo $nodeId; ?>"><?php echo htmlspecialchars($nodeName); ?></a>
+                        </h4>
+                        <?php if (!empty($nodeDesc)): ?>
+                            <p class="node-desc"><?php echo htmlspecialchars($nodeDesc); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="node-right">
+                    <span class="node-count"><?php echo $nodeCount; ?> sản phẩm</span>
+                    <?php if ($hasChildren): ?>
+                        <button class="node-toggle" aria-label="Toggle subcategories">
+                            <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <?php if ($hasChildren): ?>
+                <div class="category-node-content">
+                    <div class="node-children-list">
+                        <?php foreach ($children as $child): ?>
+                            <?php renderCategoryTreeNode($child, $level + 1); ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+}
+
+
+$rootCategoriesMap = [];
+$childrenByRootMap = [];
+
+// Identify root categories and group children by their ultimate root
+foreach ($displayedCategories as $cat) {
+    $rootId = getUltimateRootParentId($cat['id'], $allCategoriesMap);
+    
+    if ($cat['id'] == $rootId) {
+        $rootCategoriesMap[$cat['id']] = $cat;
+        if (!isset($childrenByRootMap[$cat['id']])) {
+            $childrenByRootMap[$cat['id']] = [];
+        }
+    } else {
+        // This is a subcategory (level 2, 3, etc.)
+        // Ensure the root parent is initialized in our maps
+        if (!isset($rootCategoriesMap[$rootId])) {
+            $rootCategoriesMap[$rootId] = [
+                'id' => $rootId,
+                'name' => isset($allCategoriesMap[$rootId]) ? $allCategoriesMap[$rootId]['name'] : 'Danh mục gốc',
+                'description' => isset($allCategoriesMap[$rootId]) ? $allCategoriesMap[$rootId]['description'] : '',
+                'image' => isset($allCategoriesMap[$rootId]) ? $allCategoriesMap[$rootId]['image'] : '',
+                'product_count' => isset($allCategoriesMap[$rootId]) ? $allCategoriesMap[$rootId]['product_count'] : 0,
+            ];
+            $childrenByRootMap[$rootId] = [];
+        }
+        
+        $cat['display_path'] = getCategoryDisplayPath($cat['id'], $allCategoriesMap, $rootId);
+        $childrenByRootMap[$rootId][] = $cat;
+    }
+}
+
+// Rebuild sorted parent categories list keeping original order
+$sortedParentCategories = [];
+foreach ($displayedCategories as $cat) {
+    if (isset($rootCategoriesMap[$cat['id']])) {
+        $sortedParentCategories[] = $rootCategoriesMap[$cat['id']];
+        unset($rootCategoriesMap[$cat['id']]);
+    }
+}
+foreach ($rootCategoriesMap as $cat) {
+    $sortedParentCategories[] = $cat;
+}
+
+// Perform View-level pagination for the 10 root parent categories per page
+$perPageRoot = 10;
+$totalRoots = count($sortedParentCategories);
+$totalPages = (int) ceil($totalRoots / $perPageRoot);
+if ($totalPages < 1) {
+    $totalPages = 1;
+}
+$page = max(1, min($page, $totalPages));
+$offsetRoot = ($page - 1) * $perPageRoot;
+$parentCategoriesToShow = array_slice($sortedParentCategories, $offsetRoot, $perPageRoot);
 ?>
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
@@ -124,44 +317,69 @@ $displayedCategories = $categories; // Already paginated by service
                                     </div>
                                 </div>
 
-                                <!-- Categories Grid -->
-                                <div class="categories-grid">
+                                <!-- Categories Accordion List -->
+                                <div class="category-accordion-list">
                                     <?php if ($showErrorMessage): ?>
                                         <div class="error-message">
                                             <p><?php echo htmlspecialchars($errorMessage); ?></p>
                                         </div>
                                     <?php endif; ?>
                                     
-                                    <?php if (empty($displayedCategories)): ?>
+                                    <?php if (empty($sortedParentCategories)): ?>
                                         <div class="no-categories">
                                             <p>Chưa có danh mục nào được tạo.</p>
                                         </div>
                                     <?php else: ?>
-                                        <?php foreach ($displayedCategories as $category): ?>
-                                        <!-- Category Item -->
-                                        <div class="category-item">
-                                            <div class="category-image">
-                                                <a href="?page=products&category=<?php echo $category['id']; ?>">
-                                                    <img src="<?php echo !empty($category['image']) ? htmlspecialchars($category['image']) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png'; ?>" 
-                                                         alt="<?php echo htmlspecialchars($category['name']); ?>" loading="lazy">
-                                                </a>
-                                            </div>
-                                            <div class="category-content">
-                                                <h3 class="category-title">
-                                                    <a href="?page=products&category=<?php echo $category['id']; ?>"><?php echo htmlspecialchars($category['name']); ?></a>
-                                                </h3>
-                                                <div class="category-description">
-                                                    <?php echo htmlspecialchars($category['description'] ?? 'Mô tả danh mục sẽ được cập nhật sớm.'); ?>
+                                        <?php foreach ($parentCategoriesToShow as $parent): 
+                                            $children = buildCategoryTreeFromList($childrenByRootMap[$parent['id']] ?? [], $parent['id']);
+                                        ?>
+                                        <!-- Accordion Item -->
+                                        <div class="category-accordion-item" id="cat-accordion-<?php echo $parent['id']; ?>">
+                                            <div class="category-accordion-header">
+                                                <div class="header-left">
+                                                    <div class="parent-image">
+                                                        <a href="?page=products&category[]=<?php echo $parent['id']; ?>">
+                                                            <img src="<?php echo !empty($parent['image']) ? htmlspecialchars($parent['image']) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png'; ?>" 
+                                                                 alt="<?php echo htmlspecialchars($parent['name']); ?>" loading="lazy">
+                                                        </a>
+                                                     </div>
+                                                     <div class="parent-info">
+                                                         <h3 class="parent-title">
+                                                             <a href="?page=products&category[]=<?php echo $parent['id']; ?>"><?php echo htmlspecialchars($parent['name']); ?></a>
+                                                         </h3>
+                                                         <p class="parent-desc"><?php echo htmlspecialchars($parent['description'] ?? 'Mô tả danh mục sẽ được cập nhật sớm.'); ?></p>
+                                                     </div>
                                                 </div>
-                                                <div class="category-meta">
-                                                    <div class="course-count">
-                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M2 4H14M2 8H14M2 12H10" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
+                                                <div class="header-right">
+                                                    <div class="parent-meta">
+                                                        <span class="product-badge">
+                                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 4px;">
+                                                                <path d="M2 4H14M2 8H14M2 12H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                            </svg>
+                                                            <?php echo ($parent['product_count'] ?? 0); ?> sản phẩm
+                                                        </span>
+                                                    </div>
+                                                    <?php if (!empty($children)): ?>
+                                                    <button class="accordion-toggle" aria-label="Toggle subcategories">
+                                                        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                         </svg>
-                                                        <span><?php echo ($category['product_count'] ?? 0); ?> Sản phẩm</span>
+                                                    </button>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            
+                                            <?php if (!empty($children)): ?>
+                                            <div class="category-accordion-content">
+                                                <div class="subcategories-wrapper">
+                                                    <div class="node-children-list">
+                                                        <?php foreach ($children as $child): ?>
+                                                            <?php renderCategoryTreeNode($child, 2); ?>
+                                                        <?php endforeach; ?>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <?php endif; ?>
                                         </div>
                                         <?php endforeach; ?>
                                     <?php endif; ?>

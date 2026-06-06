@@ -19,6 +19,9 @@ function initializeCategoriesPage() {
 
     // Initialize lazy loading
     initLazyLoading();
+
+    // Initialize main category accordion items
+    initializeAccordionCategories();
 }
 
 // Filter Accordion Functionality
@@ -196,4 +199,43 @@ function initLazyLoading() {
             imageObserver.observe(img);
         });
     }
+}
+
+// Main categories list accordion functionality
+function initializeAccordionCategories() {
+    const accordions = document.querySelectorAll('.category-accordion-item');
+
+    accordions.forEach(acc => {
+        const header = acc.querySelector('.category-accordion-header');
+
+        if (header) {
+            header.addEventListener('click', function (e) {
+                // Ignore click if it originated from a link (like title or image link)
+                if (e.target.closest('a')) {
+                    return;
+                }
+
+                // Toggle active state
+                acc.classList.toggle('active');
+            });
+        }
+    });
+
+    // Handle nested subcategories (Level 2, 3, etc.)
+    const nodeAccordions = document.querySelectorAll('.category-tree-node');
+    nodeAccordions.forEach(node => {
+        const header = node.querySelector(':scope > .category-node-header');
+        if (header) {
+            header.addEventListener('click', function (e) {
+                // Ignore click if it originated from a link
+                if (e.target.closest('a')) {
+                    return;
+                }
+
+                // Toggle active state of this node
+                node.classList.toggle('active');
+                e.stopPropagation(); // Prevent event bubbling to parent node headers
+            });
+        }
+    });
 }
