@@ -258,20 +258,11 @@ $displayedCategories = $categories; // Already paginated by service
                                                         if ($count >= 10) $ranges['10+']++;
                                                     }
                                                     ?>
-                                                    <li class="category-item <?php echo empty($currentMinProducts) ? 'active' : ''; ?>">
-                                                        <div class="category-item-content">
-                                                            <label class="filter-item-label">
-                                                                <input type="radio" name="min_products" value="" <?php echo empty($currentMinProducts) ? 'checked' : ''; ?>>
-                                                                <span class="custom-radio"></span>
-                                                                <span class="category-label">Tất cả</span>
-                                                            </label>
-                                                        </div>
-                                                    </li>
                                                     <li class="category-item <?php echo $currentMinProducts === '10' ? 'active' : ''; ?>">
                                                         <div class="category-item-content">
                                                             <label class="filter-item-label">
-                                                                <input type="radio" name="min_products" value="10" <?php echo $currentMinProducts === '10' ? 'checked' : ''; ?>>
-                                                                <span class="custom-radio"></span>
+                                                                <input type="checkbox" name="min_products" class="filter-checkbox-single" value="10" <?php echo $currentMinProducts === '10' ? 'checked' : ''; ?>>
+                                                                <span class="custom-checkbox"></span>
                                                                 <span class="category-label">10+ Sản Phẩm</span>
                                                             </label>
                                                             <span class="category-count"><?php echo $ranges['10+']; ?></span>
@@ -280,8 +271,8 @@ $displayedCategories = $categories; // Already paginated by service
                                                     <li class="category-item <?php echo $currentMinProducts === '20' ? 'active' : ''; ?>">
                                                         <div class="category-item-content">
                                                             <label class="filter-item-label">
-                                                                <input type="radio" name="min_products" value="20" <?php echo $currentMinProducts === '20' ? 'checked' : ''; ?>>
-                                                                <span class="custom-radio"></span>
+                                                                <input type="checkbox" name="min_products" class="filter-checkbox-single" value="20" <?php echo $currentMinProducts === '20' ? 'checked' : ''; ?>>
+                                                                <span class="custom-checkbox"></span>
                                                                 <span class="category-label">20+ Sản Phẩm</span>
                                                             </label>
                                                             <span class="category-count"><?php echo $ranges['20+']; ?></span>
@@ -290,8 +281,8 @@ $displayedCategories = $categories; // Already paginated by service
                                                     <li class="category-item <?php echo $currentMinProducts === '30' ? 'active' : ''; ?>">
                                                         <div class="category-item-content">
                                                             <label class="filter-item-label">
-                                                                <input type="radio" name="min_products" value="30" <?php echo $currentMinProducts === '30' ? 'checked' : ''; ?>>
-                                                                <span class="custom-radio"></span>
+                                                                <input type="checkbox" name="min_products" class="filter-checkbox-single" value="30" <?php echo $currentMinProducts === '30' ? 'checked' : ''; ?>>
+                                                                <span class="custom-checkbox"></span>
                                                                 <span class="category-label">30+ Sản Phẩm</span>
                                                             </label>
                                                             <span class="category-count"><?php echo $ranges['30+']; ?></span>

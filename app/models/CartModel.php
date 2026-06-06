@@ -21,6 +21,19 @@ class CartModel extends BaseModel {
      * Lấy giỏ hàng của user
      */
     public function getByUser($userId) {
+        // Tự động dọn dẹp các sản phẩm không còn tồn tại hoặc không ở trạng thái 'active'
+        try {
+            $cleanupSql = "DELETE FROM {$this->table} 
+                           WHERE user_id = :user_id 
+                           AND (
+                               product_id NOT IN (SELECT id FROM products)
+                               OR product_id IN (SELECT id FROM products WHERE status != 'active')
+                           )";
+            $this->db->query($cleanupSql, [':user_id' => $userId]);
+        } catch (\Exception $e) {
+            error_log("CartModel::getByUser cleanup error: " . $e->getMessage());
+        }
+
         return $this->db->table($this->table)
             ->select('*')
             ->where('user_id', $userId)

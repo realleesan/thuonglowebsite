@@ -109,6 +109,22 @@ function initializeFilterFunctionality() {
 
             // Update active class based on state
             if (checkbox) {
+                // Single-select checkbox logic (behaves like radio but is a checkbox)
+                if (checkbox.checked && checkbox.classList.contains('filter-checkbox-single')) {
+                    const section = this.closest('.filter-section');
+                    if (section) {
+                        section.querySelectorAll('input[type="checkbox"]').forEach(other => {
+                            if (other !== checkbox) {
+                                other.checked = false;
+                                const otherLi = other.closest('.category-item');
+                                if (otherLi) {
+                                    otherLi.classList.remove('active');
+                                }
+                            }
+                        });
+                    }
+                }
+
                 const li = this.closest('.category-item');
                 if (checkbox.checked) {
                     li.classList.add('active');

@@ -708,26 +708,52 @@ switch($page) {
                 
                 // Handle delete action (redirect to delete_direct for direct deletion)
                 if ($action === 'delete' && isset($_GET['id'])) {
-                    require_once __DIR__ . '/app/models/ProductsModel.php';
-                    $productsModel = new ProductsModel();
+                    require_once __DIR__ . '/app/services/AdminService.php';
+                    $adminService = new AdminService(null, 'admin');
                     $product_id = (int)$_GET['id'];
                     if ($product_id > 0) {
-                        $productsModel->delete($product_id);
+                        try {
+                            $orderCheck = $adminService->checkProductHasOrders($product_id);
+                            if (!empty($orderCheck['has_orders'])) {
+                                // Automatically change status to inactive if product has orders
+                                $adminService->updateProduct($product_id, ['status' => 'inactive']);
+                                header('Location: ?page=admin&module=products&warning=has_orders');
+                            } else {
+                                $adminService->deleteProduct($product_id);
+                                header('Location: ?page=admin&module=products&success=deleted');
+                            }
+                            exit;
+                        } catch (Exception $e) {
+                            header('Location: ?page=admin&module=products&error=system_error');
+                            exit;
+                        }
                     }
-                    // Redirect to products list
                     header('Location: ?page=admin&module=products');
                     exit;
                 }
                 
                 // Handle delete_direct action (no view, just process and redirect)
                 if ($action === 'delete_direct' && isset($_GET['id'])) {
-                    require_once __DIR__ . '/app/models/ProductsModel.php';
-                    $productsModel = new ProductsModel();
+                    require_once __DIR__ . '/app/services/AdminService.php';
+                    $adminService = new AdminService(null, 'admin');
                     $product_id = (int)$_GET['id'];
                     if ($product_id > 0) {
-                        $productsModel->delete($product_id);
+                        try {
+                            $orderCheck = $adminService->checkProductHasOrders($product_id);
+                            if (!empty($orderCheck['has_orders'])) {
+                                // Automatically change status to inactive if product has orders
+                                $adminService->updateProduct($product_id, ['status' => 'inactive']);
+                                header('Location: ?page=admin&module=products&warning=has_orders');
+                            } else {
+                                $adminService->deleteProduct($product_id);
+                                header('Location: ?page=admin&module=products&success=deleted');
+                            }
+                            exit;
+                        } catch (Exception $e) {
+                            header('Location: ?page=admin&module=products&error=system_error');
+                            exit;
+                        }
                     }
-                    // Redirect to products list
                     header('Location: ?page=admin&module=products');
                     exit;
                 }

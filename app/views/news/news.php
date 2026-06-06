@@ -425,24 +425,14 @@ ob_start();
                                              </h3>
                                              <div class="filter-content">
                                                  <ul class="category-list">
-                                                     <li class="category-item <?php echo empty($categoryId) ? 'active' : ''; ?>">
-                                                         <div class="category-item-content">
-                                                             <label class="filter-item-label">
-                                                                 <input type="radio" name="category" value="" 
-                                                                        <?php echo empty($categoryId) ? 'checked' : ''; ?>>
-                                                                 <span class="custom-radio"></span>
-                                                                 <span class="category-label">Tất cả</span>
-                                                             </label>
-                                                         </div>
-                                                     </li>
                                                      <?php if (!empty($categories)): ?>
                                                          <?php foreach ($categories as $cat): ?>
                                                          <li class="category-item <?php echo $categoryId == $cat['id'] ? 'active' : ''; ?>">
                                                              <div class="category-item-content">
                                                                  <label class="filter-item-label">
-                                                                     <input type="radio" name="category" value="<?php echo $cat['id']; ?>" 
+                                                                     <input type="checkbox" name="category" class="filter-checkbox-single" value="<?php echo $cat['id']; ?>" 
                                                                             <?php echo $categoryId == $cat['id'] ? 'checked' : ''; ?>>
-                                                                     <span class="custom-radio"></span>
+                                                                     <span class="custom-checkbox"></span>
                                                                      <span class="category-label"><?php echo htmlspecialchars($cat['name']); ?></span>
                                                                  </label>
                                                              </div>

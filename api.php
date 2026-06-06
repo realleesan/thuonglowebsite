@@ -812,10 +812,10 @@ try {
                 $productsModel = new ProductsModel();
                 $product = $productsModel->find($productId);
                 
-                if (!$product) {
+                if (!$product || ($product['status'] ?? 'active') !== 'active') {
                     echo json_encode([
                         'success' => false,
-                        'message' => 'Không tìm thấy sản phẩm'
+                        'message' => 'Sản phẩm này hiện không hoạt động hoặc đã ngừng bán'
                     ]);
                     exit;
                 }
@@ -872,10 +872,10 @@ try {
                 $productsModel = new ProductsModel();
                 $product = $productsModel->find($productId);
                 
-                if (!$product) {
+                if (!$product || ($product['status'] ?? 'active') !== 'active') {
                     echo json_encode([
                         'success' => false,
-                        'message' => 'Không tìm thấy sản phẩm'
+                        'message' => 'Sản phẩm này hiện không hoạt động hoặc đã ngừng bán'
                     ]);
                     exit;
                 }

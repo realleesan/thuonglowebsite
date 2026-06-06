@@ -174,20 +174,43 @@ if (!function_exists('formatRecordCount')) {
                         <!-- Left Column - Product Content -->
                         <div class="product-details-main">
                             
-                            <!-- Product Content with Tabs -->
+                            <?php
+                            $hasOverview = !empty($benefits) || !empty($product['description']) || !empty($product['short_description']);
+                            $hasDataStructure = !empty($dataStructure);
+                            $hasSupplier = !empty($supplier);
+                            
+                            // Determine which tab should be active
+                            $activeTab = '';
+                            if ($hasOverview) {
+                                $activeTab = 'overview';
+                            } elseif ($hasDataStructure) {
+                                $activeTab = 'curriculum';
+                            } elseif ($hasSupplier) {
+                                $activeTab = 'instructor';
+                            }
+                            ?>
+                            
+                            <?php if ($hasOverview || $hasDataStructure || $hasSupplier): ?>
                             <div class="product-content">
                                 <!-- Tab Navigation -->
                                 <div class="product-tabs">
-                                    <button class="tab-button active" data-tab="overview">Tổng quan</button>
-                                    <button class="tab-button" data-tab="curriculum">Cấu trúc dữ liệu</button>
-                                    <button class="tab-button" data-tab="instructor">Nhà cung cấp</button>
+                                    <?php if ($hasOverview): ?>
+                                    <button class="tab-button<?php echo $activeTab === 'overview' ? ' active' : ''; ?>" data-tab="overview">Tổng quan</button>
+                                    <?php endif; ?>
+                                    <?php if ($hasDataStructure): ?>
+                                    <button class="tab-button<?php echo $activeTab === 'curriculum' ? ' active' : ''; ?>" data-tab="curriculum">Cấu trúc dữ liệu</button>
+                                    <?php endif; ?>
+                                    <?php if ($hasSupplier): ?>
+                                    <button class="tab-button<?php echo $activeTab === 'instructor' ? ' active' : ''; ?>" data-tab="instructor">Nhà cung cấp</button>
+                                    <?php endif; ?>
                                 </div>
                                 
                                 <!-- Tab Content -->
                                 <div class="tab-content">
                                     
                                     <!-- Overview Tab -->
-                                    <div id="overview" class="tab-panel active">
+                                    <?php if ($hasOverview): ?>
+                                    <div id="overview" class="tab-panel<?php echo $activeTab === 'overview' ? ' active' : ''; ?>">
                                         <!-- Benefits Section -->
                                         <?php if (!empty($benefits)): ?>
                                         <div class="what-youll-learn">
@@ -225,9 +248,11 @@ if (!function_exists('formatRecordCount')) {
                                         </div>
                                         <?php endif; ?>
                                     </div>
+                                    <?php endif; ?>
                                     
                                     <!-- Data Structure Tab -->
-                                    <div id="curriculum" class="tab-panel">
+                                    <?php if ($hasDataStructure): ?>
+                                    <div id="curriculum" class="tab-panel<?php echo $activeTab === 'curriculum' ? ' active' : ''; ?>">
                                         <div class="curriculum-section">
                                             <div class="curriculum-header">
                                                 <h3 class="section-title">Cấu trúc dữ liệu</h3>
@@ -266,9 +291,11 @@ if (!function_exists('formatRecordCount')) {
                                             </div>
                                         </div>
                                     </div>
+                                    <?php endif; ?>
                                     
                                     <!-- Supplier Tab -->
-                                    <div id="instructor" class="tab-panel">
+                                    <?php if ($hasSupplier): ?>
+                                    <div id="instructor" class="tab-panel<?php echo $activeTab === 'instructor' ? ' active' : ''; ?>">
                                         <div class="instructor-section">
                                             <h3 class="section-title">Về nhà cung cấp</h3>
                                             <?php if ($supplier): ?>
@@ -307,9 +334,11 @@ if (!function_exists('formatRecordCount')) {
                                             <?php endif; ?>
                                         </div>
                                     </div>
+                                    <?php endif; ?>
                                     
-                                                                    </div>
+                                </div>
                             </div>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Right Column - Product Sidebar (Sticky) -->

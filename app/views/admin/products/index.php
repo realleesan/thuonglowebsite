@@ -120,6 +120,31 @@ function getTypeLabel(string $type): string {
     </div>
     <?php endif; ?>
 
+    <!-- Success/Warning/Error Messages -->
+    <?php if (isset($_GET['success']) && $_GET['success'] === 'deleted'): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> Xóa sản phẩm thành công!
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['warning']) && $_GET['warning'] === 'has_orders'): ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> Sản phẩm này đã có trong đơn hàng của khách hàng nên không thể xóa hoàn toàn. Hệ thống đã tự động chuyển trạng thái sang <strong>"Không hoạt động"</strong> để ẩn khỏi cửa hàng nhằm đảm bảo tính toàn vẹn dữ liệu.
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['error'])): ?>
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i>
+            <?php
+            switch ($_GET['error']) {
+                case 'system_error': echo 'Lỗi hệ thống. Không thể thực hiện thao tác xóa sản phẩm.'; break;
+                default: echo 'Đã xảy ra lỗi.';
+            }
+            ?>
+        </div>
+    <?php endif; ?>
+
     <!-- Stats Cards -->
     <div class="stats-row">
         <div class="stat-card-simple">

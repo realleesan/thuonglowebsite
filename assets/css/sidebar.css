@@ -124,7 +124,6 @@
 }
 
 .category-item.active>.category-item-content .filter-item-label {
-    color: #356df1;
     font-weight: 600;
 }
 
@@ -317,7 +316,6 @@
 }
 
 .sub-categories .category-item.active>.category-item-content .category-label {
-    color: #0284c7;
     font-weight: 600;
 }
 
