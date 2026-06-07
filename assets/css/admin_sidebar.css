@@ -52,10 +52,11 @@
     display: block;
     opacity: 1;
     visibility: visible;
-    width: 180px !important;
-    height: 54px !important;
+    width: 100% !important;
+    height: auto !important;
     max-width: 180px !important;
     object-fit: contain;
+    pointer-events: none;
 }
 
 .logo-mini {
