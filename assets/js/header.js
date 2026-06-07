@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 parentLi.classList.toggle('active');
 
                 // Toggle SVG rotation
-                const svg = this.querySelector('svg');
+                const svg = this.querySelector(':scope > svg') || this.querySelector('svg');
                 if (svg) {
                     if (parentLi.classList.contains('active')) {
                         svg.style.transform = 'rotate(180deg)';

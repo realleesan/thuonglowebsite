@@ -801,14 +801,28 @@ if (isset($topBanner['is_active']) && $topBanner['is_active']):
                 </li>
                 
                 <?php if ($isAuthenticated): ?>
-                    <li class="<?php echo ($currentPage == 'users') ? 'drawer-active' : ''; ?>"><a href="<?php echo nav_url('users'); ?>">Tài khoản của tôi</a></li>
-                    <?php if ($currentUser['role'] === 'admin'): ?>
-                        <li><a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a></li>
-                        <li><a href="<?php echo nav_url('admin'); ?>">Quản trị</a></li>
-                    <?php elseif ($currentUser['role'] === 'agent' || $currentUser['role'] === 'affiliate'): ?>
-                        <li><a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a></li>
-                    <?php endif; ?>
-                    <li><a href="?page=logout" class="drawer-logout-btn">Đăng xuất</a></li>
+                    <li class="drawer-has-submenu <?php echo in_array($currentPage, ['users', 'affiliate']) ? 'drawer-active' : ''; ?>">
+                        <button type="button" class="drawer-submenu-toggle">
+                            <span style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #6b7280;">
+                                    <path d="M8 8C10.21 8 12 6.21 12 4C12 1.79 10.21 0 8 0C5.79 0 4 1.79 4 4C4 6.21 5.79 8 8 8ZM8 10C5.33 10 0 11.34 0 14V16H16V14C16 11.34 10.67 10 8 10Z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                                </svg>
+                                <span><?php echo htmlspecialchars($currentUser['username'] ?: $currentUser['name']); ?></span>
+                            </span>
+                            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1L5 5L9 1"/></svg>
+                        </button>
+                        <ul class="drawer-submenu">
+                            <li><a href="<?php echo nav_url('users'); ?>">Tài khoản của tôi</a></li>
+                            <?php if ($currentUser['role'] === 'admin'): ?>
+                                <li><a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a></li>
+                                <li><a href="<?php echo nav_url('admin'); ?>">Quản trị</a></li>
+                            <?php elseif ($currentUser['role'] === 'agent' || $currentUser['role'] === 'affiliate'): ?>
+                                <li><a href="<?php echo nav_url('affiliate'); ?>">Đại lý</a></li>
+                            <?php endif; ?>
+                            <li><hr style="margin: 8px 0; border: none; border-top: 1px solid #f3f4f6;"></li>
+                            <li><a href="?page=logout" class="drawer-logout-btn" style="margin-top: 5px; display: block;">Đăng xuất</a></li>
+                        </ul>
+                    </li>
                 <?php else: ?>
                     <li><a href="<?php echo nav_url('login'); ?>" class="drawer-login-btn">Đăng nhập</a></li>
                     <li><a href="<?php echo nav_url('register'); ?>" class="drawer-register-btn">Đăng ký</a></li>

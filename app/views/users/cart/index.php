@@ -95,13 +95,15 @@ try {
                         </div>
                         
                         <div class="cart-item-details">
-                            <div class="cart-item-select-mobile">
-                                <label class="cart-checkbox">
-                                    <input type="checkbox" class="cart-item-checkbox" value="<?php echo $item['id']; ?>" data-price="<?php echo $item['price'] * $item['quantity']; ?>">
-                                    <span class="checkmark"></span>
-                                </label>
+                            <div class="cart-item-title-row">
+                                <h4><?php echo htmlspecialchars($item['name']); ?></h4>
+                                <div class="cart-item-select-mobile">
+                                    <label class="cart-checkbox">
+                                        <input type="checkbox" class="cart-item-checkbox" value="<?php echo $item['id']; ?>" data-price="<?php echo $item['price'] * $item['quantity']; ?>">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
                             </div>
-                            <h4><?php echo htmlspecialchars($item['name']); ?></h4>
                             <?php if (!empty($item['short_description'])): ?>
                             <p class="cart-item-description"><?php echo htmlspecialchars($item['short_description']); ?></p>
                             <?php endif; ?>
