@@ -111,21 +111,30 @@ class ProductsModel extends BaseModel {
      * Get featured products
      */
     public function getFeatured($limit = 6) {
-        return $this->where('featured', true)
-                   ->where('status', 'active')
-                   ->orderBy('created_at', 'DESC')
-                   ->limit($limit)
-                   ->get();
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.featured = 1 AND p.status = 'active'
+            ORDER BY p.created_at DESC
+            LIMIT {$limit}
+        ";
+        return $this->db->query($sql);
     }
     
     /**
      * Get popular products (by sales count)
      */
     public function getPopular($limit = 6) {
-        return $this->where('status', 'active')
-                   ->orderBy('sales_count', 'DESC')
-                   ->limit($limit)
-                   ->get();
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.status = 'active'
+            ORDER BY p.sales_count DESC
+            LIMIT {$limit}
+        ";
+        return $this->db->query($sql);
     }
     
     /**
@@ -222,12 +231,15 @@ class ProductsModel extends BaseModel {
      * Get related products
      */
     public function getRelated($productId, $categoryId, $limit = 4) {
-        return $this->where('category_id', $categoryId)
-                   ->where('id', '!=', $productId)
-                   ->where('status', 'active')
-                   ->orderBy('sales_count', 'DESC')
-                   ->limit($limit)
-                   ->get();
+        $sql = "
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM {$this->table} p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.category_id = ? AND p.id != ? AND p.status = 'active'
+            ORDER BY p.sales_count DESC
+            LIMIT {$limit}
+        ";
+        return $this->db->query($sql, [$categoryId, $productId]);
     }
     
     /**
