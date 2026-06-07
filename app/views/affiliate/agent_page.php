@@ -18,27 +18,9 @@ $pageSubtitle = !empty($pageData['subtitle']) ? $pageData['subtitle'] : 'Cùng T
 $pageContent = $pageData['content'];
 $pageBanner = $pageData['image'];
 
-// Set default breadcrumbs
-$breadcrumbs = [
-    ['text' => 'Trang chủ', 'url' => base_url()],
-    ['text' => 'Đại lý', 'url' => '?page=agent'],
-    ['text' => $pageTitle, 'url' => '#', 'active' => true]
-];
 ?>
 
 <div class="agent-dynamic-page" style="background: #f8fafc; padding-bottom: 60px; font-family: 'Inter', sans-serif;">
-    <!-- Page Breadcrumb Section -->
-    <div class="breadcrumb-container" style="background: white; border-bottom: 1px solid #e2e8f0; padding: 14px 0;">
-        <div class="container">
-            <nav class="agent-breadcrumb" style="display: flex; gap: 8px; font-size: 14px; color: #64748b; align-items: center;">
-                <a href="<?= base_url() ?>" style="color: #64748b; text-decoration: none; transition: color 0.2s;"><i class="fas fa-home" style="margin-right: 4px;"></i> Trang chủ</a>
-                <i class="fas fa-chevron-right" style="font-size: 10px; color: #94a3b8;"></i>
-                <span style="color: #64748b;">Đại lý</span>
-                <i class="fas fa-chevron-right" style="font-size: 10px; color: #94a3b8;"></i>
-                <span style="color: #1e293b; font-weight: 550;"><?= htmlspecialchars($pageTitle) ?></span>
-            </nav>
-        </div>
-    </div>
 
     <!-- Hero Banner Section -->
     <?php if (!empty($pageBanner)): ?>

@@ -148,8 +148,9 @@ class ProductsModel extends BaseModel {
         
         // Search in name and description
         if (!empty($query)) {
-            $sql .= " AND (p.name LIKE :search OR p.description LIKE :search)";
-            $bindings['search'] = "%{$query}%";
+            $sql .= " AND (p.name LIKE :search_name OR p.description LIKE :search_desc)";
+            $bindings['search_name'] = "%{$query}%";
+            $bindings['search_desc'] = "%{$query}%";
         }
         
         // Filter by category
@@ -638,8 +639,9 @@ class ProductsModel extends BaseModel {
 
         // 6. Search keyword
         if (!empty($filters['search'])) {
-            $conditions[] = "(p.name LIKE :search OR p.description LIKE :search)";
-            $bindings['search'] = "%" . $filters['search'] . "%";
+            $conditions[] = "(p.name LIKE :search_name OR p.description LIKE :search_desc)";
+            $bindings['search_name'] = "%" . $filters['search'] . "%";
+            $bindings['search_desc'] = "%" . $filters['search'] . "%";
         }
 
         $whereClause = "";
@@ -738,8 +740,9 @@ class ProductsModel extends BaseModel {
 
         // 6. Search keyword
         if (!empty($filters['search'])) {
-            $conditions[] = "(p.name LIKE :search OR p.description LIKE :search)";
-            $bindings['search'] = "%" . $filters['search'] . "%";
+            $conditions[] = "(p.name LIKE :search_name OR p.description LIKE :search_desc)";
+            $bindings['search_name'] = "%" . $filters['search'] . "%";
+            $bindings['search_desc'] = "%" . $filters['search'] . "%";
         }
 
         $whereClause = "";
@@ -752,15 +755,19 @@ class ProductsModel extends BaseModel {
         $orderClause = "ORDER BY p.created_at DESC";
         switch ($orderBy) {
             case 'price_asc':
+            case 'price_low':
                 $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END ASC";
                 break;
             case 'price_desc':
+            case 'price':
                 $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END DESC";
                 break;
             case 'title_asc':
+            case 'post_title':
                 $orderClause = "ORDER BY p.name ASC";
                 break;
             case 'title_desc':
+            case 'post_title_desc':
                 $orderClause = "ORDER BY p.name DESC";
                 break;
             case 'popular':

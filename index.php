@@ -480,7 +480,12 @@ switch($page) {
         $content = 'app/views/affiliate/agent_page.php';
         $showPageHeader = false;
         $showCTA = false;
-        $showBreadcrumb = false;
+        $showBreadcrumb = true;
+        $breadcrumbs = [
+            ['title' => 'Trang chủ', 'url' => './'],
+            ['title' => 'Đại lý', 'url' => '?page=agent'],
+            ['title' => $pageData['title']]
+        ];
         break;
 
     case 'users':

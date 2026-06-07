@@ -91,6 +91,18 @@ if (!function_exists('generate_breadcrumb')) {
             'wishlist' => [
                 ['title' => 'Tài khoản', 'url' => '?page=account'],
                 ['title' => 'Danh sách yêu thích']
+            ],
+            'faq' => [
+                ['title' => 'Câu hỏi thường gặp']
+            ],
+            'shopping-guide' => [
+                ['title' => 'Hướng dẫn mua hàng']
+            ],
+            'terms' => [
+                ['title' => 'Điều khoản dịch vụ']
+            ],
+            'privacy' => [
+                ['title' => 'Chính sách bảo mật']
             ]
         ];
         
