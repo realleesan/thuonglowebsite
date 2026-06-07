@@ -202,7 +202,7 @@ $current_email = $current_email ?? ($user['email'] ?? '');
                                 <div class="terms-checkbox">
                                     <input type="checkbox" id="agent_terms" name="agent_terms" required>
                                     <label for="agent_terms">
-                                        Tôi đồng ý với <a href="javascript:void(0)" class="terms-link" onclick="openModal('agentTermsModal')">Điều khoản đại lý</a> và <a href="javascript:void(0)" class="terms-link" onclick="openModal('commissionModal')">Chính sách hoa hồng</a> của ThuongLo.com
+                                        Tôi đồng ý với <a href="javascript:void(0)" class="terms-link" onclick="openModal('agentTermsModal')">Chương trình đại lý</a> và <a href="javascript:void(0)" class="terms-link" onclick="openModal('commissionModal')">Chính sách đại lý</a> của ThuongLo.com
                                     </label>
                                 </div>
                             </div>
@@ -211,18 +211,9 @@ $current_email = $current_email ?? ($user['email'] ?? '');
                             <div id="agentTermsModal" class="modal-overlay">
                                 <div class="modal-content">
                                     <button class="modal-close" onclick="closeModal('agentTermsModal')">&times;</button>
-                                    <h3>Điều khoản đại lý</h3>
+                                    <h3>Chương trình đại lý</h3>
                                     <div class="modal-body">
-                                        <h4>1. Quyền và nghĩa vụ của đại lý</h4>
-                                        <p>Đại lý được quyền sử dụng mã giới thiệu cá nhân để giới thiệu khách hàng. Đại lý có nghĩa vụ tuân thủ quy định marketing và không được phép spama hoặc làm giả thông tin.</p>
-                                        <h4>2. Quyền lợi hoa hồng</h4>
-                                        <p>Đại lý nhận hoa hồng từ mọi đơn hàng của khách giới thiệu. Hoa hồng được tính trọn đời cho khách hàng giới thiệu.</p>
-                                        <h4>3. Thanh toán</h4>
-                                        <p>Hoa hồng thanh toán vào ngày 15 hàng tháng. Số tiền tối thiểu để thanh toán là 100.000 VNĐ.</p>
-                                        <h4>4. Chấm dứt hợp đồng</h4>
-                                        <p>ThuongLo.com có quyền chấm dứt quan hệ đại lý nếu đại lý vi phạm điều khoản hoặc không đạt doanh số tối thiểu trong 3 tháng liên tiếp.</p>
-                                        <h4>5. Bảo mật thông tin</h4>
-                                        <p>Đại lý cam kết bảo mật thông tin khách hàng và không được phép tiết lộ cho bên thứ ba.</p>
+                                        <?= $program_content ?>
                                     </div>
                                 </div>
                             </div>
@@ -231,21 +222,9 @@ $current_email = $current_email ?? ($user['email'] ?? '');
                             <div id="commissionModal" class="modal-overlay">
                                 <div class="modal-content">
                                     <button class="modal-close" onclick="closeModal('commissionModal')">&times;</button>
-                                    <h3>Chính sách hoa hồng</h3>
+                                    <h3>Chính sách đại lý</h3>
                                     <div class="modal-body">
-                                        <h4>Hoa hồng trọn đời</h4>
-                                        <p>Bạn nhận hoa hồng từ TẤT CẢ đơn hàng của khách giới thiệu trọn đời.</p>
-                                        <h4>Các loại hoa hồng</h4>
-                                        <p>- Đăng ký gói dữ liệu: 10%</p>
-                                        <p>- Vận chuyển: 5%</p>
-                                        <h4>Mức hoa hồng theo cấp</h4>
-                                        <p>- Đồng (Bronze): 10%</p>
-                                        <p>- Bạc (Silver): 12%</p>
-                                        <p>- Vàng (Gold): 15%</p>
-                                        <p>- Kim cương (Diamond): 20%</p>
-                                        <h4>Thanh toán</h4>
-                                        <p>Kỳ thanh toán: Hàng tháng (ngày 15)</p>
-                                        <p>Số tiền tối thiểu: 100.000 VNĐ</p>
+                                        <?= $policy_content ?>
                                     </div>
                                 </div>
                             </div>
@@ -420,6 +399,25 @@ document.addEventListener('keydown', function(e) {
 
 .modal-body h4:first-child {
     margin-top: 0;
+}
+
+.modal-body h2, .modal-body h3 {
+    margin: 16px 0 8px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.modal-body ul, .modal-body ol {
+    margin: 0 0 16px 20px;
+    padding: 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.modal-body li {
+    margin-bottom: 6px;
+    line-height: 1.6;
 }
 
 .modal-body p {

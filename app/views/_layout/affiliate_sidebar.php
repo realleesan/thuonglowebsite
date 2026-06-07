@@ -53,13 +53,13 @@ $active_menu = $current_page === 'affiliate' ? ($current_module ?: 'dashboard') 
                 <ul class="submenu">
                     <li class="submenu-item <?php echo ($active_menu === 'finance' && $current_action === 'index') ? 'active' : ''; ?>">
                         <a href="<?php echo base_url(); ?>?page=affiliate&module=finance" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
+                            <i class="submenu-icon fas fa-coins"></i>
                             <span class="submenu-text">Ví của tôi</span>
                         </a>
                     </li>
                     <li class="submenu-item <?php echo ($active_menu === 'finance' && $current_action === 'withdraw') ? 'active' : ''; ?>">
                         <a href="<?php echo base_url(); ?>?page=affiliate&module=finance&action=withdraw" class="submenu-link">
-                            <i class="submenu-icon fas fa-circle"></i>
+                            <i class="submenu-icon fas fa-money-bill-wave"></i>
                             <span class="submenu-text">Rút tiền</span>
                         </a>
                     </li>

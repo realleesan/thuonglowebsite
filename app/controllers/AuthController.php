@@ -117,6 +117,13 @@ class AuthController {
         // Get CSRF token
         $csrfToken = $this->authService->getCsrfToken();
         
+        // Fetch terms and privacy content dynamically from DB (sub_pages table)
+        require_once __DIR__ . '/../models/SubPageModel.php';
+        $subPageModel = new SubPageModel();
+        
+        $termsData = $subPageModel->getByPageKey('terms');
+        $privacyData = $subPageModel->getByPageKey('privacy');
+        
         $this->renderView('auth/register', [
             'csrf_token' => $csrfToken,
             'error' => $error,
@@ -124,7 +131,9 @@ class AuthController {
             'refCodeFromUrl' => $refCodeFromUrl,
             'page_title' => 'Đăng ký',
             'form_action' => '?page=register&action=process',
-            'login_url' => '?page=login'
+            'login_url' => '?page=login',
+            'terms_content' => $termsData ? $termsData['content'] : '',
+            'privacy_content' => $privacyData ? $privacyData['content'] : ''
         ]);
     }
     

@@ -170,6 +170,33 @@
     margin-right: 0;
 }
 
+.admin-sidebar.collapsed .submenu {
+    min-width: 0 !important;
+    width: 100% !important;
+}
+
+.admin-sidebar.collapsed .submenu-item a span {
+    display: none !important;
+}
+
+.admin-sidebar.collapsed .submenu-item a {
+    padding: 10px 0 !important;
+    justify-content: center !important;
+}
+
+.admin-sidebar.collapsed .submenu-arrow {
+    position: absolute;
+    right: 10px;
+    top: calc(50% - 4px);
+    margin-left: 0;
+    transform: none;
+    font-size: 8px;
+}
+
+.admin-sidebar.collapsed .nav-item.has-submenu.active .submenu-arrow {
+    transform: rotate(180deg);
+}
+
 /* Scrollbar Styling */
 .admin-sidebar::-webkit-scrollbar {
     width: 6px;

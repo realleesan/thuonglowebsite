@@ -86,6 +86,13 @@ class AffiliateController {
             $userPhone = $dbUser['phone'] ?? '';
         }
         
+        // Fetch dynamic agent program and policy content from DB (agent_contents table)
+        require_once __DIR__ . '/../models/AgentContentModel.php';
+        $agentContentModel = new AgentContentModel();
+        
+        $programData = $agentContentModel->getByPageKey('chuong_trinh');
+        $policyData = $agentContentModel->getByPageKey('chinh_sach');
+        
         // Render full page view instead of popup
         $this->renderView('affiliate/registration_page', [
             'csrf_token' => $csrfToken,
@@ -93,7 +100,9 @@ class AffiliateController {
             'form_action' => '?page=agent&action=register',
             'current_email' => $userEmail,
             'current_phone' => $userPhone,
-            'page_title' => 'Đăng ký trở thành đại lý - ThuongLo.com'
+            'page_title' => 'Đăng ký trở thành đại lý - ThuongLo.com',
+            'program_content' => $programData ? $programData['content'] : '',
+            'policy_content' => $policyData ? $policyData['content'] : ''
         ]);
     }
     

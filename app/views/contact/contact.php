@@ -98,7 +98,7 @@ try {
                                             Giải đáp mọi câu hỏi khác bạn có thể có
                                         </li>
                                     </ul>
-                                    <p class="policy-text">Gặp vấn đề khi sử dụng dịch vụ ThuongLo? Xem <a href="#">Chính sách</a> của chúng tôi để biết hướng dẫn sử dụng, cập nhật tính năng và các bài viết hỗ trợ.</p>
+                                    <p class="policy-text">Gặp vấn đề khi sử dụng dịch vụ ThuongLo? Xem <a href="?page=terms">Chính sách</a> của chúng tôi để biết hướng dẫn sử dụng, cập nhật tính năng và các bài viết hỗ trợ.</p>
                                 </div>
 
                                 <div class="contact-form">
@@ -124,7 +124,7 @@ try {
                                                 Đăng ký nhận thông tin khuyến mãi và sự kiện mới nhất. Bạn có thể hủy đăng ký bất cứ lúc nào.
                                             </label>
                                         </div>
-                                        <p class="privacy-text">Bằng cách điền form này và nhấn gửi, bạn đồng ý với <a href="#">chính sách bảo mật</a> của chúng tôi.</p>
+                                        <p class="privacy-text">Bằng cách điền form này và nhấn gửi, bạn đồng ý với <a href="?page=privacy">chính sách bảo mật</a> của chúng tôi.</p>
                                         <div class="form-submit">
                                             <button type="submit" class="submit-btn">Gửi tin nhắn</button>
                                         </div>

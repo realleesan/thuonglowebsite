@@ -343,20 +343,17 @@
 
             // Toggle on click
             navLink.addEventListener('click', function (e) {
-                // Don't prevent default if sidebar is collapsed (let it navigate)
-                if (!sidebar || !sidebar.classList.contains('collapsed')) {
-                    e.preventDefault();
+                e.preventDefault();
 
-                    // Close other submenus
-                    menuItemsWithSubmenu.forEach(otherItem => {
-                        if (otherItem !== item) {
-                            otherItem.classList.remove('open');
-                        }
-                    });
+                // Close other submenus
+                menuItemsWithSubmenu.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('open');
+                    }
+                });
 
-                    // Toggle current submenu
-                    item.classList.toggle('open');
-                }
+                // Toggle current submenu
+                item.classList.toggle('open');
             });
         }
     });
