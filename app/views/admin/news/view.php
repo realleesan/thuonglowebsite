@@ -170,6 +170,22 @@ function getReadingTime($text) {
                             <?= formatDate($current_news['created_at']) ?>
                         </span>
                     </div>
+                    <div class="meta-item tag-meta-item">
+                        <span class="meta-label">Thẻ (Tags):</span>
+                        <span class="meta-value">
+                            <i class="fas fa-tags" style="color: #6b7280; margin-right: 4px;"></i>
+                            <?php if (!empty($current_news['tags'])): ?>
+                                <?php 
+                                $tags = array_map('trim', explode(',', $current_news['tags']));
+                                foreach ($tags as $tag): 
+                                ?>
+                                    <span class="admin-view-tag-chip"><?= htmlspecialchars($tag) ?></span>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <span class="text-muted">Chưa gắn thẻ</span>
+                            <?php endif; ?>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- News Excerpt -->
@@ -374,6 +390,20 @@ function getReadingTime($text) {
     .status-archived {
         background-color: #e5e7eb;
         color: #374151;
+    }
+    
+    .admin-view-tag-chip {
+        display: inline-block;
+        background: #eff6ff;
+        color: #356DF1;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 6px;
+        border: 1px solid #dbeafe;
+        margin-right: 4px;
+        margin-bottom: 4px;
+        line-height: 1.4;
     }
     
     .product-thumbnail {

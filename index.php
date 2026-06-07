@@ -1119,6 +1119,38 @@ switch($page) {
                             echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
                         }
                         exit;
+                    case 'add_tag_ajax':
+                        header('Content-Type: application/json');
+                        try {
+                            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $adminService) {
+                                $name = trim($_POST['name'] ?? '');
+                                $result = $adminService->createNewsTag($name);
+                                echo json_encode($result);
+                            } else {
+                                echo json_encode(['success' => false, 'message' => 'Invalid request']);
+                            }
+                        } catch (Exception $e) {
+                            echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+                        }
+                        exit;
+                    case 'delete_tag_ajax':
+                        header('Content-Type: application/json');
+                        try {
+                            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $adminService) {
+                                $tagId = (int)($_POST['tag_id'] ?? 0);
+                                if ($tagId <= 0) {
+                                    echo json_encode(['success' => false, 'message' => 'ID thẻ không hợp lệ']);
+                                    exit;
+                                }
+                                $result = $adminService->deleteNewsTag($tagId);
+                                echo json_encode($result);
+                            } else {
+                                echo json_encode(['success' => false, 'message' => 'Invalid request']);
+                            }
+                        } catch (Exception $e) {
+                            echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+                        }
+                        exit;
                     default:
                         $content = 'app/views/admin/news/index.php';
                         break;

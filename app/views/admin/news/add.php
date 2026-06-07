@@ -23,6 +23,16 @@ try {
         // Log error but continue without categories
         error_log("Error loading news categories: " . $e->getMessage());
     }
+    
+    // Fetch unique tags from news_tags table
+    $all_tags = [];
+    try {
+        if ($service) {
+            $all_tags = $service->getAllNewsTags();
+        }
+    } catch (Exception $e) {
+        error_log("Error loading news tags: " . $e->getMessage());
+    }
 } catch (Exception $e) {
     // Log error and redirect
     error_log('Admin News Add View Error: ' . $e->getMessage());
@@ -38,7 +48,8 @@ $form_data = [
     'excerpt' => '',
     'image' => '',
     'status' => 'draft',
-    'author' => 'Admin ThuongLo'
+    'author' => 'Admin ThuongLo',
+    'tags' => ''
 ];
 
 // Handle form submission
@@ -406,11 +417,27 @@ function getSelectedCategoryName($categories, $selectedId) {
                         </div>
 
                         <div class="form-group">
-                            <label for="keywords">Từ khóa:</label>
-                            <input type="text" id="keywords" name="keywords" 
-                                   value="<?= htmlspecialchars($form_data['keywords'] ?? '') ?>" 
-                                   placeholder="từ khóa 1, từ khóa 2, từ khóa 3">
-                            <small>Các từ khóa liên quan, cách nhau bằng dấu phẩy</small>
+                            <label for="tagInput">Thẻ (Tags):</label>
+                            <div class="tags-input-wrapper">
+                                <div class="tags-chips-container" id="tagsChipsContainer">
+                                    <!-- Chips dynamically generated -->
+                                </div>
+                                <input type="text" id="tagInput" placeholder="Chọn thẻ từ danh sách hoặc nhập..." autocomplete="off">
+                                <div class="tag-suggestions-dropdown" id="tagSuggestionsDropdown" style="display: none;">
+                                    <!-- Inline Add Form at the top -->
+                                    <div class="tag-add-inline-form" onclick="event.stopPropagation();">
+                                        <input type="text" id="inlineNewTagName" placeholder="Nhập thẻ mới..." autocomplete="off">
+                                        <button type="button" id="btnInlineAddTag"><i class="fas fa-plus"></i> Thêm</button>
+                                    </div>
+                                    <div class="tag-dropdown-divider"></div>
+                                    <!-- Tag list container -->
+                                    <div class="tag-list-container" id="dropdownTagList">
+                                        <!-- Dynamic tags loaded with delete button -->
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="newsTagsInput" name="tags" value="<?= htmlspecialchars($form_data['tags'] ?? '') ?>">
+                            <small>Chọn từ các thẻ có sẵn hoặc thêm thẻ mới. Thẻ giúp phân loại và tối ưu SEO cho bài viết.</small>
                         </div>
                     </div>
                 </div>
@@ -825,6 +852,211 @@ document.addEventListener('DOMContentLoaded', function() {
 .btn-delete-category i {
     font-size: 11px;
 }
+
+/* Premium Tags Input Styles */
+.tags-input-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    min-height: 46px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.tags-input-wrapper:focus-within {
+    border-color: #356DF1;
+    box-shadow: 0 0 0 3px rgba(53, 109, 241, 0.15);
+}
+
+.tags-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    background: #eff6ff;
+    color: #356DF1;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #dbeafe;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.tag-chip:hover {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.tag-chip-remove {
+    margin-left: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    font-size: 10px;
+    transition: all 0.15s ease;
+    color: #93c5fd;
+}
+
+.tag-chip-remove:hover {
+    background: #356DF1;
+    color: #ffffff;
+}
+
+#tagInput {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    padding: 4px 0 !important;
+    margin: 0 !important;
+    flex: 1;
+    min-width: 120px;
+    font-size: 14px;
+    color: #1f2937;
+    box-shadow: none !important;
+}
+
+#tagInput::placeholder {
+    color: #9ca3af;
+}
+
+/* Tag Suggestions Dropdown */
+.tag-suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    display: none;
+}
+
+.tag-add-inline-form {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #f9fafb;
+    border-bottom: 1px solid #f3f4f6;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.tag-add-inline-form input {
+    flex: 1;
+    height: 30px;
+    padding: 4px 8px !important;
+    font-size: 13px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.tag-add-inline-form input:focus {
+    border-color: #356DF1 !important;
+    outline: none !important;
+}
+
+.tag-add-inline-form button {
+    height: 30px;
+    padding: 0 10px;
+    background: #356DF1;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tag-add-inline-form button:hover {
+    background: #1d4ed8;
+}
+
+.tag-dropdown-divider {
+    height: 1px;
+    background: #e5e7eb;
+}
+
+.tag-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-tag-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    transition: all 0.15s ease;
+}
+
+.dropdown-tag-item:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.dropdown-tag-item.selected {
+    background: #eff6ff;
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.dropdown-tag-item span.tag-name-text {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dropdown-tag-item.selected span.tag-name-text::after {
+    content: '✓';
+    margin-left: 8px;
+    font-size: 11px;
+    color: #356DF1;
+}
+
+.tag-delete-btn {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.tag-delete-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
 </style>
 
 <script>
@@ -1015,5 +1247,283 @@ document.addEventListener('click', function(event) {
     if (dropdown && dropdownDisplay && !dropdownDisplay.contains(event.target) && !dropdown.contains(event.target)) {
         dropdown.style.display = 'none';
     }
+});
+
+// Premium Tags Input System with Inline Dropdown Management
+document.addEventListener('DOMContentLoaded', function() {
+    let existingTags = <?= json_encode($all_tags) ?>;
+    const newsTagsInput = document.getElementById('newsTagsInput');
+    const tagsChipsContainer = document.getElementById('tagsChipsContainer');
+    const tagInput = document.getElementById('tagInput');
+    const tagSuggestionsDropdown = document.getElementById('tagSuggestionsDropdown');
+    const dropdownTagList = document.getElementById('dropdownTagList');
+    const inlineNewTagName = document.getElementById('inlineNewTagName');
+    const btnInlineAddTag = document.getElementById('btnInlineAddTag');
+    
+    let currentTags = [];
+
+    // Initialize tags
+    if (newsTagsInput && newsTagsInput.value) {
+        currentTags = newsTagsInput.value.split(',')
+            .map(t => t.trim())
+            .filter(t => t !== '');
+        renderTags();
+    }
+
+    function renderTags() {
+        tagsChipsContainer.innerHTML = '';
+        currentTags.forEach((tag, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'tag-chip';
+            chip.innerHTML = `
+                <span>${escapeHtml(tag)}</span>
+                <span class="tag-chip-remove" data-index="${index}"><i class="fas fa-times"></i></span>
+            `;
+            tagsChipsContainer.appendChild(chip);
+        });
+        
+        // Update hidden input
+        newsTagsInput.value = currentTags.join(',');
+        
+        // Setup remove click events
+        document.querySelectorAll('.tag-chip-remove').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.getAttribute('data-index'));
+                removeTag(idx);
+            });
+        });
+
+        // Update selected state in dropdown
+        renderDropdownList();
+    }
+
+    function addTag(tagText) {
+        tagText = tagText.trim();
+        if (!tagText) return;
+        
+        // Check duplicate case-insensitive
+        const lowerTags = currentTags.map(t => t.toLowerCase());
+        if (!lowerTags.includes(tagText.toLowerCase())) {
+            currentTags.push(tagText);
+            renderTags();
+            if (typeof adminNewsFormChanged !== 'undefined') {
+                adminNewsFormChanged = true;
+            }
+        }
+    }
+
+    function removeTag(index) {
+        currentTags.splice(index, 1);
+        renderTags();
+        if (typeof adminNewsFormChanged !== 'undefined') {
+            adminNewsFormChanged = true;
+        }
+    }
+
+    // Render dropdown list of tags
+    function renderDropdownList() {
+        if (!dropdownTagList) return;
+        dropdownTagList.innerHTML = '';
+
+        const searchQuery = tagInput.value.toLowerCase().trim();
+
+        // Sort existing tags alphabetically by name
+        existingTags.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+
+        let visibleCount = 0;
+        existingTags.forEach(tag => {
+            const isSelected = currentTags.some(t => t.toLowerCase() === tag.name.toLowerCase());
+            const matchesSearch = tag.name.toLowerCase().includes(searchQuery);
+
+            if (searchQuery && !matchesSearch) {
+                return; // skip if doesn't match search
+            }
+
+            visibleCount++;
+            const item = document.createElement('div');
+            item.className = 'dropdown-tag-item';
+            if (isSelected) {
+                item.classList.add('selected');
+            }
+
+            item.innerHTML = `
+                <span class="tag-name-text">${escapeHtml(tag.name)}</span>
+                <button type="button" class="tag-delete-btn" data-id="${tag.id}" data-name="${escapeHtml(tag.name)}" title="Xóa thẻ khỏi hệ thống">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+
+            // Toggle selection on click (clicking the item, but not the delete button)
+            item.addEventListener('click', function(e) {
+                if (e.target.closest('.tag-delete-btn')) return; // ignore delete clicks
+
+                if (isSelected) {
+                    // Remove
+                    const index = currentTags.findIndex(t => t.toLowerCase() === tag.name.toLowerCase());
+                    if (index !== -1) {
+                        removeTag(index);
+                    }
+                } else {
+                    // Add
+                    addTag(tag.name);
+                }
+                tagInput.value = ''; // clear search input on select
+                renderDropdownList();
+            });
+
+            // Handle delete button click
+            const deleteBtn = item.querySelector('.tag-delete-btn');
+            deleteBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const tagId = this.getAttribute('data-id');
+                const tagName = this.getAttribute('data-name');
+                deleteSystemTag(tagId, tagName);
+            });
+
+            dropdownTagList.appendChild(item);
+        });
+
+        if (visibleCount === 0) {
+            const noResult = document.createElement('div');
+            noResult.style.padding = '8px 12px';
+            noResult.style.color = '#9ca3af';
+            noResult.style.fontSize = '13px';
+            noResult.textContent = searchQuery ? 'Không tìm thấy thẻ nào khớp' : 'Chưa có thẻ nào trong hệ thống';
+            dropdownTagList.appendChild(noResult);
+        }
+    }
+
+    // Ajax add system tag
+    function addSystemTag(name) {
+        name = name.trim();
+        if (!name) return;
+
+        // Check locally if exists in existingTags
+        const exists = existingTags.some(t => t.name.toLowerCase() === name.toLowerCase());
+        if (exists) {
+            alert('Thẻ này đã tồn tại trong danh sách.');
+            // Automatically select it
+            addTag(name);
+            inlineNewTagName.value = '';
+            tagInput.value = '';
+            renderDropdownList();
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', name);
+
+        fetch('?page=admin&module=news&action=add_tag_ajax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.tag) {
+                existingTags.push(data.tag);
+                addTag(data.tag.name);
+                inlineNewTagName.value = '';
+                tagInput.value = '';
+                renderDropdownList();
+            } else {
+                alert('Lỗi: ' + (data.message || 'Không thể thêm thẻ'));
+            }
+        })
+        .catch(error => {
+            console.error('Error adding tag:', error);
+            alert('Có lỗi xảy ra khi thêm thẻ.');
+        });
+    }
+
+    // Ajax delete system tag
+    function deleteSystemTag(tagId, tagName) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa thẻ "${tagName}" khỏi hệ thống?\nThao tác này sẽ gỡ thẻ khỏi tất cả các bài viết đang gán thẻ này.`)) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('tag_id', tagId);
+
+        fetch('?page=admin&module=news&action=delete_tag_ajax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove from existingTags list
+                existingTags = existingTags.filter(t => parseInt(t.id) !== parseInt(tagId));
+                
+                // Remove from current article's selected tags
+                const index = currentTags.findIndex(t => t.toLowerCase() === tagName.toLowerCase());
+                if (index !== -1) {
+                    currentTags.splice(index, 1);
+                }
+                
+                renderTags();
+            } else {
+                alert('Lỗi: ' + (data.message || 'Không thể xóa thẻ'));
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting tag:', error);
+            alert('Có lỗi xảy ra khi xóa thẻ.');
+        });
+    }
+
+    function escapeHtml(string) {
+        return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '/': '&#x2F;',
+                '=': '&#x3D;'
+            }[s];
+        });
+    }
+
+    // Inline Add Tag event listeners
+    if (btnInlineAddTag) {
+        btnInlineAddTag.addEventListener('click', function() {
+            addSystemTag(inlineNewTagName.value);
+        });
+    }
+
+    if (inlineNewTagName) {
+        inlineNewTagName.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSystemTag(this.value);
+            }
+        });
+    }
+
+    // Main tagInput events for filtering and showing dropdown
+    tagInput.addEventListener('focus', function() {
+        tagSuggestionsDropdown.style.display = 'block';
+        renderDropdownList();
+    });
+
+    tagInput.addEventListener('input', function() {
+        tagSuggestionsDropdown.style.display = 'block';
+        renderDropdownList();
+    });
+
+    // Close dropdown when clicking outside the input wrapper
+    document.addEventListener('click', function(e) {
+        const wrapper = document.querySelector('.tags-input-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) {
+            tagSuggestionsDropdown.style.display = 'none';
+        }
+    });
+
+    // Prevent closing when clicking inside the dropdown
+    tagSuggestionsDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
 });
 </script>

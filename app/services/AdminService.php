@@ -1668,6 +1668,118 @@ class AdminService extends BaseService
         return $result !== false;
     }
 
+    public function getAllNewsTags(): array
+    {
+        try {
+            $newsTagModel = $this->getModel('NewsTagModel');
+            if (!$newsTagModel) {
+                return [];
+            }
+            return $newsTagModel->query("SELECT * FROM news_tags ORDER BY name ASC") ?: [];
+        } catch (\Exception $e) {
+            return $this->handleError($e, ['method' => 'getAllNewsTags']);
+        }
+    }
+
+    public function createNewsTag(string $name): array
+    {
+        try {
+            $name = trim($name);
+            if (empty($name)) {
+                return ['success' => false, 'message' => 'Tên thẻ không được để trống'];
+            }
+
+            $newsTagModel = $this->getModel('NewsTagModel');
+            if (!$newsTagModel) {
+                return ['success' => false, 'message' => 'Không thể tải NewsTagModel'];
+            }
+
+            $existing = $newsTagModel->query("SELECT * FROM news_tags WHERE LOWER(name) = LOWER(?)", [$name]);
+            if (!empty($existing)) {
+                return ['success' => false, 'message' => 'Thẻ này đã tồn tại trong hệ thống'];
+            }
+
+            $slug = $newsTagModel->generateUniqueSlug($name);
+            $tagId = $newsTagModel->create([
+                'name' => $name,
+                'slug' => $slug
+            ]);
+
+            if ($tagId) {
+                return [
+                    'success' => true,
+                    'tag' => [
+                        'id' => $tagId,
+                        'name' => $name,
+                        'slug' => $slug
+                    ],
+                    'message' => 'Đã thêm thẻ thành công'
+                ];
+            }
+
+            return ['success' => false, 'message' => 'Không thể lưu thẻ vào cơ sở dữ liệu'];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()];
+        }
+    }
+
+    public function deleteNewsTag(int $tagId): array
+    {
+        try {
+            $newsTagModel = $this->getModel('NewsTagModel');
+            $newsModel = $this->getModel('NewsModel');
+
+            if (!$newsTagModel || !$newsModel) {
+                return ['success' => false, 'message' => 'Không thể tải Models'];
+            }
+
+            $tag = $newsTagModel->find($tagId);
+            if (!$tag) {
+                return ['success' => false, 'message' => 'Thẻ không tồn tại'];
+            }
+
+            $tagName = $tag['name'];
+
+            $deleteResult = $newsTagModel->delete($tagId);
+            if ($deleteResult === false) {
+                return ['success' => false, 'message' => 'Không thể xóa thẻ từ cơ sở dữ liệu'];
+            }
+
+            $newsList = $newsModel->query("SELECT id, tags FROM news WHERE tags LIKE ?", ["%{$tagName}%"]);
+            $updatedCount = 0;
+
+            foreach ($newsList as $item) {
+                if (empty($item['tags'])) {
+                    continue;
+                }
+
+                $tagsArray = array_map('trim', explode(',', $item['tags']));
+                $foundKey = null;
+                foreach ($tagsArray as $key => $val) {
+                    if (strcasecmp($val, $tagName) === 0) {
+                        $foundKey = $key;
+                        break;
+                    }
+                }
+
+                if ($foundKey !== null) {
+                    unset($tagsArray[$foundKey]);
+                    $newTagsString = implode(', ', $tagsArray);
+                    $newsModel->update($item['id'], ['tags' => $newTagsString]);
+                    $updatedCount++;
+                }
+            }
+
+            return [
+                'success' => true,
+                'message' => "Đã xóa thẻ và cập nhật {$updatedCount} bài viết thành công"
+            ];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()];
+        }
+    }
+
+
     private function getNewsStatistics($newsModel): array
     {
         try {
