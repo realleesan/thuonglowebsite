@@ -32,9 +32,9 @@ $showErrorMessage = false;
 $errorMessage = '';
 
 try {
-    // Get categories page data
+    // Get categories page data (Always request page 1 to load all items for hierarchy grouping)
     if ($service && method_exists($service, 'getCategoriesPageData')) {
-        $categoriesData = $service->getCategoriesPageData($page, $perPage, $orderBy, $filters);
+        $categoriesData = $service->getCategoriesPageData(1, $perPage, $orderBy, $filters);
     } else {
         $categoriesData = [];
     }
@@ -264,6 +264,10 @@ if ($totalPages < 1) {
 $page = max(1, min($page, $totalPages));
 $offsetRoot = ($page - 1) * $perPageRoot;
 $parentCategoriesToShow = array_slice($sortedParentCategories, $offsetRoot, $perPageRoot);
+
+// Calculate root categories pagination count for display
+$fromCount = $totalRoots > 0 ? $offsetRoot + 1 : 0;
+$toCount = min($offsetRoot + $perPageRoot, $totalRoots);
 ?>
 <!-- Main Content -->
 <div id="wrapper-container" class="wrapper-container">
@@ -298,7 +302,7 @@ $parentCategoriesToShow = array_slice($sortedParentCategories, $offsetRoot, $per
                                 <!-- Top Bar with Results and Sort -->
                                 <div class="categories-topbar">
                                     <div class="results-count">
-                                        <span>Hiển thị <?php echo ($pagination['from'] ?? 1); ?>-<?php echo ($pagination['to'] ?? $displayedCount); ?> trong <?php echo $totalCategories; ?> danh mục</span>
+                                        <span>Hiển thị <?php echo $fromCount; ?>-<?php echo $toCount; ?> trong <?php echo $totalRoots; ?> danh mục</span>
                                     </div>
                                     <div class="sort-dropdown">
                                         <form method="get">

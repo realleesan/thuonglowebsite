@@ -334,12 +334,10 @@ if (!function_exists('formatRecordCount')) {
     }
 }
 
-// Calculate display counts based on filtered products
-$totalFiltered = count($products);
-// Ensure page is at least 1
-$page = max(1, $page);
-$fromCount = $totalFiltered > 0 ? ($page - 1) * $limit + 1 : 0;
-$toCount = min($page * $limit, $totalFiltered);
+// Calculate display counts based on pagination
+$totalFiltered = $pagination['total'] ?? 0;
+$fromCount = $pagination['from'] ?? 0;
+$toCount = $pagination['to'] ?? 0;
 // Adjust if we're on a page beyond available products
 if ($fromCount > $totalFiltered) {
     $fromCount = 0;
