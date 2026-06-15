@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/BaseService.php';
 require_once __DIR__ . '/DataTransformer.php';
+require_once dirname(dirname(__DIR__)) . '/core/functions.php';
 
 /**
  * UserService
@@ -174,18 +175,22 @@ class UserService extends BaseService
                     $product = $productsModel->find($item['product_id']);
                 }
                 
-                $price = $item['price'] ?? ($product['price'] ?? 0);
+                $originalPrice = (float)($product['price'] ?? 0);
+                $sellingPrice = ($product['sale_price'] && (float)$product['sale_price'] > 0 && (float)$product['sale_price'] < $originalPrice) 
+                    ? (float)$product['sale_price'] 
+                    : $originalPrice;
+                
                 $quantity = $item['quantity'] ?? 1;
-                $subtotal = $price * $quantity;
+                $subtotal = $sellingPrice * $quantity;
                 $totalAmount += $subtotal;
                 
                 $items[] = [
                     'id' => $item['id'],
                     'product_id' => $item['product_id'],
                     'name' => $product['name'] ?? 'Sản phẩm',
-                    'price' => $price,
-                    'original_price' => $product['original_price'] ?? $price,
-                    'image' => $product['image'] ?? '',
+                    'price' => $sellingPrice,
+                    'original_price' => $originalPrice,
+                    'image' => getProductImage($product),
                     'short_description' => $product['short_description'] ?? '',
                     'sku' => $product['sku'] ?? '',
                     'stock' => $product['stock'] ?? 0,
@@ -294,13 +299,18 @@ class UserService extends BaseService
                     continue;
                 }
                 
+                $originalPrice = (float)($product['price'] ?? 0);
+                $sellingPrice = ($product['sale_price'] && (float)$product['sale_price'] > 0 && (float)$product['sale_price'] < $originalPrice) 
+                    ? (float)$product['sale_price'] 
+                    : $originalPrice;
+                
                 $items[] = [
                     'id' => $item['id'],
                     'product_id' => $item['product_id'],
                     'name' => $product['name'] ?? 'Sản phẩm',
-                    'price' => $product['price'] ?? 0,
-                    'original_price' => $product['original_price'] ?? ($product['price'] ?? 0),
-                    'image' => $product['image'] ?? '',
+                    'price' => $sellingPrice,
+                    'original_price' => $originalPrice,
+                    'image' => getProductImage($product),
                     'short_description' => $product['short_description'] ?? '',
                     'category' => $product['category_name'] ?? '',
                     'stock' => $product['stock'] ?? 0,

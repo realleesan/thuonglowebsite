@@ -249,15 +249,15 @@ function getPaymentMethodLabel($method) {
                     <th width="40">
                         <input type="checkbox" id="select-all">
                     </th>
-                    <th width="80">ID</th>
-                    <th width="150">Khách hàng</th>
-                    <th width="100">Ảnh</th>
+                    <th width="70">ID</th>
+                    <th width="130">Khách hàng</th>
+                    <th width="60">Ảnh</th>
                     <th>Sản phẩm</th>
-                    <th width="120">Tổng tiền</th>
-                    <th width="120">Thanh toán</th>
+                    <th width="110">Tổng tiền</th>
+                    <th width="100">Thanh toán</th>
                     <th width="100">Trạng thái</th>
-                    <th width="120">Ngày đặt</th>
-                    <th width="120">Thao tác</th>
+                    <th width="110">Ngày đặt</th>
+                    <th width="100">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -294,7 +294,13 @@ function getPaymentMethodLabel($method) {
                             <td>
                                 <div class="product-info">
                                     <h4 class="product-name"><?= htmlspecialchars($order['product_name'] ?? 'Sản phẩm đã xóa') ?></h4>
-                                    <p class="product-price"><?= formatPrice($order['product_price'] ?? 0) ?></p>
+                                    <?php 
+                                        $displayPrice = $order['product_price'] ?? 0;
+                                        if (empty($displayPrice) && !empty($order['product_sale_price']) && $order['product_sale_price'] > 0) {
+                                            $displayPrice = $order['product_sale_price'];
+                                        }
+                                    ?>
+                                    <p class="product-price"><?= formatPrice($displayPrice) ?></p>
                                     <?php if (!empty($order['category_name'])): ?>
                                         <p class="product-category"><?= htmlspecialchars($order['category_name']) ?></p>
                                     <?php endif; ?>
@@ -411,8 +417,8 @@ function getPaymentMethodLabel($method) {
 
     <style>
     .product-thumbnail {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         object-fit: cover;
         border-radius: 4px;
         border: 1px solid #e5e7eb;
@@ -422,8 +428,8 @@ function getPaymentMethodLabel($method) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         background: #f3f4f6;
         border-radius: 4px;
         color: #9ca3af;

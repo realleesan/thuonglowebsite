@@ -43,7 +43,7 @@
                                                             // Get categories from database
                                                             require_once __DIR__ . '/../../../app/models/CategoriesModel.php';
                                                             $categoriesModel = new CategoriesModel();
-                                                            $categories = $categoriesModel->getActiveForFilter();
+                                                            $categories = $categoriesModel->getParentCategoriesForFilter();
                                                             
                                                             // Show first 5 categories
                                                             $displayCategories = array_slice($categories, 0, 5);

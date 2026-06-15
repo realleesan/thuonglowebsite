@@ -122,20 +122,20 @@ $paymentLabels = [
                 <!-- Product with Actions -->
                 <div class="order-product-full">
                     <div class="order-product-main">
-                        <?php if (!empty($order['product_image'])): ?>
                         <div class="order-product-img-wrap">
-                            <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>">
+                            <?php 
+                                $productImg = !empty($order['product_image']) ? htmlspecialchars($order['product_image']) : base_url() . 'assets/images/home/no-image.png';
+                            ?>
+                            <img src="<?php echo $productImg; ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>" onerror="this.src='<?php echo base_url(); ?>assets/images/home/no-image.png'">
                         </div>
-                        <?php else: ?>
-                        <div class="order-product-img-wrap placeholder">
-                            <i class="fas fa-<?php echo $order['type'] === 'data_nguon_hang' ? 'database' : ($order['type'] === 'van_chuyen' ? 'truck' : ($order['type'] === 'dich_vu_tt' ? 'credit-card' : ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); ?>"></i>
-                        </div>
-                        <?php endif; ?>
                         <div class="order-product-details">
                             <h4 class="order-product-name"><?php echo htmlspecialchars($order['product_name']); ?></h4>
-                            <?php if (!empty($order['category_name'])): ?>
-                            <span class="order-product-cat"><i class="fas fa-folder"></i> <?php echo htmlspecialchars($order['category_name']); ?></span>
-                            <?php endif; ?>
+                            <div class="order-product-meta" style="display: flex; gap: 15px; font-size: 0.85rem; color: #666; margin-top: 5px;">
+                                <?php if (!empty($order['category_name'])): ?>
+                                <span class="order-product-cat"><i class="fas fa-folder"></i> <?php echo htmlspecialchars($order['category_name']); ?></span>
+                                <?php endif; ?>
+                                <span class="order-product-qty"><i class="fas fa-shopping-basket"></i> Số lượng: <?php echo $order['quantity'] ?? 1; ?></span>
+                            </div>
                         </div>
                         <div class="order-product-amount"><?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ</div>
                     </div>
@@ -187,10 +187,7 @@ $paymentLabels = [
                             <span class="meta-label">SĐT:</span>
                             <span class="meta-value"><?php echo !empty($user['phone']) ? htmlspecialchars($user['phone']) : 'N/A'; ?></span>
                         </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Địa chỉ:</span>
-                            <span class="meta-value"><?php echo !empty($user['address']) ? htmlspecialchars($user['address']) : 'N/A'; ?></span>
-                        </div>
+                        
                     </div>
                 </div>
                 

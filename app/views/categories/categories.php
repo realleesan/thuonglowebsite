@@ -171,7 +171,7 @@ if (!function_exists('renderCategoryTreeNode')) {
                 <div class="node-left">
                     <div class="node-image">
                         <a href="?page=products&category[]=<?php echo $nodeId; ?>">
-                            <img src="<?php echo !empty($nodeImage) ? htmlspecialchars($nodeImage) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png'; ?>" 
+                            <img src="<?php echo getCategoryImage($node); ?>" 
                                  alt="<?php echo htmlspecialchars($nodeName); ?>" loading="lazy">
                         </a>
                     </div>
@@ -343,7 +343,7 @@ $toCount = min($offsetRoot + $perPageRoot, $totalRoots);
                                                 <div class="header-left">
                                                     <div class="parent-image">
                                                         <a href="?page=products&category[]=<?php echo $parent['id']; ?>">
-                                                            <img src="<?php echo !empty($parent['image']) ? htmlspecialchars($parent['image']) : 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2022/11/create-an-lms-website-with-learnpress-4-675x450.png'; ?>" 
+                                                            <img src="<?php echo getCategoryImage($parent); ?>" 
                                                                  alt="<?php echo htmlspecialchars($parent['name']); ?>" loading="lazy">
                                                         </a>
                                                      </div>

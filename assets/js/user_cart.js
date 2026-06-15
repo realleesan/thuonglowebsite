@@ -1,27 +1,27 @@
 // User Cart JavaScript - Interactive Shopping Cart
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize cart functionality
     initCartFunctionality();
-    
+
     // Initialize checkbox functionality
     initCartCheckboxes();
-    
+
     console.log('User Cart JavaScript loaded successfully');
 });
 
 function initCartFunctionality() {
     // Quantity controls
     initQuantityControls();
-    
+
     // Remove item functionality
     initRemoveItems();
-    
+
     // Clear cart functionality
     initClearCart();
-    
+
     // Checkout selected items
     initCheckoutSelected();
-    
+
     // Note: updateCartTotals is called when needed after quantity changes
 }
 
@@ -30,15 +30,15 @@ function initCartCheckboxes() {
     const selectAllCheckbox = document.getElementById('selectAllCart');
     // Only select desktop checkboxes (not mobile duplicates)
     const itemCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox');
-    
+
     // Also get mobile checkboxes for syncing
     const mobileCheckboxes = document.querySelectorAll('.cart-item-select-mobile .cart-item-checkbox');
-    
+
     // Select all checkbox
     if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
+        selectAllCheckbox.addEventListener('change', function () {
             const isChecked = this.checked;
-            
+
             itemCheckboxes.forEach(checkbox => {
                 checkbox.checked = isChecked;
                 const cartItem = checkbox.closest('.cart-item');
@@ -50,7 +50,7 @@ function initCartCheckboxes() {
                     }
                 }
             });
-            
+
             // Sync mobile checkboxes with desktop checkboxes
             mobileCheckboxes.forEach((mobileCheckbox, index) => {
                 mobileCheckbox.checked = isChecked;
@@ -63,15 +63,15 @@ function initCartCheckboxes() {
                     }
                 }
             });
-            
+
             updateSelectedCount();
             updateCheckoutButton();
         });
     }
-    
+
     // Individual item checkboxes (desktop)
     itemCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
+        checkbox.addEventListener('change', function () {
             const cartItem = this.closest('.cart-item');
             if (cartItem) {
                 if (this.checked) {
@@ -80,30 +80,30 @@ function initCartCheckboxes() {
                     cartItem.classList.remove('selected');
                 }
             }
-            
+
             // Sync corresponding mobile checkbox
             const itemId = this.value;
             const mobileCheckbox = document.querySelector(`.cart-item-select-mobile .cart-item-checkbox[value="${itemId}"]`);
             if (mobileCheckbox) {
                 mobileCheckbox.checked = this.checked;
             }
-            
+
             // Update select all checkbox state
             updateSelectAllCheckbox();
             updateSelectedCount();
             updateCheckoutButton();
         });
-        
+
         // Initial state
         const cartItem = checkbox.closest('.cart-item');
         if (cartItem && checkbox.checked) {
             cartItem.classList.add('selected');
         }
     });
-    
+
     // Individual item checkboxes (mobile) - sync with desktop
     mobileCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
+        checkbox.addEventListener('change', function () {
             const cartItem = this.closest('.cart-item');
             if (cartItem) {
                 if (this.checked) {
@@ -112,27 +112,27 @@ function initCartCheckboxes() {
                     cartItem.classList.remove('selected');
                 }
             }
-            
+
             // Sync corresponding desktop checkbox
             const itemId = this.value;
             const desktopCheckbox = document.querySelector(`.cart-item-select .cart-item-checkbox[value="${itemId}"]`);
             if (desktopCheckbox) {
                 desktopCheckbox.checked = this.checked;
             }
-            
+
             // Update select all checkbox state
             updateSelectAllCheckbox();
             updateSelectedCount();
             updateCheckoutButton();
         });
-        
+
         // Initial state
         const cartItem = checkbox.closest('.cart-item');
         if (cartItem && checkbox.checked) {
             cartItem.classList.add('selected');
         }
     });
-    
+
     updateSelectedCount();
     updateCheckoutButton();
 }
@@ -142,7 +142,7 @@ function updateSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAllCart');
     // Only count desktop checkboxes
     const itemCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox');
-    
+
     if (selectAllCheckbox && itemCheckboxes.length > 0) {
         const allChecked = Array.from(itemCheckboxes).every(checkbox => checkbox.checked);
         selectAllCheckbox.checked = allChecked;
@@ -154,11 +154,11 @@ function updateSelectedCount() {
     // Only count desktop checkboxes to avoid double counting
     const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
     const countElement = document.getElementById('selectedCount');
-    
+
     if (countElement) {
         countElement.textContent = checkedCheckboxes.length;
     }
-    
+
     // Update select all checkbox
     const selectAllCheckbox = document.getElementById('selectAllCart');
     if (selectAllCheckbox) {
@@ -176,25 +176,25 @@ function updateCheckoutButton() {
     const checkoutCount = document.getElementById('checkoutCount');
     const clearCartButton = document.getElementById('clearCart');
     const deleteCount = document.getElementById('deleteCount');
-    
+
     if (checkoutCount) {
         checkoutCount.textContent = checkedCheckboxes.length;
     }
-    
+
     if (deleteCount) {
         deleteCount.textContent = checkedCheckboxes.length;
     }
-    
+
     // Calculate selected total
     let selectedTotal = 0;
     checkedCheckboxes.forEach(checkbox => {
         selectedTotal += parseFloat(checkbox.dataset.price) || 0;
     });
-    
+
     // Update total display - show selected items total or 0 when none selected
     const totalAmountElement = document.getElementById('cartTotalAmount');
     const cartItemCountElement = document.getElementById('cartItemCount');
-    
+
     if (totalAmountElement) {
         if (checkedCheckboxes.length === 0) {
             totalAmountElement.textContent = formatCurrency(0);
@@ -202,12 +202,12 @@ function updateCheckoutButton() {
             totalAmountElement.textContent = formatCurrency(selectedTotal);
         }
     }
-    
+
     // Update item count display
     if (cartItemCountElement) {
         cartItemCountElement.textContent = `(${checkedCheckboxes.length} sản phẩm)`;
     }
-    
+
     // Disable checkout button if no items selected
     if (checkoutButton) {
         if (checkedCheckboxes.length === 0) {
@@ -220,7 +220,7 @@ function updateCheckoutButton() {
             checkoutButton.style.cursor = 'pointer';
         }
     }
-    
+
     // Disable clearCart button if no items selected
     if (clearCartButton) {
         if (checkedCheckboxes.length === 0) {
@@ -238,25 +238,24 @@ function updateCheckoutButton() {
 // Checkout selected items
 function initCheckoutSelected() {
     const checkoutButton = document.getElementById('checkoutSelected');
-    
+
     if (checkoutButton) {
-        checkoutButton.addEventListener('click', function(e) {
+        checkoutButton.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             // Only get desktop checkboxes to avoid duplicates
             const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
-            
+
             if (checkedCheckboxes.length === 0) {
                 showFlashMessage('Vui lòng chọn ít nhất một sản phẩm để thanh toán', 'warning');
                 return;
             }
-            
+
             // Get selected item IDs
             const selectedIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
-            
-            // Redirect to checkout - URL sẽ hiển thị tất cả giỏ hàng
-            // selected_items chỉ để tham chiếu, checkout sẽ lấy tất cả giỏ hàng
-            window.location.href = '?page=checkout';
+
+            // Redirect to checkout with selected items
+            window.location.href = '?page=checkout&selected_items=' + selectedIds.join(',');
         });
     }
 }
@@ -266,34 +265,34 @@ function initQuantityControls() {
     // Clone buttons to remove duplicate event listeners
     const quantityButtons = document.querySelectorAll('.quantity-btn');
     const quantityInputs = document.querySelectorAll('.quantity-input');
-    
+
     // Remove existing listeners by cloning
     quantityButtons.forEach(button => {
         const newButton = button.cloneNode(true);
         button.parentNode.replaceChild(newButton, button);
     });
-    
+
     quantityInputs.forEach(input => {
         const newInput = input.cloneNode(true);
         input.parentNode.replaceChild(newInput, input);
     });
-    
+
     // Now add fresh event listeners
     const newButtons = document.querySelectorAll('.quantity-btn');
     const newInputs = document.querySelectorAll('.quantity-input');
-    
+
     newButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
+        button.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const itemId = this.dataset.itemId;
             const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
             const isIncrease = this.classList.contains('quantity-increase');
-            
+
             if (input) {
                 let currentValue = parseInt(input.value) || 1;
-                
+
                 if (isIncrease) {
                     currentValue++;
                 } else {
@@ -307,33 +306,33 @@ function initQuantityControls() {
                     }
                     currentValue = Math.max(1, currentValue - 1);
                 }
-                
+
                 input.value = currentValue;
                 updateItemQuantity(itemId, currentValue);
             }
-            
+
             return false;
         });
     });
-    
+
     newInputs.forEach(input => {
-        input.addEventListener('change', function(e) {
+        input.addEventListener('change', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const itemId = this.dataset.itemId;
             const quantity = Math.max(1, parseInt(this.value) || 1);
-            
+
             this.value = quantity;
             updateItemQuantity(itemId, quantity);
-            
+
             return false;
         });
-        
-        input.addEventListener('blur', function(e) {
+
+        input.addEventListener('blur', function (e) {
             const itemId = this.dataset.itemId;
             const quantity = Math.max(1, parseInt(this.value) || 1);
-            
+
             this.value = quantity;
             updateItemQuantity(itemId, quantity);
         });
@@ -345,31 +344,31 @@ function updateCartTotals() {
     const cartItems = document.querySelectorAll('.cart-item');
     let totalItems = 0;
     let totalPrice = 0;
-    
+
     cartItems.forEach(item => {
         const quantityInput = item.querySelector('.quantity-input');
         const totalPriceElement = item.querySelector('.cart-item-total-price');
-        
+
         if (quantityInput) {
             const quantity = parseInt(quantityInput.value) || 0;
             totalItems += quantity;
         }
-        
+
         if (totalPriceElement) {
             const priceText = totalPriceElement.textContent.replace(/[^0-9]/g, '');
             const price = parseFloat(priceText) || 0;
             totalPrice += price;
         }
     });
-    
+
     // Update cart summary
     const cartTotalAmount = document.getElementById('cartTotalAmount');
     const cartItemCount = document.getElementById('cartItemCount');
-    
+
     if (cartTotalAmount) {
         cartTotalAmount.textContent = formatCurrency(totalPrice);
     }
-    
+
     if (cartItemCount) {
         cartItemCount.textContent = `(${totalItems} sản phẩm)`;
     }
@@ -378,18 +377,18 @@ function updateCartTotals() {
 // Remove item functionality
 function initRemoveItems() {
     const removeButtons = document.querySelectorAll('.cart-item-remove');
-    
+
     removeButtons.forEach(button => {
         // Remove existing event listeners by cloning
         const newButton = button.cloneNode(true);
         button.parentNode.replaceChild(newButton, button);
-        
-        newButton.addEventListener('click', function(e) {
+
+        newButton.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const itemId = this.dataset.itemId;
-            
+
             if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
                 removeCartItem(itemId);
             }
@@ -400,22 +399,22 @@ function initRemoveItems() {
 // Clear cart functionality
 function initClearCart() {
     const clearCartButton = document.getElementById('clearCart');
-    
+
     if (clearCartButton) {
         const newButton = clearCartButton.cloneNode(true);
         clearCartButton.parentNode.replaceChild(newButton, clearCartButton);
-        
-        newButton.addEventListener('click', function(e) {
+
+        newButton.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Check if there are selected items (only desktop checkboxes)
             const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
             if (checkedCheckboxes.length === 0) {
                 showFlashMessage('Vui lòng chọn sản phẩm để xóa', 'warning');
                 return;
             }
-            
+
             if (confirm('Bạn có chắc chắn muốn xóa ' + checkedCheckboxes.length + ' sản phẩm đã chọn?')) {
                 clearCart();
             }
@@ -427,7 +426,7 @@ function initClearCart() {
 function updateItemQuantity(itemId, newQuantity) {
     // Show loading state
     showLoadingState(itemId);
-    
+
     // Call API to update quantity in database
     fetch('api.php?path=cart/update', {
         method: 'POST',
@@ -439,29 +438,29 @@ function updateItemQuantity(itemId, newQuantity) {
             quantity: newQuantity
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showFlashMessage('Đã cập nhật số lượng sản phẩm', 'success');
-            // Reload page to update display
-            setTimeout(() => location.reload(), 500);
-        } else {
-            showFlashMessage(data.message || 'Cập nhật thất bại', 'error');
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showFlashMessage('Đã cập nhật số lượng sản phẩm', 'success');
+                // Reload page to update display
+                setTimeout(() => location.reload(), 500);
+            } else {
+                showFlashMessage(data.message || 'Cập nhật thất bại', 'error');
+                hideLoadingState(itemId);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating quantity:', error);
+            showFlashMessage('Có lỗi xảy ra, vui lòng thử lại', 'error');
             hideLoadingState(itemId);
-        }
-    })
-    .catch(error => {
-        console.error('Error updating quantity:', error);
-        showFlashMessage('Có lỗi xảy ra, vui lòng thử lại', 'error');
-        hideLoadingState(itemId);
-    });
+        });
 }
 
 // Remove cart item via API
 function removeCartItem(itemId) {
     // Show loading state
     showLoadingState(itemId);
-    
+
     // Call API to remove item
     fetch('api.php?path=cart/remove', {
         method: 'POST',
@@ -472,22 +471,22 @@ function removeCartItem(itemId) {
             item_id: itemId
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showFlashMessage('Đã xóa sản phẩm khỏi giỏ hàng', 'success');
-        } else {
-            showFlashMessage(data.message || 'Xóa sản phẩm thất bại', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error removing item:', error);
-        showFlashMessage('Có lỗi xảy ra, vui lòng thử lại', 'error');
-    })
-    .finally(() => {
-        // Always reload page to show updated cart
-        setTimeout(() => location.reload(), 500);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showFlashMessage('Đã xóa sản phẩm khỏi giỏ hàng', 'success');
+            } else {
+                showFlashMessage(data.message || 'Xóa sản phẩm thất bại', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing item:', error);
+            showFlashMessage('Có lỗi xảy ra, vui lòng thử lại', 'error');
+        })
+        .finally(() => {
+            // Always reload page to show updated cart
+            setTimeout(() => location.reload(), 500);
+        });
 }
 
 // Update header cart count after item removal
@@ -501,7 +500,7 @@ function updateHeaderCartCountAfterRemove(newCount) {
             cartBadge.style.display = 'none';
         }
     }
-    
+
     // Update sidebar cart count if exists
     const sidebarCartCount = document.getElementById('cartCount');
     if (sidebarCartCount) {
@@ -512,7 +511,7 @@ function updateHeaderCartCountAfterRemove(newCount) {
             sidebarCartCount.style.display = 'none';
         }
     }
-    
+
     // Update dropdown count if exists
     const dropdownCount = document.querySelector('.cart-dropdown-count');
     if (dropdownCount) {
@@ -524,16 +523,16 @@ function updateHeaderCartCountAfterRemove(newCount) {
 function clearCart() {
     // Only get desktop checkboxes to avoid duplicates
     const checkedCheckboxes = document.querySelectorAll('.cart-item-select .cart-item-checkbox:checked');
-    
+
     if (checkedCheckboxes.length === 0) {
         showFlashMessage('Vui lòng chọn sản phẩm để xóa', 'warning');
         return;
     }
-    
+
     const itemIds = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
-    
+
     // Call API for each selected item
-    const removePromises = itemIds.map(itemId => 
+    const removePromises = itemIds.map(itemId =>
         fetch('api.php?path=cart/remove', {
             method: 'POST',
             headers: {
@@ -542,7 +541,7 @@ function clearCart() {
             body: JSON.stringify({ item_id: itemId })
         })
     );
-    
+
     Promise.all(removePromises)
         .then(() => {
             checkedCheckboxes.forEach((checkbox, index) => {
@@ -551,7 +550,7 @@ function clearCart() {
                     setTimeout(() => {
                         cartItem.style.opacity = '0';
                         cartItem.style.transform = 'translateX(-100%)';
-                        
+
                         setTimeout(() => {
                             cartItem.remove();
                             if (index === checkedCheckboxes.length - 1) {
@@ -581,33 +580,33 @@ function clearCart() {
 // Update item display after quantity change
 function updateItemDisplay(itemId, newQuantity, oldQuantity) {
     const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-    
+
     if (!cartItem) return;
-    
+
     const totalElement = cartItem.querySelector('.cart-item-total-price');
     const checkbox = cartItem.querySelector('.cart-item-checkbox');
-    
+
     if (!totalElement) return;
-    
+
     // Get current total price from display
     const currentTotalText = totalElement.textContent;
     const currentTotal = parseFloat(currentTotalText.replace(/[^\d]/g, '')) || 0;
-    
+
     // Use provided old quantity or get from input
     const quantityForCalc = oldQuantity !== undefined ? oldQuantity : newQuantity;
-    
+
     // Calculate unit price (price per item)
     const unitPrice = quantityForCalc > 0 ? currentTotal / quantityForCalc : 0;
-    
+
     // Calculate new total price
     const newTotalPrice = unitPrice * newQuantity;
     totalElement.textContent = formatCurrency(newTotalPrice);
-    
+
     // Update checkbox data-price
     if (checkbox) {
         checkbox.dataset.price = newTotalPrice;
     }
-    
+
     // Update checkout button totals
     updateCheckoutButton();
 }
@@ -615,7 +614,7 @@ function updateItemDisplay(itemId, newQuantity, oldQuantity) {
 // Check if cart is empty and show appropriate message
 function checkEmptyCart() {
     const cartItems = document.querySelectorAll('.cart-item');
-    
+
     if (cartItems.length === 0) {
         showEmptyCart();
     }
@@ -637,7 +636,7 @@ function showEmptyCart() {
             </a>
         </div>
     `;
-    
+
     if (cartContent) {
         cartContent.innerHTML = emptyCartHTML;
     }
@@ -646,7 +645,7 @@ function showEmptyCart() {
 // Show loading state for specific item
 function showLoadingState(itemId) {
     const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-    
+
     if (cartItem) {
         cartItem.style.opacity = '0.6';
         cartItem.style.pointerEvents = 'none';
@@ -656,7 +655,7 @@ function showLoadingState(itemId) {
 // Hide loading state
 function hideLoadingState(itemId) {
     const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-    
+
     if (cartItem) {
         cartItem.style.opacity = '1';
         cartItem.style.pointerEvents = 'auto';
@@ -668,25 +667,25 @@ function showFlashMessage(message, type = 'info') {
     // Remove existing flash messages with same type
     const existingMessages = document.querySelectorAll(`.flash-${type}`);
     existingMessages.forEach(msg => msg.remove());
-    
+
     // Create new flash message element
     const messageDiv = document.createElement('div');
     messageDiv.className = `flash-message flash-${type}`;
-    
+
     // Add icon based on type
     let iconClass = 'fa-info-circle';
     if (type === 'success') iconClass = 'fa-check-circle';
     if (type === 'error') iconClass = 'fa-exclamation-circle';
     if (type === 'warning') iconClass = 'fa-exclamation-triangle';
-    
+
     messageDiv.innerHTML = `
         <i class="fas ${iconClass}"></i>
         <span>${message}</span>
         <button class="flash-close" onclick="this.parentElement.style.display='none'">&times;</button>
     `;
-    
+
     document.body.appendChild(messageDiv);
-    
+
     // Auto hide after 5 seconds
     setTimeout(() => {
         if (messageDiv.parentElement) {
@@ -721,7 +720,7 @@ window.CartManager = {
 // Handle responsive behavior
 function handleResponsive() {
     const isMobile = window.innerWidth <= 768;
-    
+
     if (isMobile) {
         // Adjust cart layout for mobile
         const cartContent = document.querySelector('.cart-content');

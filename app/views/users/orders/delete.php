@@ -219,20 +219,17 @@ $paymentLabels = [
                 <div class="cancel-order-detail">
                     <div class="cancel-product-info">
                         <div class="cancel-product-image">
-                            <div class="cancel-product-placeholder">
-                                <i class="fas fa-<?php 
-                                    echo $order['type'] === 'data_nguon_hang' ? 'database' : 
-                                        ($order['type'] === 'van_chuyen' ? 'truck' : 
-                                        ($order['type'] === 'dich_vu_tt' ? 'credit-card' : 
-                                        ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); 
-                                ?>"></i>
-                            </div>
+                            <?php 
+                                $productImg = !empty($order['product_image']) ? htmlspecialchars($order['product_image']) : base_url() . 'assets/images/home/no-image.png';
+                            ?>
+                            <img src="<?php echo $productImg; ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>" onerror="this.src='<?php echo base_url(); ?>assets/images/home/no-image.png'" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                         </div>
                         <div class="cancel-product-details">
                             <h4><?php echo htmlspecialchars($order['product_name']); ?></h4>
-                            <p class="cancel-product-type">
+                            <p class="cancel-product-type" style="margin-bottom: 5px;">
                                 <i class="fas fa-tag"></i>
                                 <?php echo $typeLabels[$order['type']] ?? $order['type']; ?>
+                                <span class="cancel-product-qty" style="margin-left: 15px;"><i class="fas fa-shopping-basket"></i> Số lượng: <?php echo $order['quantity'] ?? 1; ?></span>
                             </p>
                             <div class="cancel-product-price">
                                 <?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ

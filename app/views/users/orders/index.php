@@ -161,12 +161,7 @@ $paymentLabels = [
                     <option value="cancelled" <?php echo $statusFilter === 'cancelled' ? 'selected' : ''; ?>>Đã hủy</option>
                 </select>
 
-                <select class="orders-filter-select" id="categoryFilter" onchange="applyFilters()">
-                    <option value="all" <?php echo $categoryFilter === 'all' ? 'selected' : ''; ?>>Tất cả danh mục</option>
-                    <?php foreach ($categories as $cat): ?>
-                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo $categoryFilter === $cat ? 'selected' : ''; ?>><?php echo htmlspecialchars($cat); ?></option>
-                    <?php endforeach; ?>
-                </select>
+                
             </div>
         </div>
 
@@ -205,21 +200,14 @@ $paymentLabels = [
                     <div class="orders-item-body">
                         <!-- Left Column: Product Image -->
                         <div class="orders-item-image-col">
-                            <?php if (!empty($order['product_image'])): ?>
                             <div class="orders-product-image">
                                 <a href="?page=details&id=<?php echo (int)$order['product_id']; ?>">
-                                    <img src="<?php echo htmlspecialchars($order['product_image']); ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>">
+                                    <?php 
+                                        $productImg = !empty($order['product_image']) ? htmlspecialchars($order['product_image']) : base_url() . 'assets/images/home/no-image.png';
+                                    ?>
+                                    <img src="<?php echo $productImg; ?>" alt="<?php echo htmlspecialchars($order['product_name']); ?>" onerror="this.src='<?php echo base_url(); ?>assets/images/home/no-image.png'">
                                 </a>
                             </div>
-                            <?php else: ?>
-                            <div class="orders-product-image">
-                                <a href="?page=details&id=<?php echo (int)$order['product_id']; ?>">
-                                    <div class="orders-product-placeholder">
-                                        <i class="fas fa-<?php echo $order['type'] === 'data_nguon_hang' ? 'database' : ($order['type'] === 'van_chuyen' ? 'truck' : ($order['type'] === 'dich_vu_tt' ? 'credit-card' : ($order['type'] === 'khoa_hoc' ? 'graduation-cap' : 'cog'))); ?>"></i>
-                                    </div>
-                                </a>
-                            </div>
-                            <?php endif; ?>
                         </div>
                         
                         <!-- Right Column: All Info -->
@@ -271,6 +259,10 @@ $paymentLabels = [
                             
                             <!-- Payment Info -->
                             <div class="orders-payment-row">
+                                <div class="payment-item">
+                                    <span class="payment-label">Số lượng:</span>
+                                    <span class="payment-value">x<?php echo $order['quantity'] ?? 1; ?></span>
+                                </div>
                                 <div class="payment-item">
                                     <span class="payment-label">Số tiền:</span>
                                     <span class="payment-value orders-amount"><?php echo number_format($order['amount'], 0, ',', '.'); ?> VNĐ</span>

@@ -895,16 +895,25 @@ function loadHeaderCartItems() {
             if (data.success && data.cart && data.cart.length > 0) {
                 let html = '';
                 data.cart.forEach(item => {
-                    const imageUrl = item.image || 'assets/images/no-image.png';
-                    const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price);
+                    const fallbackImg = '<?php echo base_url(); ?>assets/images/home/no-image.png';
+                    const imageUrl = item.image || fallbackImg;
+                    let priceHtml = '';
+                    if (item.original_price && Number(item.original_price) > Number(item.price)) {
+                        const originalPriceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.original_price);
+                        const salePriceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price);
+                        priceHtml = `<span class="cart-dropdown-item-price-original" style="text-decoration: line-through; color: #9ca3af; font-size: 12px; margin-right: 8px;">${originalPriceFormatted}</span><span class="cart-dropdown-item-price-sale" style="color: #356DF1; font-weight: 600;">${salePriceFormatted}</span>`;
+                    } else {
+                        const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price);
+                        priceHtml = `<span class="cart-dropdown-item-price-normal" style="font-weight: 600; color: #111827;">${priceFormatted}</span>`;
+                    }
                     html += `
                         <div class="cart-dropdown-item">
                             <div class="cart-dropdown-item-image">
-                                <img src="${imageUrl}" alt="${item.name || 'Sản phẩm'}" onerror="this.src='assets/images/no-image.png'">
+                                <img src="${imageUrl}" alt="${item.name || 'Sản phẩm'}" onerror="this.src='${fallbackImg}'">
                             </div>
                             <div class="cart-dropdown-item-info">
                                 <h5 class="cart-dropdown-item-name">${item.name || 'Sản phẩm'}</h5>
-                                <div class="cart-dropdown-item-price">${price}</div>
+                                <div class="cart-dropdown-item-price">${priceHtml}</div>
                                 <div class="cart-dropdown-item-quantity">Số lượng: ${item.quantity || 1}</div>
                             </div>
                         </div>

@@ -73,14 +73,17 @@ try {
         $productModel = new ProductsModel();
         $product = $productModel->find($productId);
         if ($product) {
-            $price = (float) ($product['sale_price'] ?? $product['price'] ?? 0);
+            $price = (float) ($product['price'] ?? 0);
+            if (!empty($product['sale_price']) && (float)$product['sale_price'] > 0 && (float)$product['sale_price'] < $price) {
+                $price = (float)$product['sale_price'];
+            }
             $cartItems = [[
                 'id' => $product['id'],
                 'product_id' => $product['id'],
                 'name' => $product['name'],
                 'price' => $price,
-                'original_price' => $product['original_price'] ?? $price,
-                'image' => $product['image'] ?? '',
+                'original_price' => (float)($product['price'] ?? 0),
+                'image' => getProductImage($product),
                 'quantity' => 1,
                 'subtotal' => $price
             ]];
@@ -92,11 +95,15 @@ try {
     
     // Tính tổng tiền
     $totalAmount = 0;
+    $totalOriginalAmount = 0;
     foreach ($cartItems as $item) {
         $price = $item['price'] ?? 0;
+        $originalPrice = $item['original_price'] ?? $price;
         $quantity = $item['quantity'] ?? 1;
         $totalAmount += $price * $quantity;
+        $totalOriginalAmount += $originalPrice * $quantity;
     }
+    $totalSavings = $totalOriginalAmount - $totalAmount;
     
     // Generate unique checkout token to prevent form caching issues
     $checkoutToken = bin2hex(random_bytes(16));
@@ -161,29 +168,37 @@ try {
                         <?php foreach ($cartItems as $item): ?>
                         <tr>
                             <td class="product-name">
-                                <?php 
-                                // Debug: log image value
-                                $imageUrl = $item['image'] ?? '';
-                                // error_log('Checkout image: ' . var_export($item, true));
-                                if (!empty($imageUrl)) {
-                                    $fullImageUrl = img_url($imageUrl);
-                                    echo '<img src="' . $fullImageUrl . '" style="width: 50px; margin-right: 10px; vertical-align: middle; object-fit: cover; border-radius: 4px;" alt="' . htmlspecialchars($item['name']) . '" onerror="this.src=\'assets/images/no-image.png\';">';
-                                } else {
-                                    // Hiển thị ảnh mặc định
-                                    echo '<img src="assets/images/no-image.png" style="width: 50px; margin-right: 10px; vertical-align: middle; object-fit: cover; border-radius: 4px;" alt="No image">';
-                                }
-                                ?>
+                                <img src="<?php echo htmlspecialchars($item['image']); ?>" style="width: 50px; height: 50px; margin-right: 10px; vertical-align: middle; object-fit: cover; border-radius: 4px;" alt="<?php echo htmlspecialchars($item['name']); ?>" onerror="this.src='<?php echo base_url(); ?>assets/images/home/no-image.png';">
                                 <?php echo htmlspecialchars($item['name']); ?>
                                 <?php if ($item['quantity'] > 1): ?>
                                     <span class="quantity"> × <?php echo $item['quantity']; ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td class="amount"><?php echo number_format($item['price'] * $item['quantity'], 0, ',', '.'); ?>đ</td>
+                            <td class="amount">
+                                <?php if (!empty($item['original_price']) && $item['original_price'] > $item['price']): ?>
+                                    <span style="text-decoration: line-through; color: #9ca3af; font-size: 13px; margin-right: 8px; font-weight: normal;">
+                                        <?php echo number_format($item['original_price'] * $item['quantity'], 0, ',', '.'); ?>đ
+                                    </span>
+                                <?php endif; ?>
+                                <span style="font-weight: 600; color: #111827;">
+                                    <?php echo number_format($item['price'] * $item['quantity'], 0, ',', '.'); ?>đ
+                                </span>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
+                        <?php if ($totalSavings > 0): ?>
+                        <tr>
+                            <td>Tạm tính (Giá gốc)</td>
+                            <td class="amount" style="text-decoration: line-through; color: #9ca3af; font-size: 14px;"><?php echo number_format($totalOriginalAmount, 0, ',', '.'); ?>đ</td>
+                        </tr>
+                        <tr>
+                            <td>Tiết kiệm</td>
+                            <td class="amount" style="color: #28a745; font-size: 14px; font-weight: 500;">-<?php echo number_format($totalSavings, 0, ',', '.'); ?>đ</td>
+                        </tr>
+                        <?php endif; ?>
                         <tr>
                             <td><strong>Tổng cộng</strong></td>
-                            <td class="amount" style="font-size: 18px; color: #d32f2f;"><?php echo number_format($totalAmount, 0, ',', '.'); ?>đ</td>
+                            <td class="amount" style="font-size: 18px; color: #d32f2f; font-weight: bold;"><?php echo number_format($totalAmount, 0, ',', '.'); ?>đ</td>
                         </tr>
                     </tbody>
                 </table>

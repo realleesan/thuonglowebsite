@@ -1857,8 +1857,15 @@ class AdminService extends BaseService
             $ordersSql = "
                 SELECT o.*, u.name as user_name, u.email as user_email,
                        oi.product_name, oi.product_id, oi.price as product_price,
+                       oi.quantity,
                        p.image as product_image, p.category_id,
-                       c.name as category_name,
+                       p.price as product_original_price,
+                       p.sale_price as product_sale_price,
+                       CASE 
+                           WHEN (SELECT COUNT(*) FROM product_categories pc WHERE pc.product_id = p.id) > 1 
+                           THEN 'Nhiều danh mục'
+                           ELSE COALESCE(c.name, '')
+                       END as category_name,
                        COUNT(oi.id) as items_count
                 FROM orders o
                 LEFT JOIN users u ON o.user_id = u.id
@@ -1919,7 +1926,8 @@ class AdminService extends BaseService
                     $itemsSql = "
                         SELECT oi.*, p.name as product_name, p.image as product_image, 
                                p.description as product_description, p.status as product_status,
-                               p.price as product_price, p.category_id, c.name as category_name
+                               p.price as product_price, p.sale_price as product_sale_price,
+                               p.category_id, c.name as category_name
                         FROM order_items oi
                         LEFT JOIN products p ON oi.product_id = p.id
                         LEFT JOIN categories c ON p.category_id = c.id

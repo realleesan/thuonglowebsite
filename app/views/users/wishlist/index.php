@@ -61,18 +61,17 @@ try {
                     <?php foreach ($wishlistItems as $item): ?>
                     <div class="wishlist-item" data-item-id="<?php echo $item['id']; ?>">
                         <div class="wishlist-item-image">
-                            <?php if (!empty($item['image'])): ?>
-                                <?php $imageUrl = (strpos($item['image'], 'http') === 0) ? $item['image'] : ($item['image'] ?? ''); ?>
-                                <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
-                            <?php else: ?>
-                                <div class="wishlist-item-placeholder">
-                                    <i class="fas fa-image"></i>
-                                </div>
-                            <?php endif; ?>
+                            <a href="?page=details&id=<?php echo $item['product_id']; ?>">
+                                <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" onerror="this.src='<?php echo base_url(); ?>assets/images/home/no-image.png'">
+                            </a>
                         </div>
                         
                         <div class="wishlist-item-details">
-                            <h4><?php echo htmlspecialchars($item['name']); ?></h4>
+                            <h4>
+                                <a href="?page=details&id=<?php echo $item['product_id']; ?>">
+                                    <?php echo htmlspecialchars($item['name']); ?>
+                                </a>
+                            </h4>
                             <?php if (!empty($item['short_description'])): ?>
                             <p class="wishlist-item-description"><?php echo htmlspecialchars($item['short_description']); ?></p>
                             <?php endif; ?>

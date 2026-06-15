@@ -346,31 +346,102 @@ if (!function_exists('icon_url')) {
     }
 }
 
+if (!function_exists('resolve_image_path')) {
+    /**
+     * Helper to resolve image path - handles both absolute external URLs and relative local paths.
+     * Checks if local file exists before returning.
+     * 
+     * @param string $path Image path from database
+     * @param string $fallback Fallback image relative to images/
+     * @return string Full image URL
+     */
+    function resolve_image_path($path, $fallback = 'home/no-image.png') {
+        if (empty($path)) {
+            return img_url($fallback);
+        }
+        
+        // Check if it's an absolute external URL
+        if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
+            // Block thimpress and unsplash external placeholders
+            if (strpos($path, 'thimpress.com') !== false || strpos($path, 'unsplash.com') !== false) {
+                return img_url($fallback);
+            }
+            return $path;
+        }
+        
+        // It's a relative local path. Normalize by removing leading slash.
+        $cleanPath = ltrim($path, '/');
+        
+        $projectRoot = dirname(__DIR__);
+        
+        // Check Location 1: root-relative
+        $file1 = $projectRoot . '/' . $cleanPath;
+        if (file_exists($file1) && is_file($file1)) {
+            return base_url($cleanPath);
+        }
+        
+        // Check Location 2: assets-relative
+        $file2 = $projectRoot . '/assets/' . $cleanPath;
+        if (file_exists($file2) && is_file($file2)) {
+            return base_url('assets/' . $cleanPath);
+        }
+        
+        // Check Location 3: images-relative
+        $file3 = $projectRoot . '/assets/images/' . $cleanPath;
+        if (file_exists($file3) && is_file($file3)) {
+            return base_url('assets/images/' . $cleanPath);
+        }
+        
+        // Fallback to designated local asset
+        return img_url($fallback);
+    }
+}
+
 if (!function_exists('getProductImage')) {
     /**
      * Safely get product image URL with fallback
-     * @param array $product Product data
+     * @param array|string $product Product data or image path
      * @return string Image URL
      */
     function getProductImage($product) {
-        if (!empty($product['image']) && $product['image'] !== '/assets/images/default-product.jpg' && $product['image'] !== '/assets/images/home/home-banner-top.png') {
-            return $product['image'];
-        }
-        return img_url('home/home-banner-top.png');
+        $image = is_array($product) ? ($product['image'] ?? '') : $product;
+        return resolve_image_path($image, 'home/no-image.png');
     }
 }
 
 if (!function_exists('getCategoryImage')) {
     /**
      * Safely get category image URL with fallback
-     * @param array $category Category data
+     * @param array|string $category Category data or image path
      * @return string Image URL
      */
     function getCategoryImage($category) {
-        if (!empty($category['image']) && $category['image'] !== '/assets/images/default-category.jpg' && $category['image'] !== '/assets/images/home/cta-final.png') {
-            return $category['image'];
-        }
-        return img_url('home/cta-final.png');
+        $image = is_array($category) ? ($category['image'] ?? '') : $category;
+        return resolve_image_path($image, 'home/no-image.png');
+    }
+}
+
+if (!function_exists('getBrandImage')) {
+    /**
+     * Safely get brand image URL with fallback
+     * @param array|string $brand Brand data or image path
+     * @return string Image URL
+     */
+    function getBrandImage($brand) {
+        $image = is_array($brand) ? ($brand['image'] ?? '') : $brand;
+        return resolve_image_path($image, 'home/no-image.png');
+    }
+}
+
+if (!function_exists('getNewsImage')) {
+    /**
+     * Safely get news image URL with fallback
+     * @param array|string $news News data or image path
+     * @return string Image URL
+     */
+    function getNewsImage($news) {
+        $image = is_array($news) ? ($news['image'] ?? '') : $news;
+        return resolve_image_path($image, 'about/about_tt&tt_1.jpg');
     }
 }
 

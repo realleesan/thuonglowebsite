@@ -40,21 +40,24 @@ class DataTransformer {
         $catCount = $this->getProductCategoryCount($productId);
         $categoryName = $catCount > 1 ? 'Nhiều danh mục' : ($product['category_name'] ?? '');
         
+        $price = (float) ($product['price'] ?? 0);
+        $salePrice = ($product['sale_price'] && (float)$product['sale_price'] > 0 && (float)$product['sale_price'] < $price) ? (float) $product['sale_price'] : null;
+        
         return [
             'id' => $productId,
             'name' => $this->security->escapeHtml($product['name'] ?? ''),
             'slug' => $product['slug'] ?? '',
             'description' => $product['description'] ?? '',
-            'price' => (float) ($product['price'] ?? 0),
-            'sale_price' => $product['sale_price'] ? (float) $product['sale_price'] : null,
+            'price' => $price,
+            'sale_price' => $salePrice,
             'image' => $product['image'] ?? '/assets/images/default-product.jpg',
             'category_id' => (int) ($product['category_id'] ?? 0),
             'category_name' => $this->security->escapeHtml($categoryName),
             'status' => $product['status'] ?? 'active',
             'featured' => (bool) ($product['featured'] ?? false),
-            'formatted_price' => $this->security->formatMoney($product['price'] ?? 0),
-            'formatted_sale_price' => $product['sale_price'] ? $this->security->formatMoney($product['sale_price']) : null,
-            'discount_percent' => $this->calculateDiscountPercent($product['price'] ?? 0, $product['sale_price'] ?? null),
+            'formatted_price' => $this->security->formatMoney($price),
+            'formatted_sale_price' => $salePrice ? $this->security->formatMoney($salePrice) : null,
+            'discount_percent' => $this->calculateDiscountPercent($price, $salePrice),
             'short_description' => $this->security->escapeHtml($product['short_description'] ?? ''),
             'stock' => (int) ($product['stock'] ?? 0),
             'in_stock' => ($product['stock'] ?? 0) > 0,
@@ -257,6 +260,7 @@ class DataTransformer {
             'amount' => (float) ($order['total'] ?? 0),
             'formatted_total' => $this->security->formatMoney($order['total']),
             'user_name' => $this->security->escapeHtml($order['user_name'] ?? ''),
+            'user_email' => $this->security->escapeHtml($order['user_email'] ?? ''),
             'created_at' => $this->formatDate($order['created_at']),
             'date' => $order['created_at'] ?? date('Y-m-d H:i:s'),
             'status_label' => $this->getOrderStatusLabel($order['status']),
@@ -265,6 +269,8 @@ class DataTransformer {
             'type' => $orderType,
             'product_image' => $productImage,
             'product_id' => $order['product_id'] ?? null,
+            'product_price' => (float) ($order['product_price'] ?? 0),
+            'product_sale_price' => (float) ($order['product_sale_price'] ?? 0),
             'category_name' => $this->security->escapeHtml($categoryName),
             'expiry_date' => $expiryDate,
             'days_left' => $daysLeft,
@@ -272,7 +278,8 @@ class DataTransformer {
             'quota_total' => $quotaTotal,
             'quota_used' => $quotaUsed,
             'quota_remaining' => $quotaRemaining,
-            'has_quota' => $quotaTotal > 0
+            'has_quota' => $quotaTotal > 0,
+            'quantity' => (int) ($order['quantity'] ?? 1)
         ];
     }
     

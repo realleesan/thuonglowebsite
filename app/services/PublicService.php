@@ -863,7 +863,10 @@ class PublicService extends BaseService
                 );
 
                 if ($product) {
-                    $price = (float) ($product['sale_price'] ?? $product['price'] ?? 0);
+                    $price = (float) ($product['price'] ?? 0);
+                    if (!empty($product['sale_price']) && (float)$product['sale_price'] > 0 && (float)$product['sale_price'] < $price) {
+                        $price = (float)$product['sale_price'];
+                    }
                     $items[] = [
                         'id' => $product['id'],
                         'name' => $product['name'],
@@ -1291,7 +1294,7 @@ class PublicService extends BaseService
             $sql = "
                 SELECT p.* FROM products p
                 INNER JOIN sale_products_section_products ssp ON p.id = ssp.product_id
-                WHERE p.status = 'active' AND (p.sale_price IS NOT NULL AND p.sale_price > 0)
+                WHERE p.status = 'active' AND (p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price)
                 ORDER BY ssp.sort_order ASC, p.sale_price ASC
                 LIMIT ?
             ";

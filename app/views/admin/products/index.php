@@ -191,17 +191,7 @@ function getTypeLabel(string $type): string {
                     </div>
                 </div>
                 
-                <div class="filter-item">
-                    <label for="category">Danh mục:</label>
-                    <select id="category" name="category">
-                        <option value="">Tất cả danh mục</option>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?= $category['id'] ?>" <?= $category_filter == $category['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($category['name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                
                 
                 <div class="filter-item">
                     <label for="status">Trạng thái:</label>

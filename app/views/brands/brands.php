@@ -102,15 +102,7 @@ $totalPages = $pagination['last_page'] ?? 1;
 $fromCount = $pagination['from'] ?? 0;
 $toCount = $pagination['to'] ?? 0;
 
-// Helper function to get brand image
-if (!function_exists('getBrandImage')) {
-    function getBrandImage($brand) {
-        if (!empty($brand['image'])) {
-            return $brand['image'];
-        }
-        return 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg';
-    }
-}
+// getBrandImage is defined globally in core/functions.php
 
 // Helper function for sort options
 if (!function_exists('getBrandSortOptions')) {

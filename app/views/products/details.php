@@ -74,15 +74,7 @@ try {
     $errorMessage = $result['message'];
 }
 
-// Helper function to get product image
-if (!function_exists('getProductImage')) {
-    function getProductImage($product) {
-        if (!empty($product['image']) && file_exists($_SERVER['DOCUMENT_ROOT'] . $product['image'])) {
-            return $product['image'];
-        }
-        return '/assets/images/default-product.jpg';
-    }
-}
+// getProductImage is defined globally in core/functions.php
 
 // Helper function to format record count
 if (!function_exists('formatRecordCount')) {

@@ -157,20 +157,7 @@ try {
 }
 
 // Helper functions
-if (!function_exists('getNewsImage')) {
-    function getNewsImage($news) {
-        if (!empty($news['image'])) {
-            if (strpos($news['image'], '/') === 0) {
-                return $news['image'];
-            }
-            if (strpos($news['image'], 'http') === 0) {
-                return $news['image'];
-            }
-            return '/assets/images/' . $news['image'];
-        }
-        return '/assets/images/about/about_tt&tt_2.jpg';
-    }
-}
+// getNewsImage is defined globally in core/functions.php
 
 if (!function_exists('formatNewsDate')) {
     function formatNewsDate($date) {

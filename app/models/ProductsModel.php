@@ -167,12 +167,12 @@ class ProductsModel extends BaseModel {
         
         // Filter by price range
         if (!empty($filters['min_price'])) {
-            $sql .= " AND p.price >= :min_price";
+            $sql .= " AND (CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END) >= :min_price";
             $bindings['min_price'] = $filters['min_price'];
         }
         
         if (!empty($filters['max_price'])) {
-            $sql .= " AND p.price <= :max_price";
+            $sql .= " AND (CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END) <= :max_price";
             $bindings['max_price'] = $filters['max_price'];
         }
         
@@ -614,20 +614,21 @@ class ProductsModel extends BaseModel {
 
         // 3. Price type (free vs paid)
         if (!empty($filters['price_type'])) {
+            $effPriceSql = "(CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END)";
             if ($filters['price_type'] === 'free') {
-                $conditions[] = "(p.price = 0 OR p.sale_price = 0)";
+                $conditions[] = "{$effPriceSql} = 0";
             } elseif ($filters['price_type'] === 'paid') {
-                $conditions[] = "(p.price > 0 OR p.sale_price > 0)";
+                $conditions[] = "{$effPriceSql} > 0";
             }
         }
 
         // 4. Price range
         if (isset($filters['min_price']) && $filters['min_price'] !== '') {
-            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) >= :min_price";
+            $conditions[] = "(CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END) >= :min_price";
             $bindings['min_price'] = (float)$filters['min_price'];
         }
         if (isset($filters['max_price']) && $filters['max_price'] !== '') {
-            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) <= :max_price";
+            $conditions[] = "(CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END) <= :max_price";
             $bindings['max_price'] = (float)$filters['max_price'];
         }
 
@@ -715,20 +716,21 @@ class ProductsModel extends BaseModel {
 
         // 3. Price type (free vs paid)
         if (!empty($filters['price_type'])) {
+            $effPriceSql = "(CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END)";
             if ($filters['price_type'] === 'free') {
-                $conditions[] = "(p.price = 0 OR p.sale_price = 0)";
+                $conditions[] = "{$effPriceSql} = 0";
             } elseif ($filters['price_type'] === 'paid') {
-                $conditions[] = "(p.price > 0 OR p.sale_price > 0)";
+                $conditions[] = "{$effPriceSql} > 0";
             }
         }
 
         // 4. Price range
         if (isset($filters['min_price']) && $filters['min_price'] !== '') {
-            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) >= :min_price";
+            $conditions[] = "(CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END) >= :min_price";
             $bindings['min_price'] = (float)$filters['min_price'];
         }
         if (isset($filters['max_price']) && $filters['max_price'] !== '') {
-            $conditions[] = "(CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END) <= :max_price";
+            $conditions[] = "(CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END) <= :max_price";
             $bindings['max_price'] = (float)$filters['max_price'];
         }
 
@@ -756,11 +758,11 @@ class ProductsModel extends BaseModel {
         switch ($orderBy) {
             case 'price_asc':
             case 'price_low':
-                $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END ASC";
+                $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END ASC";
                 break;
             case 'price_desc':
             case 'price':
-                $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 THEN p.sale_price ELSE p.price END DESC";
+                $orderClause = "ORDER BY CASE WHEN p.sale_price > 0 AND p.sale_price < p.price THEN p.sale_price ELSE p.price END DESC";
                 break;
             case 'title_asc':
             case 'post_title':

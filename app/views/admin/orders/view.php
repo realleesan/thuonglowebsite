@@ -239,14 +239,26 @@ $timeline = generateOrderTimeline($order);
                                         <div class="no-thumb"><i class="fas fa-image"></i></div>
                                     <?php endif; ?>
                                 </div>
+                                <?php 
+                                    // Use effective price: sale_price if available, else original price
+                                    $itemOriginalPrice = (float)($item['product_price'] ?? $item['price'] ?? 0);
+                                    $itemSalePrice = (float)($item['product_sale_price'] ?? 0);
+                                    $itemEffectivePrice = ($itemSalePrice > 0 && $itemSalePrice < $itemOriginalPrice) ? $itemSalePrice : $itemOriginalPrice;
+                                    // If oi.price is set (the actual order item price), prefer that
+                                    $itemDisplayPrice = (float)($item['price'] ?? 0);
+                                    if ($itemDisplayPrice > 0) {
+                                        $itemEffectivePrice = $itemDisplayPrice;
+                                    }
+                                    $itemQty = (int)($item['quantity'] ?? 1);
+                                ?>
                                 <div class="product-details">
                                     <span class="product-name"><?= htmlspecialchars($item['product_name'] ?? 'Sản phẩm #' . $item['product_id']) ?></span>
                                     <span class="product-meta">
-                                        <?= formatPrice($item['product_price'] ?? $item['price'] ?? 0) ?> × <?= $item['quantity'] ?? 1 ?>
+                                        <?= formatPrice($itemEffectivePrice) ?> × <?= $itemQty ?>
                                     </span>
                                 </div>
                                 <div class="product-subtotal">
-                                    <?= formatPrice(($item['product_price'] ?? $item['price'] ?? 0) * ($item['quantity'] ?? 1)) ?>
+                                    <?= formatPrice($itemEffectivePrice * $itemQty) ?>
                                 </div>
                             </div>
                             <?php endforeach; ?>

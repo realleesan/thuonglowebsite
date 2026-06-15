@@ -198,25 +198,7 @@ try {
     $categories = [];
 }
 
-// Helper function to get news image
-if (!function_exists('getNewsImage')) {
-    function getNewsImage($news) {
-        if (!empty($news['image'])) {
-            // If image path starts with /, it's relative path
-            if (strpos($news['image'], '/') === 0) {
-                return $news['image'];
-            }
-            // If it's full URL, return as is
-            if (strpos($news['image'], 'http') === 0) {
-                return $news['image'];
-            }
-            // Otherwise, prepend /assets/images/
-            return '/assets/images/' . $news['image'];
-        }
-        // Default image
-        return '/assets/images/about/about_tt&tt_1.jpg';
-    }
-}
+// getNewsImage is defined globally in core/functions.php
 
 // Helper function to format date
 if (!function_exists('formatNewsDate')) {

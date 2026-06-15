@@ -84,19 +84,18 @@ try {
                         </div>
                         
                         <div class="cart-item-image">
-                            <?php if (!empty($item['image'])): ?>
-                                <?php $imageUrl = (strpos($item['image'], 'http') === 0) ? $item['image'] : ($item['image'] ?? ''); ?>
-                                <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
-                            <?php else: ?>
-                                <div class="cart-item-placeholder">
-                                    <i class="fas fa-image"></i>
-                                </div>
-                            <?php endif; ?>
+                            <a href="?page=details&id=<?php echo $item['product_id']; ?>">
+                                <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" onerror="this.src='<?php echo base_url(); ?>assets/images/home/no-image.png'">
+                            </a>
                         </div>
                         
                         <div class="cart-item-details">
                             <div class="cart-item-title-row">
-                                <h4><?php echo htmlspecialchars($item['name']); ?></h4>
+                                <h4>
+                                    <a href="?page=details&id=<?php echo $item['product_id']; ?>">
+                                        <?php echo htmlspecialchars($item['name']); ?>
+                                    </a>
+                                </h4>
                                 <div class="cart-item-select-mobile">
                                     <label class="cart-checkbox">
                                         <input type="checkbox" class="cart-item-checkbox" value="<?php echo $item['id']; ?>" data-price="<?php echo $item['price'] * $item['quantity']; ?>">

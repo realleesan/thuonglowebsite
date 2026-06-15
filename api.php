@@ -157,7 +157,9 @@ try {
                         exit;
                     }
                     
-                    $price = $product['price'] ?? 0;
+                    $price = ($product['sale_price'] && (float)$product['sale_price'] > 0 && (float)$product['sale_price'] < (float)$product['price']) 
+                        ? $product['sale_price'] 
+                        : ($product['price'] ?? 0);
                     
                     try {
                         $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);
@@ -820,7 +822,9 @@ try {
                     exit;
                 }
                 
-                $price = $product['price'] ?? 0;
+                $price = ($product['sale_price'] && (float)$product['sale_price'] > 0 && (float)$product['sale_price'] < (float)$product['price']) 
+                    ? $product['sale_price'] 
+                    : ($product['price'] ?? 0);
                 
                 try {
                     $result = $userService->addToCart($_SESSION['user_id'], $productId, $quantity, $price);

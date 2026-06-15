@@ -210,12 +210,7 @@ $activityLog = [
                             </div>
                         </div>
                         
-                        <div class="profile-info-item">
-                            <div class="profile-info-label">Địa chỉ</div>
-                            <div class="profile-info-value <?php echo empty($user['address']) ? 'empty' : ''; ?>">
-                                <?php echo !empty($user['address']) ? htmlspecialchars($user['address']) : 'Chưa cập nhật'; ?>
-                            </div>
-                        </div>
+                        
                         
                         <div class="profile-info-item">
                             <div class="profile-info-label">Cấp độ thành viên</div>

@@ -212,19 +212,20 @@ class OrdersModel extends BaseModel {
                 // Calculate expiry date
                 $expiryDate = null;
                 
+                $qty = isset($item['quantity']) ? (int)$item['quantity'] : 1;
                 if ($isRenewal && $userId && isset($item['product_id'])) {
                     // For renewal, extend the existing expiry date
                     $existingExpiry = $this->getProductExpiryDate($userId, $item['product_id']);
                     if ($existingExpiry) {
-                        // Add product's expiry days to existing expiry
-                        $expiryDate = date('Y-m-d H:i:s', strtotime($existingExpiry . ' +' . $expiryDays . ' days'));
+                        // Add product's expiry days multiplied by quantity to existing expiry
+                        $expiryDate = date('Y-m-d H:i:s', strtotime($existingExpiry . ' +' . ($expiryDays * $qty) . ' days'));
                     } else {
-                        // No existing expiry, start from now + product's expiry days
-                        $expiryDate = date('Y-m-d H:i:s', strtotime('+' . $expiryDays . ' days'));
+                        // No existing expiry, start from now + product's expiry days multiplied by quantity
+                        $expiryDate = date('Y-m-d H:i:s', strtotime('+' . ($expiryDays * $qty) . ' days'));
                     }
                 } else {
-                    // New purchase: expiry = now + product's expiry days
-                    $expiryDate = date('Y-m-d H:i:s', strtotime('+' . $expiryDays . ' days'));
+                    // New purchase: expiry = now + product's expiry days multiplied by quantity
+                    $expiryDate = date('Y-m-d H:i:s', strtotime('+' . ($expiryDays * $qty) . ' days'));
                 }
                 
                 $itemData = [
@@ -304,11 +305,16 @@ class OrdersModel extends BaseModel {
                    oi.product_id,
                    oi.expiry_date,
                    oi.used_quota,
+                   oi.quantity,
                    p.name as product_name_db,
                    p.image as product_image,
                    p.type as product_type_db,
                    p.quota as product_quota,
-                   c.name as category_name,
+                   CASE 
+                       WHEN (SELECT COUNT(*) FROM product_categories pc WHERE pc.product_id = p.id) > 1 
+                       THEN 'Nhiều danh mục'
+                       ELSE COALESCE(c.name, '')
+                   END as category_name,
                    COUNT(oi.id) as items_count
             FROM {$this->table} o
             LEFT JOIN order_items oi ON o.id = oi.order_id
@@ -454,7 +460,7 @@ class OrdersModel extends BaseModel {
     public function getProductQuotaInfo($userId, $productId) {
         $sql = "
             SELECT 
-                SUM(p.quota) as total_quota,
+                SUM(p.quota * oi.quantity) as total_quota,
                 SUM(COALESCE(oi.used_quota, 0)) as used_quota
             FROM {$this->table} o
             INNER JOIN order_items oi ON o.id = oi.order_id

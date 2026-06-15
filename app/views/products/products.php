@@ -297,15 +297,7 @@ try {
     $pagination = ['current_page' => 1, 'total' => 0, 'last_page' => 1];
 }
 
-// Helper function to get product image
-if (!function_exists('getProductImage')) {
-    function getProductImage($product) {
-        if (!empty($product['image']) && $product['image'] !== '/assets/images/default-product.jpg') {
-            return $product['image'];
-        }
-        return 'https://eduma.thimpress.com/demo-marketplace/wp-content/uploads/sites/99/2024/10/course-offline-01-675x450.jpg';
-    }
-}
+// getProductImage is defined globally in core/functions.php
 
 // Helper function to get sort options
 if (!function_exists('getSortOptions')) {

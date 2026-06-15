@@ -303,22 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <!-- Danger Zone -->
-                <div class="profile-card">
-                    <div class="profile-card-header">
-                        <h3>Vùng nguy hiểm</h3>
-                    </div>
-                    <div class="profile-card-content">
-                        <div class="delete-account-section">
-                            <h3>Xóa tài khoản</h3>
-                            <p>Khi bạn xóa tài khoản, tất cả dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục. Hãy chắc chắn về quyết định này.</p>
-                            <a href="?page=users&module=account&action=delete" class="account-btn account-btn-danger delete-account-btn">
-                                <i class="fas fa-trash"></i>
-                                Xóa tài khoản
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
