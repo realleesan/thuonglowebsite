@@ -836,8 +836,17 @@ class AdminService extends BaseService
             }
 
             if (!empty($filters['category_id'])) {
-                $conditions[] = "p.category_id = ?";
-                $bindings[] = $filters['category_id'];
+                $catIds = is_array($filters['category_id']) ? $filters['category_id'] : [$filters['category_id']];
+                $catIds = array_map('intval', array_filter($catIds));
+                if (!empty($catIds)) {
+                    $placeholders1 = implode(',', array_fill(0, count($catIds), '?'));
+                    $placeholders2 = implode(',', array_fill(0, count($catIds), '?'));
+                    $conditions[] = "(p.category_id IN ({$placeholders1}) OR EXISTS (
+                        SELECT 1 FROM product_categories pc 
+                        WHERE pc.product_id = p.id AND pc.category_id IN ({$placeholders2})
+                    ))";
+                    $bindings = array_merge($bindings, $catIds, $catIds);
+                }
             }
 
             if (!empty($filters['status'])) {

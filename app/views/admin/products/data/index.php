@@ -4,9 +4,27 @@
  * Flow: Product List -> Select Product -> Data Management
  */
 
+// Load AdminService and DataTransformer safely
+try {
+    $servicePath = dirname(dirname(dirname(dirname(__DIR__)))) . '/services/AdminService.php';
+    if (file_exists($servicePath)) {
+        require_once $servicePath;
+        $adminService = new AdminService();
+    }
+} catch (Exception $e) {
+    error_log('AdminService load error: ' . $e->getMessage());
+}
+
 // Get parameters from URL
 $search = $_GET['search'] ?? '';
-$categoryFilter = (int)($_GET['category'] ?? 0);
+
+// Support both category_ids (array) and category (single ID, for backwards compatibility)
+$category_filter = $_GET['category_ids'] ?? ($_GET['category'] ?? []);
+if (!is_array($category_filter)) {
+    $category_filter = !empty($category_filter) ? [$category_filter] : [];
+}
+$selected_category_ids = array_map('intval', array_filter($category_filter));
+
 $selectedProductId = (int)($_GET['id'] ?? 0); // Using 'id' parameter for selected product
 $page = max(1, (int)($_GET['p'] ?? $_GET['page'] ?? 1));
 $activeTab = $_GET['tab'] ?? 'manual';
@@ -41,10 +59,15 @@ try {
         $productDataModel = new ProductDataModel();
     }
     
-    // Get categories
-    if (isset($categoriesModel)) {
+    // Get categories hierarchy
+    if (isset($adminService)) {
+        $categories = $adminService->getParentCategoriesForDropdown();
+    } elseif (isset($categoriesModel)) {
         $categories = $categoriesModel->getActive();
     }
+    
+    // Instantiate transformer
+    $transformer = new DataTransformer();
     
     // If no product selected, show product list
     if ($selectedProductId === 0) {
@@ -64,15 +87,30 @@ try {
                 $params[] = "%{$search}%";
             }
 
-            if ($categoryFilter > 0) {
-                $productsQuery .= " AND p.category_id = ?";
-                $countQuery .= " AND p.category_id = ?";
-                $params[] = $categoryFilter;
+            if (!empty($selected_category_ids)) {
+                $placeholders1 = implode(',', array_fill(0, count($selected_category_ids), '?'));
+                $placeholders2 = implode(',', array_fill(0, count($selected_category_ids), '?'));
+                
+                $clause = " AND (p.category_id IN ({$placeholders1}) OR EXISTS (
+                    SELECT 1 FROM product_categories pc 
+                    WHERE pc.product_id = p.id AND pc.category_id IN ({$placeholders2})
+                ))";
+                
+                $productsQuery .= $clause;
+                $countQuery .= $clause;
+                
+                $params = array_merge($params, $selected_category_ids, $selected_category_ids);
             }
 
             $productsQuery .= " ORDER BY p.id DESC LIMIT {$perPage} OFFSET " . (($page - 1) * $perPage);
             
-            $products = $productsModel->query($productsQuery, $params);
+            $rawProducts = $productsModel->query($productsQuery, $params);
+            $products = [];
+            if (!empty($rawProducts)) {
+                foreach ($rawProducts as $prod) {
+                    $products[] = $transformer->transformProduct($prod);
+                }
+            }
             
             // Get total
             $countResult = $productsModel->query($countQuery, $params);
@@ -86,7 +124,7 @@ try {
                                                         FROM products p 
                                                         LEFT JOIN categories c ON p.category_id = c.id 
                                                         WHERE p.id = ?", [$selectedProductId]);
-            $selectedProduct = !empty($selectedProducts) ? $selectedProducts[0] : null;
+            $selectedProduct = !empty($selectedProducts) ? $transformer->transformProduct($selectedProducts[0]) : null;
             
             if ($selectedProduct && isset($productDataModel)) {
                 $dataCount = $productDataModel->countByProduct($selectedProductId);
@@ -333,26 +371,52 @@ function getProductDataCount($productId) {
     <div class="section products-panel">
         
         <!-- Search & Filter -->
-        <div class="filter-section">
-            <form method="GET" action="" class="filter-form">
+        <div class="filters-section" style="margin-bottom: 20px; background: #fff; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <form method="GET" action="" class="filters-form">
                 <input type="hidden" name="page" value="admin">
                 <input type="hidden" name="module" value="products">
                 <input type="hidden" name="action" value="data">
                 
-                <div class="filter-row">
-                    <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." 
-                           value="<?= htmlspecialchars($search) ?>" class="search-input">
-                    <select name="category" class="category-select">
-                        <option value="">Tất cả danh mục</option>
-                        <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $cat['id'] ?>" <?= $categoryFilter == $cat['id'] ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($cat['name']) ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i>
-                    </button>
+                <div class="filter-group" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="filter-item filter-search" style="flex: 1; min-width: 200px;">
+                        <label for="search" style="display: block; font-size: 13px; font-weight: 500; color: #4b5563; margin-bottom: 6px;">Tìm kiếm sản phẩm:</label>
+                        <div class="search-input-wrapper">
+                            <input type="text" id="search" name="search" placeholder="Tên sản phẩm, SKU..." 
+                                   value="<?= htmlspecialchars($search) ?>" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-item filter-category" style="width: 280px; min-width: 200px;">
+                        <label style="display: block; font-size: 13px; font-weight: 500; color: #4b5563; margin-bottom: 6px;">Danh mục:</label>
+                        <div class="category-select-dropdown">
+                            <div class="category-select-header" id="filter-category-select-header">
+                                <span id="filter-selected-categories-label">Chọn danh mục</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="category-select-options" id="filter-category-options-list">
+                                <?php foreach ($categories as $category): ?>
+                                    <div class="category-option-item" style="padding-left: <?= (($category['level'] ?? 0) * 16) + 12 ?>px;">
+                                        <label class="category-checkbox-label">
+                                            <input type="checkbox" name="category_ids[]" value="<?= $category['id'] ?>"
+                                                   class="filter-category-checkbox"
+                                                   data-name="<?= htmlspecialchars(trim(ltrim($category['name'], '— '))) ?>"
+                                                   <?= (in_array($category['id'], $selected_category_ids ?? [])) ? 'checked' : '' ?>>
+                                            <span><?= htmlspecialchars($category['name']) ?></span>
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions" style="display: flex; gap: 8px;">
+                        <button type="submit" class="btn btn-primary" style="height: 42px; padding: 0 16px;">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                        <a href="?page=admin&module=products&action=data" class="btn btn-outline" style="height: 42px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                            <i class="fas fa-redo"></i>
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -421,7 +485,7 @@ function getProductDataCount($productId) {
         <div class="pagination-container">
             <div class="pagination">
                 <?php if ($page > 1): ?>
-                    <a href="?page=admin&module=products&action=data&p=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
+                    <a href="?<?= http_build_query(array_merge($_GET, ['p' => $page - 1])) ?>" 
                        class="pagination-btn">
                         <i class="fas fa-chevron-left"></i>
                         Trước
@@ -433,12 +497,12 @@ function getProductDataCount($productId) {
                 $end_page = min($totalPages, $page + 2);
                 
                 for ($i = $start_page; $i <= $end_page; $i++): ?>
-                    <a href="?page=admin&module=products&action=data&p=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
+                    <a href="?<?= http_build_query(array_merge($_GET, ['p' => $i])) ?>" 
                        class="pagination-number <?= $i === $page ? 'active' : '' ?>"><?= $i ?></a>
                 <?php endfor; ?>
 
                 <?php if ($page < $totalPages): ?>
-                    <a href="?page=admin&module=products&action=data&p=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $categoryFilter ? '&category=' . $categoryFilter : '' ?>" 
+                    <a href="?<?= http_build_query(array_merge($_GET, ['p' => $page + 1])) ?>" 
                        class="pagination-btn">
                         Sau
                         <i class="fas fa-chevron-right"></i>
@@ -1243,6 +1307,52 @@ function closeQrModal(event) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeQrModal();
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var header = document.getElementById('filter-category-select-header');
+    var optionsList = document.getElementById('filter-category-options-list');
+    
+    if (header && optionsList) {
+        header.addEventListener('click', function(e) {
+            e.stopPropagation();
+            optionsList.classList.toggle('show');
+            header.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!header.contains(e.target) && !optionsList.contains(e.target)) {
+                optionsList.classList.remove('show');
+                header.classList.remove('active');
+            }
+        });
+        
+        window.updateFilterCategorySelectionText = function() {
+            var checkboxes = document.querySelectorAll('.filter-category-checkbox:checked');
+            var label = document.getElementById('filter-selected-categories-label');
+            
+            if (checkboxes.length === 0) {
+                label.textContent = 'Chọn danh mục';
+                label.style.color = '#9ca3af';
+            } else {
+                var names = [];
+                checkboxes.forEach(function(cb) {
+                    names.push(cb.getAttribute('data-name'));
+                });
+                label.textContent = names.join(', ');
+                label.style.color = '#374151';
+            }
+        };
+        
+        document.querySelectorAll('.filter-category-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', window.updateFilterCategorySelectionText);
+        });
+        
+        // Initial run
+        window.updateFilterCategorySelectionText();
     }
 });
 </script>

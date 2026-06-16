@@ -25,7 +25,14 @@ if (!$service) {
 
 // Get parameters
 $search = $_GET['search'] ?? '';
-$category_filter = $_GET['category'] ?? '';
+
+// Support both category_ids (array) and category (single ID, for backwards compatibility)
+$category_filter = $_GET['category_ids'] ?? ($_GET['category'] ?? []);
+if (!is_array($category_filter)) {
+    $category_filter = !empty($category_filter) ? [$category_filter] : [];
+}
+$selected_category_ids = array_map('intval', $category_filter);
+
 $status_filter = $_GET['status'] ?? '';
 $current_page = max(1, (int)($_GET['p'] ?? 1));
 $per_page = 15;
@@ -35,8 +42,8 @@ $filters = [];
 if (!empty($search)) {
     $filters['search'] = $search;
 }
-if (!empty($category_filter)) {
-    $filters['category_id'] = $category_filter;
+if (!empty($selected_category_ids)) {
+    $filters['category_id'] = $selected_category_ids;
 }
 if (!empty($status_filter)) {
     $filters['status'] = $status_filter;
@@ -56,9 +63,11 @@ try {
     
     // Extract data
     $products = $productsData['products'] ?? [];
-    $categories = $productsData['categories'] ?? [];
     $pagination = $productsData['pagination'] ?? [];
     $total = $productsData['total'] ?? 0;
+    
+    // Get hierarchical categories for filter dropdown using AdminService
+    $categories = $service->getParentCategoriesForDropdown();
     
 } catch (Exception $e) {
     // Handle errors gracefully
@@ -191,7 +200,28 @@ function getTypeLabel(string $type): string {
                     </div>
                 </div>
                 
-                
+                <div class="filter-item filter-category">
+                    <label>Danh mục:</label>
+                    <div class="category-select-dropdown">
+                        <div class="category-select-header" id="filter-category-select-header">
+                            <span id="filter-selected-categories-label">Chọn danh mục</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="category-select-options" id="filter-category-options-list">
+                            <?php foreach ($categories as $category): ?>
+                                <div class="category-option-item" style="padding-left: <?= (($category['level'] ?? 0) * 16) + 12 ?>px;">
+                                    <label class="category-checkbox-label">
+                                        <input type="checkbox" name="category_ids[]" value="<?= $category['id'] ?>"
+                                               class="filter-category-checkbox"
+                                               data-name="<?= htmlspecialchars(trim(ltrim($category['name'], '— '))) ?>"
+                                               <?= (in_array($category['id'], $selected_category_ids ?? [])) ? 'checked' : '' ?>>
+                                        <span><?= htmlspecialchars($category['name']) ?></span>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="filter-item">
                     <label for="status">Trạng thái:</label>
@@ -338,12 +368,12 @@ function getTypeLabel(string $type): string {
                 $end_page = min($total_pages, $current_page + 2);
                 
                 for ($i = $start_page; $i <= $end_page; $i++): ?>
-                    <a href="?page=admin&module=products&p=<?= $i ?>" 
+                    <a href="?page=admin&module=products&<?= http_build_query(array_merge($_GET, ['p' => $i])) ?>" 
                        class="pagination-number <?= $i == $current_page ? 'active' : '' ?>"><?= $i ?></a>
                 <?php endfor; ?>
 
                 <?php if ($current_page < $total_pages): ?>
-                    <a href="?page=admin&module=products&p=<?= $current_page + 1 ?>" 
+                    <a href="?page=admin&module=products&<?= http_build_query(array_merge($_GET, ['p' => $current_page + 1])) ?>" 
                        class="pagination-btn">
                         Sau
                         <i class="fas fa-chevron-right"></i>
@@ -464,6 +494,50 @@ function getTypeLabel(string $type): string {
 </style>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    var header = document.getElementById('filter-category-select-header');
+    var optionsList = document.getElementById('filter-category-options-list');
+    
+    if (header && optionsList) {
+        header.addEventListener('click', function(e) {
+            e.stopPropagation();
+            optionsList.classList.toggle('show');
+            header.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!header.contains(e.target) && !optionsList.contains(e.target)) {
+                optionsList.classList.remove('show');
+                header.classList.remove('active');
+            }
+        });
+        
+        window.updateFilterCategorySelectionText = function() {
+            var checkboxes = document.querySelectorAll('.filter-category-checkbox:checked');
+            var label = document.getElementById('filter-selected-categories-label');
+            
+            if (checkboxes.length === 0) {
+                label.textContent = 'Chọn danh mục';
+                label.style.color = '#9ca3af';
+            } else {
+                var names = [];
+                checkboxes.forEach(function(cb) {
+                    names.push(cb.getAttribute('data-name'));
+                });
+                label.textContent = names.join(', ');
+                label.style.color = '#374151';
+            }
+        };
+        
+        document.querySelectorAll('.filter-category-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', window.updateFilterCategorySelectionText);
+        });
+        
+        // Initial run
+        window.updateFilterCategorySelectionText();
+    }
+});
+
 window.showProductDeleteModal = function(id, name) {
     const modal = document.getElementById('productDeleteModal');
     const nameElement = document.getElementById('productDeleteName');

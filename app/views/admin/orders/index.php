@@ -199,16 +199,7 @@ function getPaymentMethodLabel($method) {
                     </select>
                 </div>
                 
-                <div class="filter-item">
-                    <label for="payment">Thanh toán:</label>
-                    <select id="payment" name="payment">
-                        <option value="">Tất cả phương thức</option>
-                        <option value="bank_transfer" <?= $payment_filter == 'bank_transfer' ? 'selected' : '' ?>>Chuyển khoản</option>
-                        <option value="momo" <?= $payment_filter == 'momo' ? 'selected' : '' ?>>MoMo</option>
-                        <option value="vnpay" <?= $payment_filter == 'vnpay' ? 'selected' : '' ?>>VNPay</option>
-                        <option value="cod" <?= $payment_filter == 'cod' ? 'selected' : '' ?>>COD</option>
-                    </select>
-                </div>
+                
                 
                 <div class="filter-item">
                     <label for="date_from">Từ ngày:</label>
@@ -251,7 +242,7 @@ function getPaymentMethodLabel($method) {
                     </th>
                     <th width="70">ID</th>
                     <th width="130">Khách hàng</th>
-                    <th width="60">Ảnh</th>
+                    <th style="width: 70px; min-width: 70px; max-width: 70px; text-align: center;">Ảnh</th>
                     <th>Sản phẩm</th>
                     <th width="110">Tổng tiền</th>
                     <th width="100">Thanh toán</th>
@@ -283,12 +274,12 @@ function getPaymentMethodLabel($method) {
                                     <p class="customer-email"><?= htmlspecialchars($order['user_email'] ?? 'N/A') ?></p>
                                 </div>
                             </td>
-                            <td>
+                            <td style="width: 70px; min-width: 70px; max-width: 70px; text-align: center;">
                                 <?php $productImage = $order['product_image'] ?? ''; ?>
                                 <?php if ($productImage): ?>
-                                    <img src="<?= htmlspecialchars($productImage) ?>" alt="Product" class="product-thumbnail" onerror="this.src='<?= asset_url('images/placeholder.jpg') ?>'">
+                                    <img src="<?= htmlspecialchars($productImage) ?>" alt="Product" class="product-thumbnail" onerror="this.src='<?= asset_url('images/placeholder.jpg') ?>'" style="display: block; margin: 0 auto;">
                                 <?php else: ?>
-                                    <span class="no-image"><i class="fas fa-image"></i></span>
+                                    <span class="no-image" style="display: inline-flex; margin: 0 auto;"><i class="fas fa-image"></i></span>
                                 <?php endif; ?>
                             </td>
                             <td>

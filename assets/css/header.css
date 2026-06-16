@@ -967,7 +967,8 @@ body {
     background-color: #f9fafb;
 }
 
-.btn-view-cart {
+.btn-view-cart,
+.dropdown-menu a.btn-view-cart {
     display: block;
     width: 100%;
     padding: 12px;
@@ -982,7 +983,8 @@ body {
     border: none;
 }
 
-.btn-view-cart:hover {
+.btn-view-cart:hover,
+.dropdown-menu a.btn-view-cart:hover {
     background-color: #000000 !important;
     color: white !important;
     text-decoration: none !important;

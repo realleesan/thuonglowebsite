@@ -130,9 +130,10 @@ if (!function_exists('formatRecordCount')) {
                             <div class="instructor-info">
                                 <span class="instructor-label">Nhà cung cấp:</span>
                                 <a href="#" class="instructor-link">
-                                    <?php if (!empty($supplier['avatar'])): ?>
-                                    <img src="<?php echo htmlspecialchars($supplier['avatar']); ?>" alt="<?php echo htmlspecialchars($supplier['name']); ?>" class="instructor-avatar">
-                                    <?php endif; ?>
+                                    <?php 
+                                    $supAvatar = !empty($supplier['avatar']) ? $supplier['avatar'] : img_url('home/home-banner-final.png');
+                                    ?>
+                                    <img src="<?php echo htmlspecialchars($supAvatar); ?>" alt="<?php echo htmlspecialchars($supplier['name']); ?>" class="instructor-avatar">
                                     <span class="instructor-name"><?php echo htmlspecialchars($supplier['name']); ?></span>
                                 </a>
                             </div>
@@ -293,7 +294,10 @@ if (!function_exists('formatRecordCount')) {
                                             <?php if ($supplier): ?>
                                             <div class="instructor-profile">
                                                 <div class="instructor-avatar-large">
-                                                    <img src="<?php echo htmlspecialchars($supplier['avatar'] ?? 'https://ui-avatars.com/api/?name=' . urlencode($supplier['name']) . '&background=356DF1&color=fff&size=150'); ?>" alt="<?php echo htmlspecialchars($supplier['name']); ?>">
+                                                    <?php 
+                                                    $supAvatarLarge = !empty($supplier['avatar']) ? $supplier['avatar'] : img_url('home/home-banner-final.png');
+                                                    ?>
+                                                    <img src="<?php echo htmlspecialchars($supAvatarLarge); ?>" alt="<?php echo htmlspecialchars($supplier['name']); ?>">
                                                 </div>
                                                 <div class="instructor-info-details">
                                                     <h4 class="instructor-name"><?php echo htmlspecialchars($supplier['name']); ?></h4>
